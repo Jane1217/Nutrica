@@ -1,0 +1,197 @@
+.auth-main {
+  max-width: 375px;
+  margin: 0 auto;
+  padding: 32px 0 0 0;
+}
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: #fff;
+  border-radius: 8px;
+  padding: 24px;
+  border: 1.5px solid #000;
+}
+.auth-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 16px;
+  text-align: center;
+}
+.auth-input {
+  width: 100%;
+  padding: 16px;
+  border: 1.5px solid #000;
+  border-radius: 4px;
+  font-size: 18px;
+  font-family: 'Inter', Arial, sans-serif;
+  margin-bottom: 0;
+  box-sizing: border-box;
+}
+.auth-btn {
+  width: 100%;
+  padding: 14px;
+  background: #000;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 8px;
+}
+.auth-error {
+  color: #e00;
+  font-size: 14px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+.auth-success {
+  color: #008800;
+  font-size: 15px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+.auth-bottom {
+  margin-top: 40px;
+  text-align: center;
+  font-size: 16px;
+  color: #000;
+  font-family: 'Inter', Arial, sans-serif;
+}
+.auth-link {
+  font-weight: bold;
+  text-decoration: underline;
+  cursor: pointer;
+  color: #000;
+}
+.auth-terms {
+  margin-top: 48px;
+  font-size: 14px;
+  color: #000;
+  text-align: left;
+  font-family: 'Inter', Arial, sans-serif;
+  max-width: 320px;
+}
+.account-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 32px;
+}
+.account-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 999px;
+  background: #767676;
+  color: #fff;
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 48px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  border: 1px solid #000;
+}
+.account-email {
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 24px;
+  text-align: center;
+}
+.account-btn {
+  width: 100%;
+  max-width: 343px;
+  min-width: 0;
+  margin: 0 auto 16px auto;
+  padding: 18px 16px;
+  border-radius: 8px;
+  border: 1.5px solid #000;
+  background: #fff;
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+.account-link {
+  color: #000;
+  font-weight: bold;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.account-footer {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 343px;
+  margin: 32px auto 0 auto;
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 16px;
+  color: #000;
+  border-top: 1px solid #888;
+  padding-top: 12px;
+}
+.tutorial-main {
+  max-width: 375px;
+  margin: 0 auto;
+  padding: 24px 0 0 0;
+}
+.tutorial-title {
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+.tutorial-tabs {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+.tutorial-tab {
+  position: relative;
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  color: #000;
+  cursor: pointer;
+  padding-bottom: 8px;
+}
+.tutorial-tab-active {
+  font-weight: 700;
+}
+.tutorial-indicator {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  width: 64px;
+  height: 4px;
+  background: #000;
+  border-radius: 2px;
+  display: block;
+}
+.tutorial-step {
+  margin-bottom: 32px;
+}
+.tutorial-step-title {
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.tutorial-step-desc {
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+.tutorial-img {
+  width: 100%;
+  height: 120px;
+  background: url('https://www.transparenttextures.com/patterns/checkerboard.png') lightgray 50% / cover no-repeat;
+  border-radius: 8px;
+  border: 1.5px solid #000;
+} 

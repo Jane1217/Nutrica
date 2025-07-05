@@ -1,0 +1,30 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', Arial, sans-serif;
+  background: #F6F6F6;
+}
+
+:root {
+  --main-radius: 8px;
+  --main-border: 1.5px solid #000;
+  --main-bg: #FFF;
+  --main-color: #000;
+}
+
+button {
+  font-family: inherit;
+  font-size: 16px;
+  border-radius: var(--main-radius);
+  border: var(--main-border);
+  background: var(--main-bg);
+  color: var(--main-color);
+  cursor: pointer;
+}
+
+input, textarea {
+  font-family: inherit;
+  font-size: 16px;
+}
+
+/* 只保留全局基础样式，业务样式请写在各自的 module.css 文件中 */

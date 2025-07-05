@@ -1,0 +1,90 @@
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.18);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  padding: 24px;
+  min-width: 320px;
+  max-width: 90vw;
+  min-height: 320px;
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.btn {
+  border: 1px solid #000;
+  background: #fff;
+  padding: 8px 0;
+  border-radius: 4px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-black {
+  background: #000;
+  color: #fff;
+  border: none;
+}
+
+.input {
+  border: 1px solid #000;
+  border-radius: 4px;
+  padding: 8px;
+  background: #F6F6F6;
+  font-weight: 500;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input-edit {
+  background: #fff;
+}
+
+.serving-btn {
+  flex: 1;
+  border: 1px solid #000;
+  background: #fff;
+  padding: 8px 0;
+  border-radius: 4px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.serving-btn-active {
+  border: 2px solid #000;
+  background: #EEE;
+}
+
+.nutrition-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.nutrition-label {
+  width: 80px;
+  font-weight: 700;
+}
+.nutrition-input {
+  flex: 1;
+  border: 1px solid #000;
+  border-radius: 4px;
+  padding: 6px 8px;
+  font-size: 15px;
+  background: #F6F6F6;
+}
+.nutrition-input-edit {
+  background: #fff;
+} 
