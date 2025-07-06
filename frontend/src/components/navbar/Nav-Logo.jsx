@@ -19,8 +19,8 @@ export default function NavLogo() {
         </svg>
       </div>
       <div style={{ display: 'flex', flexDirection: 'row' }}>
-        <button className={styles.left}><span className={styles.text}>Input</span></button>
-        <button className={styles.right}><span className={styles.text}>Scan +</span></button>
+        <button className={styles.left}><span className={`${styles.ctaBtn} h5`}>Input</span></button>
+        <button className={styles.right}><span className={`${styles.ctaBtn} h5`}>Scan +</span></button>
       </div>
     </div>
   );

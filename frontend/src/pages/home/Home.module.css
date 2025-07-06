@@ -1,11 +1,3 @@
-.home-root {
-  width: 100vw;
-  min-height: 100vh;
-  background: #F6F6F6;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-}
 .home-main {
   flex: 1;
   padding: 0 16px;
@@ -104,4 +96,7 @@
   font-size: 24px;
   color: #000;
   font-weight: 700;
+}
+.home-main :is(.h1, .h5, .body2, .label) {
+  color: #000;
 } 

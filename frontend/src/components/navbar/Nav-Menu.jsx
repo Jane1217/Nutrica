@@ -7,7 +7,7 @@ export default function NavMenu({ isLoggedIn, userEmail }) {
   const location = useLocation();
 
   const tabs = [
-    { name: 'Home', path: '/home' },
+    { name: 'Home', path: '/' },
     { name: 'Meals', path: '/meals' },
     { name: 'Goal', path: '/goal' }
   ];
@@ -29,30 +29,35 @@ export default function NavMenu({ isLoggedIn, userEmail }) {
     }
   };
 
+  // 判断tab是否高亮
+  const isTabSelected = (tab) => {
+    if (tab.path === '/') return location.pathname === '/';
+    return location.pathname.startsWith(tab.path);
+  };
+
   return (
     <div className={styles.navMenuRoot}>
-      <div style={{ display: 'flex', flexDirection: 'row' }}>
+      <div className={styles.tabWrap}>
         {tabs.map((tab) => {
-          const isSelected = location.pathname === tab.path;
           return (
             <button
               key={tab.name}
-              className={isSelected ? styles.menuItemSelected : styles.menuItem}
+              className={isTabSelected(tab) ? `${styles.tabItem} ${styles.tabSelected}` : styles.tabItem}
               onClick={() => handleTabClick(tab.path)}
             >
-              <span className={styles.text}>{tab.name}</span>
+              <span className="h4">{tab.name}</span>
             </button>
           );
         })}
       </div>
-      <div>
+      <div className={styles.authWrap}>
         {isLoggedIn ? (
-          <button className={styles.accountCircle} onClick={handleAuthClick}>
-            <span className={styles.T}>{getInitial(userEmail)}</span>
+          <button className={styles.avatarBtn} onClick={handleAuthClick}>
+            <span className={styles.avatarText}>{getInitial(userEmail)}</span>
           </button>
         ) : (
-          <button className={styles.button} onClick={handleAuthClick}>
-            <span className={styles.text}>Log In</span>
+          <button className={styles.loginBtn} onClick={handleAuthClick}>
+            <span className="h5">Log In</span>
           </button>
         )}
       </div>
