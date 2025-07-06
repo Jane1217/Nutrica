@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
 import { NavLogo } from '../../components/navbar';
+import InputField from '../../components/auth/InputField';
 import styles from './Auth.module.css';
+import '../../index.css';
 
 export default function LogIn({ onAuth }) {
   const [email, setEmail] = useState('');
@@ -27,35 +29,37 @@ export default function LogIn({ onAuth }) {
   };
 
   return (
-    <div>
-      <NavLogo />
-      <div className={styles['auth-main']}>
-        <form className={styles['auth-form']} onSubmit={handleLogin}>
-          <div className={styles['auth-title']}>Log In</div>
-          <input
-            className={styles['auth-input']}
+    <div className="app-root">
+      <NavLogo hideCtaButtons isAuth />
+      <main className={styles.loginMainContent}>
+        <header className={styles.loginHeader}>
+          <div className={`${styles.loginOverline1} h6`}>Welcome to Nutrica</div>
+          <div className={`${styles.loginOverline2} h1`}>Log In</div>
+        </header>
+        <div className={styles.inputWrapper}>
+          <InputField
+            label="Email"
             type="email"
-            placeholder="Email"
             value={email}
-            onChange={e => setEmail(e.target.value)}
-            required
+            onChange={setEmail}
+            error={null}
           />
-          <input
-            className={styles['auth-input']}
+          <InputField
+            label="Password"
             type="password"
-            placeholder="Password"
             value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
+            onChange={setPassword}
+            error={error || null}
           />
-          {error && <div className={styles['auth-error']}>{error}</div>}
-          <button className={styles['auth-btn']} type="submit">Log In</button>
-        </form>
-        <div className={styles['auth-bottom']}>
-          New to Nutrica?{' '}
-          <span className={styles['auth-link']} onClick={() => navigate('/sign-up')}>Create Free Account</span>
         </div>
-      </div>
+        <div className={styles.actionGroup}>
+          <button className={`${styles.loginBtn} h5`} onClick={e => { e.preventDefault(); handleLogin(e); }}>Log In</button>
+        </div>
+        <div className={styles.actionModule}>
+          <span className={`${styles.actionModuleText} body1`}>New to Nutrica?</span>
+          <button className={`${styles.actionModuleBtn} h5`} onClick={() => navigate('/sign-up')}>Create Free Account</button>
+        </div>
+      </main>
     </div>
   );
 } 

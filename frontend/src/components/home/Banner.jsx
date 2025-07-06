@@ -1,13 +1,19 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './Banner.module.css';
 import image11 from './images/image-11.png';
 import image14 from './images/image-14.png';
 
 export default function Banner() {
+  const navigate = useNavigate();
   console.log('Banner styles:', styles);
 
+  const handleBannerClick = () => {
+    navigate('/sign-up');
+  };
+
   return (
-    <div className={styles['banner-wrapper']}>
+    <div className={styles['banner-wrapper']} onClick={handleBannerClick} style={{ cursor: 'pointer' }}>
       <div className={styles['banner']}>
         <span className={`${styles.bannerText} body2`}>
           Sign up to save and access nutrition records across devices

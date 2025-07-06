@@ -195,3 +195,129 @@
   border-radius: 8px;
   border: 1.5px solid #000;
 }
+.signupMainContent {
+  display: flex;
+  width: 375px;
+  padding: 48px 16px;
+  flex-direction: column;
+  align-items: center;
+  gap: 36px;
+}
+.loginMainContent {
+  display: flex;
+  width: 375px;
+  padding: 48px 16px;
+  flex-direction: column;
+  align-items: center;
+  gap: 36px;
+}
+.signupHeader {
+  display: flex;
+  width: 233px;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.loginHeader {
+  display: flex;
+  width: 233px;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.signupOverline1 {
+  align-self: stretch;
+  color: #000;
+  text-align: center;
+}
+.loginOverline1 {
+  align-self: stretch;
+  color: #000;
+  text-align: center;
+}
+.signupOverline2 {
+  align-self: stretch;
+  color: #000;
+  text-align: center;
+}
+.loginOverline2 {
+  align-self: stretch;
+  color: #000;
+  text-align: center;
+}
+.inputWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+  align-self: stretch;
+  width: 100%;
+}
+.signupHintText {
+  color: var(--Neutral-Black, #000);
+  margin-top: 4px;
+}
+.actionGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+.signupBtn {
+  display: flex;
+  width: 200px;
+  height: 64px;
+  padding: 13px 21px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 8px;
+  background: var(--Brand-Dark, #2A4E14);
+  color: #FFF;
+  border: none;
+  cursor: pointer;
+}
+.loginBtn {
+  display: flex;
+  width: 200px;
+  height: 64px;
+  padding: 13px 21px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 8px;
+  background: var(--Brand-Dark, #2A4E14);
+  color: #FFF;
+  border: none;
+  cursor: pointer;
+}
+.signupTerms {
+  width: 240px;
+  color: #000;
+  text-align: center;
+  margin-top: 8px;
+}
+.termsBold {
+  color: #000;
+  font-weight: 700;
+}
+.actionModule {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 8px;
+  width: 100%;
+}
+.actionModuleText {
+  color: #000;
+  text-align: center;
+}
+.actionModuleBtn {
+  color: var(--Brand-Dark, #2A4E14);
+  text-align: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}

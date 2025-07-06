@@ -1,9 +1,9 @@
 import React from 'react';
 import styles from './Nav-Logo.module.css';
 
-export default function NavLogo() {
+export default function NavLogo({ hideCtaButtons = false, isAuth = false }) {
   return (
-    <div className={styles.navLogoRoot}>
+    <div className={isAuth ? styles.navLogoRootAuth : styles.navLogoRoot}>
       <div className={styles.logo}>
         {/* LOGO SVG */}
         <svg xmlns="http://www.w3.org/2000/svg" width="72" height="24" viewBox="0 0 72 24" fill="none">
@@ -18,10 +18,12 @@ export default function NavLogo() {
           <path d="M71.0625 0V2H47.0625V0H71.0625Z" fill="#2A4E14"/>
         </svg>
       </div>
-      <div style={{ display: 'flex', flexDirection: 'row' }}>
-        <button className={styles.left}><span className={`${styles.ctaBtn} h5`}>Input</span></button>
-        <button className={styles.right}><span className={`${styles.ctaBtn} h5`}>Scan +</span></button>
-      </div>
+      {!hideCtaButtons && (
+        <div style={{ display: 'flex', flexDirection: 'row' }}>
+          <button className={styles.left}><span className={`${styles.ctaBtn} h5`}>Input</span></button>
+          <button className={styles.right}><span className={`${styles.ctaBtn} h5`}>Scan +</span></button>
+        </div>
+      )}
     </div>
   );
 } 

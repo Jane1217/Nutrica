@@ -1,0 +1,47 @@
+.inputFieldRoot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 7px;
+  align-self: stretch;
+}
+.inputLabel {
+  align-self: stretch;
+  color: #000;
+}
+.inputFieldBox {
+  display: flex;
+  padding: 20px 16px;
+  align-items: center;
+  gap: 10px;
+  align-self: stretch;
+  border-radius: 8px;
+  border: 1px solid var(--neutral-black-10, rgba(0, 0, 0, 0.10));
+  background: #FFF;
+}
+.inputFieldInput {
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #000;
+  width: 100%;
+}
+.errorWrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  align-self: stretch;
+  min-height: 20px;
+}
+.errorIcon {
+  width: 20px;
+  height: 20px;
+  aspect-ratio: 1/1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.errorText {
+  flex: 1 0 0;
+  color: var(--Alert-Error, #E16A60);
+} 
