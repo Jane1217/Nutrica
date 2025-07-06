@@ -1,0 +1,52 @@
+.navLogoRoot {
+  display: flex;
+  padding: 8px 16px;
+  justify-content: space-between;
+  align-items: center;
+  align-self: stretch;
+}
+
+.logo {
+  width: 71.063px;
+  height: 24px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.left {
+  display: flex;
+  width: 80px;
+  padding: 12px 18px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 8px 0px 0px 8px;
+  border-right: 1px solid var(--Brand-Background, #EEF0EB);
+  background: var(--Brand-Dark, #2A4E14);
+  border: none;
+  cursor: pointer;
+}
+
+.right {
+  display: flex;
+  width: 80px;
+  padding: 12px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 0px 8px 8px 0px;
+  background: var(--Brand-Dark, #2A4E14);
+  border: none;
+  cursor: pointer;
+}
+
+.text {
+  color: var(--Brand-Background, #EEF0EB);
+  font-family: Inter;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 150%;
+  letter-spacing: -0.32px;
+} 
