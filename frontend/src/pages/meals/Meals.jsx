@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import NavBar from '../../components/navbar/NavBar';
+import { NavLogo, NavMenu } from '../../components/navbar';
 import DailyView from './Daily view';
 import WeeklyView from './Weekly view';
 import TodayView from './TodayView';
@@ -56,7 +56,8 @@ export default function Meals(props) {
 
   return (
     <>
-      <NavBar isLoggedIn={props.isLoggedIn} userEmail={props.userEmail} />
+      <NavLogo />
+      <NavMenu isLoggedIn={props.isLoggedIn} userEmail={props.userEmail} />
       <div className={styles['meals-root']}>
         <div className={styles['meals-main']}>
           {/* 大标题 */}

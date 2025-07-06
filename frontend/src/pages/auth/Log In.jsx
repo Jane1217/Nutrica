@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
-import NavBarSimple from '../../components/navbar/NavBarSimple';
+import { NavLogo } from '../../components/navbar';
 import styles from './Auth.module.css';
 
 export default function LogIn({ onAuth }) {
@@ -28,7 +28,7 @@ export default function LogIn({ onAuth }) {
 
   return (
     <div>
-      <NavBarSimple />
+      <NavLogo />
       <div className={styles['auth-main']}>
         <form className={styles['auth-form']} onSubmit={handleLogin}>
           <div className={styles['auth-title']}>Log In</div>

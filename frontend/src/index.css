@@ -1,30 +1,110 @@
+/* Brand colors */
+:root {
+  --Brand-Dark: #2A4E14;
+  --Brand-Light: #C6D9C6;
+  --Brand-Background: #EEF0EB;
+  --Neutral-Black: #000;
+  --neutral-black-60: rgba(0, 0, 0, 0.60);
+  --neutral-black-40: rgba(0, 0, 0, 0.40);
+  --neutral-black-10: rgba(0, 0, 0, 0.10);
+  --Accent-1: #F4E5BA;
+  --Accent-2: #D8E8E7;
+  --Accent-3: #D7E8D5;
+  --Accent-4: #E8D8E6;
+  --Alert-Success: #6FB977;
+  --Alert-Warning: #EEB85B;
+  --Alert-Error: #E16A60;
+}
+
 body {
   margin: 0;
   padding: 0;
   font-family: 'Inter', Arial, sans-serif;
-  background: #F6F6F6;
+  background: var(--Brand-Background, #EEF0EB);
+  color: var(--Neutral-Black, #000);
 }
 
-:root {
-  --main-radius: 8px;
-  --main-border: 1.5px solid #000;
-  --main-bg: #FFF;
-  --main-color: #000;
+/* Typography */
+.h1 {
+  font-family: Inter;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 150%;
+  letter-spacing: -0.48px;
 }
-
-button {
-  font-family: inherit;
+.h2 {
+  font-family: Inter;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 150%;
+  letter-spacing: -0.36px;
+}
+.h3 {
+  font-family: Inter;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 150%;
+  letter-spacing: -0.36px;
+}
+.h4 {
+  font-family: Inter;
   font-size: 16px;
-  border-radius: var(--main-radius);
-  border: var(--main-border);
-  background: var(--main-bg);
-  color: var(--main-color);
-  cursor: pointer;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 150%;
+  letter-spacing: -0.32px;
 }
-
-input, textarea {
-  font-family: inherit;
+.h5 {
+  font-family: Inter;
   font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 150%;
+  letter-spacing: -0.32px;
+}
+.h6 {
+  font-family: Inter;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 150%;
+  letter-spacing: -0.28px;
+}
+.body1 {
+  font-family: Inter;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 150%;
+  letter-spacing: -0.32px;
+}
+.body2 {
+  font-family: Inter;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 150%;
+  letter-spacing: -0.28px;
+}
+.label {
+  font-family: Inter;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 150%;
+  letter-spacing: -0.24px;
 }
 
-/* 只保留全局基础样式，业务样式请写在各自的 module.css 文件中 */
+/* 只保留全局基础样式，业务样式写在各自的 module.css 文件中 */
+
+.app-root {
+  width: 100vw;
+  background: #EEF0EB;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
