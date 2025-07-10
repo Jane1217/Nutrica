@@ -17,6 +17,20 @@
   border-bottom: 1px solid var(--neutral-black-10, rgba(0, 0, 0, 0.10));
 }
 
+.group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.menu {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
 .logo {
   width: 71.063px;
   height: 24px;
@@ -25,28 +39,14 @@
   align-items: center;
 }
 
-.left {
-  display: flex;
-  width: 80px;
-  padding: 12px 18px;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  border-radius: 8px 0px 0px 8px;
-  border-right: 1px solid var(--Brand-Background, #EEF0EB);
-  background: var(--Brand-Dark, #2A4E14);
-  border: none;
-  cursor: pointer;
-}
-
-.right {
+.singleButton {
   display: flex;
   width: 80px;
   padding: 12px;
   justify-content: center;
   align-items: center;
   gap: 10px;
-  border-radius: 0px 8px 8px 0px;
+  border-radius: 16px;
   background: var(--Brand-Dark, #2A4E14);
   border: none;
   cursor: pointer;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLogo, NavMenu } from '../../components/navbar';
+import { NavLogo } from '../../components/navbar';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
 import styles from './Auth.module.css';
@@ -17,7 +17,6 @@ export default function AccountSettings({ userEmail }) {
   return (
     <div className="home-root">
       <NavLogo />
-      <NavMenu isLoggedIn={isLoggedIn} userEmail={userEmail} />
       <div className={styles['account-main']}>
         <div className={styles['account-avatar']}>{initial}</div>
         <div className={styles['account-email']}>{userEmail}</div>

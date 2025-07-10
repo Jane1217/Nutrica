@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLogo, NavMenu } from '../../components/navbar';
+import { NavLogo } from '../../components/navbar';
 import styles from './Auth.module.css';
 
 const tabs = ['Safari', 'Chrome', 'Edge', 'Other'];
@@ -9,7 +9,6 @@ export default function Tutorials({ isLoggedIn, userEmail }) {
   return (
     <div className="home-root">
       <NavLogo />
-      <NavMenu isLoggedIn={isLoggedIn} userEmail={userEmail} />
       <div className={styles['tutorial-main']}>
         <div className={styles['tutorial-title']}>Camera Permission Helper</div>
         <div className={styles['tutorial-tabs']}>
