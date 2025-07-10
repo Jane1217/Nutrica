@@ -1,5 +1,5 @@
 import React from 'react';
-import NavBar from '../../components/navbar/NavBar';
+import { NavLogo } from '../../components/navbar';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
 import styles from './Auth.module.css';
@@ -7,6 +7,7 @@ import styles from './Auth.module.css';
 export default function AccountSettings({ userEmail }) {
   const navigate = useNavigate();
   const initial = userEmail ? userEmail[0].toUpperCase() : '';
+  const isLoggedIn = !!userEmail;
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -15,7 +16,7 @@ export default function AccountSettings({ userEmail }) {
 
   return (
     <div className="home-root">
-      <NavBar isLoggedIn={true} userEmail={userEmail} />
+      <NavLogo />
       <div className={styles['account-main']}>
         <div className={styles['account-avatar']}>{initial}</div>
         <div className={styles['account-email']}>{userEmail}</div>
