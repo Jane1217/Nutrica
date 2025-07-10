@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
-import NavBarSimple from '../../components/navbar/NavBarSimple';
+import { NavLogo } from '../../components/navbar';
+import InputField from '../../components/auth/InputField';
 import styles from './Auth.module.css';
+import '../../index.css';
 
 export default function SignUp({ onAuth }) {
   const [email, setEmail] = useState('');
@@ -15,24 +17,17 @@ export default function SignUp({ onAuth }) {
     e.preventDefault();
     setError('');
     setSuccess('');
-    
     try {
-      // 使用 RPC 函数检查邮箱是否存在
       const { data: emailExists, error: rpcError } = await supabase.rpc('check_email_exists', {
         email_to_check: email
       });
-      
       if (rpcError) {
         console.error('RPC function error:', rpcError);
-        // 如果 RPC 函数失败，继续注册流程
       } else if (emailExists) {
         setError('Email already registered.');
         return;
       }
-      
-      // 邮箱不存在，继续注册流程
       const { data, error } = await supabase.auth.signUp({ email, password });
-      
       if (error) {
         setError(error.message);
       } else {
@@ -45,39 +40,41 @@ export default function SignUp({ onAuth }) {
   };
 
   return (
-    <div>
-      <NavBarSimple />
-      <div className={styles['auth-main']}>
-        <form className={styles['auth-form']} onSubmit={handleSignup}>
-          <div className={styles['auth-title']}>Create Free Account</div>
-          <input
-            className={styles['auth-input']}
+    <div className="app-root">
+      <NavLogo hideCtaButtons isAuth />
+      <main className={styles.signupMainContent}>
+        <header className={styles.signupHeader}>
+          <div className={`${styles.signupOverline1} h6`}>Welcome to Nutrica</div>
+          <div className={`${styles.signupOverline2} h1`}>Create Free Account</div>
+        </header>
+        <div className={styles.inputWrapper}>
+          <InputField
+            label="Email"
             type="email"
-            placeholder="Email"
             value={email}
-            onChange={e => setEmail(e.target.value)}
-            required
+            onChange={setEmail}
+            error={null}
           />
-          <input
-            className={styles['auth-input']}
+          <InputField
+            label="Password"
             type="password"
-            placeholder="Password"
             value={password}
-            onChange={e => setPassword(e.target.value)}
-            required
+            onChange={setPassword}
+            error={error ? "Password doesn't meet requirements" : null}
           />
-          {error && <div className={styles['auth-error']}>{error}</div>}
-          {success && <div className={styles['auth-success']}>{success}</div>}
-          <button className={styles['auth-btn']} type="submit">Create Account</button>
-        </form>
-        <div className={styles['auth-bottom']}>
-          Already having an account?{' '}
-          <span className={styles['auth-link']} onClick={() => navigate('/log-in')}>Log in</span>
+          <div className={`${styles.signupHintText} body2`}>Password must be at least 8 characters and contain letters and numbers</div>
         </div>
-        <div className={styles['auth-terms']}>
-          By creating an account, you agree to our <span className={styles['auth-link']}>Terms of Use</span>
+        <div className={styles.actionGroup}>
+          <button className={`${styles.signupBtn} h5`} onClick={e => { e.preventDefault(); handleSignup(e); }}>Create Account</button>
+          <div className={`${styles.signupTerms} body2`}>
+            By creating an account, you agree to our <span className={styles.termsBold}>Terms of Use</span>
+          </div>
         </div>
-      </div>
+        <div className={styles.actionModule}>
+          <span className={`${styles.actionModuleText} body1`}>Already having an account?</span>
+          <button className={`${styles.actionModuleBtn} h5`} onClick={() => navigate('/log-in')}>Log in</button>
+        </div>
+      </main>
     </div>
   );
 } 
