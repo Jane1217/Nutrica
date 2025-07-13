@@ -18,9 +18,10 @@ export default function AccountSettings({ userEmail }) {
   };
 
   return (
-    <div className={styles['account-main']}>
+    <>
       <NavLogo onEatClick={() => setShowEatModal(true)} />
-      <h1 className={styles['account-title']}>Account</h1>
+      <div className={styles['account-main']}>
+        <h1 className={styles['account-title']}>Account</h1>
       <div className={styles['account-avatar']}>{initial}</div>
       <div className={styles['account-nickname']}>{nickname}</div>
       <div className={styles['account-email']}>{userEmail}</div>
@@ -69,6 +70,7 @@ export default function AccountSettings({ userEmail }) {
           onEnterValue={() => {}}
         />
       )}
-    </div>
+      </div>
+    </>
   );
 }
