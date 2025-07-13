@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/home/home';
 import LogIn from './pages/auth/Log In';
 import SignUp from './pages/auth/Sign up';
@@ -22,8 +22,22 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={user ? <Home isLoggedIn={true} userEmail={user?.email || ''} /> : <Home isLoggedIn={false} userEmail={''} />} />
-        <Route path="/log-in" element={<LogIn onAuth={() => supabase.auth.getUser().then(({ data }) => setUser(data?.user || null))} />} />
+        <Route
+          path="/"
+          element={
+            user
+              ? <Home isLoggedIn={true} userEmail={user?.email || ''} />
+              : <Navigate to="/log-in" replace />
+          }
+        />
+        <Route
+          path="/log-in"
+          element={
+            user
+              ? <Navigate to="/" replace />
+              : <LogIn onAuth={() => supabase.auth.getUser().then(({ data }) => setUser(data?.user || null))} />
+          }
+        />
         <Route path="/sign-up" element={<SignUp onAuth={() => supabase.auth.getUser().then(({ data }) => setUser(data?.user || null))} />} />
         <Route path="/account" element={<AccountSettings userEmail={user?.email || ''} />} />
         <Route path="/tutorials" element={<Tutorials isLoggedIn={!!user} userEmail={user?.email || ''} />} />
