@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLogo } from '../../components/navbar';
+import EatModal from '../../components/eat/EatModal';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
 import styles from './Auth.module.css';
 
 export default function AccountSettings({ userEmail }) {
   const navigate = useNavigate();
+  const [showEatModal, setShowEatModal] = useState(false);
   const initial = userEmail ? userEmail[0].toUpperCase() : '';
   const nickname = 'Frank'; // 可根据实际替换
 
@@ -16,7 +18,7 @@ export default function AccountSettings({ userEmail }) {
 
   return (
     <div className={styles['account-main']}>
-      <NavLogo />
+      <NavLogo onEatClick={() => setShowEatModal(true)} />
       <h1 className={styles['account-title']}>Account</h1>
       <div className={styles['account-avatar']}>{initial}</div>
       <div className={styles['account-nickname']}>{nickname}</div>
@@ -44,6 +46,14 @@ export default function AccountSettings({ userEmail }) {
         <span>Contact Us</span>
         <span>Delete Account</span>
       </div>
+      {showEatModal && (
+        <EatModal
+          onClose={() => setShowEatModal(false)}
+          foods={[]}
+          onDescribe={() => {}}
+          onEnterValue={() => {}}
+        />
+      )}
     </div>
   );
 } 
