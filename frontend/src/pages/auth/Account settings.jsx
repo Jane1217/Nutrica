@@ -104,14 +104,12 @@ export default function AccountSettings({ userEmail }) {
           onEnterValue={() => {}}
         />
       )}
-      {showUserInfoModal && (
-        <UserInfoModal
-          open={showUserInfoModal}
-          onClose={() => setShowUserInfoModal(false)}
-          initialData={userInfo}
-          onSubmit={handleUserInfoSubmit}
-        />
-      )}
+      <UserInfoModal
+        open={showUserInfoModal}
+        onClose={() => setShowUserInfoModal(false)}
+        initialData={userInfo}
+        onSubmit={handleUserInfoSubmit}
+      />
       </div>
     </>
   );
