@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
 import { NavLogo } from '../../components/navbar';
 import InputField from '../../components/auth/InputField';
+import ModalWrapper from '../../components/ModalWrapper';
 import styles from './Auth.module.css';
 import '../../index.css';
 
@@ -10,6 +11,7 @@ export default function LogIn({ onAuth }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [open, setOpen] = useState(true); // 控制弹窗显示
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -24,12 +26,13 @@ export default function LogIn({ onAuth }) {
       }
     } else {
       onAuth && onAuth();
+      setOpen(false);
       navigate('/');
     }
   };
 
   return (
-    <div className="app-root">
+    <ModalWrapper open={open} onClose={() => setOpen(false)}>
       <NavLogo hideCtaButtons isAuth />
       <main className={styles.loginMainContent}>
         <header className={styles.loginHeader}>
@@ -57,9 +60,9 @@ export default function LogIn({ onAuth }) {
         </div>
         <div className={styles.actionModule}>
           <span className={`${styles.actionModuleText} body1`}>New to Nutrica?</span>
-          <button className={`${styles.actionModuleBtn} h5`} onClick={() => navigate('/sign-up')}>Create Free Account</button>
+          <button className={`${styles.actionModuleBtn} h5`} onClick={() => { setOpen(false); navigate('/sign-up'); }}>Create Free Account</button>
         </div>
       </main>
-    </div>
+    </ModalWrapper>
   );
 } 

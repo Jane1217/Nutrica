@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import styles from './Nav-Logo.module.css';
 import SidebarMenu from './SidebarMenu';
 
-export default function NavLogo({ hideCtaButtons = false, isAuth = false, onEatClick, isLoggedIn = false }) {
+// hideEat 控制是否显示Eat+按钮，向后兼容hideCtaButtons
+export default function NavLogo({ hideEat = false, hideCtaButtons = false, isAuth = false, onEatClick, isLoggedIn = false }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const shouldHideEat = hideEat || hideCtaButtons;
   return (
     <>
       <div className={isAuth ? styles.navLogoRootAuth : styles.navLogoRoot}>
@@ -26,7 +28,7 @@ export default function NavLogo({ hideCtaButtons = false, isAuth = false, onEatC
             </svg>
           </div>
         </div>
-        {!hideCtaButtons && (
+        {!shouldHideEat && (
           <button className={styles.singleButton} onClick={onEatClick}>
             <span className={`${styles.ctaBtn} h5`}>Eat +</span>
           </button>
