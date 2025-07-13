@@ -1,7 +1,7 @@
 .welcomeRoot {
   position: relative;
   min-height: 100vh;
-  background: #f6f6f0;
+  background: #F3F3EC;
 }
 .header {
   display: flex;

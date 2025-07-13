@@ -36,13 +36,25 @@ export default function Welcome() {
         </button>
       </div>
       {/* 登录弹窗 */}
-      {showLoginModal && (
-        <LogIn onAuth={() => setShowLoginModal(false)} />
-      )}
+      <LogIn
+        open={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onAuth={() => setShowLoginModal(false)}
+        onSwitchToSignUp={() => {
+          setShowLoginModal(false);
+          setShowSignUpModal(true);
+        }}
+      />
       {/* 注册弹窗 */}
-      {showSignUpModal && (
-        <SignUp onAuth={() => setShowSignUpModal(false)} />
-      )}
+      <SignUp
+        open={showSignUpModal}
+        onClose={() => setShowSignUpModal(false)}
+        onAuth={() => setShowSignUpModal(false)}
+        onSwitchToLogin={() => {
+          setShowSignUpModal(false);
+          setShowLoginModal(true);
+        }}
+      />
     </div>
   );
 } 

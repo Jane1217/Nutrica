@@ -14,7 +14,7 @@ export default function AccountSettings({ userEmail }) {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    navigate('/log-in', { replace: true });
+    navigate('/', { replace: true }); // 跳转到welcome页面
   };
 
   return (

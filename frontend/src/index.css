@@ -22,12 +22,19 @@ body, #root, .app-root {
 
 /* Typography */
 .h1 {
+  /*
   font-family: Inter;
   font-size: 24px;
   font-style: normal;
   font-weight: 700;
   line-height: 150%;
   letter-spacing: -0.48px;
+  */
+  font-family: Kanit;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 150%; /* 36px */
 }
 .h2 {
   font-family: Inter;

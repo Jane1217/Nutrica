@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
-import { NavLogo } from '../../components/navbar';
 import InputField from '../../components/auth/InputField';
 import ModalWrapper from '../../components/ModalWrapper';
 import styles from './Auth.module.css';
 import '../../index.css';
 
-export default function SignUp({ onAuth }) {
+export default function SignUp({ open, onClose, onAuth, onSwitchToLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [open, setOpen] = useState(true); // 控制弹窗显示
   const navigate = useNavigate();
 
   const handleSignup = async (e) => {
@@ -42,8 +40,7 @@ export default function SignUp({ onAuth }) {
   };
 
   return (
-    <ModalWrapper open={open} onClose={() => setOpen(false)}>
-      <NavLogo hideCtaButtons isAuth />
+    <ModalWrapper open={open} onClose={onClose}>
       <main className={styles.signupMainContent}>
         <header className={styles.signupHeader}>
           <div className={`${styles.signupOverline1} h6`}>Welcome to Nutrica</div>
@@ -74,7 +71,9 @@ export default function SignUp({ onAuth }) {
         </div>
         <div className={styles.actionModule}>
           <span className={`${styles.actionModuleText} body1`}>Already having an account?</span>
-          <button className={`${styles.actionModuleBtn} h5`} onClick={() => { setOpen(false); navigate('/log-in'); }}>Log in</button>
+          <button className={`${styles.actionModuleBtn} h5`} onClick={onSwitchToLogin}>
+            Log in
+          </button>
         </div>
       </main>
     </ModalWrapper>
