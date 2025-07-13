@@ -4,13 +4,43 @@ import EatModal from '../../components/eat/EatModal';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
 import styles from './Auth.module.css';
+import UserInfoModal from './UserInfoModal';
 
 export default function AccountSettings({ userEmail }) {
   const navigate = useNavigate();
   const [showEatModal, setShowEatModal] = useState(false);
   const [showSafariSetup, setShowSafariSetup] = useState(true);
+  const [showUserInfoModal, setShowUserInfoModal] = useState(false);
   const initial = userEmail ? userEmail[0].toUpperCase() : '';
-  const nickname = 'Frank'; // 可根据实际替换
+  const [userInfo, setUserInfo] = useState({
+    name: '',
+    gender: 'male',
+    age: '',
+    unit: 'us',
+    height: '',
+    weight: ''
+  });
+  const nickname = userInfo.name || 'Your Name';
+
+  // 页面加载时自动从supabase user_metadata读取用户信息
+  React.useEffect(() => {
+    const fetchUserInfo = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      setUserInfo(user.user_metadata || {});
+    };
+    fetchUserInfo();
+  }, []);
+
+  // 提交信息时写入supabase user_metadata
+  const handleUserInfoSubmit = async (data) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    // 合并原有meta，避免覆盖其他字段
+    const newMeta = { ...user.user_metadata, ...data };
+    const { error } = await supabase.auth.updateUser({ data: newMeta });
+    if (!error) setUserInfo(newMeta);
+  };
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -40,6 +70,10 @@ export default function AccountSettings({ userEmail }) {
         </div>
       )}
       <div className={styles['account-card-list']}>
+        <button className={styles['account-card-btn']} onClick={() => setShowUserInfoModal(true)}>
+          Change Personal Information
+          <span>{'>'}</span>
+        </button>
         <button className={styles['account-card-btn']} disabled>
           Update Nutrition Goal
           <span>{'>'}</span>
@@ -68,6 +102,14 @@ export default function AccountSettings({ userEmail }) {
           foods={[]}
           onDescribe={() => {}}
           onEnterValue={() => {}}
+        />
+      )}
+      {showUserInfoModal && (
+        <UserInfoModal
+          open={showUserInfoModal}
+          onClose={() => setShowUserInfoModal(false)}
+          initialData={userInfo}
+          onSubmit={handleUserInfoSubmit}
         />
       )}
       </div>

@@ -19,8 +19,10 @@ export default function Home(props) {
   // 检查用户信息是否缺失，缺失则弹窗
   useEffect(() => {
     const info = props.userInfo || {};
-    if (!info.name || !info.gender || !info.age || !info.height || !info.weight) {
+    const hasShown = localStorage.getItem('nutrica_userinfo_shown');
+    if (!hasShown && (!info.name || !info.gender || !info.age || !info.height || !info.weight)) {
       setShowUserInfoModal(true);
+      localStorage.setItem('nutrica_userinfo_shown', '1');
     }
   }, [props.userInfo]);
 
