@@ -61,12 +61,19 @@ body, #root, .app-root {
   letter-spacing: -0.32px;
 }
 .h5 {
+  /*
   font-family: Inter;
   font-size: 16px;
   font-style: normal;
   font-weight: 500;
   line-height: 150%;
   letter-spacing: -0.32px;
+  */
+  font-family: Kanit;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 150%; /* 24px */
 }
 .h6 {
   font-family: Inter;

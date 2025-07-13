@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import NavLogo from '../../components/navbar/Nav-Logo';
 import DateDisplayBox from '../../components/home/DateDisplayBox';
 import EatModal from '../../components/eat/EatModal';
+import UserInfoModal from '../auth/UserInfoModal';
 import { useSearchParams } from 'react-router-dom';
 
 export default function Home(props) {
   const [showEatModal, setShowEatModal] = useState(false);
+  const [showUserInfoModal, setShowUserInfoModal] = useState(false);
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
@@ -14,6 +16,19 @@ export default function Home(props) {
     }
   }, [searchParams]);
 
+  // 检查用户信息是否缺失，缺失则弹窗
+  useEffect(() => {
+    const info = props.userInfo || {};
+    if (!info.name || !info.gender || !info.age || !info.height || !info.weight) {
+      setShowUserInfoModal(true);
+    }
+  }, [props.userInfo]);
+
+  const handleUserInfoSubmit = (data) => {
+    // TODO: 保存用户信息到数据库
+    setShowUserInfoModal(false);
+  };
+
   return (
     <div className="app-root">
       <NavLogo onEatClick={() => setShowEatModal(true)} isLoggedIn={props.isLoggedIn} />
@@ -21,13 +36,18 @@ export default function Home(props) {
       {showEatModal && (
         <EatModal
           onClose={() => setShowEatModal(false)}
-          // foods 数据来自 supabase，暂时传空数组
           foods={[]}
           onDescribe={() => alert('Describe')}
           onEnterValue={() => alert('Enter Value')}
           onScanLabel={() => alert('Scan Label')}
         />
       )}
+      <UserInfoModal
+        open={showUserInfoModal}
+        onClose={() => setShowUserInfoModal(false)}
+        onSubmit={handleUserInfoSubmit}
+        initialData={props.userInfo || {}}
+      />
     </div>
   );
 } 
