@@ -72,7 +72,7 @@ body, #root, .app-root {
   font-family: Kanit;
   font-size: 16px;
   font-style: normal;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 150%; /* 24px */
 }
 .h6 {
@@ -84,20 +84,19 @@ body, #root, .app-root {
   letter-spacing: -0.28px;
 }
 .body1 {
-  font-family: Inter;
+  font-family: Kanit;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
-  line-height: 150%;
-  letter-spacing: -0.32px;
+  line-height: 150%; /* 24px */
 }
 .body2 {
-  font-family: Inter;
+  /* Body 2 */
+  font-family: Kanit;
   font-size: 14px;
   font-style: normal;
   font-weight: 400;
-  line-height: 150%;
-  letter-spacing: -0.28px;
+  line-height: 150%; /* 21px */
 }
 .label {
   font-family: Inter;
