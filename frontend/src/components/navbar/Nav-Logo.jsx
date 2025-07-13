@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styles from './Nav-Logo.module.css';
 import SidebarMenu from './SidebarMenu';
 
-export default function NavLogo({ hideCtaButtons = false, isAuth = false, onEatClick }) {
+export default function NavLogo({ hideCtaButtons = false, isAuth = false, onEatClick, isLoggedIn = false }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   return (
     <>
@@ -32,7 +32,7 @@ export default function NavLogo({ hideCtaButtons = false, isAuth = false, onEatC
           </button>
         )}
       </div>
-      <SidebarMenu open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <SidebarMenu open={sidebarOpen} onClose={() => setSidebarOpen(false)} isLoggedIn={isLoggedIn} />
     </>
   );
-} 
+}

@@ -16,12 +16,8 @@
   --Alert-Error: #E16A60;
 }
 
-body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Inter', Arial, sans-serif;
-  background: var(--Brand-Background, #EEF0EB);
-  color: var(--Neutral-Black, #000);
+body, #root, .app-root {
+  background: #F3F3EC !important;
 }
 
 /* Typography */

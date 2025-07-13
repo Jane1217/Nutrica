@@ -4,7 +4,7 @@
   justify-content: space-between;
   align-items: center;
   align-self: stretch;
-  background: var(--Brand-Background, #EEF0EB);
+  background: #F3F3EC !important;
 }
 
 .navLogoRootAuth {
@@ -13,7 +13,7 @@
   justify-content: space-between;
   align-items: center;
   align-self: stretch;
-  background: var(--Brand-Background, #EEF0EB);
+  background: #F3F3EC !important;
   border-bottom: 1px solid var(--neutral-black-10, rgba(0, 0, 0, 0.10));
 }
 

@@ -16,7 +16,7 @@ export default function Home(props) {
 
   return (
     <div className="app-root">
-      <NavLogo onEatClick={() => setShowEatModal(true)} />
+      <NavLogo onEatClick={() => setShowEatModal(true)} isLoggedIn={props.isLoggedIn} />
       <DateDisplayBox />
       {showEatModal && (
         <EatModal
