@@ -53,8 +53,8 @@ export default function AccountSettings({ userEmail }) {
       <div className={styles['account-main']}>
         <h1 className={styles['account-title']}>Account</h1>
       <div className={styles['account-avatar']}>{initial}</div>
-      <div className={styles['account-nickname']}>{nickname}</div>
-      <div className={styles['account-email']}>{userEmail}</div>
+      <div className={styles['account-nickname'] + ' h1'}>{nickname}</div>
+      <div className={styles['account-email']+ ' h3'}>{userEmail}</div>
       {showSafariSetup && (
         <div className={styles['account-info-box']}>
           <div style={{display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between'}}>
