@@ -4,6 +4,7 @@ import LogIn from './pages/auth/Log In';
 import SignUp from './pages/auth/Sign up';
 import AccountSettings from './pages/auth/Account settings';
 import Tutorials from './pages/auth/Tutorials';
+import ScanLabelPage from './pages/eat/scan label/ScanLabelPage';
 import React, { useEffect, useState } from 'react';
 import { supabase } from './supabaseClient';
 
@@ -26,6 +27,7 @@ export default function App() {
         <Route path="/sign-up" element={<SignUp onAuth={() => supabase.auth.getUser().then(({ data }) => setUser(data?.user || null))} />} />
         <Route path="/account" element={<AccountSettings userEmail={user?.email || ''} />} />
         <Route path="/tutorials" element={<Tutorials isLoggedIn={!!user} userEmail={user?.email || ''} />} />
+        <Route path="/eat/scan label" element={<ScanLabelPage />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,0 +1,29 @@
+import React from 'react';
+import './CameraPermissionModal.css';
+
+export default function CameraPermissionModal({ onClose, onOk }) {
+  return (
+    <div className="camera-permission-overlay">
+      <div className="camera-permission-modal">
+        <div className="camera-permission-group1">
+          <span className="camera-permission-icon">
+            <span className="camera-solid">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M9.75 13C9.75 12.4033 9.98705 11.831 10.409 11.409C10.831 10.9871 11.4033 10.75 12 10.75C12.5967 10.75 13.169 10.9871 13.591 11.409C14.0129 11.831 14.25 12.4033 14.25 13C14.25 13.5967 14.0129 14.169 13.591 14.591C13.169 15.0129 12.5967 15.25 12 15.25C11.4033 15.25 10.831 15.0129 10.409 14.591C9.98705 14.169 9.75 13.5967 9.75 13Z" fill="#2A4E14"/>
+                <path fillRule="evenodd" clipRule="evenodd" d="M7.474 7.642C7.47374 7.22931 7.55483 6.82062 7.71264 6.4393C7.87045 6.05797 8.10188 5.7115 8.39369 5.41968C8.6855 5.12787 9.03198 4.89644 9.4133 4.73864C9.79463 4.58083 10.2033 4.49974 10.616 4.5H13.384C13.7967 4.49974 14.2054 4.58083 14.5867 4.73864C14.968 4.89644 15.3145 5.12787 15.6063 5.41968C15.8981 5.7115 16.1296 6.05797 16.2874 6.4393C16.4452 6.82062 16.5263 7.22931 16.526 7.642C16.5262 7.64914 16.5289 7.65598 16.5337 7.66129C16.5384 7.66661 16.5449 7.67005 16.552 7.671L18.782 7.851C19.781 7.933 20.602 8.671 20.789 9.656C21.2638 12.1685 21.299 14.7444 20.893 17.269L20.796 17.873C20.707 18.4264 20.435 18.9339 20.0235 19.3145C19.6119 19.695 19.0847 19.9265 18.526 19.972L16.583 20.129C13.5327 20.3768 10.4673 20.3768 7.417 20.129L5.474 19.972C4.91521 19.9265 4.38783 19.6948 3.97628 19.3141C3.56473 18.9334 3.2928 18.4256 3.204 17.872L3.10701 17.269C2.70001 14.744 2.736 12.169 3.211 9.656C3.30183 9.17702 3.54739 8.7411 3.90997 8.41519C4.27254 8.08929 4.73208 7.89143 5.218 7.852L7.448 7.671C7.45508 7.67005 7.46159 7.66661 7.46635 7.66129C7.47112 7.65598 7.47383 7.64914 7.474 7.642ZM12 9.25C11.0054 9.25 10.0516 9.64509 9.34835 10.3484C8.64509 11.0516 8.25 12.0054 8.25 13C8.25 13.9946 8.64509 14.9484 9.34835 15.6517C10.0516 16.3549 11.0054 16.75 12 16.75C12.9946 16.75 13.9484 16.3549 14.6517 15.6517C15.3549 14.9484 15.75 13.9946 15.75 13C15.75 12.0054 15.3549 11.0516 14.6517 10.3484C13.9484 9.64509 12.9946 9.25 12 9.25Z" fill="#2A4E14"/>
+              </svg>
+            </span>
+          </span>
+          <span className="camera-permission-title h1">Camera Permissions</span>
+        </div>
+        <svg className="camera-permission-vector" xmlns="http://www.w3.org/2000/svg" width="53" height="4" viewBox="0 0 53 4" fill="none">
+          <path d="M2 2H51" stroke="#CDD3C4" strokeWidth="4" strokeLinecap="round"/>
+        </svg>
+        <span className="camera-permission-desc body1">
+          The food label scanner only works with camera permissions enabled for <span className="camera-permission-bold">Nutrica.io</span>. Please allow access in the next screen, no images will be saved.
+        </span>
+        <button className="camera-permission-btn h5" onClick={onOk || onClose}>Ok</button>
+      </div>
+    </div>
+  );
+} 

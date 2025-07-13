@@ -179,6 +179,24 @@ class DatabaseService {
       throw new Error('更新meals错误: ' + error.message);
     }
   }
+
+  async insertFood({ user_id, name, nutrition, number_of_servings, time }) {
+    try {
+      const { data, error } = await this.supabase
+        .from('food')
+        .insert([{
+          user_id,
+          name,
+          nutrition,
+          number_of_servings,
+          time
+        }]);
+      if (error) throw error;
+      return data;
+    } catch (error) {
+      throw new Error('插入food错误: ' + error.message);
+    }
+  }
 }
 
 module.exports = new DatabaseService(); 

@@ -1,0 +1,90 @@
+.camera-permission-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(35, 38, 31, 0.60);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.camera-permission-modal {
+  display: flex;
+  padding: 24px 24px;
+  flex-direction: column;
+  box-sizing: border-box;
+  z-index: 1000;
+  border-radius: 24px;
+  background: #F3F3EC;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto 16px;
+  align-items: center;
+  max-width: 400px;
+  max-height: 50vh;
+}
+.camera-permission-group1 {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.camera-permission-icon {
+  display: flex;
+  width: 48px;
+  height: 48px;
+  padding: 12px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 999px;
+  background: rgba(117, 139, 83, 0.40);
+}
+.camera-solid {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  aspect-ratio: 1/1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.camera-permission-title {
+  color: #22221B;
+}
+.camera-permission-vector {
+  width: 49px;
+  flex-shrink: 0;
+  margin-top: 16px;
+  margin-bottom: 24px;
+  stroke-width: 4px;
+  stroke: #CDD3C4;
+}
+.camera-permission-desc {
+  color: #22221B;
+  text-align: center;
+  margin-bottom: 32px;
+}
+.camera-permission-bold {
+  font-weight: 700 !important;
+}
+.camera-permission-btn {
+  display: flex;
+  width: 200px;
+  height: 81px;
+  padding: 12px 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  border-radius: 36px;
+  background: #2A4E14;
+  color: var(--Brand-Background, #EEF0EB);
+  border: none;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 24px;
+  margin: auto;
+} 
