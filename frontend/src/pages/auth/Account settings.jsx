@@ -5,12 +5,15 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
 import styles from './Auth.module.css';
 import UserInfoModal from './UserInfoModal';
+import NutritionGoalModal from './NutritionGoalModal';
+import ModalWrapper from '../../components/ModalWrapper';
 
 export default function AccountSettings({ userEmail }) {
   const navigate = useNavigate();
   const [showEatModal, setShowEatModal] = useState(false);
   const [showSafariSetup, setShowSafariSetup] = useState(true);
   const [showUserInfoModal, setShowUserInfoModal] = useState(false);
+  const [showNutritionGoalModal, setShowNutritionGoalModal] = useState(false);
   const initial = userEmail ? userEmail[0].toUpperCase() : '';
   const [userInfo, setUserInfo] = useState(null);
   const nickname = userInfo?.name || 'Your Name';
@@ -25,14 +28,29 @@ export default function AccountSettings({ userEmail }) {
     fetchUserInfo();
   }, [userEmail]);
 
-  // 提交信息时写入supabase user_metadata
+  // 提交信息时写入supabase user_metadata，并并行切换弹窗
   const handleUserInfoSubmit = async (data) => {
+    setShowUserInfoModal(false); // 立即关闭信息收集弹窗
+    setShowNutritionGoalModal(true); // 立即打开营养目标弹窗
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     // 合并原有meta，避免覆盖其他字段
     const newMeta = { ...user.user_metadata, ...data };
     const { error } = await supabase.auth.updateUser({ data: newMeta });
     if (!error) setUserInfo(newMeta);
+  };
+
+  // 营养目标弹窗返回信息收集弹窗
+  const handleNutritionGoalBack = () => {
+    setShowNutritionGoalModal(false);
+    setShowUserInfoModal(true);
+  };
+
+  // 保存用户填写的卡路里值
+  const handleSaveCalories = (calories) => {
+    // 这里可以将calories保存到后端或本地state
+    setUserInfo(prev => ({ ...prev, calories }));
+    setShowNutritionGoalModal(false);
   };
 
   const handleSignOut = async () => {
@@ -103,6 +121,9 @@ export default function AccountSettings({ userEmail }) {
         initialData={userInfo || {}}
         onSubmit={handleUserInfoSubmit}
       />
+      <ModalWrapper open={showNutritionGoalModal} onClose={() => setShowNutritionGoalModal(false)}>
+        <NutritionGoalModal onClose={() => setShowNutritionGoalModal(false)} onSave={handleSaveCalories} name={userInfo?.name || ''} calories={userInfo?.calories} />
+      </ModalWrapper>
       </div>
     </>
   );

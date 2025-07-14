@@ -6,7 +6,7 @@ import ModalWrapper from '../../components/ModalWrapper';
 import styles from './Auth.module.css';
 import '../../index.css';
 
-export default function LogIn({ open, onClose, onAuth, onSwitchToSignUp }) {
+export default function LogIn({ open, onClose, onAuth }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -56,9 +56,7 @@ export default function LogIn({ open, onClose, onAuth, onSwitchToSignUp }) {
         </div>
         <div className={styles.actionModule}>
           <span className={`${styles.actionModuleText} body1`}>New to Nutrica?</span>
-          <button className={`${styles.actionModuleBtn} h5`} onClick={onSwitchToSignUp}>
-            Create Free Account
-          </button>
+          <button className={`${styles.actionModuleBtn} h5`} onClick={() => { onClose(); navigate('/sign-up'); }}>Create Free Account</button>
         </div>
       </main>
     </ModalWrapper>
