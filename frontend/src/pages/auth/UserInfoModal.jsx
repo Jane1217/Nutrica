@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ModalWrapper from '../../components/ModalWrapper';
 import styles from './Auth.module.css';
 
@@ -9,6 +9,16 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
   const [unit, setUnit] = useState(initialData.unit || 'us');
   const [height, setHeight] = useState(initialData.height || '');
   const [weight, setWeight] = useState(initialData.weight || '');
+
+  // 关键：每次initialData变化时自动同步state
+  useEffect(() => {
+    setName(initialData.name || '');
+    setGender(initialData.gender || 'male');
+    setAge(initialData.age || '');
+    setUnit(initialData.unit || 'us');
+    setHeight(initialData.height || '');
+    setWeight(initialData.weight || '');
+  }, [initialData]);
 
   const handleSubmit = (e) => {
     e.preventDefault();

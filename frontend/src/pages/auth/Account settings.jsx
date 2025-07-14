@@ -12,25 +12,18 @@ export default function AccountSettings({ userEmail }) {
   const [showSafariSetup, setShowSafariSetup] = useState(true);
   const [showUserInfoModal, setShowUserInfoModal] = useState(false);
   const initial = userEmail ? userEmail[0].toUpperCase() : '';
-  const [userInfo, setUserInfo] = useState({
-    name: '',
-    gender: 'male',
-    age: '',
-    unit: 'us',
-    height: '',
-    weight: ''
-  });
-  const nickname = userInfo.name || 'Your Name';
+  const [userInfo, setUserInfo] = useState(null);
+  const nickname = userInfo?.name || 'Your Name';
 
   // 页面加载时自动从supabase user_metadata读取用户信息
   React.useEffect(() => {
     const fetchUserInfo = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) return setUserInfo(null);
       setUserInfo(user.user_metadata || {});
     };
     fetchUserInfo();
-  }, []);
+  }, [userEmail]);
 
   // 提交信息时写入supabase user_metadata
   const handleUserInfoSubmit = async (data) => {
@@ -107,7 +100,7 @@ export default function AccountSettings({ userEmail }) {
       <UserInfoModal
         open={showUserInfoModal}
         onClose={() => setShowUserInfoModal(false)}
-        initialData={userInfo}
+        initialData={userInfo || {}}
         onSubmit={handleUserInfoSubmit}
       />
       </div>

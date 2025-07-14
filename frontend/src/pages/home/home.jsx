@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { supabase } from '../../supabaseClient';
 import NavLogo from '../../components/navbar/Nav-Logo';
 import DateDisplayBox from '../../components/home/DateDisplayBox';
 import EatModal from '../../components/eat/EatModal';
@@ -18,13 +19,18 @@ export default function Home(props) {
 
   // 检查用户信息是否缺失，缺失则弹窗
   useEffect(() => {
-    const info = props.userInfo || {};
-    const hasShown = localStorage.getItem('nutrica_userinfo_shown');
-    if (!hasShown && (!info.name || !info.gender || !info.age || !info.height || !info.weight)) {
-      setShowUserInfoModal(true);
-      localStorage.setItem('nutrica_userinfo_shown', '1');
-    }
-  }, [props.userInfo]);
+    const checkUserInfo = async () => {
+      const hasShown = localStorage.getItem('nutrica_userinfo_shown');
+      if (hasShown) return;
+      const { data: { user } } = await supabase.auth.getUser();
+      const info = user?.user_metadata || {};
+      if (!info.name || !info.gender || !info.age || !info.height || !info.weight) {
+        setShowUserInfoModal(true);
+        localStorage.setItem('nutrica_userinfo_shown', '1');
+      }
+    };
+    checkUserInfo();
+  }, []);
 
   const handleUserInfoSubmit = (data) => {
     // TODO: 保存用户信息到数据库
