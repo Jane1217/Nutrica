@@ -6,7 +6,7 @@ import ModalWrapper from '../../components/ModalWrapper';
 import styles from './Auth.module.css';
 import '../../index.css';
 
-export default function LogIn({ open, onClose, onAuth }) {
+export default function LogIn({ open, onClose, onAuth, onSwitchToSignUp }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -25,6 +25,17 @@ export default function LogIn({ open, onClose, onAuth }) {
     } else {
       onAuth && onAuth();
       navigate('/');
+    }
+  };
+
+  const handleSwitchToSignUp = () => {
+    if (onSwitchToSignUp) {
+      // 如果在模态框模式下，使用onSwitchToSignUp
+      onSwitchToSignUp();
+    } else {
+      // 如果在独立页面模式下，使用路由导航
+      onClose && onClose();
+      navigate('/sign-up');
     }
   };
 
@@ -56,7 +67,7 @@ export default function LogIn({ open, onClose, onAuth }) {
         </div>
         <div className={styles.actionModule}>
           <span className={`${styles.actionModuleText} body1`}>New to Nutrica?</span>
-          <button className={`${styles.actionModuleBtn} h5`} onClick={() => { onClose(); navigate('/sign-up'); }}>Create Free Account</button>
+          <button className={`${styles.actionModuleBtn} h5`} onClick={handleSwitchToSignUp}>Create Free Account</button>
         </div>
       </main>
     </ModalWrapper>

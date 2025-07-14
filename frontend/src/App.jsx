@@ -20,6 +20,10 @@ export default function App() {
     return () => { listener?.subscription.unsubscribe(); };
   }, []);
 
+  const handleAuth = () => {
+    supabase.auth.getUser().then(({ data }) => setUser(data?.user || null));
+  };
+
   return (
     <BrowserRouter>
       <Routes>
@@ -36,7 +40,12 @@ export default function App() {
           element={
             user
               ? <Navigate to="/" replace />
-              : <LogIn onAuth={() => supabase.auth.getUser().then(({ data }) => setUser(data?.user || null))} />
+              : <LogIn 
+                  open={true} 
+                  onClose={() => window.history.back()} 
+                  onAuth={handleAuth}
+                  onSwitchToSignUp={() => window.location.href = '/sign-up'}
+                />
           }
         />
         <Route
@@ -44,7 +53,12 @@ export default function App() {
           element={
             user
               ? <Navigate to="/" replace />
-              : <SignUp onAuth={() => supabase.auth.getUser().then(({ data }) => setUser(data?.user || null))} />
+              : <SignUp 
+                  open={true} 
+                  onClose={() => window.history.back()} 
+                  onAuth={handleAuth}
+                  onSwitchToLogin={() => window.location.href = '/log-in'}
+                />
           }
         />
         <Route path="/account" element={<AccountSettings userEmail={user?.email || ''} />} />

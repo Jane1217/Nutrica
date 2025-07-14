@@ -240,19 +240,39 @@
 }
 .signupMainContent {
   display: flex;
-  width: 375px;
-  padding: 48px 16px;
   flex-direction: column;
   align-items: center;
   gap: 36px;
+  max-width: 300px;
+  width: 100%;
+  margin: 24px auto;
+  padding: 48px 32px;
+  box-sizing: border-box;
+  background: #F3F3EC;
+}
+@media (max-width: 500px) {
+  .signupMainContent {
+    max-width: 100vw;
+    padding: 32px 8px;
+  }
 }
 .loginMainContent {
   display: flex;
-  width: 375px;
-  padding: 48px 16px;
   flex-direction: column;
   align-items: center;
   gap: 36px;
+  max-width: 300px;
+  width: 100%;
+  margin: 24px auto;
+  padding: 48px 32px;
+  box-sizing: border-box;
+  background: #F3F3EC;
+}
+@media (max-width: 500px) {
+  .loginMainContent {
+    max-width: 100vw;
+    padding: 32px 8px;
+  }
 }
 .signupHeader {
   display: flex;
@@ -295,6 +315,8 @@
   gap: 24px;
   align-self: stretch;
   width: 100%;
+  box-sizing: border-box;
+  padding: 0 16px;
 }
 .signupHintText {
   color: var(--Neutral-Black, #000);
