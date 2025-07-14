@@ -23,7 +23,7 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit && onSubmit({ name, gender, age, unit, height, weight });
-    onClose && onClose();
+    // 移除直接调用 onClose，让父组件在成功写入 Supabase 后决定是否关闭
   };
 
   return (

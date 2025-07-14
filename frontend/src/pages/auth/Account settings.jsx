@@ -102,6 +102,8 @@ export default function AccountSettings({ userEmail }) {
   };
 
   const handleSignOut = async () => {
+    // 清除用户信息弹窗标记，确保重新登录时能正确弹出
+    localStorage.removeItem('nutrica_userinfo_shown');
     await supabase.auth.signOut();
     navigate('/', { replace: true }); // 跳转到welcome页面
   };
