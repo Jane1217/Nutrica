@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { NavLogo } from '../../components/navbar';
+import NavLogo from '../../components/navbar/Nav-Logo';
 import EatModal from '../../components/eat/EatModal';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
@@ -110,7 +110,7 @@ export default function AccountSettings({ userEmail }) {
 
   return (
     <>
-      <NavLogo onEatClick={() => setShowEatModal(true)} />
+      <NavLogo onEatClick={() => setShowEatModal(true)} isLoggedIn={true} isAuth={false} />
       <div className={styles['account-main']}>
         <h1 className={styles['account-title']}>Account</h1>
       <div className={styles['account-avatar']}>{initial}</div>

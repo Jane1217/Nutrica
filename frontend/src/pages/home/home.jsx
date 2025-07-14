@@ -7,6 +7,7 @@ import UserInfoModal from '../auth/UserInfoModal';
 import NutritionGoalModal from '../auth/NutritionGoalModal';
 import ModalWrapper from '../../components/ModalWrapper';
 import { useSearchParams } from 'react-router-dom';
+import styles from './Home.module.css';
 
 export default function Home(props) {
   const [showEatModal, setShowEatModal] = useState(false);
@@ -127,33 +128,35 @@ export default function Home(props) {
   };
 
   return (
-    <div className="app-root">
-      <NavLogo onEatClick={() => setShowEatModal(true)} isLoggedIn={props.isLoggedIn} />
-      <DateDisplayBox />
-      {showEatModal && (
-        <EatModal
-          onClose={() => setShowEatModal(false)}
-          foods={[]}
-          onDescribe={() => alert('Describe')}
-          onEnterValue={() => alert('Enter Value')}
-          onScanLabel={() => alert('Scan Label')}
+    <>
+      <NavLogo onEatClick={() => setShowEatModal(true)} isLoggedIn={props.isLoggedIn} isAuth={false} />
+      <div className={styles['home-main']}>
+        <DateDisplayBox />
+        {showEatModal && (
+          <EatModal
+            onClose={() => setShowEatModal(false)}
+            foods={[]}
+            onDescribe={() => alert('Describe')}
+            onEnterValue={() => alert('Enter Value')}
+            onScanLabel={() => alert('Scan Label')}
+          />
+        )}
+        <UserInfoModal
+          open={showUserInfoModal}
+          onClose={() => setShowUserInfoModal(false)}
+          onSubmit={handleUserInfoSubmit}
+          initialData={userInfo || {}}
         />
-      )}
-      <UserInfoModal
-        open={showUserInfoModal}
-        onClose={() => setShowUserInfoModal(false)}
-        onSubmit={handleUserInfoSubmit}
-        initialData={userInfo || {}}
-      />
-      <ModalWrapper open={showNutritionGoalModal} onClose={() => setShowNutritionGoalModal(false)}>
-        <NutritionGoalModal
-          onClose={() => setShowNutritionGoalModal(false)}
-          onBack={handleNutritionGoalBack}
-          onSave={handleSaveCalories}
-          name={userInfo?.name || ''}
-          calories={latestCalories}
-        />
-      </ModalWrapper>
-    </div>
+        <ModalWrapper open={showNutritionGoalModal} onClose={() => setShowNutritionGoalModal(false)}>
+          <NutritionGoalModal
+            onClose={() => setShowNutritionGoalModal(false)}
+            onBack={handleNutritionGoalBack}
+            onSave={handleSaveCalories}
+            name={userInfo?.name || ''}
+            calories={latestCalories}
+          />
+        </ModalWrapper>
+      </div>
+    </>
   );
 } 
