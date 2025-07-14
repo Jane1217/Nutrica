@@ -56,12 +56,18 @@ export default function AccountSettings({ userEmail }) {
   const handleUserInfoSubmit = async (data) => {
     setShowUserInfoModal(false); // 立即关闭信息收集弹窗
     setShowNutritionGoalModal(true); // 立即打开营养目标弹窗
+    
+    // 立即更新userInfo状态，包含计算出的卡路里值
+    const newMeta = { ...userInfo, ...data };
+    setUserInfo(newMeta);
+    
+    // 异步保存到Supabase，不阻塞UI更新
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-    // 合并原有meta，避免覆盖其他字段
-    const newMeta = { ...user.user_metadata, ...data };
     const { error } = await supabase.auth.updateUser({ data: newMeta });
-    if (!error) setUserInfo(newMeta);
+    if (error) {
+      console.error('保存用户信息失败:', error);
+    }
   };
 
   // 营养目标弹窗返回信息收集弹窗
@@ -99,6 +105,14 @@ export default function AccountSettings({ userEmail }) {
     }
     setShowNutritionGoalModal(false);
     
+  };
+
+  // 获取要显示的卡路里值：优先使用计算值，其次使用数据库值
+  const getDisplayCalories = () => {
+    if (userInfo?.calculatedCalories) {
+      return userInfo.calculatedCalories;
+    }
+    return latestCalories;
   };
 
   const handleSignOut = async () => {
@@ -180,7 +194,7 @@ export default function AccountSettings({ userEmail }) {
           }}
           onSave={handleSaveCalories}
           name={userInfo?.name || ''}
-          calories={latestCalories}
+          calories={getDisplayCalories()}
         />
       </ModalWrapper>
       </div>

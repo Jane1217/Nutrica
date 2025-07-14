@@ -2,6 +2,36 @@ import React, { useState, useEffect } from 'react';
 import ModalWrapper from '../../components/ModalWrapper';
 import styles from './Auth.module.css';
 
+// 哈里斯-贝内迪克特公式计算BMR
+const calculateBMR = (gender, age, height, weight, unit) => {
+  // 转换单位：如果是英制，转换为公制
+  const heightCm = unit === 'us' ? height * 2.54 : height;
+  const weightKg = unit === 'us' ? weight * 0.453592 : weight;
+  
+  if (gender === 'male') {
+    return 88.362 + (13.397 * weightKg) + (4.799 * heightCm) - (5.677 * age);
+  } else {
+    // 对于female和other都使用女性公式
+    return 447.593 + (9.247 * weightKg) + (3.098 * heightCm) - (4.330 * age);
+  }
+};
+
+// 运动系数
+const ACTIVITY_FACTORS = {
+  sedentary: { value: 1.2, label: 'Sedentary (little or no exercise)' },
+  lightlyActive: { value: 1.375, label: 'Lightly Active (exercise 1-3 days/week)' },
+  moderatelyActive: { value: 1.55, label: 'Moderately Active (exercise 3-5 days/week)' },
+  veryActive: { value: 1.725, label: 'Very Active (exercise 6-7 days/week)' },
+  extremelyActive: { value: 1.9, label: 'Extremely Active (very hard exercise, physical job)' }
+};
+
+// 调整目标
+const WEIGHT_GOALS = {
+  maintain: { value: 0, label: 'Maintain Weight' },
+  lose: { value: -500, label: 'Lose Weight' },
+  gain: { value: 500, label: 'Gain Weight' }
+};
+
 export default function UserInfoModal({ open, onClose, onSubmit, initialData = {} }) {
   const [name, setName] = useState(initialData.name || '');
   const [gender, setGender] = useState(initialData.gender || 'male');
@@ -9,6 +39,9 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
   const [unit, setUnit] = useState(initialData.unit || 'us');
   const [height, setHeight] = useState(initialData.height || '');
   const [weight, setWeight] = useState(initialData.weight || '');
+  const [activityLevel, setActivityLevel] = useState(initialData.activityLevel || 'sedentary');
+  const [weightGoal, setWeightGoal] = useState(initialData.weightGoal || 'maintain');
+  const [calculatedCalories, setCalculatedCalories] = useState(2000);
 
   // 关键：每次initialData变化时自动同步state
   useEffect(() => {
@@ -18,12 +51,33 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
     setUnit(initialData.unit || 'us');
     setHeight(initialData.height || '');
     setWeight(initialData.weight || '');
+    setActivityLevel(initialData.activityLevel || 'sedentary');
+    setWeightGoal(initialData.weightGoal || 'maintain');
   }, [initialData]);
+
+  // 计算推荐卡路里
+  useEffect(() => {
+    if (age && height && weight) {
+      const bmr = calculateBMR(gender, age, height, weight, unit);
+      const tdee = bmr * ACTIVITY_FACTORS[activityLevel].value;
+      const adjustedCalories = tdee + WEIGHT_GOALS[weightGoal].value;
+      setCalculatedCalories(Math.round(adjustedCalories));
+    }
+  }, [gender, age, height, weight, unit, activityLevel, weightGoal]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit && onSubmit({ name, gender, age, unit, height, weight });
-    // 移除直接调用 onClose，让父组件在成功写入 Supabase 后决定是否关闭
+    onSubmit && onSubmit({ 
+      name, 
+      gender, 
+      age, 
+      unit, 
+      height, 
+      weight, 
+      activityLevel, 
+      weightGoal,
+      calculatedCalories 
+    });
   };
 
   return (
@@ -37,20 +91,23 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
           <input className={`${styles.modalInput} body1`} value={name} onChange={e => setName(e.target.value)} required style={{ marginBottom: 24, width: '100%', boxSizing: 'border-box', borderRadius: 8, border: '1px solid #CDD3C4', background: '#FCFCF8', padding: '20px 16px' }} />
           <hr className={styles.modalDivider} />
           <div className="h5" style={{ marginBottom: 16, textAlign: 'left' }}>
-            Tell us some info so that we can estimate your Basal Metabolic Rate (BMR) and Marcos needed for healthy eating.
+            Tell us some info so that we can estimate your Basal Metabolic Rate (BMR) and Macros needed for healthy eating.
           </div>
           <div className="body2" style={{ fontSize: 14, color: '#22221B', marginBottom: 16, textAlign: 'left' }}>
             * <span className="body2" style={{ color: '#22221B'}}>Your data will remain private.</span> <span className="body2" style={{ color: 'rgba(34, 34, 27, 0.60)'}}>
               You may skip this section now and we will estimate based on the <a href="https://www.nal.usda.gov/human-nutrition-and-food-safety/usda-nutrition-recommendations" target="_blank" rel="noopener noreferrer" style={{ color: '#888', textDecoration: 'underline' }}>USDA recommendation</a>. Come back anytime from the account page.
             </span>
           </div>
+          
+          {/* Gender Selection */}
           <div className="h2" style={{ fontWeight: 700, marginTop: 24, marginBottom: 8, textAlign: 'left' }}>Gender</div>
           <div style={{ display: 'flex', gap: 12, marginBottom: 16}}>
             <button type="button" className={`${styles.modalOptionBtn} ${gender === 'male' ? styles.modalOptionBtnActive : ''}`} onClick={() => setGender('male')}>Male</button>
             <button type="button" className={`${styles.modalOptionBtn} ${gender === 'female' ? styles.modalOptionBtnActive : ''}`} onClick={() => setGender('female')}>Female</button>
             <button type="button" className={`${styles.modalOptionBtn} ${gender === 'other' ? styles.modalOptionBtnActive : ''}`} onClick={() => setGender('other')}>Other</button>
           </div>
-          {/* Age 行 */}
+          
+          {/* Age Input */}
           <div style={{ display: 'flex', alignItems: 'center', margin: '47px 0 46px 0', width: '100%', height: 48 }}>
             <div className="h2" style={{ fontWeight: 700, textAlign: 'left', minWidth: 48, height: 48, display: 'flex', alignItems: 'center' }}>Age</div>
             <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', height: 48 }}>
@@ -76,6 +133,7 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
             </div>
           </div>
           
+          {/* Unit Selection */}
           <div style={{ display: 'flex', gap: 16, marginBottom: 27 }}>
             <button
               type="button"
@@ -116,7 +174,8 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
               }}
             >Metric Units</button>
           </div>
-          {/* Height 行 */}
+          
+          {/* Height Input */}
           <div style={{ display: 'flex', alignItems: 'center', margin: '37px 0', width: '100%', height: 48 }}>
             <div className="h2" style={{ fontWeight: 700, textAlign: 'left', minWidth: 90, height: 48, display: 'flex', alignItems: 'center' }}>Height</div>
             <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', height: 48 }}>
@@ -162,8 +221,9 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
               </div>
             </div>
           </div>
-          {/* Weight 行 */}
-          <div style={{ display: 'flex', alignItems: 'center', margin: '37px 0 74.5px 0', width: '100%', height: 48 }}>
+          
+          {/* Weight Input */}
+          <div style={{ display: 'flex', alignItems: 'center', margin: '37px 0 37px 0', width: '100%', height: 48 }}>
             <div className="h2" style={{ fontWeight: 700, textAlign: 'left', minWidth: 90, height: 48, display: 'flex', alignItems: 'center' }}>Weight</div>
             <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', height: 48 }}>
               <div style={{ position: 'relative', width: 96, height: 48 }}>
@@ -208,6 +268,70 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
               </div>
             </div>
           </div>
+
+          {/* Activity Level Selection */}
+          <div className="h2" style={{ fontWeight: 700, marginTop: 24, marginBottom: 16, textAlign: 'left' }}>Activity Level</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 24 }}>
+            {Object.entries(ACTIVITY_FACTORS).map(([key, factor]) => (
+              <button
+                key={key}
+                type="button"
+                className={`${styles.modalOptionBtn} ${activityLevel === key ? styles.modalOptionBtnActive : ''}`}
+                onClick={() => setActivityLevel(key)}
+                style={{
+                  width: '100%',
+                  justifyContent: 'flex-start',
+                  textAlign: 'left',
+                  padding: '12px 16px',
+                  height: 'auto',
+                  minHeight: 48
+                }}
+              >
+                {factor.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Weight Goal Selection */}
+          <div className="h2" style={{ fontWeight: 700, marginTop: 24, marginBottom: 16, textAlign: 'left' }}>Weight Goal</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 24 }}>
+            {Object.entries(WEIGHT_GOALS).map(([key, goal]) => (
+              <button
+                key={key}
+                type="button"
+                className={`${styles.modalOptionBtn} ${weightGoal === key ? styles.modalOptionBtnActive : ''}`}
+                onClick={() => setWeightGoal(key)}
+                style={{
+                  width: '50%',
+                  justifyContent: 'flex-start',
+                  textAlign: 'left',
+                  padding: '12px 16px',
+                  height: 'auto',
+                  minHeight: 48
+                }}
+              >
+                {goal.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Calculated Calories Display */}
+          {age && height && weight && (
+            <div style={{ 
+              background: '#E7E7D5', 
+              borderRadius: 12, 
+              padding: 16, 
+              marginBottom: 24,
+              border: '1px solid #CDD3C4'
+            }}>
+              <div className="h5" style={{ marginBottom: 8, color: '#26361B' }}>
+                Recommended Daily Calories:
+              </div>
+              <div className="h2" style={{ fontWeight: 700, color: '#2A4E14' }}>
+                {calculatedCalories} kcal
+              </div>
+            </div>
+          )}
         </div>
         <div style={{ display: 'flex', gap: 16, marginTop: 32, justifyContent: 'center', marginBottom: 24 }}>
           <button

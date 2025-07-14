@@ -72,15 +72,17 @@ export default function Home(props) {
     setShowUserInfoModal(false); // 立即关闭信息收集弹窗
     setShowNutritionGoalModal(true); // 立即打开营养目标弹窗
     
+    // 立即更新userInfo状态，包含计算出的卡路里值
+    const newMeta = { ...userInfo, ...data };
+    setUserInfo(newMeta);
+    
+    // 异步保存到Supabase，不阻塞UI更新
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
     
-    // 合并原有meta，避免覆盖其他字段
-    const newMeta = { ...user.user_metadata, ...data };
     const { error } = await supabase.auth.updateUser({ data: newMeta });
     
     if (!error) {
-      setUserInfo(newMeta);
       // 只有在成功保存后才设置标记，避免重复弹出
       localStorage.setItem('nutrica_userinfo_shown', '1');
     } else {
@@ -127,6 +129,14 @@ export default function Home(props) {
     setShowNutritionGoalModal(false);
   };
 
+  // 获取要显示的卡路里值：优先使用计算值，其次使用数据库值
+  const getDisplayCalories = () => {
+    if (userInfo?.calculatedCalories) {
+      return userInfo.calculatedCalories;
+    }
+    return latestCalories;
+  };
+
   return (
     <>
       <NavLogo onEatClick={() => setShowEatModal(true)} isLoggedIn={props.isLoggedIn} isAuth={false} />
@@ -153,7 +163,7 @@ export default function Home(props) {
             onBack={handleNutritionGoalBack}
             onSave={handleSaveCalories}
             name={userInfo?.name || ''}
-            calories={latestCalories}
+            calories={getDisplayCalories()}
           />
         </ModalWrapper>
       </div>
