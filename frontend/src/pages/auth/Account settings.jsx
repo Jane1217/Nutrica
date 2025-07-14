@@ -17,6 +17,7 @@ export default function AccountSettings({ userEmail }) {
   const initial = userEmail ? userEmail[0].toUpperCase() : '';
   const [userInfo, setUserInfo] = useState(null);
   const nickname = userInfo?.name || 'Your Name';
+  const [latestCalories, setLatestCalories] = useState(2000);
 
   // 页面加载时自动从supabase user_metadata读取用户信息
   React.useEffect(() => {
@@ -27,6 +28,29 @@ export default function AccountSettings({ userEmail }) {
     };
     fetchUserInfo();
   }, [userEmail]);
+
+  // 查询数据库中当前用户最近一次提交的calories
+  const fetchLatestGoal = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return 2000;
+    const { data, error } = await supabase
+      .from('nutrition_goal')
+      .select('calories')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(1);
+    if (error || !data || data.length === 0) {
+      return 2000;
+    }
+    return data[0].calories || 2000;
+  };
+
+  // 打开营养目标弹窗前，先查数据库
+  const openNutritionGoalModal = async () => {
+    const calories = await fetchLatestGoal();
+    setLatestCalories(calories);
+    setShowNutritionGoalModal(true);
+  };
 
   // 提交信息时写入supabase user_metadata，并并行切换弹窗
   const handleUserInfoSubmit = async (data) => {
@@ -46,11 +70,35 @@ export default function AccountSettings({ userEmail }) {
     setShowUserInfoModal(true);
   };
 
-  // 保存用户填写的卡路里值
-  const handleSaveCalories = (calories) => {
-    // 这里可以将calories保存到后端或本地state
-    setUserInfo(prev => ({ ...prev, calories }));
+  // 保存用户填写的卡路里值到 nutrition_goal 表
+  const handleSaveCalories = async (calories) => {
+    // 计算三大营养素
+    const carbs = Math.round((0.50 * calories) / 4);
+    const fats = Math.round((0.30 * calories) / 9);
+    const protein = Math.round((0.20 * calories) / 4);
+
+    // 获取当前用户id
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    // 插入到 nutrition_goal 表
+    const { error } = await supabase
+      .from('nutrition_goal')
+      .insert([
+        {
+          user_id: user.id,
+          calories,
+          carbs,
+          fats,
+          protein,
+          created_at: new Date().toISOString()
+        }
+      ]);
+    if (error) {
+      console.error('保存失败', error);
+    }
     setShowNutritionGoalModal(false);
+    
   };
 
   const handleSignOut = async () => {
@@ -85,7 +133,7 @@ export default function AccountSettings({ userEmail }) {
           Change Personal Information
           <span>{'>'}</span>
         </button>
-        <button className={styles['account-card-btn']} disabled>
+        <button className={styles['account-card-btn']} onClick={openNutritionGoalModal}>
           Update Nutrition Goal
           <span>{'>'}</span>
         </button>
@@ -122,7 +170,16 @@ export default function AccountSettings({ userEmail }) {
         onSubmit={handleUserInfoSubmit}
       />
       <ModalWrapper open={showNutritionGoalModal} onClose={() => setShowNutritionGoalModal(false)}>
-        <NutritionGoalModal onClose={() => setShowNutritionGoalModal(false)} onSave={handleSaveCalories} name={userInfo?.name || ''} calories={userInfo?.calories} />
+        <NutritionGoalModal
+          onClose={() => setShowNutritionGoalModal(false)}
+          onBack={() => {
+            setShowNutritionGoalModal(false);
+            setShowUserInfoModal(true);
+          }}
+          onSave={handleSaveCalories}
+          name={userInfo?.name || ''}
+          calories={latestCalories}
+        />
       </ModalWrapper>
       </div>
     </>

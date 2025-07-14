@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styles from "./Auth.module.css";
 
-export default function NutritionGoalModal({ onClose, onSave, name = '', calories = 2000 }) {
+export default function NutritionGoalModal({ onClose, onBack, onSave, name = '', calories = 2000 }) {
   const [caloriesValue, setCaloriesValue] = useState(calories);
   // 动态计算宏量营养素克数
   const carbs = Math.round((0.50 * caloriesValue) / 4);
@@ -99,7 +99,7 @@ export default function NutritionGoalModal({ onClose, onSave, name = '', calorie
             fontWeight: 500,
             cursor: 'pointer'
           }}
-          onClick={onClose}
+          onClick={() => { if (onBack) onBack(); }}
         >
           <span className='h5'>Back</span>
         </button>
