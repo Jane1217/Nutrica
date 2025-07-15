@@ -18,10 +18,11 @@ const calculateBMR = (gender, age, height, weight, unit) => {
 
 // 运动系数
 const ACTIVITY_FACTORS = {
-  sedentary: { value: 1.2, label: '0' },
-  lightlyActive: { value: 1.375, label: '1-3 Days' },
-  moderatelyActive: { value: 1.55, label: '3-5 Days' },
-  veryActive: { value: 1.725, label: '6-7 Days' }
+  sedentary: { value: 1.2, label: '0', description: 'Sedentary (Office work)' },
+  lightlyActive: { value: 1.375, label: '1-3 Days', description: 'Light Exercise' },
+  moderatelyActive: { value: 1.55, label: '3-5 Days', description: 'Moderate Exercise' },
+  veryActive: { value: 1.725, label: '6-7 Days', description: 'Hard Exercise' },
+  extremelyActive: { value: 1.9, label: 'Very Hard', description: ' Exercise/Physical Job' }
 };
 
 // 调整目标
@@ -272,11 +273,11 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
           <div className="h2" style={{ fontWeight: 700, marginTop: 36, marginBottom: 16, textAlign: 'left' }}>How many days per week are you physically active?</div>
           <div style={{ 
             display: 'grid', 
-            gridTemplateColumns: 'repeat(3, 1fr)', 
+            gridTemplateColumns: 'repeat(2, 1fr)', 
             gap: 12, 
             marginBottom: 24 
           }}>
-            {Object.entries(ACTIVITY_FACTORS).map(([key, factor], index) => (
+            {Object.entries(ACTIVITY_FACTORS).map(([key, factor]) => (
               <button
                 key={key}
                 type="button"
@@ -289,30 +290,47 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
                   padding: '12px 16px',
                   height: 'auto',
                   minHeight: 48,
-                  gridColumn: index === 3 ? '1 / 2' : 'auto' // 最后一个选项占第一列
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 4
                 }}
               >
-                {factor.label}
+                <span style={{ 
+                  textAlign: 'center',
+                  fontFamily: 'Inter',
+                  fontSize: 16,
+                  fontStyle: 'normal',
+                  fontWeight: 500,
+                  lineHeight: '150%',
+                  letterSpacing: '-0.32px'
+                }}>{factor.label}</span>
+                <span className="body1" style={{ fontSize: 12, opacity: 0.8 }}>{factor.description}</span>
               </button>
             ))}
           </div>
 
           {/* Weight Goal Selection */}
           <div className="h2" style={{ fontWeight: 700, marginTop: 24, marginBottom: 16, textAlign: 'left' }}>I would like to:</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 24 }}>
-            {Object.entries(WEIGHT_GOALS).map(([key, goal]) => (
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(2, 1fr)', 
+            gap: 12, 
+            marginBottom: 24 
+          }}>
+            {Object.entries(WEIGHT_GOALS).map(([key, goal], index) => (
               <button
                 key={key}
                 type="button"
                 className={`${styles.modalOptionBtn} ${weightGoal === key ? styles.modalOptionBtnActive : ''}`}
                 onClick={() => setWeightGoal(key)}
                 style={{
-                  width: '50%',
-                  justifyContent: 'flex-start',
-                  textAlign: 'left',
+                  width: '100%',
+                  justifyContent: 'center',
+                  textAlign: 'center',
                   padding: '12px 16px',
                   height: 'auto',
-                  minHeight: 48
+                  minHeight: 48,
+                  gridColumn: index === 2 ? '1 / 2' : 'auto' // 第三个选项占第一列
                 }}
               >
                 {goal.label}

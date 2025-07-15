@@ -422,7 +422,7 @@
 .account-info-box {
   display: inline-flex;
   padding: 16px;
-  margin: 16px 16px;
+  margin: 16px 0;
   flex-direction: column;
   align-items: flex-start;
   gap: 16px;
