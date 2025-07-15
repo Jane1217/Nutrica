@@ -8,6 +8,7 @@ import NutritionGoalModal from '../auth/NutritionGoalModal';
 import ModalWrapper from '../../components/ModalWrapper';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import styles from './Home.module.css';
+import { calculateNutritionFromCalories, formatFoods } from '../../utils/nutrition';
 
 export default function Home(props) {
   const [showEatModal, setShowEatModal] = useState(false);
@@ -78,17 +79,7 @@ export default function Home(props) {
       return;
     }
     foodsAllRef.current = data || [];
-    const foodsFormatted = (foodsAllRef.current).map(item => ({
-      name: item.name,
-      emoji: item.emoji || '🍽️',
-      time: item.time ? new Date(item.time).toISOString() : '',
-      nutrition: [
-        { type: 'Calories', value: (item.nutrition?.calories ?? '-') + 'kcal' },
-        { type: 'Carbs', value: (item.nutrition?.carbs ?? '-') + 'g' },
-        { type: 'Fats', value: (item.nutrition?.fats ?? '-') + 'g' },
-        { type: 'Protein', value: (item.nutrition?.protein ?? '-') + 'g' },
-      ]
-    }));
+    const foodsFormatted = formatFoods(foodsAllRef.current);
     setFoods(reset ? foodsFormatted.slice(0, foodsPerPage) : foodsFormatted.slice(0, foodsPage * foodsPerPage));
   };
 
@@ -103,19 +94,7 @@ export default function Home(props) {
     const nextPage = foodsPage + 1;
     setFoodsPage(nextPage);
     setFoods(
-      (foodsAllRef.current || [])
-        .map(item => ({
-          name: item.name,
-          emoji: item.emoji || '🍽️',
-          time: item.time ? new Date(item.time).toISOString() : '',
-          nutrition: [
-            { type: 'Calories', value: (item.nutrition?.calories ?? '-') + 'kcal' },
-            { type: 'Carbs', value: (item.nutrition?.carbs ?? '-') + 'g' },
-            { type: 'Fats', value: (item.nutrition?.fats ?? '-') + 'g' },
-            { type: 'Protein', value: (item.nutrition?.protein ?? '-') + 'g' },
-          ]
-        }))
-        .slice(0, nextPage * foodsPerPage)
+      formatFoods(foodsAllRef.current).slice(0, nextPage * foodsPerPage)
     );
   };
 
@@ -130,7 +109,9 @@ export default function Home(props) {
     const el = e.target;
     if (el.scrollHeight - el.scrollTop - el.clientHeight < 10 && !foodsLoading) {
       if (foods.length < foodsAllRef.current.length) {
-        handleLoadMoreFoods();
+        const nextPage = foodsPage + 1;
+        setFoodsPage(nextPage);
+        setFoods(formatFoods(foodsAllRef.current).slice(0, nextPage * foodsPerPage));
       }
     }
   };
@@ -188,14 +169,10 @@ export default function Home(props) {
   // 保存用户填写的卡路里值到 nutrition_goal 表
   const handleSaveCalories = async (calories) => {
     // 计算三大营养素
-    const carbs = Math.round((0.50 * calories) / 4);
-    const fats = Math.round((0.30 * calories) / 9);
-    const protein = Math.round((0.20 * calories) / 4);
-
+    const { carbs, fats, protein } = calculateNutritionFromCalories(calories);
     // 获取当前用户id
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-
     // 插入到 nutrition_goal 表
     const { error } = await supabase
       .from('nutrition_goal')
