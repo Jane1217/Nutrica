@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './Nav-Logo.module.css';
 import SidebarMenu from './SidebarMenu';
 
 export default function NavLogo({ hideCtaButtons = false, isAuth = false, onEatClick }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const navigate = useNavigate();
   return (
     <>
       <div className={isAuth ? styles.navLogoRootAuth : styles.navLogoRoot}>
@@ -27,7 +29,11 @@ export default function NavLogo({ hideCtaButtons = false, isAuth = false, onEatC
           </div>
         </div>
         {!hideCtaButtons && (
-          <button className={styles.singleButton} onClick={onEatClick}>
+          <button className={styles.singleButton} onClick={() => {
+            // 设置URL参数并调用onEatClick
+            navigate('/?eat=1');
+            onEatClick && onEatClick();
+          }}>
             <span className={`${styles.ctaBtn} h5`}>Eat +</span>
           </button>
         )}

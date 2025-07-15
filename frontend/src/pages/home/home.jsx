@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import NavLogo from '../../components/navbar/Nav-Logo';
 import DateDisplayBox from '../../components/home/DateDisplayBox';
-import EatModal from '../../components/eat/EatModal';
-import { useSearchParams } from 'react-router-dom';
+import EatModal from '../eat/modals/EatModal';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 
 export default function Home(props) {
   const [showEatModal, setShowEatModal] = useState(false);
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (searchParams.get('eat') === '1') {
@@ -20,7 +21,11 @@ export default function Home(props) {
       <DateDisplayBox />
       {showEatModal && (
         <EatModal
-          onClose={() => setShowEatModal(false)}
+          onClose={() => {
+            setShowEatModal(false);
+            // 清除URL中的eat参数，回到干净的首页
+            navigate('/', { replace: true });
+          }}
           // foods 数据来自 supabase，暂时传空数组
           foods={[]}
           onDescribe={() => alert('Describe')}
