@@ -1,7 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './SidebarMenu.module.css';
 
-export default function SidebarMenu({ open, onClose }) {
+export default function SidebarMenu({ open, onClose, isLoggedIn = false }) {
+  const navigate = useNavigate();
   if (!open) return null;
   return (
     <>
@@ -13,7 +15,7 @@ export default function SidebarMenu({ open, onClose }) {
           </svg>
         </div>
         <div className={styles.sidebarGroup}>
-          <div className={styles.sidebarItem}>
+          <div className={styles.sidebarItem} onClick={() => { navigate('/'); onClose(); }}>
             <span className={styles.symbol}>
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <path d="M4 19V10C4 9.68333 4.071 9.38333 4.213 9.1C4.355 8.81667 4.55067 8.58333 4.8 8.4L10.8 3.9C11.15 3.63333 11.55 3.5 12 3.5C12.45 3.5 12.85 3.63333 13.2 3.9L19.2 8.4C19.45 8.58333 19.646 8.81667 19.788 9.1C19.93 9.38333 20.0007 9.68333 20 10V19C20 19.55 19.804 20.021 19.412 20.413C19.02 20.805 18.5493 21.0007 18 21H15C14.7167 21 14.4793 20.904 14.288 20.712C14.0967 20.52 14.0007 20.2827 14 20V15C14 14.7167 13.904 14.4793 13.712 14.288C13.52 14.0967 13.2827 14.0007 13 14H11C10.7167 14 10.4793 14.096 10.288 14.288C10.0967 14.48 10.0007 14.7173 10 15V20C10 20.2833 9.904 20.521 9.712 20.713C9.52 20.905 9.28267 21.0007 9 21H6C5.45 21 4.97933 20.8043 4.588 20.413C4.19667 20.0217 4.00067 19.5507 4 19Z" fill="#2A4E14"/>
@@ -30,15 +32,17 @@ export default function SidebarMenu({ open, onClose }) {
             </span>
             <span className="h4">Achievement</span>
           </div>
-          <div className={styles.sidebarItem}>
-            <span className={styles.symbol}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <path d="M20 18C20 15.79 16.42 14 12 14C7.58 14 4 15.79 4 18V20H20V18Z" fill="#2A4E14"/>
-                <path fillRule="evenodd" clipRule="evenodd" d="M12 4C13.0609 4 14.0783 4.42143 14.8284 5.17157C15.5786 5.92172 16 6.93913 16 8C16 9.06087 15.5786 10.0783 14.8284 10.8284C14.0783 11.5786 13.0609 12 12 12C10.9391 12 9.92172 11.5786 9.17157 10.8284C8.42143 10.0783 8 9.06087 8 8C8 6.93913 8.42143 5.92172 9.17157 5.17157C9.92172 4.42143 10.9391 4 12 4Z" fill="#669948"/>
-              </svg>
-            </span>
-            <span className="h4">Account</span>
-          </div>
+          {isLoggedIn && (
+            <div className={styles.sidebarItem} onClick={() => { navigate('/account'); onClose(); }}>
+              <span className={styles.symbol}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M20 18C20 15.79 16.42 14 12 14C7.58 14 4 15.79 4 18V20H20V18Z" fill="#2A4E14"/>
+                  <path fillRule="evenodd" clipRule="evenodd" d="M12 4C13.0609 4 14.0783 4.42143 14.8284 5.17157C15.5786 5.92172 16 6.93913 16 8C16 9.06087 15.5786 10.0783 14.8284 10.8284C14.0783 11.5786 13.0609 12 12 12C10.9391 12 9.92172 11.5786 9.17157 10.8284C8.42143 10.0783 8 9.06087 8 8C8 6.93913 8.42143 5.92172 9.17157 5.17157C9.92172 4.42143 10.9391 4 12 4Z" fill="#669948"/>
+                </svg>
+              </span>
+              <span className="h4">Account</span>
+            </div>
+          )}
         </div>
       </div>
     </>

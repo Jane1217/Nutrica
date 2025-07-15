@@ -16,22 +16,25 @@
   --Alert-Error: #E16A60;
 }
 
-body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Inter', Arial, sans-serif;
-  background: var(--Brand-Background, #EEF0EB);
-  color: var(--Neutral-Black, #000);
+body, #root, .app-root {
+  background: #F3F3EC !important;
 }
 
 /* Typography */
 .h1 {
+  /*
   font-family: Inter;
   font-size: 24px;
   font-style: normal;
   font-weight: 700;
   line-height: 150%;
   letter-spacing: -0.48px;
+  */
+  font-family: Kanit;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 150%; /* 36px */
 }
 .h2 {
   font-family: Inter;
@@ -42,12 +45,12 @@ body {
   letter-spacing: -0.36px;
 }
 .h3 {
-  font-family: Inter;
+  /* H3 */
+  font-family: Kanit;
   font-size: 18px;
   font-style: normal;
   font-weight: 500;
-  line-height: 150%;
-  letter-spacing: -0.36px;
+  line-height: 150%; /* 27px */
 }
 .h4 {
   font-family: Inter;
@@ -58,12 +61,19 @@ body {
   letter-spacing: -0.32px;
 }
 .h5 {
+  /*
   font-family: Inter;
   font-size: 16px;
   font-style: normal;
   font-weight: 500;
   line-height: 150%;
   letter-spacing: -0.32px;
+  */
+  font-family: Kanit;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 150%; /* 24px */
 }
 .h6 {
   font-family: Inter;
@@ -74,20 +84,19 @@ body {
   letter-spacing: -0.28px;
 }
 .body1 {
-  font-family: Inter;
+  font-family: Kanit;
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
-  line-height: 150%;
-  letter-spacing: -0.32px;
+  line-height: 150%; /* 24px */
 }
 .body2 {
-  font-family: Inter;
+  /* Body 2 */
+  font-family: Kanit;
   font-size: 14px;
   font-style: normal;
   font-weight: 400;
-  line-height: 150%;
-  letter-spacing: -0.28px;
+  line-height: 150%; /* 21px */
 }
 .label {
   font-family: Inter;
