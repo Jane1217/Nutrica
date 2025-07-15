@@ -3,7 +3,7 @@ import './FoodModal.css';
 import { validateFoodForm } from '../../../utils/validation';
 import { foodApi, handleApiError } from '../../../utils/api';
 
-export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal, aiData, userId }) {
+export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal, aiData, userId, onDataChange }) {
   const [form, setForm] = useState({
     name: '',
     calories: '',
@@ -58,10 +58,12 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
         name: form.name,
         number_of_servings: 1, // 固定为1
         nutrition,
+        emoji: aiData?.emoji || '🍽️'
       });
       
       if (data.success) {
         setSuccess(true);
+        if (onDataChange) onDataChange();
         setTimeout(() => { onClose && onClose(); }, 1200);
       } else {
         setError(data.error || 'Save failed');
@@ -81,7 +83,7 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
             <button className="food-modal-back-btn" onClick={onBack}>
               <img src="/assets/arrow-left.svg" alt="Back" />
             </button>
-            <span className="eat-modal-title h1">Food</span>
+            <span className="eat-modal-title">Food</span>
           </div>
           <button className="eat-modal-close-btn" onClick={onCloseModal}>×</button>
         </div>
@@ -99,32 +101,32 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
             <span className="food-modal-row-label h2">Calories</span>
             <div className="food-modal-input-group">
               <input name="calories" value={form.calories} onChange={handleChange} className="food-modal-input" />
-              <span className="food-modal-unit">kcal</span>
+              <span className="food-modal-unit h5">kcal</span>
             </div>
           </div>
           <div className="food-modal-row">
             <span className="food-modal-row-label h2">Carbs</span>
             <div className="food-modal-input-group">
               <input name="carbs" value={form.carbs} onChange={handleChange} className="food-modal-input" />
-              <span className="food-modal-unit">g</span>
+              <span className="food-modal-unit h5">g</span>
             </div>
           </div>
           <div className="food-modal-row">
             <span className="food-modal-row-label h2">Fats</span>
             <div className="food-modal-input-group">
               <input name="fats" value={form.fats} onChange={handleChange} className="food-modal-input" />
-              <span className="food-modal-unit">g</span>
+              <span className="food-modal-unit h5">g</span>
             </div>
           </div>
           <div className="food-modal-row">
             <span className="food-modal-row-label h2">Protein</span>
             <div className="food-modal-input-group">
               <input name="protein" value={form.protein} onChange={handleChange} className="food-modal-input" />
-              <span className="food-modal-unit">g</span>
+              <span className="food-modal-unit h5">g</span>
             </div>
           </div>
         </div>
-        <button className="food-modal-confirm-btn" onClick={handleConfirm} disabled={loading}>{loading ? 'Saving...' : 'Confirm'}</button>
+        <button className="food-modal-confirm-btn h5" onClick={handleConfirm} disabled={loading}>{loading ? 'Saving...' : 'Confirm'}</button>
         {success && <div className="food-modal-success">Saved!</div>}
         {error && <div className="food-modal-error">{error}</div>}
       </div>

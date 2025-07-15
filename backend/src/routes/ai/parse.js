@@ -59,13 +59,17 @@ router.post('/description', async (req, res) => {
       return errorResponse(res, new Error('Failed to parse AI response'));
     }
 
+    // 生成emoji
+    let emoji = await openaiService.getFoodEmoji(nutritionData.name || description);
+
     // Format response data to match frontend FoodModal
     const formattedData = {
       name: nutritionData.name || 'Unknown Food',
-      calories: nutritionData.calories || '0',
-      carbs: nutritionData.carbs || '0',
-      fats: nutritionData.fats || '0',
-      protein: nutritionData.protein || '0'
+      calories: nutritionData.calories || 0,
+      carbs: nutritionData.carbs || 0,
+      fats: nutritionData.fats || 0,
+      protein: nutritionData.protein || 0,
+      emoji
     };
 
     logInfo(`Successfully analyzed description: ${formattedData.name}`);
@@ -127,16 +131,20 @@ router.post('/food', upload.single('image'), async (req, res) => {
       return errorResponse(res, new Error(nutritionData.error), 400);
     }
 
+    // 生成emoji
+    let emoji = await openaiService.getFoodEmoji(nutritionData.name || '');
+
     // Format response data to match frontend FoodModal
     const formattedData = {
       name: nutritionData.name || 'Unknown Food',
       nutrition: {
-        calories: nutritionData.calories || nutritionData.Calories || '0',
-        carbs: nutritionData.carbs || nutritionData.Carbs || '0g',
-        fats: nutritionData.fats || nutritionData.Fats || '0g',
-        protein: nutritionData.protein || nutritionData.Protein || '0g'
+        calories: nutritionData.calories || nutritionData.Calories || 0,
+        carbs: nutritionData.carbs || nutritionData.Carbs || 0,
+        fats: nutritionData.fats || nutritionData.Fats || 0,
+        protein: nutritionData.protein || nutritionData.Protein || 0
       },
-      number_of_servings: 1
+      number_of_servings: 1,
+      emoji
     };
 
     logInfo(`Successfully parsed food: ${formattedData.name}`);
@@ -148,6 +156,19 @@ router.post('/food', upload.single('image'), async (req, res) => {
   }
 });
 
-module.exports = router;
+// 新增：单独获取emoji
+router.post('/emoji', async (req, res) => {
+  try {
+    const { text } = req.body;
+    if (!text || typeof text !== 'string') {
+      return errorResponse(res, new Error('Text is required and must be a string'));
+    }
+    const emoji = await openaiService.getFoodEmoji(text);
+    return successResponse(res, { emoji }, 'Emoji generated');
+  } catch (error) {
+    logError('Emoji generation failed', error);
+    return errorResponse(res, error);
+  }
+});
 
 module.exports = router; 

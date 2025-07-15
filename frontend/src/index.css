@@ -22,14 +22,6 @@ body, #root, .app-root {
 
 /* Typography */
 .h1 {
-  /*
-  font-family: Inter;
-  font-size: 24px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 150%;
-  letter-spacing: -0.48px;
-  */
   font-family: Kanit;
   font-size: 24px;
   font-style: normal;
@@ -37,15 +29,13 @@ body, #root, .app-root {
   line-height: 150%; /* 36px */
 }
 .h2 {
-  font-family: Inter;
+  font-family: Kanit;
   font-size: 18px;
   font-style: normal;
   font-weight: 700;
-  line-height: 150%;
-  letter-spacing: -0.36px;
+  line-height: 150%; /* 27px */
 }
 .h3 {
-  /* H3 */
   font-family: Kanit;
   font-size: 18px;
   font-style: normal;
@@ -53,22 +43,13 @@ body, #root, .app-root {
   line-height: 150%; /* 27px */
 }
 .h4 {
-  font-family: Inter;
+  font-family: Kanit;
   font-size: 16px;
   font-style: normal;
   font-weight: 700;
-  line-height: 150%;
-  letter-spacing: -0.32px;
+  line-height: 150%; /* 24px */
 }
 .h5 {
-  /*
-  font-family: Inter;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 150%;
-  letter-spacing: -0.32px;
-  */
   font-family: Kanit;
   font-size: 16px;
   font-style: normal;
@@ -76,12 +57,11 @@ body, #root, .app-root {
   line-height: 150%; /* 24px */
 }
 .h6 {
-  font-family: Inter;
+  font-family: Kanit;
   font-size: 14px;
   font-style: normal;
   font-weight: 500;
-  line-height: 150%;
-  letter-spacing: -0.28px;
+  line-height: 150%; /* 21px */
 }
 .body1 {
   font-family: Kanit;
@@ -99,12 +79,11 @@ body, #root, .app-root {
   line-height: 150%; /* 21px */
 }
 .label {
-  font-family: Inter;
+  font-family: Kanit;
   font-size: 12px;
   font-style: normal;
   font-weight: 500;
-  line-height: 150%;
-  letter-spacing: -0.24px;
+  line-height: 150%; /* 18px */
 }
 
 /* 只保留全局基础样式，业务样式写在各自的 module.css 文件中 */
