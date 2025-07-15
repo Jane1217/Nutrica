@@ -18,11 +18,10 @@ const calculateBMR = (gender, age, height, weight, unit) => {
 
 // 运动系数
 const ACTIVITY_FACTORS = {
-  sedentary: { value: 1.2, label: 'Sedentary (little or no exercise)' },
-  lightlyActive: { value: 1.375, label: 'Lightly Active (exercise 1-3 days/week)' },
-  moderatelyActive: { value: 1.55, label: 'Moderately Active (exercise 3-5 days/week)' },
-  veryActive: { value: 1.725, label: 'Very Active (exercise 6-7 days/week)' },
-  extremelyActive: { value: 1.9, label: 'Extremely Active (very hard exercise, physical job)' }
+  sedentary: { value: 1.2, label: '0' },
+  lightlyActive: { value: 1.375, label: '1-3 Days' },
+  moderatelyActive: { value: 1.55, label: '3-5 Days' },
+  veryActive: { value: 1.725, label: '6-7 Days' }
 };
 
 // 调整目标
@@ -270,9 +269,14 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
           </div>
 
           {/* Activity Level Selection */}
-          <div className="h2" style={{ fontWeight: 700, marginTop: 24, marginBottom: 16, textAlign: 'left' }}>Activity Level</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 24 }}>
-            {Object.entries(ACTIVITY_FACTORS).map(([key, factor]) => (
+          <div className="h2" style={{ fontWeight: 700, marginTop: 36, marginBottom: 16, textAlign: 'left' }}>How many days per week are you physically active?</div>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(3, 1fr)', 
+            gap: 12, 
+            marginBottom: 24 
+          }}>
+            {Object.entries(ACTIVITY_FACTORS).map(([key, factor], index) => (
               <button
                 key={key}
                 type="button"
@@ -280,11 +284,12 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
                 onClick={() => setActivityLevel(key)}
                 style={{
                   width: '100%',
-                  justifyContent: 'flex-start',
-                  textAlign: 'left',
+                  justifyContent: 'center',
+                  textAlign: 'center',
                   padding: '12px 16px',
                   height: 'auto',
-                  minHeight: 48
+                  minHeight: 48,
+                  gridColumn: index === 3 ? '1 / 2' : 'auto' // 最后一个选项占第一列
                 }}
               >
                 {factor.label}
@@ -293,7 +298,7 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
           </div>
 
           {/* Weight Goal Selection */}
-          <div className="h2" style={{ fontWeight: 700, marginTop: 24, marginBottom: 16, textAlign: 'left' }}>Weight Goal</div>
+          <div className="h2" style={{ fontWeight: 700, marginTop: 24, marginBottom: 16, textAlign: 'left' }}>I would like to:</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginBottom: 24 }}>
             {Object.entries(WEIGHT_GOALS).map(([key, goal]) => (
               <button
