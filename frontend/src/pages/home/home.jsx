@@ -26,6 +26,7 @@ export default function Home(props) {
           onDescribe={() => alert('Describe')}
           onEnterValue={() => alert('Enter Value')}
           onScanLabel={() => alert('Scan Label')}
+          userId={props.userId || 'default-user-id'}
         />
       )}
     </div>

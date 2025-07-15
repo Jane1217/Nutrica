@@ -1,53 +1,149 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import FoodModal from '../../../components/eat/FoodModal';
+import { foodApi, handleApiError } from '../../../utils/api';
 import './ScanLabelPage.css';
 
-export default function ScanLabelPage({ onClose }) {
+export default function ScanLabelPage({ onClose, userId }) {
   const videoRef = useRef(null);
+  const streamRef = useRef(null);
+  const scanFrameRef = useRef(null);
   const [loading, setLoading] = useState(false);
+  const [cameraActive, setCameraActive] = useState(false);
+  const [foodModalOpen, setFoodModalOpen] = useState(false);
+  const [foodResult, setFoodResult] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-      .then(stream => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
+  // Start camera
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: 'environment' } 
       });
-    return () => {
-      if (videoRef.current && videoRef.current.srcObject) {
-        videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        streamRef.current = stream;
+        setCameraActive(true);
       }
+    } catch (error) {
+      console.error('Failed to start camera:', error);
+    }
+  };
+
+  // Stop camera
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => {
+        track.stop();
+      });
+      streamRef.current = null;
+      setCameraActive(false);
+    }
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.removeAttribute('src');
+      videoRef.current.load();
+      videoRef.current.srcObject = null;
+    }
+  };
+
+  // Start camera when component mounts
+  useEffect(() => {
+    startCamera();
+    // Handle page visibility change
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        stopCamera();
+      } else {
+        startCamera();
+      }
+    };
+    // Handle beforeunload (browser back/close)
+    const handleBeforeUnload = () => {
+      stopCamera();
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    // Cleanup function to stop camera when component unmounts
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      stopCamera();
     };
   }, []);
 
+  // 拍照并只截取 scan-frame 区域
   const handleCapture = async () => {
-    if (!videoRef.current) return;
+    if (!videoRef.current || !cameraActive) return;
     setLoading(true);
     const video = videoRef.current;
+    // 获取 scan-frame 和 video 的位置和尺寸
+    const frameRect = scanFrameRef.current.getBoundingClientRect();
+    const videoRect = video.getBoundingClientRect();
+    // 计算 scan-frame 在 video 上的相对位置和尺寸（比例）
+    const scaleX = video.videoWidth / videoRect.width;
+    const scaleY = video.videoHeight / videoRect.height;
+    const sx = (frameRect.left - videoRect.left) * scaleX;
+    const sy = (frameRect.top - videoRect.top) * scaleY;
+    const sWidth = frameRect.width * scaleX;
+    const sHeight = frameRect.height * scaleY;
+    // 创建 canvas 只截取 scan-frame 区域
     const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    canvas.width = Math.round(sWidth);
+    canvas.height = Math.round(sHeight);
     const ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
+    // 停止摄像头
+    stopCamera();
     canvas.toBlob(async (blob) => {
-      if (!blob) return setLoading(false);
-      const formData = new FormData();
-      formData.append('image', blob, 'capture.jpg');
+      if (!blob) {
+        setLoading(false);
+        startCamera(); // 拍照失败也重启摄像头
+        return;
+      }
       try {
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData
-        });
-        const data = await res.json();
-        // 跳转到 FoodModal 页面并传递识别结果
-        navigate('/food-modal', { state: { result: data } });
-      } catch (e) {
-        alert('图片上传或解析失败');
+        const data = await foodApi.parseFoodImage(blob);
+        if (data.success) {
+          // 识别成功，弹出 FoodModal
+          let foodName = data.data.name;
+          // 只用AI返回的name，前端不再兜底生成
+          setFoodResult({
+            'Food name': foodName,
+            'Number of Servings': 1, // 默认 1
+            Calories: data.data.nutrition.calories,
+            Carbs: data.data.nutrition.carbs,
+            Fats: data.data.nutrition.fats,
+            Protein: data.data.nutrition.protein,
+          });
+          setFoodModalOpen(true);
+        } else {
+          alert('Image parsing failed: ' + data.error);
+          startCamera();
+        }
+      } catch (error) {
+        alert('Image parsing failed: ' + handleApiError(error, 'Image parsing failed'));
+        startCamera();
       } finally {
         setLoading(false);
       }
     }, 'image/jpeg', 0.95);
+  };
+
+  // 监听foodModalOpen变化，弹窗打开时关闭摄像头，关闭时重启摄像头
+  useEffect(() => {
+    if (foodModalOpen) {
+      stopCamera();
+    } else {
+      startCamera();
+    }
+    // eslint-disable-next-line
+  }, [foodModalOpen]);
+
+  // 关闭 FoodModal 时重启摄像头
+  const handleFoodModalClose = () => {
+    setFoodModalOpen(false);
+    setFoodResult(null);
+    // startCamera(); // 由useEffect自动处理
   };
 
   return (
@@ -65,9 +161,12 @@ export default function ScanLabelPage({ onClose }) {
             <span className="scan-tip-text h6">Place the food label inside the frame</span>
           </div>
         </div>
-        <div className="scan-frame"></div>
+        <div className="scan-frame" ref={scanFrameRef}></div>
       </div>
-      <button className="scan-close-btn" onClick={() => navigate('/?eat=1')}>
+      <button className="scan-close-btn" onClick={() => {
+        stopCamera();
+        navigate('/?eat=1');
+      }}>
         <span className="close-fill">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
             <path fillRule="evenodd" clipRule="evenodd" d="M11.9996 14.122L17.3026 19.425C17.584 19.7064 17.9657 19.8645 18.3636 19.8645C18.7616 19.8645 19.1432 19.7064 19.4246 19.425C19.706 19.1436 19.8641 18.7619 19.8641 18.364C19.8641 17.966 19.706 17.5844 19.4246 17.303L14.1196 12L19.4236 6.69699C19.5629 6.55766 19.6733 6.39226 19.7487 6.21024C19.824 6.02821 19.8628 5.83313 19.8627 5.63613C19.8627 5.43914 19.8238 5.24407 19.7484 5.06209C19.673 4.8801 19.5624 4.71475 19.4231 4.57549C19.2838 4.43622 19.1184 4.32576 18.9364 4.25042C18.7543 4.17507 18.5592 4.13631 18.3623 4.13636C18.1653 4.13641 17.9702 4.17526 17.7882 4.25069C17.6062 4.32612 17.4409 4.43666 17.3016 4.57599L11.9996 9.87899L6.6966 4.57599C6.5583 4.43266 6.39284 4.31831 6.20987 4.23961C6.0269 4.16091 5.83009 4.11944 5.63092 4.11762C5.43176 4.11579 5.23422 4.15365 5.04984 4.22899C4.86546 4.30432 4.69793 4.41562 4.55703 4.55639C4.41612 4.69717 4.30466 4.86459 4.22916 5.0489C4.15365 5.23321 4.1156 5.43071 4.11724 5.62988C4.11887 5.82905 4.16016 6.02589 4.23869 6.20894C4.31721 6.39198 4.43141 6.55755 4.5746 6.69599L9.8796 12L4.5756 17.304C4.43241 17.4424 4.31821 17.608 4.23969 17.791C4.16116 17.9741 4.11987 18.1709 4.11824 18.3701C4.1166 18.5693 4.15465 18.7668 4.23016 18.9511C4.30566 19.1354 4.41712 19.3028 4.55803 19.4436C4.69893 19.5844 4.86646 19.6957 5.05084 19.771C5.23522 19.8463 5.43276 19.8842 5.63192 19.8824C5.83109 19.8805 6.0279 19.8391 6.21087 19.7604C6.39384 19.6817 6.5593 19.5673 6.6976 19.424L11.9996 14.122Z" fill="white"/>
@@ -80,7 +179,14 @@ export default function ScanLabelPage({ onClose }) {
           <circle cx="36" cy="36" r="36" transform="matrix(1 0 0 -1 12 84)" fill="white"/>
         </svg>
       </button>
-      {loading && <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,zIndex:3000,background:'rgba(0,0,0,0.3)',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontSize:24}}>识别中...</div>}
+      {loading && <div style={{position:'fixed',top:0,left:0,right:0,bottom:0,zIndex:3000,background:'rgba(0,0,0,0.3)',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontSize:24}}>Analyzing...</div>}
+      {/* FoodModal 弹窗 */}
+      <FoodModal
+        open={foodModalOpen}
+        onClose={handleFoodModalClose}
+        initialData={foodResult}
+        userId={userId}
+      />
     </div>
   );
 } 

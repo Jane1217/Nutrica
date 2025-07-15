@@ -1,12 +1,6 @@
 import React from 'react';
 import styles from './DateDisplayBox.module.css';
-
-function formatToday() {
-  const now = new Date();
-  const week = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  return `${week[now.getDay()]}, ${month[now.getMonth()]} ${now.getDate()}`;
-}
+import { formatToday } from '../../utils/format';
 
 export default function DateDisplayBox() {
   return (

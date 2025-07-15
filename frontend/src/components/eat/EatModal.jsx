@@ -1,11 +1,18 @@
 import React, { useState } from 'react';
 import CameraPermissionModal from './CameraPermissionModal';
+import EnterValueModal from './EnterValueModal';
+import DescribeModal from './DescribeModal';
+import DescribeFoodModal from './DescribeFoodModal';
 // 移除本地ScanLabelPage引用，后续用路由跳转
 import './EatModal.css';
 import { useNavigate } from 'react-router-dom';
+import { foodApi, handleApiError } from '../../utils/api';
 
-export default function EatModal({ onClose, foods = [], onDescribe, onEnterValue }) {
-  const [step, setStep] = useState('main'); // 'main' | 'camera-permission' | 'scan'
+export default function EatModal({ onClose, foods = [], onDescribe, onEnterValue, userId }) {
+  const [step, setStep] = useState('main'); // 'main' | 'camera-permission' | 'scan' | 'enter-value' | 'describe' | 'describe-food'
+  const [aiData, setAiData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleScanLabel = () => setStep('camera-permission');
@@ -14,6 +21,32 @@ export default function EatModal({ onClose, foods = [], onDescribe, onEnterValue
     navigate('/eat/scan label');
   };
   const handleCloseScan = () => setStep('main');
+  const handleEnterValue = () => setStep('enter-value');
+  const handleCloseEnterValue = () => setStep('main');
+  const handleDescribe = () => setStep('describe');
+  const handleCloseDescribe = () => setStep('main');
+  const handleCloseDescribeFood = () => setStep('main');
+  const handleBackDescribeFood = () => setStep('describe');
+  const handleBackEnterValue = () => setStep('main');
+  const handleBackDescribe = () => setStep('main');
+  
+  const handleDescribeNext = async (description) => {
+    setLoading(true);
+    setError('');
+    try {
+      const response = await foodApi.parseFoodDescription(description);
+      if (response.success) {
+        setAiData(response.data);
+        setStep('describe-food');
+      } else {
+        setError(response.error || 'AI analysis failed');
+      }
+    } catch (error) {
+      setError(handleApiError(error, 'AI analysis failed'));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // 在EatModal内部定义CloseButton
   function CloseButton({ onClick }) {
@@ -74,7 +107,7 @@ export default function EatModal({ onClose, foods = [], onDescribe, onEnterValue
             <div className="eat-modal-divider"></div>
           </div>
           <div className="eat-modal-group3-1">
-            <button className="eat-modal-ai-btn" onClick={onDescribe}>
+            <button className="eat-modal-ai-btn" onClick={handleDescribe}>
               <span className="eat-modal-ai-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                   <path d="M11.953 2.25C9.636 2.25 7.835 2.25 6.433 2.4C5.015 2.553 3.892 2.87 2.996 3.586C2.076 4.322 1.646 5.279 1.443 6.486C1.25 7.638 1.25 9.104 1.25 10.932V11.115C1.25 12.897 1.25 14.13 1.45 15.049C1.558 15.544 1.728 15.974 1.995 16.372C2.259 16.764 2.595 17.094 2.996 17.414C3.627 17.919 4.371 18.224 5.25 18.414V21C5.25012 21.1314 5.28475 21.2605 5.35044 21.3743C5.41613 21.4881 5.51057 21.5826 5.62429 21.6484C5.73802 21.7143 5.86704 21.7491 5.99844 21.7493C6.12984 21.7496 6.259 21.7153 6.373 21.65C6.959 21.315 7.478 20.95 7.953 20.606L8.257 20.385C8.59525 20.1318 8.94073 19.8883 9.293 19.655C10.137 19.107 10.943 18.75 12 18.75H12.047C14.364 18.75 16.165 18.75 17.567 18.6C18.985 18.447 20.108 18.13 21.004 17.414C21.404 17.094 21.741 16.764 22.004 16.372C22.272 15.974 22.442 15.544 22.55 15.049C22.75 14.13 22.75 12.897 22.75 11.115V10.932C22.75 9.104 22.75 7.638 22.557 6.487C22.354 5.279 21.924 4.322 21.004 3.586C20.108 2.869 18.985 2.553 17.567 2.401C16.165 2.25 14.364 2.25 12.047 2.25H11.953Z" fill="#2A4E14"/>
@@ -82,7 +115,7 @@ export default function EatModal({ onClose, foods = [], onDescribe, onEnterValue
               </span>
               <span className="eat-modal-ai-text">Describe</span>
             </button>
-            <button className="eat-modal-ai-btn" onClick={onEnterValue}>
+            <button className="eat-modal-ai-btn" onClick={handleEnterValue}>
               <span className="eat-modal-ai-icon">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                   <path fillRule="evenodd" clipRule="evenodd" d="M10.51 4.938C11.067 4.904 11.478 4.505 11.494 3.947C11.5023 3.64906 11.5023 3.35094 11.494 3.053C11.478 2.495 11.067 2.096 10.5095 2.062C9.98 2.029 9.178 2 8 2C6.822 2 6.02 2.029 5.49 2.062C4.933 2.096 4.522 2.495 4.506 3.053C4.4974 3.35094 4.4974 3.64906 4.506 3.947C4.522 4.505 4.933 4.904 5.4905 4.938C5.7735 4.9555 6.1345 4.972 6.5895 4.9835C6.5475 6.1805 6.5 8.349 6.5 12C6.5 15.651 6.5475 17.8195 6.5895 19.0165C6.1345 19.028 5.7735 19.0445 5.49 19.0615C4.933 19.0965 4.522 19.495 4.506 20.053C4.4974 20.3509 4.4974 20.6491 4.506 20.947C4.522 21.505 4.933 21.9035 5.4905 21.938C6.02 21.971 6.823 22 8 22C9.177 22 9.98 21.971 10.51 21.938C11.067 21.9035 11.478 21.505 11.494 20.947C11.5023 20.6491 11.5023 20.3509 11.494 20.053C11.478 19.495 11.067 19.0965 10.5095 19.062C10.1436 19.0402 9.77741 19.0251 9.411 19.0165C9.4525 17.8195 9.5 15.651 9.5 12C9.5 8.349 9.4525 6.1805 9.411 4.9835C9.77756 4.9748 10.144 4.9593 10.51 4.938ZM11 12C11 9.8665 10.984 8.234 10.962 7.0015C11.298 7.0005 11.644 7 12 7C16.727 7 19.718 7.089 21.253 7.1525C22.2125 7.1925 23.091 7.8175 23.2655 8.84C23.389 9.565 23.5 10.605 23.5 12C23.5 13.395 23.389 14.435 23.265 15.16C23.091 16.1825 22.2125 16.808 21.253 16.8475C19.718 16.911 16.727 17 12 17C11.644 17 11.298 16.9995 10.962 16.9985C10.984 15.766 11 14.1335 11 12ZM5 12C5 14.09 5.0155 15.699 5.037 16.922C4.27348 16.9033 3.51012 16.8784 2.747 16.8475C1.7875 16.8075 0.909 16.1825 0.7345 15.16C0.611 14.435 0.5 13.395 0.5 12C0.5 10.605 0.611 9.565 0.735 8.84C0.909 7.8175 1.7875 7.1925 2.747 7.1525C3.31 7.129 4.0685 7.1025 5.037 7.0775C5.01055 8.7182 4.99821 10.3591 5 12Z" fill="#2A4E14"/>
@@ -103,6 +136,34 @@ export default function EatModal({ onClose, foods = [], onDescribe, onEnterValue
       )}
       {step === 'camera-permission' && (
         <CameraPermissionModal onClose={() => setStep('main')} onOk={handleCameraPermissionOk} />
+      )}
+      {step === 'enter-value' && (
+        <EnterValueModal 
+          open={true} 
+          onClose={handleCloseEnterValue}
+          onBack={handleBackEnterValue}
+          onCloseModal={onClose}
+          userId={userId}
+        />
+      )}
+      {step === 'describe' && (
+        <DescribeModal 
+          open={true} 
+          onClose={handleCloseDescribe}
+          onBack={handleBackDescribe}
+          onCloseModal={onClose}
+          onNext={handleDescribeNext}
+        />
+      )}
+      {step === 'describe-food' && (
+        <DescribeFoodModal 
+          open={true} 
+          onClose={handleCloseDescribeFood}
+          onBack={handleBackDescribeFood}
+          onCloseModal={onClose}
+          aiData={aiData}
+          userId={userId}
+        />
       )}
       {/* 跳转到 scan label 页面，不再本地渲染 */}
     </>
