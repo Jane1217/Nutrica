@@ -20,10 +20,10 @@ const validateNutritionData = (nutrition) => {
 // 清理营养数据，只保留指定字段
 const cleanNutritionData = (nutrition) => {
   return {
-    calories: nutrition.calories,
-    carbs: nutrition.carbs,
-    fats: nutrition.fats,
-    protein: nutrition.protein
+    calories: Number(nutrition.calories) || 0,
+    carbs: Number(nutrition.carbs) || 0,
+    fats: Number(nutrition.fats) || 0,
+    protein: Number(nutrition.protein) || 0
   };
 };
 

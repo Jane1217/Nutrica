@@ -19,6 +19,7 @@
   z-index: 1000;
   box-sizing: border-box;
   border-radius: 36px 36px 0px 0px;
+  justify-content: flex-end;
 }
 .food-modal-group1 {
   display: flex;
@@ -28,14 +29,16 @@
 }
 .eat-modal-title, .food-modal-title {
   color: #000;
-  font-size: var(--h1-font-size, 24px);
+  font-family: Inter;
+  font-size: 36px;
+  font-style: normal;
   font-weight: 700;
-  line-height: 150%;
-  letter-spacing: -0.48px;
+  line-height: 150%; /* 54px */
+  letter-spacing: -0.72px;
 }
 .food-modal-label {
   color: rgba(34, 34, 27, 0.60);
-  font-size: var(--h5-font-size, 16px);
+  font-size: 16px;
   font-weight: 500;
   margin: 8px 0 0 0;
 }
@@ -56,7 +59,7 @@
 }
 .food-modal-input {
   color: #000;
-  font-size: var(--h5-font-size, 16px);
+  font-size: 16px;
   border: none;
   background: transparent;
   outline: none;
@@ -64,9 +67,10 @@
 }
 .food-modal-unit {
   color: rgba(0, 0, 0, 0.60);
-  font-size: var(--h5-font-size, 16px);
   text-align: right;
-  align-self: center;
+}
+.food-modal-unit.h5 {
+  /* 只需加.h5类即可 */
 }
 .food-modal-serving-group {
   display: flex;
@@ -82,7 +86,7 @@
 .food-modal-serving-group .food-modal-input {
   width: 100%;
   text-align: center;
-  font-size: var(--h5-font-size, 16px);
+  font-size: 16px;
   font-family: Kanit;
   color: #000;
   background: transparent;
@@ -138,10 +142,12 @@
   border-radius: 36px;
   background: #2A4E14;
   color: var(--Brand-Background, #EEF0EB);
-  font-size: var(--h5-font-size, 16px);
   font-weight: 500;
   border: none;
-  margin: 32px auto 0 auto;
+  margin: auto auto 0 auto;
+}
+.food-modal-confirm-btn.h5 {
+  /* 只需加.h5类即可 */
 }
 .food-modal-success {
   color: green;
@@ -167,8 +173,8 @@
   outline: none;
   resize: none;
   font-family: Kanit;
-  font-size: var(--h2-font-size, 18px);
-  color: #000;
+  font-size: 18px;
+  color: rgba(0, 0, 0, 0.40);
   line-height: 1.5;
   min-height: 200px;
   padding: 0;
@@ -177,7 +183,10 @@
 .describe-textarea::placeholder {
   color: rgba(0, 0, 0, 0.40);
   font-family: Kanit;
-  font-size: var(--h2-font-size, 18px);
+  font-size: 18px;
+}
+.describe-textarea.h2 {
+  /* 只需加.h2类即可 */
 }
 
 /* 返回按钮样式 */

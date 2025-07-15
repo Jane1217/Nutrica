@@ -20,7 +20,7 @@ export default function DescribeModal({ open, onClose, onBack, onCloseModal, onN
             <button className="food-modal-back-btn" onClick={onBack}>
               <img src="/assets/arrow-left.svg" alt="Back" />
             </button>
-            <span className="eat-modal-title h1">Describe</span>
+            <span className="eat-modal-title">Describe</span>
           </div>
           <button className="eat-modal-close-btn" onClick={onCloseModal}>×</button>
         </div>
@@ -29,8 +29,9 @@ export default function DescribeModal({ open, onClose, onBack, onCloseModal, onN
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="describe-textarea"
+            className="describe-textarea h2"
             placeholder="Type what you ate (e.g., 2 eggs, a slice of bread, 1 avocado)"
+            style={{ color: description ? '#000' : undefined }}
           />
         </div>
         

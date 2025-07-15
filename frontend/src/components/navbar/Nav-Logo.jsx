@@ -45,4 +45,4 @@ export default function NavLogo({ hideEat = false, hideCtaButtons = false, isAut
       <SidebarMenu open={sidebarOpen} onClose={() => setSidebarOpen(false)} isLoggedIn={isLoggedIn} />
     </>
   );
-}
+} 
