@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import NavLogo from '../../components/navbar/Nav-Logo';
-import EatModal from '../../components/eat/EatModal';
+import EatModal from '../eat/modals/EatModal';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
 import styles from './Auth.module.css';
