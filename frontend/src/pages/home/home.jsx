@@ -1,13 +1,22 @@
 import React, { useEffect, useState } from 'react';
+import { supabase } from '../../supabaseClient';
 import NavLogo from '../../components/navbar/Nav-Logo';
 import DateDisplayBox from '../../components/home/DateDisplayBox';
 import EatModal from '../eat/modals/EatModal';
+import UserInfoModal from '../auth/UserInfoModal';
+import NutritionGoalModal from '../auth/NutritionGoalModal';
+import ModalWrapper from '../../components/ModalWrapper';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import styles from './Home.module.css';
 
 export default function Home(props) {
   const [showEatModal, setShowEatModal] = useState(false);
+  const [showUserInfoModal, setShowUserInfoModal] = useState(false);
+  const [showNutritionGoalModal, setShowNutritionGoalModal] = useState(false);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const [userInfo, setUserInfo] = useState(null);
+  const [latestCalories, setLatestCalories] = useState(2000);
 
   useEffect(() => {
     if (searchParams.get('eat') === '1') {
@@ -15,25 +24,155 @@ export default function Home(props) {
     }
   }, [searchParams]);
 
+  // 页面加载时自动从supabase user_metadata读取用户信息
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return setUserInfo(null);
+      setUserInfo(user.user_metadata || {});
+    };
+    fetchUserInfo();
+  }, []);
+
+  // 查询数据库中当前用户最近一次提交的calories
+  const fetchLatestGoal = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return 2000;
+    const { data, error } = await supabase
+      .from('nutrition_goal')
+      .select('calories')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .limit(1);
+    if (error || !data || data.length === 0) {
+      return 2000;
+    }
+    return data[0].calories || 2000;
+  };
+
+  // 检查用户信息是否缺失，缺失则弹窗
+  useEffect(() => {
+    const checkUserInfo = async () => {
+      const hasShown = localStorage.getItem('nutrica_userinfo_shown');
+      if (hasShown) return;
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      
+      const info = user.user_metadata || {};
+      // 检查是否缺少关键信息
+      if (!info.name || !info.gender || !info.age || !info.height || !info.weight) {
+        setShowUserInfoModal(true);
+      }
+    };
+    checkUserInfo();
+  }, []);
+
+  // 提交信息时写入supabase user_metadata，并并行切换弹窗，与 Account settings 页面逻辑一致
+  const handleUserInfoSubmit = async (data) => {
+    setShowUserInfoModal(false); // 立即关闭信息收集弹窗
+    setShowNutritionGoalModal(true); // 立即打开营养目标弹窗
+    
+    // 立即更新userInfo状态，包含计算出的卡路里值
+    const newMeta = { ...userInfo, ...data };
+    setUserInfo(newMeta);
+    
+    // 异步保存到Supabase，不阻塞UI更新
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    
+    const { error } = await supabase.auth.updateUser({ data: newMeta });
+    
+    if (!error) {
+      // 只有在成功保存后才设置标记，避免重复弹出
+      localStorage.setItem('nutrica_userinfo_shown', '1');
+    } else {
+      console.error('保存用户信息失败:', error);
+      // 保存失败时关闭营养目标弹窗，重新打开用户信息弹窗
+      setShowNutritionGoalModal(false);
+      setShowUserInfoModal(true);
+    }
+  };
+
+  // 营养目标弹窗返回信息收集弹窗
+  const handleNutritionGoalBack = () => {
+    setShowNutritionGoalModal(false);
+    setShowUserInfoModal(true);
+  };
+
+  // 保存用户填写的卡路里值到 nutrition_goal 表
+  const handleSaveCalories = async (calories) => {
+    // 计算三大营养素
+    const carbs = Math.round((0.50 * calories) / 4);
+    const fats = Math.round((0.30 * calories) / 9);
+    const protein = Math.round((0.20 * calories) / 4);
+
+    // 获取当前用户id
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    // 插入到 nutrition_goal 表
+    const { error } = await supabase
+      .from('nutrition_goal')
+      .insert([
+        {
+          user_id: user.id,
+          calories,
+          carbs,
+          fats,
+          protein,
+          created_at: new Date().toISOString()
+        }
+      ]);
+    if (error) {
+      console.error('保存失败', error);
+    }
+    setShowNutritionGoalModal(false);
+  };
+
+  // 获取要显示的卡路里值：优先使用计算值，其次使用数据库值
+  const getDisplayCalories = () => {
+    if (userInfo?.calculatedCalories) {
+      return userInfo.calculatedCalories;
+    }
+    return latestCalories;
+  };
+
   return (
-    <div className="app-root">
-      <NavLogo onEatClick={() => setShowEatModal(true)} />
-      <DateDisplayBox />
-      {showEatModal && (
-        <EatModal
-          onClose={() => {
-            setShowEatModal(false);
-            // 清除URL中的eat参数，回到干净的首页
-            navigate('/', { replace: true });
-          }}
-          // foods 数据来自 supabase，暂时传空数组
-          foods={[]}
-          onDescribe={() => alert('Describe')}
-          onEnterValue={() => alert('Enter Value')}
-          onScanLabel={() => alert('Scan Label')}
-          userId={props.userId || 'default-user-id'}
+    <>
+      <NavLogo onEatClick={() => setShowEatModal(true)} isLoggedIn={props.isLoggedIn} isAuth={false} />
+      <div className={styles['home-main']}>
+        <DateDisplayBox />
+        {showEatModal && (
+          <EatModal
+            onClose={() => {
+              setShowEatModal(false);
+              // 清除URL中的eat参数，回到干净的首页
+              navigate('/', { replace: true });
+            }}
+            foods={[]}
+            onDescribe={() => alert('Describe')}
+            onEnterValue={() => alert('Enter Value')}
+            onScanLabel={() => alert('Scan Label')}
+            userId={props.userId || 'default-user-id'}
+          />
+        )}
+        <UserInfoModal
+          open={showUserInfoModal}
+          onClose={() => setShowUserInfoModal(false)}
+          onSubmit={handleUserInfoSubmit}
+          initialData={userInfo || {}}
         />
-      )}
-    </div>
+        <ModalWrapper open={showNutritionGoalModal} onClose={() => setShowNutritionGoalModal(false)}>
+          <NutritionGoalModal
+            onClose={() => setShowNutritionGoalModal(false)}
+            onBack={handleNutritionGoalBack}
+            onSave={handleSaveCalories}
+            name={userInfo?.name || ''}
+            calories={getDisplayCalories()}
+          />
+        </ModalWrapper>
+      </div>
+    </>
   );
 } 

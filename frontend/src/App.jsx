@@ -1,10 +1,11 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/home/home';
 import LogIn from './pages/auth/Log In';
 import SignUp from './pages/auth/Sign up';
 import AccountSettings from './pages/auth/Account settings';
 import Tutorials from './pages/auth/Tutorials';
 import ScanLabelPage from './pages/eat/scan-label/ScanLabelPage';
+import Welcome from './pages/welcome/Welcome';
 import React, { useEffect, useState } from 'react';
 import { supabase } from './supabaseClient';
 
@@ -19,12 +20,47 @@ export default function App() {
     return () => { listener?.subscription.unsubscribe(); };
   }, []);
 
+  const handleAuth = () => {
+    supabase.auth.getUser().then(({ data }) => setUser(data?.user || null));
+  };
+
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={user ? <Home isLoggedIn={true} userEmail={user?.email || ''} /> : <Home isLoggedIn={false} userEmail={''} />} />
-        <Route path="/log-in" element={<LogIn onAuth={() => supabase.auth.getUser().then(({ data }) => setUser(data?.user || null))} />} />
-        <Route path="/sign-up" element={<SignUp onAuth={() => supabase.auth.getUser().then(({ data }) => setUser(data?.user || null))} />} />
+        <Route
+          path="/"
+          element={
+            user
+              ? <Home isLoggedIn={true} userEmail={user?.email || ''} />
+              : <Welcome />
+          }
+        />
+        <Route
+          path="/log-in"
+          element={
+            user
+              ? <Navigate to="/" replace />
+              : <LogIn 
+                  open={true} 
+                  onClose={() => window.history.back()} 
+                  onAuth={handleAuth}
+                  onSwitchToSignUp={() => window.location.href = '/sign-up'}
+                />
+          }
+        />
+        <Route
+          path="/sign-up"
+          element={
+            user
+              ? <Navigate to="/" replace />
+              : <SignUp 
+                  open={true} 
+                  onClose={() => window.history.back()} 
+                  onAuth={handleAuth}
+                  onSwitchToLogin={() => window.location.href = '/log-in'}
+                />
+          }
+        />
         <Route path="/account" element={<AccountSettings userEmail={user?.email || ''} />} />
         <Route path="/tutorials" element={<Tutorials isLoggedIn={!!user} userEmail={user?.email || ''} />} />
         <Route path="/eat/scan-label" element={<ScanLabelPage />} />
