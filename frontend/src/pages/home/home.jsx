@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { supabase } from '../../supabaseClient';
 import NavLogo from '../../components/navbar/Nav-Logo';
 import DateDisplayBox from '../../components/home/DateDisplayBox';
@@ -8,6 +8,7 @@ import NutritionGoalModal from '../auth/NutritionGoalModal';
 import ModalWrapper from '../../components/ModalWrapper';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import styles from './Home.module.css';
+import { calculateNutritionFromCalories, formatFoods } from '../../utils/nutrition';
 
 export default function Home(props) {
   const [showEatModal, setShowEatModal] = useState(false);
@@ -17,6 +18,12 @@ export default function Home(props) {
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState(null);
   const [latestCalories, setLatestCalories] = useState(2000);
+  const [userId, setUserId] = useState(null);
+  const [foods, setFoods] = useState([]);
+  const [foodsPage, setFoodsPage] = useState(1); // 当前页数
+  const [foodsLoading, setFoodsLoading] = useState(false);
+  const foodsPerPage = 5;
+  const foodsAllRef = useRef([]); // 保存所有foods原始数据
 
   useEffect(() => {
     if (searchParams.get('eat') === '1') {
@@ -28,8 +35,13 @@ export default function Home(props) {
   useEffect(() => {
     const fetchUserInfo = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return setUserInfo(null);
+      if (!user) {
+        setUserInfo(null);
+        setUserId(null);
+        return;
+      }
       setUserInfo(user.user_metadata || {});
+      setUserId(user.id);
     };
     fetchUserInfo();
   }, []);
@@ -48,6 +60,60 @@ export default function Home(props) {
       return 2000;
     }
     return data[0].calories || 2000;
+  };
+
+  // 分页加载foods
+  const fetchFoods = async (reset = false) => {
+    if (!userId) return;
+    setFoodsLoading(true);
+    const { data, error } = await supabase
+      .from('food')
+      .select('*')
+      .eq('user_id', userId)
+      .order('time', { ascending: false });
+    setFoodsLoading(false);
+    if (error) {
+      console.error('获取食物数据失败:', error);
+      setFoods([]);
+      foodsAllRef.current = [];
+      return;
+    }
+    foodsAllRef.current = data || [];
+    const foodsFormatted = formatFoods(foodsAllRef.current);
+    setFoods(reset ? foodsFormatted.slice(0, foodsPerPage) : foodsFormatted.slice(0, foodsPage * foodsPerPage));
+  };
+
+  // 首次加载和userId变化时重置分页
+  useEffect(() => {
+    setFoodsPage(1);
+    fetchFoods(true);
+  }, [userId]);
+
+  // 分页加载更多
+  const handleLoadMoreFoods = () => {
+    const nextPage = foodsPage + 1;
+    setFoodsPage(nextPage);
+    setFoods(
+      formatFoods(foodsAllRef.current).slice(0, nextPage * foodsPerPage)
+    );
+  };
+
+  // EatModal 新增/修改后自动刷新foods
+  const handleEatModalDataChange = () => {
+    setFoodsPage(1);
+    fetchFoods(true);
+  };
+
+  // EatModal滚动到底部时加载更多
+  const handleEatModalScroll = (e) => {
+    const el = e.target;
+    if (el.scrollHeight - el.scrollTop - el.clientHeight < 10 && !foodsLoading) {
+      if (foods.length < foodsAllRef.current.length) {
+        const nextPage = foodsPage + 1;
+        setFoodsPage(nextPage);
+        setFoods(formatFoods(foodsAllRef.current).slice(0, nextPage * foodsPerPage));
+      }
+    }
   };
 
   // 检查用户信息是否缺失，缺失则弹窗
@@ -103,14 +169,10 @@ export default function Home(props) {
   // 保存用户填写的卡路里值到 nutrition_goal 表
   const handleSaveCalories = async (calories) => {
     // 计算三大营养素
-    const carbs = Math.round((0.50 * calories) / 4);
-    const fats = Math.round((0.30 * calories) / 9);
-    const protein = Math.round((0.20 * calories) / 4);
-
+    const { carbs, fats, protein } = calculateNutritionFromCalories(calories);
     // 获取当前用户id
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-
     // 插入到 nutrition_goal 表
     const { error } = await supabase
       .from('nutrition_goal')
@@ -142,19 +204,20 @@ export default function Home(props) {
     <>
       <NavLogo onEatClick={() => setShowEatModal(true)} isLoggedIn={props.isLoggedIn} isAuth={false} />
       <div className={styles['home-main']}>
-        <DateDisplayBox />
+      <DateDisplayBox />
         {showEatModal && (
           <EatModal
             onClose={() => {
               setShowEatModal(false);
-              // 清除URL中的eat参数，回到干净的首页
               navigate('/', { replace: true });
             }}
-            foods={[]}
+            foods={foods}
             onDescribe={() => alert('Describe')}
             onEnterValue={() => alert('Enter Value')}
             onScanLabel={() => alert('Scan Label')}
-            userId={props.userId || 'default-user-id'}
+            userId={userId}
+            onDataChange={handleEatModalDataChange}
+            onFoodsScroll={handleEatModalScroll}
           />
         )}
         <UserInfoModal
@@ -172,7 +235,7 @@ export default function Home(props) {
             calories={getDisplayCalories()}
           />
         </ModalWrapper>
-      </div>
+    </div>
     </>
   );
 } 

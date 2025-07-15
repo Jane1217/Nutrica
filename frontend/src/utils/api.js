@@ -92,6 +92,9 @@ export const foodApi = {
   
   // 解析食物描述
   parseFoodDescription: (description) => apiPost('/api/ai/parse/description', { description }),
+  
+  // 获取食物emoji
+  getFoodEmoji: (foodNameOrDesc) => apiPost('/api/ai/parse/emoji', { text: foodNameOrDesc }),
 };
 
 // 错误处理

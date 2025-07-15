@@ -35,13 +35,9 @@
 }
 
 .dateText {
-  color: #22221B;
-  text-align: center;
   flex: 1;
 }
 
 .todayText {
-  color: rgba(34, 34, 27, 0.60);
-  text-align: center;
   width: 100%;
 } 

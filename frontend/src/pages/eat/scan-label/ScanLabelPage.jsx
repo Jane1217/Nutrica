@@ -82,6 +82,7 @@ export default function ScanLabelPage({ onClose, userId }) {
             Carbs: data.data.nutrition.carbs,
             Fats: data.data.nutrition.fats,
             Protein: data.data.nutrition.protein,
+            emoji: data.data.emoji || '🍽️'
           });
           setFoodModalOpen(true);
         } else {
