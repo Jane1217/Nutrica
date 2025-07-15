@@ -39,7 +39,7 @@ const config = {
     // Proxy configuration - used in local development, not in production
     proxy: process.env.NODE_ENV === 'development' ? {
       host: process.env.PROXY_HOST || '127.0.0.1',
-      port: process.env.PROXY_PORT || 7890,
+      port: process.env.PROXY_PORT || 10809,
       protocol: process.env.PROXY_PROTOCOL || 'http'
     } : null
   },
