@@ -2,11 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { supabase } from '../../supabaseClient';
 import NavLogo from '../../components/navbar/Nav-Logo';
 import DateDisplayBox from '../../components/home/DateDisplayBox';
-import EatModal from '../../components/eat/EatModal';
+import EatModal from '../eat/modals/EatModal';
 import UserInfoModal from '../auth/UserInfoModal';
 import NutritionGoalModal from '../auth/NutritionGoalModal';
 import ModalWrapper from '../../components/ModalWrapper';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import styles from './Home.module.css';
 
 export default function Home(props) {
@@ -14,6 +14,7 @@ export default function Home(props) {
   const [showUserInfoModal, setShowUserInfoModal] = useState(false);
   const [showNutritionGoalModal, setShowNutritionGoalModal] = useState(false);
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState(null);
   const [latestCalories, setLatestCalories] = useState(2000);
 
@@ -144,11 +145,16 @@ export default function Home(props) {
         <DateDisplayBox />
         {showEatModal && (
           <EatModal
-            onClose={() => setShowEatModal(false)}
+            onClose={() => {
+              setShowEatModal(false);
+              // 清除URL中的eat参数，回到干净的首页
+              navigate('/', { replace: true });
+            }}
             foods={[]}
             onDescribe={() => alert('Describe')}
             onEnterValue={() => alert('Enter Value')}
             onScanLabel={() => alert('Scan Label')}
+            userId={props.userId || 'default-user-id'}
           />
         )}
         <UserInfoModal
