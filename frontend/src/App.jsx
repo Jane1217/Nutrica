@@ -63,7 +63,7 @@ export default function App() {
         />
         <Route path="/account" element={<AccountSettings userEmail={user?.email || ''} />} />
         <Route path="/tutorials" element={<Tutorials isLoggedIn={!!user} userEmail={user?.email || ''} />} />
-        <Route path="/eat/scan-label" element={<ScanLabelPage />} />
+        <Route path="/eat/scan-label" element={<ScanLabelPage userId={user?.id} />} />
       </Routes>
     </BrowserRouter>
   );

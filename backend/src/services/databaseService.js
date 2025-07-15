@@ -10,7 +10,7 @@ class DatabaseService {
     this.bucketName = 'nutrition-images';
   }
 
-  async insertFood({ user_id, name, nutrition, number_of_servings, time }) {
+  async insertFood({ user_id, name, nutrition, number_of_servings, time, emoji }) {
     try {
       const { data, error } = await this.supabase
         .from('food')
@@ -19,7 +19,8 @@ class DatabaseService {
           name,
           nutrition,
           number_of_servings,
-          time
+          time,
+          emoji
         }]);
       if (error) throw error;
       return data;

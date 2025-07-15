@@ -3,7 +3,7 @@ import './FoodModal.css';
 import { validateFoodForm } from '../../../utils/validation';
 import { foodApi, handleApiError } from '../../../utils/api';
 
-export default function EnterValueModal({ open, onClose, onBack, onCloseModal, userId }) {
+export default function EnterValueModal({ open, onClose, onBack, onCloseModal, userId, onDataChange }) {
   const [form, setForm] = useState({
     name: '',
     calories: '',
@@ -39,16 +39,32 @@ export default function EnterValueModal({ open, onClose, onBack, onCloseModal, u
         fats: Number(form.fats),
         protein: Number(form.protein),
       };
-      
+      // 必须等待AI生成emoji
+      let emoji = '';
+      try {
+        const emojiRes = await foodApi.getFoodEmoji(form.name.trim());
+        if (emojiRes.success && emojiRes.data.emoji) {
+          emoji = emojiRes.data.emoji;
+        } else {
+          setError('AI未能生成emoji');
+          setLoading(false);
+          return;
+        }
+      } catch (e) {
+        setError('AI生成emoji失败');
+        setLoading(false);
+        return;
+      }
       const data = await foodApi.addFood({
         user_id: userId,
         name: form.name,
         number_of_servings: 1, // 固定为1
         nutrition,
+        emoji
       });
-      
       if (data.success) {
         setSuccess(true);
+        if (onDataChange) onDataChange();
         setTimeout(() => { onClose && onClose(); }, 1200);
       } else {
         setError(data.error || 'Save failed');
@@ -68,7 +84,7 @@ export default function EnterValueModal({ open, onClose, onBack, onCloseModal, u
             <button className="food-modal-back-btn" onClick={onBack}>
               <img src="/assets/arrow-left.svg" alt="Back" />
             </button>
-            <span className="eat-modal-title h1">Enter Value</span>
+            <span className="eat-modal-title">Enter Value</span>
           </div>
           <button className="eat-modal-close-btn" onClick={onCloseModal}>×</button>
         </div>
@@ -87,32 +103,32 @@ export default function EnterValueModal({ open, onClose, onBack, onCloseModal, u
             <span className="food-modal-row-label h2">Calories</span>
             <div className="food-modal-input-group">
               <input name="calories" value={form.calories} onChange={handleChange} className="food-modal-input" />
-              <span className="food-modal-unit">kcal</span>
+              <span className="food-modal-unit h5">kcal</span>
             </div>
           </div>
           <div className="food-modal-row">
             <span className="food-modal-row-label h2">Carbs</span>
             <div className="food-modal-input-group">
               <input name="carbs" value={form.carbs} onChange={handleChange} className="food-modal-input" />
-              <span className="food-modal-unit">g</span>
+              <span className="food-modal-unit h5">g</span>
             </div>
           </div>
           <div className="food-modal-row">
             <span className="food-modal-row-label h2">Fats</span>
             <div className="food-modal-input-group">
               <input name="fats" value={form.fats} onChange={handleChange} className="food-modal-input" />
-              <span className="food-modal-unit">g</span>
+              <span className="food-modal-unit h5">g</span>
             </div>
           </div>
           <div className="food-modal-row">
             <span className="food-modal-row-label h2">Protein</span>
             <div className="food-modal-input-group">
               <input name="protein" value={form.protein} onChange={handleChange} className="food-modal-input" />
-              <span className="food-modal-unit">g</span>
+              <span className="food-modal-unit h5">g</span>
             </div>
           </div>
         </div>
-        <button className="food-modal-confirm-btn" onClick={handleConfirm} disabled={loading}>{loading ? 'Saving...' : 'Confirm'}</button>
+        <button className="food-modal-confirm-btn h5" onClick={handleConfirm} disabled={loading}>{loading ? 'Saving...' : 'Confirm'}</button>
         {success && <div className="food-modal-success">Saved!</div>}
         {error && <div className="food-modal-error">{error}</div>}
       </div>

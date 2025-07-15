@@ -10,7 +10,7 @@ router.post('/', async (req, res) => {
   try {
     logApiRequest('POST', '/api/food', req.body);
     
-    const { user_id, name, nutrition, number_of_servings, time } = req.body;
+    const { user_id, name, nutrition, number_of_servings, time, emoji } = req.body;
     
     // 验证必需字段
     try {
@@ -27,7 +27,8 @@ router.post('/', async (req, res) => {
       name,
       nutrition: cleanNutrition,
       number_of_servings,
-      time: time || new Date().toISOString()
+      time: time || new Date().toISOString(),
+      emoji: emoji || '🍽️' // 默认emoji
     });
     
     logApiResponse('POST', '/api/food', 200, result);
