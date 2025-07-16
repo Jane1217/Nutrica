@@ -1,8 +1,8 @@
 const app = require('./src/server');
 const config = require('./src/config/config');
 
-// Start server only in local development
-if (process.env.NODE_ENV !== 'production' || process.env.VERCEL !== '1') {
+// 仅在本地开发时启动监听
+if (!process.env.VERCEL) {
   const PORT = config.server.port;
   app.listen(PORT, () => {
     console.log(`🚀 Server is running on port ${PORT}`);
@@ -11,5 +11,5 @@ if (process.env.NODE_ENV !== 'production' || process.env.VERCEL !== '1') {
   });
 }
 
-// Export for Vercel
-module.exports = app; 
+// 云端部署时只导出 app
+module.exports = app;
