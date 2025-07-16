@@ -224,22 +224,21 @@ export default function Home(props) {
       <NavLogo onEatClick={() => setShowEatModal(true)} isLoggedIn={props.isLoggedIn} isAuth={false} />
       <div className={styles['home-main']}>
       <DateDisplayBox />
-        {showEatModal && (
-          <EatModal
-            onClose={() => {
-              setShowEatModal(false);
-              navigate('/', { replace: true });
-            }}
-            foods={foods}
-            foodsLoading={foodsLoading}
-            onDescribe={() => alert('Describe')}
-            onEnterValue={() => alert('Enter Value')}
-            onScanLabel={() => alert('Scan Label')}
-            userId={userId}
-            onDataChange={handleEatModalDataChange}
-            onFoodsScroll={handleEatModalScroll}
-          />
-        )}
+        <EatModal
+          open={showEatModal}
+          onClose={() => {
+            setShowEatModal(false);
+            navigate('/', { replace: true });
+          }}
+          foods={foods}
+          foodsLoading={foodsLoading}
+          onDescribe={() => alert('Describe')}
+          onEnterValue={() => alert('Enter Value')}
+          onScanLabel={() => alert('Scan Label')}
+          userId={userId}
+          onDataChange={handleEatModalDataChange}
+          onFoodsScroll={handleEatModalScroll}
+        />
         <UserInfoModal
           open={showUserInfoModal}
           onClose={() => setShowUserInfoModal(false)}

@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import './FoodModal.css';
+import ModalWrapper from '../../../components/ModalWrapper';
 
 export default function DescribeModal({ open, onClose, onBack, onCloseModal, onNext }) {
   const [description, setDescription] = useState('');
-
-  if (!open) return null;
 
   const handleNext = () => {
     if (description.trim()) {
@@ -13,7 +12,7 @@ export default function DescribeModal({ open, onClose, onBack, onCloseModal, onN
   };
 
   return (
-    <div className="eat-modal-overlay food-modal-overlay">
+    <ModalWrapper open={open} onClose={onCloseModal}>
       <div className="eat-modal food-modal">
         <div className="eat-modal-group1 food-modal-group1">
           <div className="food-modal-title-group">
@@ -43,6 +42,6 @@ export default function DescribeModal({ open, onClose, onBack, onCloseModal, onN
           Next
         </button>
       </div>
-    </div>
+    </ModalWrapper>
   );
 } 

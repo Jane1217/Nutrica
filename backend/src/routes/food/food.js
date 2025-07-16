@@ -10,6 +10,9 @@ router.post('/', async (req, res) => {
   try {
     logApiRequest('POST', '/api/food', req.body);
     
+    // 新增：打印完整body内容，便于排查
+    console.log('API POST /api/food body:', JSON.stringify(req.body));
+    
     const { user_id, name, nutrition, number_of_servings, time, emoji } = req.body;
     
     // 验证必需字段
