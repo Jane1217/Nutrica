@@ -250,9 +250,26 @@ export default function AccountSettings({ userEmail }) {
         onSave={async (data) => {
           const newMeta = { ...userInfo, ...data };
           setUserInfo(newMeta);
+          
+          // 更新头像
           if (data.avatarUrl) {
             setAvatarUrl(data.avatarUrl);
+          } else if (data.avatarUrl === null) {
+            // 删除头像时，重新获取用户信息
+            setAvatarUrl(null);
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+              const userMeta = user.user_metadata || {};
+              setUserInfo(userMeta);
+            }
           }
+          
+          // 更新昵称显示
+          if (data.name) {
+            // 立即更新昵称显示，无需等待数据库
+            setUserInfo(prev => ({ ...prev, name: data.name, lastName: data.lastName }));
+          }
+          
           const { data: { user } } = await supabase.auth.getUser();
           if (!user) return;
           const { error } = await supabase.auth.updateUser({ data: newMeta });
