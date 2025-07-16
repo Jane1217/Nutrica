@@ -6,6 +6,7 @@ import { supabase } from '../../supabaseClient';
 import styles from './Auth.module.css';
 import UserInfoModal from './UserInfoModal';
 import NutritionGoalModal from './NutritionGoalModal';
+import ProfileEditModal from './ProfileEditModal';
 import ModalWrapper from '../../components/ModalWrapper';
 
 export default function AccountSettings({ userEmail }) {
@@ -14,17 +15,35 @@ export default function AccountSettings({ userEmail }) {
   const [showSafariSetup, setShowSafariSetup] = useState(true);
   const [showUserInfoModal, setShowUserInfoModal] = useState(false);
   const [showNutritionGoalModal, setShowNutritionGoalModal] = useState(false);
+  const [showProfileEditModal, setShowProfileEditModal] = useState(false);
   const initial = userEmail ? userEmail[0].toUpperCase() : '';
   const [userInfo, setUserInfo] = useState(null);
+  const [avatarUrl, setAvatarUrl] = useState(null);
   const nickname = userInfo?.name || 'Your Name';
   const [latestCalories, setLatestCalories] = useState(2000);
+
+  // 头像显示逻辑：优先使用昵称第一个字母，其次使用邮箱第一个字母
+  const getAvatarText = () => {
+    if (userInfo?.name && userInfo.name[0]) {
+      return userInfo.name[0].toUpperCase();
+    }
+    if (userEmail && userEmail[0]) {
+      return userEmail[0].toUpperCase();
+    }
+    return 'U';
+  };
+  const avatarText = getAvatarText();
 
   // 页面加载时自动从supabase user_metadata读取用户信息
   React.useEffect(() => {
     const fetchUserInfo = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return setUserInfo(null);
-      setUserInfo(user.user_metadata || {});
+      const userMeta = user.user_metadata || {};
+      setUserInfo(userMeta);
+      if (userMeta.avatarUrl) {
+        setAvatarUrl(userMeta.avatarUrl);
+      }
     };
     fetchUserInfo();
   }, [userEmail]);
@@ -126,8 +145,37 @@ export default function AccountSettings({ userEmail }) {
     <>
       <NavLogo onEatClick={() => setShowEatModal(true)} isLoggedIn={true} isAuth={false} />
       <div className={styles['account-main']}>
-        <h1 className={styles['account-title']}>Account</h1>
-      <div className={styles['account-avatar']}>{initial}</div>
+        <div style={{display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', width: '100%'}}>
+          <h1 className={styles['account-title']} style={{marginBottom: 16, flex: 1, textAlign: 'left'}}>Account</h1>
+          <button
+            className="h5"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+              background: 'none',
+              border: 'none',
+              color: '#767676',
+              cursor: 'pointer',
+              marginRight: 0,
+              marginBottom: 20,
+              paddingBottom: 6
+            }}
+            onClick={() => setShowProfileEditModal(true)}
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{marginRight: 2}}>
+              <path d="M3 17.25V21h3.75l11.06-11.06-3.75-3.75L3 17.25zM20.71 7.04a1.003 1.003 0 0 0 0-1.42l-2.34-2.34a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z" fill="#767676"/>
+            </svg>
+            Edit
+          </button>
+        </div>
+      <div className={styles['account-avatar']} style={{background: '#905021'}}>
+        {avatarUrl ? (
+          <img src={avatarUrl} alt="avatar" style={{width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%'}} />
+        ) : (
+          avatarText
+        )}
+      </div>
       <div className={styles['account-nickname'] + ' h1'}>{nickname}</div>
       <div className={styles['account-email']+ ' h3'}>{userEmail}</div>
       {showSafariSetup && (
@@ -146,19 +194,11 @@ export default function AccountSettings({ userEmail }) {
       )}
       <div className={styles['account-card-list']}>
         <button className={styles['account-card-btn']} onClick={() => setShowUserInfoModal(true)}>
-          Change Personal Information
-          <span>{'>'}</span>
-        </button>
-        <button className={styles['account-card-btn']} onClick={openNutritionGoalModal}>
           Update Nutrition Goal
           <span>{'>'}</span>
         </button>
         <button className={styles['account-card-btn']} disabled>
           Change Password
-          <span>{'>'}</span>
-        </button>
-        <button className={styles['account-card-btn']} disabled>
-          Share Feedback
           <span>{'>'}</span>
         </button>
         <button className={styles['account-card-btn']} onClick={handleSignOut}>
@@ -197,6 +237,24 @@ export default function AccountSettings({ userEmail }) {
           calories={getDisplayCalories()}
         />
       </ModalWrapper>
+      <ProfileEditModal 
+        open={showProfileEditModal} 
+        onClose={() => setShowProfileEditModal(false)} 
+        userInfo={{...userInfo, email: userEmail}} 
+        onSave={async (data) => {
+          const newMeta = { ...userInfo, ...data };
+          setUserInfo(newMeta);
+          if (data.avatarUrl) {
+            setAvatarUrl(data.avatarUrl);
+          }
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) return;
+          const { error } = await supabase.auth.updateUser({ data: newMeta });
+          if (error) {
+            console.error('保存用户信息失败:', error);
+          }
+        }} 
+      />
       </div>
     </>
   );
