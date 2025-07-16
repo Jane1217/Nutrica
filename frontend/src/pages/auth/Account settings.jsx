@@ -158,7 +158,7 @@ export default function AccountSettings({ userEmail }) {
               color: '#767676',
               cursor: 'pointer',
               marginRight: 0,
-              marginBottom: 20,
+              marginBottom: 24,
               paddingBottom: 6
             }}
             onClick={() => setShowProfileEditModal(true)}
@@ -187,14 +187,14 @@ export default function AccountSettings({ userEmail }) {
       {showSafariSetup && (
         <div className={styles['account-info-box']}>
           <div style={{display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'space-between'}}>
-            <span style={{fontWeight: 700, fontSize: 16, display: 'flex', alignItems: 'center', gap: 8}}>
+            <span className="body1" style={{fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8, color: '#22221B'}}>
               <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f30d.svg" alt="safari" style={{width: 24, height: 24, marginRight: 8}} />
               Safari Camera Permission Setup
             </span>
-            <span style={{cursor: 'pointer', fontSize: 20, color: '#888'}} onClick={() => setShowSafariSetup(false)}>&times;</span>
+            <span style={{cursor: 'pointer', fontSize: 24, color: '#666', fontWeight: 300}} onClick={() => setShowSafariSetup(false)}>&times;</span>
           </div>
-          <div style={{fontSize: 15, color: '#22221B', opacity: 0.8}}>
-            Avoid repeated camera permission popups — enable full camera access for seamless scanning on Nutrica.com, with Safari.
+          <div style={{fontSize: 15, color: '#666', lineHeight: '1.4'}}>
+            Avoid repeated camera permission popups for seamless scanning on Nutrica.life, with Safari.
           </div>
         </div>
       )}
@@ -213,9 +213,9 @@ export default function AccountSettings({ userEmail }) {
         </button>
       </div>
       <div className={styles['account-footer-bar']}>
-        <span>About</span>
-        <span>Contact Us</span>
+        <span>Privacy Notice</span>
         <span>Delete Account</span>
+        <span>About</span>
       </div>
       {showEatModal && (
         <EatModal

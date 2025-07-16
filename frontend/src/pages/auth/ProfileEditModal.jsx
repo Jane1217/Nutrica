@@ -346,7 +346,8 @@ export default function ProfileEditModal({ open, onClose, userInfo = {}, onSave 
           right: 0,
           display: 'flex',
           justifyContent: 'center',
-          zIndex: 1000
+          zIndex: 1000,
+          marginTop:24,
         }}>
           <button type="submit" className="h5" disabled={uploading} style={{
             display: 'flex',

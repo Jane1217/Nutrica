@@ -84,6 +84,7 @@
   min-height: calc(100vh - 40px);
   background: #F3F3EC;
   box-sizing: border-box;
+  position: relative;
 }
 @media (max-width: 500px) {
   .account-main {
@@ -135,6 +136,7 @@
   font-size: 16px;
   font-style: normal;
   font-weight: 500;
+  padding-bottom: 80px;
 }
 .account-card-btn {
   display: flex;
@@ -161,17 +163,14 @@
   color: #bbb;
 }
 .account-footer-bar {
-  /*
-  margin-top: auto;
-  border-top: 1px solid #ddd;
-  padding-top: 16px;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px);
+  max-width: 368px;
   display: flex;
   justify-content: space-around;
-  color: #888;
-  font-size: 15px;
-  width: 100%;
-  */
-  display: flex;
   color: rgba(34, 34, 27, 0.60);
   /* H5 */
   font-family: Kanit;
@@ -179,8 +178,8 @@
   font-style: normal;
   font-weight: 500;
   line-height: 150%; /* 24px */
-  margin-left: 16px;
-  margin-right: 16px;
+  padding-bottom: 24px;
+  background: #F3F3EC;
 }
 .tutorial-main {
   max-width: 375px;
@@ -420,18 +419,20 @@
   font-size: 18px;
 }
 .account-info-box {
-  display: inline-flex;
+  display: flex;
   padding: 16px;
-  margin: 16px 0;
   flex-direction: column;
   align-items: flex-start;
-  gap: 16px;
+  gap: 8px;
+  align-self: stretch;
   border-radius: 24px;
-  border: 0.5px solid rgba(0, 0, 0, 0.10);
-  background: #E7E7D5;
+  border: 1px solid #DBE2D0;
+  background: #FCFCF8;
   font-size: 15px;
-  width: calc(100% - 32px);
+  width: calc(100% - 16px);
+  max-width: 700px;
   box-sizing: border-box;
+  margin: 16px 0 16px 16px;
 }
 .account-btn-group {
   display: flex;
