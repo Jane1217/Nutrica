@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const config = require('../../config/config');
-//const openaiService = require('../../services/openaiService');
+const openaiService = require('../../services/openaiService');
 
 // 使用 Hugging Face
 //const openaiService = require('../../services/huggingfaceService');
@@ -10,7 +10,7 @@ const config = require('../../config/config');
 // 使用模拟服务
 //const openaiService = require('../../services/mockAIService');
 
-const openaiService = require('../../services/nutritionService');
+//const openaiService = require('../../services/nutritionService');
 const { validateFileType, validateFileSize } = require('../../utils/validation');
 const { successResponse, errorResponse, fileUploadErrorResponse } = require('../../utils/response');
 const { logInfo, logError } = require('../../utils/logger');
