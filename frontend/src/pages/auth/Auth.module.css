@@ -85,6 +85,7 @@
   background: #F3F3EC;
   box-sizing: border-box;
   position: relative;
+  justify-content: flex-start;
 }
 @media (max-width: 500px) {
   .account-main {
@@ -137,6 +138,10 @@
   font-style: normal;
   font-weight: 500;
   padding-bottom: 80px;
+  margin-top: auto;
+  flex: 1;
+  justify-content: flex-start;
+  min-height: 200px;
 }
 .account-card-btn {
   display: flex;
