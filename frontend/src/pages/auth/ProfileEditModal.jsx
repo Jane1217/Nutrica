@@ -289,11 +289,11 @@ export default function ProfileEditModal({ open, onClose, userInfo = {}, onSave 
               )}
               <div style={{
                 position: 'absolute',
-                right: -12,
-                top: -12,
+                right: -8,
+                top: -8,
                 display: 'flex',
-                width: 36,
-                height: 36,
+                width: 24,
+                height: 24,
                 padding: 8,
                 justifyContent: 'center',
                 alignItems: 'center',
@@ -336,10 +336,33 @@ export default function ProfileEditModal({ open, onClose, userInfo = {}, onSave 
         </div>
         <div style={{padding: '0 24px', width: 360, maxWidth: '90vw', margin: '0 auto'}}>
           <InputField label=" First Name (Nickname)" value={firstName} onChange={setFirstName} required />
+          <div style={{height: 24}}></div>
           <InputField label=" Last Name (Optional)" value={lastName} onChange={setLastName} />
         </div>
-        <div style={{display: 'flex', justifyContent: 'center', marginTop: 32, marginBottom: 24}}>
-          <button type="submit" className="h5" disabled={uploading} style={{width: 240, height: 64, borderRadius: 32, background: uploading ? '#ccc' : '#2A4E14', color: '#fff', border: 'none', fontSize: 22, fontWeight: 500, cursor: uploading ? 'not-allowed' : 'pointer'}}>
+        <div style={{
+          position: 'fixed',
+          bottom: 24,
+          left: 0,
+          right: 0,
+          display: 'flex',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <button type="submit" className="h5" disabled={uploading} style={{
+            display: 'flex',
+            width: 200,
+            height: 80,
+            padding: '13px 21px',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: 10,
+            flexShrink: 0,
+            borderRadius: 36,
+            background: uploading ? '#ccc' : '#2A4E14',
+            color: '#fff',
+            border: 'none',
+            cursor: uploading ? 'not-allowed' : 'pointer'
+          }}>
             {uploading ? 'Uploading...' : 'Save'}
           </button>
         </div>
