@@ -135,6 +135,9 @@ export default function Home(props) {
     }
   };
 
+  // 关闭EatModal时不重置foodsPage和foods
+  // 只在handleEatModalDataChange时重置
+
   // 检查用户信息是否缺失，缺失则弹窗
   useEffect(() => {
     const checkUserInfo = async () => {

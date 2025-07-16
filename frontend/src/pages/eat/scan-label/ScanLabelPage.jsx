@@ -10,6 +10,12 @@ import {
   setupCameraEventListeners 
 } from '../../../utils/camera';
 import './ScanLabelPage.css';
+import CameraPermissionModal from '../modals/CameraPermissionModal';
+
+// 组件外部，避免多次挂载重复判断
+const CAMERA_PERMISSION_KEY = 'nutrica_camera_permission_shown';
+const isCameraPermissionShown = () => !!localStorage.getItem(CAMERA_PERMISSION_KEY);
+const setCameraPermissionShown = () => localStorage.setItem(CAMERA_PERMISSION_KEY, '1');
 
 export default function ScanLabelPage({ onClose, userId }) {
   const videoRef = useRef(null);
@@ -21,6 +27,8 @@ export default function ScanLabelPage({ onClose, userId }) {
   const [foodModalOpen, setFoodModalOpen] = useState(false);
   const [foodResult, setFoodResult] = useState(null);
   const navigate = useNavigate();
+  const [showPermission, setShowPermission] = useState(!isCameraPermissionShown());
+  const [cameraFeatureTip, setCameraFeatureTip] = useState('');
 
   // 摄像头管理函数
   const handleStartCamera = () => {
@@ -112,6 +120,111 @@ export default function ScanLabelPage({ onClose, userId }) {
   useEffect(() => {
     handleStartCamera();
     
+    // 只在首次进入时弹窗
+    if (!isCameraPermissionShown()) {
+      setShowPermission(true);
+      setCameraPermissionShown();
+    } else {
+      setShowPermission(false);
+    }
+
+    // 检查摄像头能力
+    setTimeout(() => {
+      const video = videoRef.current;
+      if (video && video.srcObject) {
+        const track = video.srcObject.getVideoTracks()[0];
+        if (track && track.getCapabilities) {
+          const caps = track.getCapabilities();
+          const supportZoom = !!caps.zoom;
+          const supportFocus = !!caps.focusMode && caps.focusMode.includes('single-shot');
+          if (!supportZoom && !supportFocus) {
+            setCameraFeatureTip('Camera zoom and focus are not supported on this device/browser.');
+          } else if (!supportZoom) {
+            setCameraFeatureTip('Camera zoom is not supported on this device/browser.');
+          } else if (!supportFocus) {
+            setCameraFeatureTip('Camera focus is not supported on this device/browser.');
+          } else {
+            setCameraFeatureTip('');
+          }
+        } else {
+          setCameraFeatureTip('Camera zoom and focus are not supported on this device/browser.');
+        }
+      }
+    }, 1200);
+
+    // 监听手势缩放和点击对焦（仅支持的设备才启用）
+    const video = videoRef.current;
+    let lastDistance = null;
+    let zooming = false;
+    let track = null;
+    let maxZoom = 1;
+    let minZoom = 1;
+    let currentZoom = 1;
+    const setupZoom = () => {
+      if (!video || !video.srcObject) return;
+      track = video.srcObject.getVideoTracks()[0];
+      if (track && track.getCapabilities) {
+        const caps = track.getCapabilities();
+        if (caps.zoom) {
+          maxZoom = caps.zoom.max;
+          minZoom = caps.zoom.min;
+          currentZoom = track.getSettings().zoom || 1;
+        }
+      }
+    };
+    const onTouchStart = e => {
+      if (e.touches.length === 2) {
+        zooming = true;
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        lastDistance = Math.sqrt(dx * dx + dy * dy);
+        setupZoom();
+      }
+    };
+    const onTouchMove = e => {
+      if (zooming && e.touches.length === 2 && track && track.applyConstraints) {
+        const dx = e.touches[0].clientX - e.touches[1].clientX;
+        const dy = e.touches[0].clientY - e.touches[1].clientY;
+        const newDistance = Math.sqrt(dx * dx + dy * dy);
+        let delta = (newDistance - lastDistance) / 100; // 缩放灵敏度
+        let newZoom = Math.max(minZoom, Math.min(maxZoom, currentZoom + delta));
+        track.applyConstraints({ advanced: [{ zoom: newZoom }] });
+      }
+    };
+    const onTouchEnd = e => {
+      zooming = false;
+      lastDistance = null;
+    };
+    const onClick = async e => {
+      // 点击对焦
+      if (!video || !video.srcObject) return;
+      const track = video.srcObject.getVideoTracks()[0];
+      if (track && track.getCapabilities && track.applyConstraints) {
+        const caps = track.getCapabilities();
+        if (caps.focusMode && caps.focusMode.includes('single-shot')) {
+          try {
+            await track.applyConstraints({ advanced: [{ focusMode: 'single-shot' }] });
+          } catch (err) {
+            // 忽略不支持
+          }
+        }
+      }
+    };
+    // 仅支持的设备才绑定事件
+    setTimeout(() => {
+      if (video && video.srcObject) {
+        const track = video.srcObject.getVideoTracks()[0];
+        if (track && track.getCapabilities) {
+          const caps = track.getCapabilities();
+          if (caps.zoom || (caps.focusMode && caps.focusMode.includes('single-shot'))) {
+            video.addEventListener('touchstart', onTouchStart, { passive: false });
+            video.addEventListener('touchmove', onTouchMove, { passive: false });
+            video.addEventListener('touchend', onTouchEnd, { passive: false });
+            video.addEventListener('click', onClick);
+          }
+        }
+      }
+    }, 1500);
     // 设置事件监听器
     const cleanupListeners = setupCameraEventListeners({
       stopCamera: handleStopCamera,
@@ -136,6 +249,12 @@ export default function ScanLabelPage({ onClose, userId }) {
       handleForceReleaseCamera();
       
       console.log('Camera cleanup completed');
+      if (video) {
+        video.removeEventListener('touchstart', onTouchStart);
+        video.removeEventListener('touchmove', onTouchMove);
+        video.removeEventListener('touchend', onTouchEnd);
+        video.removeEventListener('click', onClick);
+      }
     };
   }, [navigate]);
 
@@ -150,6 +269,16 @@ export default function ScanLabelPage({ onClose, userId }) {
 
   return (
     <div className="scan-label-page">
+      {/* 只在首次弹出权限弹窗，复用CameraPermissionModal */}
+      {showPermission && (
+        <CameraPermissionModal 
+          onClose={() => setShowPermission(false)} 
+          onOk={() => setShowPermission(false)} 
+        />
+      )}
+      {cameraFeatureTip && (
+        <div style={{position:'absolute',top:0,left:0,right:0,zIndex:9999,background:'rgba(0,0,0,0.7)',color:'#fff',textAlign:'center',padding:8,fontSize:14}}>{cameraFeatureTip}</div>
+      )}
       <video ref={videoRef} className="scan-video" autoPlay playsInline muted></video>
       <div className="scan-overlay"></div>
       <div className="scan-center">

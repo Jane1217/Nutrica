@@ -1,13 +1,14 @@
 .scan-label-page {
   position: fixed;
   inset: 0;
-  width: 100vw;
-  height: 100vh;
+  background: #22221B;
   z-index: 3000;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  padding-top: env(safe-area-inset-top);
+  /* 不加height/width/padding，确保背景全屏覆盖刘海 */
 }
 .scan-video {
   position: absolute;
@@ -30,7 +31,7 @@
   border: 4px solid #FFF;
   flex-shrink: 0;
   width: 100%;
-  height: 53vh;
+  height: 50vh;
   background: none;
   box-shadow: 0 0 0 9999px rgba(35, 38, 31, 0.60);
   z-index: 2;
@@ -39,10 +40,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: -10vh;
+  margin-top: -5vh;
 }
 .scan-tip {
-  margin: 16px;
+  margin: 6px;
   display: inline-flex;
   padding: 8px 12px 8px 8px;
   flex-direction: column;
@@ -86,7 +87,7 @@
 .scan-shutter {
   position: absolute;
   left: 50%;
-  bottom: 24px;
+  bottom: 8px;
   transform: translateX(-50%);
   width: 96px;
   height: 96px;
@@ -98,6 +99,7 @@
   border: none;
   cursor: pointer;
   z-index: 3;
+  margin-bottom: env(safe-area-inset-bottom);
 }
 .scan-close-btn {
   display: flex;
@@ -113,7 +115,7 @@
   font-size: 2rem;
   cursor: pointer;
   position: absolute;
-  top: 16px;
+  top: calc(16px + env(safe-area-inset-top));
   left: 16px;
   z-index: 4;
 }
