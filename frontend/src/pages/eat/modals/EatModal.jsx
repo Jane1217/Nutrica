@@ -112,21 +112,21 @@ export default function EatModal({ onClose, foods = [], foodsLoading = false, on
                 </div>
               ) : (
                 foodsState.map((food, idx) => (
-                  <div className="eat-modal-food-card" key={idx}>
-                    <div className="eat-modal-food-wrapper">
-                      <div className="eat-modal-food-heading">
+                <div className="eat-modal-food-card" key={idx}>
+                  <div className="eat-modal-food-wrapper">
+                    <div className="eat-modal-food-heading">
                         <span className="eat-modal-food-icon">{food.emoji}</span>
                         <span className="eat-modal-food-name h5" style={{color:'#000'}}>{food.name}</span>
-                      </div>
-                      <span className="eat-modal-food-time label" style={{color:'rgba(0,0,0,0.60)',textAlign:'right'}}>{formatFoodTimeSmart(food.time)}</span>
                     </div>
-                    <div className="eat-modal-nutrition-facts">
-                      {food.nutrition.map((item, i) => (
-                        <div className="eat-modal-nutrition-item" key={i} style={{borderRight: i === food.nutrition.length-1 ? 'none' : undefined}}>
+                      <span className="eat-modal-food-time label" style={{color:'rgba(0,0,0,0.60)',textAlign:'right'}}>{formatFoodTimeSmart(food.time)}</span>
+                  </div>
+                  <div className="eat-modal-nutrition-facts">
+                    {food.nutrition.map((item, i) => (
+                      <div className="eat-modal-nutrition-item" key={i} style={{borderRight: i === food.nutrition.length-1 ? 'none' : undefined}}>
                           <span className="eat-modal-nutrition-type label" style={{alignSelf:'stretch',color:'rgba(0,0,0,0.60)',textAlign:'center'}}>{item.type}</span>
                           <span className="eat-modal-nutrition-value h6" style={{alignSelf:'stretch',color:'#000',textAlign:'center'}}>{item.value}</span>
-                        </div>
-                      ))}
+                      </div>
+                    ))}
                     </div>
                   </div>
                 ))
