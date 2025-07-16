@@ -171,7 +171,13 @@ export default function AccountSettings({ userEmail }) {
         </div>
       <div className={styles['account-avatar']} style={{background: '#905021'}}>
         {avatarUrl ? (
-          <img src={avatarUrl} alt="avatar" style={{width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%'}} />
+          <img src={avatarUrl} alt="avatar" style={{
+            width: '100%', 
+            height: '100%', 
+            objectFit: 'cover', 
+            borderRadius: '50%',
+            imageRendering: 'high-quality'
+          }} />
         ) : (
           avatarText
         )}

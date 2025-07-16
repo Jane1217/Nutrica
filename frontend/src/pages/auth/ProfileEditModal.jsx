@@ -18,10 +18,14 @@ const getCroppedImg = async (imageSrc, crop, zoom) => {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d');
 
-  // 设置输出尺寸为120x120（与头像显示尺寸一致）
-  const outputSize = 120;
+  // 设置输出尺寸为240x240（提高清晰度）
+  const outputSize = 240;
   canvas.width = outputSize;
   canvas.height = outputSize;
+
+  // 启用图像平滑
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
 
   // 计算裁剪区域
   const cropX = crop.x;
@@ -45,7 +49,7 @@ const getCroppedImg = async (imageSrc, crop, zoom) => {
   return new Promise((resolve) => {
     canvas.toBlob((blob) => {
       resolve(blob);
-    }, 'image/jpeg', 0.9);
+    }, 'image/jpeg', 0.95);
   });
 };
 
@@ -93,6 +97,28 @@ export default function ProfileEditModal({ open, onClose, userInfo = {}, onSave 
         const blob = await getCroppedImg(avatarUrl, croppedAreaPixels, zoom);
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
+        
+        // 先删除用户原有的头像文件
+        if (userInfo.avatarUrl) {
+          try {
+            // 从URL中提取文件名
+            const urlParts = userInfo.avatarUrl.split('/');
+            const fileName = urlParts[urlParts.length - 1];
+            if (fileName && fileName.startsWith('avatar_')) {
+              const { error: deleteError } = await supabase.storage
+                .from('avatars')
+                .remove([fileName]);
+              
+              if (deleteError) {
+                console.error('删除旧头像失败:', deleteError);
+              } else {
+                console.log('旧头像已删除:', fileName);
+              }
+            }
+          } catch (error) {
+            console.error('删除旧头像时出错:', error);
+          }
+        }
         
         const fileName = `avatar_${user.id}_${Date.now()}.jpg`;
         const { data, error } = await supabase.storage
@@ -202,7 +228,13 @@ export default function ProfileEditModal({ open, onClose, userInfo = {}, onSave 
                   />
                 </div>
               ) : croppedUrl ? (
-                <img src={croppedUrl} alt="avatar" style={{width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%'}} />
+                <img src={croppedUrl} alt="avatar" style={{
+                  width: '100%', 
+                  height: '100%', 
+                  objectFit: 'cover', 
+                  borderRadius: '50%',
+                  imageRendering: 'high-quality'
+                }} />
               ) : (
                 avatarText
               )}
