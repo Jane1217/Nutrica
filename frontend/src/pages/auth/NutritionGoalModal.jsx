@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import styles from "./Auth.module.css";
+import { calculateNutritionFromCalories } from "../../utils/nutrition";
 
 export default function NutritionGoalModal({ onClose, onBack, onSave, name = '', calories = 2000 }) {
   const [userInput, setUserInput] = useState('');
@@ -13,11 +14,9 @@ export default function NutritionGoalModal({ onClose, onBack, onSave, name = '',
     return calories;
   };
   
-  // 动态计算宏量营养素克数 - 使用当前卡路里值
+  // 动态计算宏量营养素克数 - 使用utils函数和当前卡路里值
   const currentCalories = getCurrentCalories();
-  const carbs = Math.round((0.50 * currentCalories) / 4);
-  const fats = Math.round((0.30 * currentCalories) / 9);
-  const protein = Math.round((0.20 * currentCalories) / 4);
+  const { carbs, fats, protein } = calculateNutritionFromCalories(currentCalories);
   
   const handleSave = () => {
     const finalValue = isUserEditing ? Number(userInput) : calories;

@@ -125,7 +125,9 @@ export default function FoodModal({ open, onClose, initialData, userId, onDataCh
       <div className="eat-modal food-modal">
         <div className="eat-modal-group1 food-modal-group1">
           <span className="eat-modal-title">Food</span>
-          <button className="eat-modal-close-btn" onClick={onClose}>×</button>
+          <button className="eat-modal-close-btn" onClick={onClose}>
+            <img src="/assets/mingcute_close-fill-black.svg" alt="close" width="24" height="24" />
+          </button>
         </div>
         <div className="food-modal-label h5">Food name</div>
         <input name="name" value={form.name} onChange={handleChange} className="food-modal-name-strong" style={{marginLeft: 0}} />
