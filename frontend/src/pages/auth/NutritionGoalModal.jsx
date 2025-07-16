@@ -1,14 +1,13 @@
 import React, { useState } from "react";
 import styles from "./Auth.module.css";
+import { calculateNutritionFromCalories } from "../../utils/nutrition";
 
 export default function NutritionGoalModal({ onClose, onBack, onSave, name = '', calories = 2000 }) {
   const [userInput, setUserInput] = useState('');
   const [isUserEditing, setIsUserEditing] = useState(false);
   
-  // 动态计算宏量营养素克数 - 直接使用传入的calories prop
-  const carbs = Math.round((0.50 * calories) / 4);
-  const fats = Math.round((0.30 * calories) / 9);
-  const protein = Math.round((0.20 * calories) / 4);
+  // 动态计算宏量营养素克数 - 使用utils函数
+  const { carbs, fats, protein } = calculateNutritionFromCalories(calories);
   
   const handleSave = () => {
     const finalValue = isUserEditing ? Number(userInput) : calories;

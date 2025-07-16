@@ -22,6 +22,7 @@ export default function Home(props) {
   const [foods, setFoods] = useState([]);
   const [foodsPage, setFoodsPage] = useState(1); // 当前页数
   const [foodsLoading, setFoodsLoading] = useState(false);
+  const [foodsTotal, setFoodsTotal] = useState(0); // 总数据量
   const foodsPerPage = 5;
   const foodsAllRef = useRef([]); // 保存所有foods原始数据
 
@@ -66,21 +67,40 @@ export default function Home(props) {
   const fetchFoods = async (reset = false) => {
     if (!userId) return;
     setFoodsLoading(true);
-    const { data, error } = await supabase
+    
+    const page = reset ? 1 : foodsPage;
+    const from = (page - 1) * foodsPerPage;
+    const to = from + foodsPerPage - 1;
+    
+    const { data, error, count } = await supabase
       .from('food')
-      .select('*')
+      .select('*', { count: 'exact' })
       .eq('user_id', userId)
-      .order('time', { ascending: false });
+      .order('time', { ascending: false })
+      .range(from, to);
+    
     setFoodsLoading(false);
+    
     if (error) {
       console.error('获取食物数据失败:', error);
       setFoods([]);
       foodsAllRef.current = [];
+      setFoodsTotal(0);
       return;
     }
-    foodsAllRef.current = data || [];
-    const foodsFormatted = formatFoods(foodsAllRef.current);
-    setFoods(reset ? foodsFormatted.slice(0, foodsPerPage) : foodsFormatted.slice(0, foodsPage * foodsPerPage));
+    
+    const foodsFormatted = formatFoods(data || []);
+    
+    if (reset) {
+      // 重置时，直接设置当前页数据
+      setFoods(foodsFormatted);
+      foodsAllRef.current = data || [];
+      setFoodsTotal(count || 0);
+    } else {
+      // 加载更多时，追加到现有数据
+      setFoods(prevFoods => [...prevFoods, ...foodsFormatted]);
+      foodsAllRef.current = [...foodsAllRef.current, ...(data || [])];
+    }
   };
 
   // 首次加载和userId变化时重置分页
@@ -93,9 +113,7 @@ export default function Home(props) {
   const handleLoadMoreFoods = () => {
     const nextPage = foodsPage + 1;
     setFoodsPage(nextPage);
-    setFoods(
-      formatFoods(foodsAllRef.current).slice(0, nextPage * foodsPerPage)
-    );
+    fetchFoods(false);
   };
 
   // EatModal 新增/修改后自动刷新foods
@@ -108,10 +126,11 @@ export default function Home(props) {
   const handleEatModalScroll = (e) => {
     const el = e.target;
     if (el.scrollHeight - el.scrollTop - el.clientHeight < 10 && !foodsLoading) {
-      if (foods.length < foodsAllRef.current.length) {
+      // 检查是否还有更多数据
+      if (foods.length < foodsTotal) {
         const nextPage = foodsPage + 1;
         setFoodsPage(nextPage);
-        setFoods(formatFoods(foodsAllRef.current).slice(0, nextPage * foodsPerPage));
+        fetchFoods(false);
       }
     }
   };
@@ -212,6 +231,7 @@ export default function Home(props) {
               navigate('/', { replace: true });
             }}
             foods={foods}
+            foodsLoading={foodsLoading}
             onDescribe={() => alert('Describe')}
             onEnterValue={() => alert('Enter Value')}
             onScanLabel={() => alert('Scan Label')}
