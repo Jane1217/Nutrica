@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { foodApi, handleApiError } from '../../../utils/api';
 import { formatFoodTime, formatFoodTimeSmart } from '../../../utils/format';
 
-export default function EatModal({ onClose, foods = [], onDescribe, onEnterValue, userId, onDataChange, onFoodsScroll }) {
+export default function EatModal({ onClose, foods = [], foodsLoading = false, onDescribe, onEnterValue, userId, onDataChange, onFoodsScroll }) {
   const [step, setStep] = useState('main'); // 'main' | 'camera-permission' | 'scan' | 'enter-value' | 'describe' | 'describe-food'
   const [aiData, setAiData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -75,9 +75,7 @@ export default function EatModal({ onClose, foods = [], onDescribe, onEnterValue
     return (
       <button className="eat-modal-close-btn" onClick={onClick}>
         <span className="close-fill">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path fillRule="evenodd" clipRule="evenodd" d="M11.9996 14.122L17.3026 19.425C17.584 19.7064 17.9657 19.8645 18.3636 19.8645C18.7616 19.8645 19.1432 19.7064 19.4246 19.425C19.706 19.1436 19.8641 18.762 19.8641 18.364C19.8641 17.9661 19.706 17.5844 19.4246 17.303L14.1196 12L19.4236 6.697C19.5629 6.55767 19.6733 6.39227 19.7487 6.21025C19.824 6.02823 19.8628 5.83315 19.8627 5.63615C19.8627 5.43915 19.8238 5.24409 19.7484 5.0621C19.673 4.88012 19.5624 4.71477 19.4231 4.5755C19.2838 4.43624 19.1184 4.32578 18.9364 4.25043C18.7543 4.17509 18.5592 4.13633 18.3623 4.13638C18.1653 4.13642 17.9702 4.17527 17.7882 4.2507C17.6062 4.32613 17.4409 4.43667 17.3016 4.576L11.9996 9.879L6.6966 4.576C6.5583 4.43267 6.39284 4.31832 6.20987 4.23963C6.0269 4.16093 5.83009 4.11946 5.63092 4.11763C5.43176 4.11581 5.23422 4.15367 5.04984 4.229C4.86546 4.30434 4.69793 4.41564 4.55703 4.55641C4.41612 4.69718 4.30466 4.86461 4.22916 5.04891C4.15365 5.23322 4.1156 5.43072 4.11724 5.62989C4.11887 5.82906 4.16016 6.02591 4.23869 6.20895C4.31721 6.39199 4.43141 6.55757 4.5746 6.696L9.8796 12L4.5756 17.304C4.43241 17.4424 4.31821 17.608 4.23969 17.7911C4.16116 17.9741 4.11987 18.1709 4.11824 18.3701C4.1166 18.5693 4.15465 18.7668 4.23016 18.9511C4.30566 19.1354 4.41712 19.3028 4.55803 19.4436C4.69893 19.5844 4.86646 19.6957 5.05084 19.771C5.23522 19.8463 5.43276 19.8842 5.63192 19.8824C5.83109 19.8806 6.0279 19.8391 6.21087 19.7604C6.39384 19.6817 6.5593 19.5673 6.6976 19.424L11.9996 14.122Z" fill="black"/>
-          </svg>
+          <img src="/assets/mingcute_close-fill-black.svg" alt="close" width="24" height="24" />
         </span>
       </button>
     );
@@ -103,25 +101,42 @@ export default function EatModal({ onClose, foods = [], onDescribe, onEnterValue
               </span>
             </div>
             <div className="eat-modal-group2-2" ref={group2Ref}>
-              {foodsState.map((food, idx) => (
-                <div className="eat-modal-food-card" key={idx}>
-                  <div className="eat-modal-food-wrapper">
-                    <div className="eat-modal-food-heading">
-                      <span className="eat-modal-food-icon">{food.emoji}</span>
-                      <span className="eat-modal-food-name h5" style={{color:'#000'}}>{food.name}</span>
-                    </div>
-                    <span className="eat-modal-food-time label" style={{color:'rgba(0,0,0,0.60)',textAlign:'right'}}>{formatFoodTimeSmart(food.time)}</span>
-                  </div>
-                  <div className="eat-modal-nutrition-facts">
-                    {food.nutrition.map((item, i) => (
-                      <div className="eat-modal-nutrition-item" key={i} style={{borderRight: i === food.nutrition.length-1 ? 'none' : undefined}}>
-                        <span className="eat-modal-nutrition-type label" style={{alignSelf:'stretch',color:'rgba(0,0,0,0.60)',textAlign:'center'}}>{item.type}</span>
-                        <span className="eat-modal-nutrition-value h6" style={{alignSelf:'stretch',color:'#000',textAlign:'center'}}>{item.value}</span>
-                      </div>
-                    ))}
-                  </div>
+              {foodsLoading && foodsState.length === 0 ? (
+                <div className="eat-modal-loading">
+                  <div className="eat-modal-loading-spinner"></div>
+                  <span className="eat-modal-loading-text">Loading...</span>
                 </div>
-              ))}
+              ) : !foodsLoading && foodsState.length === 0 ? (
+                <div className="eat-modal-empty">
+                  <span className="eat-modal-empty-text">No food records yet</span>
+                </div>
+              ) : (
+                foodsState.map((food, idx) => (
+                  <div className="eat-modal-food-card" key={idx}>
+                    <div className="eat-modal-food-wrapper">
+                      <div className="eat-modal-food-heading">
+                        <span className="eat-modal-food-icon">{food.emoji}</span>
+                        <span className="eat-modal-food-name h5" style={{color:'#000'}}>{food.name}</span>
+                      </div>
+                      <span className="eat-modal-food-time label" style={{color:'rgba(0,0,0,0.60)',textAlign:'right'}}>{formatFoodTimeSmart(food.time)}</span>
+                    </div>
+                    <div className="eat-modal-nutrition-facts">
+                      {food.nutrition.map((item, i) => (
+                        <div className="eat-modal-nutrition-item" key={i} style={{borderRight: i === food.nutrition.length-1 ? 'none' : undefined}}>
+                          <span className="eat-modal-nutrition-type label" style={{alignSelf:'stretch',color:'rgba(0,0,0,0.60)',textAlign:'center'}}>{item.type}</span>
+                          <span className="eat-modal-nutrition-value h6" style={{alignSelf:'stretch',color:'#000',textAlign:'center'}}>{item.value}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))
+              )}
+              {foodsLoading && foodsState.length > 0 && (
+                <div className="eat-modal-loading-more">
+                  <div className="eat-modal-loading-spinner"></div>
+                  <span className="eat-modal-loading-text">Loading more...</span>
+                </div>
+              )}
             </div>
           </div>
           {/* group3: 横线和AI按钮 */}
@@ -130,25 +145,19 @@ export default function EatModal({ onClose, foods = [], onDescribe, onEnterValue
             <div className="eat-modal-group3-1" style={{display:'flex',gap:8}}>
             <button className="eat-modal-ai-btn" onClick={handleDescribe}>
               <span className="eat-modal-ai-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path d="M11.953 2.25C9.636 2.25 7.835 2.25 6.433 2.4C5.015 2.553 3.892 2.87 2.996 3.586C2.076 4.322 1.646 5.279 1.443 6.486C1.25 7.638 1.25 9.104 1.25 10.932V11.115C1.25 12.897 1.25 14.13 1.45 15.049C1.558 15.544 1.728 15.974 1.995 16.372C2.259 16.764 2.595 17.094 2.996 17.414C3.627 17.919 4.371 18.224 5.25 18.414V21C5.25012 21.1314 5.28475 21.2605 5.35044 21.3743C5.41613 21.4881 5.51057 21.5826 5.62429 21.6484C5.73802 21.7143 5.86704 21.7491 5.99844 21.7493C6.12984 21.7496 6.259 21.7153 6.373 21.65C6.959 21.315 7.478 20.95 7.953 20.606L8.257 20.385C8.59525 20.1318 8.94073 19.8883 9.293 19.655C10.137 19.107 10.943 18.75 12 18.75H12.047C14.364 18.75 16.165 18.75 17.567 18.6C18.985 18.447 20.108 18.13 21.004 17.414C21.404 17.094 21.741 16.764 22.004 16.372C22.272 15.974 22.442 15.544 22.55 15.049C22.75 14.13 22.75 12.897 22.75 11.115V10.932C22.75 9.104 22.75 7.638 22.557 6.487C22.354 5.279 21.924 4.322 21.004 3.586C20.108 2.869 18.985 2.553 17.567 2.401C16.165 2.25 14.364 2.25 12.047 2.25H11.953Z" fill="#2A4E14"/>
-                </svg>
+                <img src="/assets/mynaui_message-solid.svg" alt="describe" width="24" height="24" />
               </span>
                 <span className="eat-modal-ai-text h5">Describe</span>
             </button>
             <button className="eat-modal-ai-btn" onClick={handleEnterValue}>
               <span className="eat-modal-ai-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path fillRule="evenodd" clipRule="evenodd" d="M10.51 4.938C11.067 4.904 11.478 4.505 11.494 3.947C11.5023 3.64906 11.5023 3.35094 11.494 3.053C11.478 2.495 11.067 2.096 10.5095 2.062C9.98 2.029 9.178 2 8 2C6.822 2 6.02 2.029 5.49 2.062C4.933 2.096 4.522 2.495 4.506 3.053C4.4974 3.35094 4.4974 3.64906 4.506 3.947C4.522 4.505 4.933 4.904 5.4905 4.938C5.7735 4.9555 6.1345 4.972 6.5895 4.9835C6.5475 6.1805 6.5 8.349 6.5 12C6.5 15.651 6.5475 17.8195 6.5895 19.0165C6.1345 19.028 5.7735 19.0445 5.49 19.0615C4.933 19.0965 4.522 19.495 4.506 20.053C4.4974 20.3509 4.4974 20.6491 4.506 20.947C4.522 21.505 4.933 21.9035 5.4905 21.938C6.02 21.971 6.823 22 8 22C9.177 22 9.98 21.971 10.51 21.938C11.067 21.9035 11.478 21.505 11.494 20.947C11.5023 20.6491 11.5023 20.3509 11.494 20.053C11.478 19.495 11.067 19.0965 10.5095 19.062C10.1436 19.0402 9.77741 19.0251 9.411 19.0165C9.4525 17.8195 9.5 15.651 9.5 12C9.5 8.349 9.4525 6.1805 9.411 4.9835C9.77756 4.9748 10.144 4.9593 10.51 4.938ZM11 12C11 9.8665 10.984 8.234 10.962 7.0015C11.298 7.0005 11.644 7 12 7C16.727 7 19.718 7.089 21.253 7.1525C22.2125 7.1925 23.091 7.8175 23.2655 8.84C23.389 9.565 23.5 10.605 23.5 12C23.5 13.395 23.389 14.435 23.265 15.16C23.091 16.1825 22.2125 16.808 21.253 16.8475C19.718 16.911 16.727 17 12 17C11.644 17 11.298 16.9995 10.962 16.9985C10.984 15.766 11 14.1335 11 12ZM5 12C5 14.09 5.0155 15.699 5.037 16.922C4.27348 16.9033 3.51012 16.8784 2.747 16.8475C1.7875 16.8075 0.909 16.1825 0.7345 15.16C0.611 14.435 0.5 13.395 0.5 12C0.5 10.605 0.611 9.565 0.735 8.84C0.909 7.8175 1.7875 7.1925 2.747 7.1525C3.31 7.129 4.0685 7.1025 5.037 7.0775C5.01055 8.7182 4.99821 10.3591 5 12Z" fill="#2A4E14"/>
-                </svg>
+                <img src="/assets/streamline-plump_input-box-solid.svg" alt="enter value" width="24" height="24" />
               </span>
                 <span className="eat-modal-ai-text h5">Enter Value</span>
             </button>
             <button className="eat-modal-ai-btn" onClick={handleScanLabel}>
               <span className="eat-modal-ai-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path d="M22 2.83333V7C22 7.22101 21.9122 7.43297 21.7559 7.58926C21.5996 7.74554 21.3877 7.83333 21.1667 7.83333C20.9457 7.83333 20.7337 7.74554 20.5774 7.58926C20.4211 7.43297 20.3333 7.22101 20.3333 7V3.66667H17C16.779 3.66667 16.567 3.57887 16.4107 3.42259C16.2545 3.26631 16.1667 3.05435 16.1667 2.83333C16.1667 2.61232 16.2545 2.40036 16.4107 2.24408C16.567 2.0878 16.779 2 17 2H21.1667C21.3877 2 21.5996 2.0878 21.7559 2.24408C21.9122 2.40036 22 2.61232 22 2.83333ZM7 20.3333H3.66667V17C3.66667 16.779 3.57887 16.567 3.42259 16.4107C3.26631 16.2545 3.05435 16.1667 2.83333 16.1667C2.61232 16.1667 2.40036 16.2545 2.24408 16.4107C2.0878 16.567 2 16.779 2 17V21.1667C2 21.3877 2.0878 21.5996 2.24408 21.7559C2.40036 21.9122 2.61232 22 2.83333 22H7C7.22101 22 7.43297 21.9122 7.58926 21.7559C7.74554 21.5996 7.83333 21.3877 7.83333 21.1667C7.83333 20.9457 7.74554 20.7337 7.58926 20.5774C7.43297 20.4211 7.22101 20.3333 7 20.3333ZM21.1667 16.1667C20.9457 16.1667 20.7337 16.2545 20.5774 16.4107C20.4211 16.567 20.3333 16.779 20.3333 17V20.3333H17C16.779 20.3333 16.567 20.4211 16.4107 20.5774C16.2545 20.7337 16.1667 20.9457 16.1667 21.1667C16.1667 21.3877 16.2545 21.5996 16.4107 21.7559C16.567 21.9122 16.779 22 17 22H21.1667C21.3877 22 21.5996 21.9122 21.7559 21.7559C21.9122 21.5996 22 21.3877 22 21.1667V17C22 16.779 21.9122 16.567 21.7559 16.4107C21.5996 16.2545 21.3877 16.1667 21.1667 16.1667ZM2.83333 7.83333C3.05435 7.83333 3.26631 7.74554 3.42259 7.58926C3.57887 7.43297 3.66667 7.22101 3.66667 7V3.66667H7C7.22101 3.66667 7.43297 3.57887 7.58926 3.42259C7.74554 3.26631 7.83333 3.05435 7.83333 2.83333C7.83333 2.61232 7.74554 2.40036 7.58926 2.24408C7.43297 2.0878 7.22101 2 7 2H2.83333C2.61232 2 2.40036 2.0878 2.24408 2.24408C2.0878 2.40036 2 2.61232 2 2.83333V7C2 7.22101 2.0878 7.43297 2.24408 7.58926C2.40036 7.74554 2.61232 7.83333 2.83333 7.83333ZM6.16667 7V17C6.16667 17.221 6.25446 17.433 6.41074 17.5893C6.56702 17.7455 6.77899 17.8333 7 17.8333H17C17.221 17.8333 17.433 17.7455 17.5893 17.5893C17.7455 17.433 17.8333 17.221 17.8333 17V7C17.8333 6.77899 17.7455 6.56702 17.5893 6.41074C17.433 6.25446 17.221 6.16667 17 6.16667H7C6.77899 6.16667 6.56702 6.25446 6.41074 6.41074C6.25446 6.56702 6.16667 6.77899 6.16667 7Z" fill="#2A4E14"/>
-                </svg>
+                <img src="/assets/ph_scan-fill.svg" alt="scan label" width="24" height="24" />
               </span>
                 <span className="eat-modal-ai-text h5">Scan Label</span>
             </button>
