@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
-import { NavLogo } from '../../components/navbar';
 import InputField from '../../components/auth/InputField';
+import ModalWrapper from '../../components/ModalWrapper';
 import styles from './Auth.module.css';
 import '../../index.css';
 
-export default function LogIn({ onAuth }) {
+export default function LogIn({ open, onClose, onAuth, onSwitchToSignUp }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -28,9 +28,19 @@ export default function LogIn({ onAuth }) {
     }
   };
 
+  const handleSwitchToSignUp = () => {
+    if (onSwitchToSignUp) {
+      // 如果在模态框模式下，使用onSwitchToSignUp
+      onSwitchToSignUp();
+    } else {
+      // 如果在独立页面模式下，使用路由导航
+      onClose && onClose();
+      navigate('/sign-up');
+    }
+  };
+
   return (
-    <div className="app-root">
-      <NavLogo hideCtaButtons isAuth />
+    <ModalWrapper open={open} onClose={onClose}>
       <main className={styles.loginMainContent}>
         <header className={styles.loginHeader}>
           <div className={`${styles.loginOverline1} h6`}>Welcome to Nutrica</div>
@@ -57,9 +67,9 @@ export default function LogIn({ onAuth }) {
         </div>
         <div className={styles.actionModule}>
           <span className={`${styles.actionModuleText} body1`}>New to Nutrica?</span>
-          <button className={`${styles.actionModuleBtn} h5`} onClick={() => navigate('/sign-up')}>Create Free Account</button>
+          <button className={`${styles.actionModuleBtn} h5`} onClick={handleSwitchToSignUp}>Create Free Account</button>
         </div>
       </main>
-    </div>
+    </ModalWrapper>
   );
 } 

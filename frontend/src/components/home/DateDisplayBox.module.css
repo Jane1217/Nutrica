@@ -3,8 +3,8 @@
   height: 64px;
   width: 200px;
   align-items: center;
-  align-self: stretch;
-  margin: 0 auto;
+  align-self: center;
+  margin: 0 auto 0 auto;
   border-radius: 16px;
   border: 1px solid rgba(205, 211, 196, 0.50);
 }
@@ -35,13 +35,9 @@
 }
 
 .dateText {
-  color: #22221B;
-  text-align: center;
   flex: 1;
 }
 
 .todayText {
-  color: rgba(34, 34, 27, 0.60);
-  text-align: center;
   width: 100%;
 } 
