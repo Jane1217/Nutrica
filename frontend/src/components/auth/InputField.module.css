@@ -11,20 +11,30 @@
 }
 .inputFieldBox {
   display: flex;
-  padding: 20px 16px;
   align-items: center;
   gap: 10px;
   align-self: stretch;
   border-radius: 8px;
-  border: 1px solid var(--neutral-black-10, rgba(0, 0, 0, 0.10));
-  background: #FFF;
+  border: 1px solid #CDD3C4;
+  background: #FCFCF8;
+  padding: 20px 16px;
+  box-sizing: border-box;
+  width: 100%;
 }
 .inputFieldInput {
   border: none;
   outline: none;
   background: transparent;
-  color: #000;
+  color: #22221B;
   width: 100%;
+  font-size: 20px;
+  font-family: Inter, 'Helvetica Neue', Arial, sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 150%;
+  letter-spacing: -0.32px;
+  padding: 0;
+  margin: 0;
 }
 .errorWrapper {
   display: flex;

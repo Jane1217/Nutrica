@@ -3,13 +3,60 @@ node_modules/
 
 # 环境变量
 .env
+.env.local
+.env.development
+.env.test
+.env.production
 
 # 日志
 *.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 # 系统文件
 .DS_Store
+Thumbs.db
 
 # IDE配置
 .vscode/
 .idea/
+*.swp
+*.swo
+
+# 缓存
+.cache/
+.npm/
+.eslintcache
+
+# 测试覆盖率
+coverage/
+.nyc_output/
+
+# 临时文件
+*.tmp
+*.temp
+
+# 本地配置文件
+*.local
+
+# 部署相关
+.vercel/
+.railway/
+.netlify/
+
+# 数据库文件
+*.db
+*.sqlite
+*.sqlite3
+
+# 上传文件目录
+uploads/
+public/uploads/
+
+# 包管理器锁文件（可选，根据团队策略决定是否忽略）
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml

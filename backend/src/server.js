@@ -8,38 +8,38 @@ const logger = require('./middleware/logger');
 
 const app = express();
 
-// 安全中间件
+// Security middleware
 app.use(helmet());
 
-// CORS中间件
+// CORS middleware
 app.use(cors(config.cors));
 
-// 请求体解析中间件
+// Request body parsing middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 日志中间件
+// Logging middleware
 app.use(logger);
 
-// 速率限制中间件
+// Rate limiting middleware
 const limiter = rateLimit(config.api.rateLimit);
 app.use(limiter);
 
-// API路由
+// API routes
 const routes = require('./routes');
 app.use(config.api.prefix, routes);
 
-// 404处理
+// 404 handler
 app.use((req, res) => {
   res.status(404).json({
     success: false,
     error: {
-      message: '未找到请求的资源'
+      message: 'Requested resource not found'
     }
   });
 });
 
-// 错误处理
+// Error handler
 app.use(errorHandler);
 
 module.exports = app;

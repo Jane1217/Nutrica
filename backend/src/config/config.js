@@ -1,15 +1,17 @@
 require('dotenv').config();
 
 const config = {
-  // 服务器配置
+  // Server configuration
   server: {
-    port: process.env.PORT || 3000,
+    port: process.env.PORT || 3001,
     env: process.env.NODE_ENV || 'development',
   },
   
-  // CORS配置
+  // CORS configuration
   cors: {
-    origin: process.env.CORS_ORIGIN || 'https://my-nutrition-demo-openai-frontend.vercel.app',
+    origin: process.env.CORS_ORIGIN || (process.env.NODE_ENV === 'production' 
+      ? 'https://my-nutrition-demo-openai-frontend.vercel.app'
+      : 'http://localhost:3000'),
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: [
       'Content-Type',
@@ -22,38 +24,44 @@ const config = {
     exposedHeaders: ['Content-Range', 'X-Content-Range'],
     credentials: true,
     optionsSuccessStatus: 200,
-    maxAge: 86400 // 24小时
+    maxAge: 86400 // 24 hours
   },
   
-  // 数据库配置
+  // Database configuration
   database: {
     supabaseUrl: process.env.SUPABASE_URL,
     supabaseKey: process.env.SUPABASE_ANON_KEY,
   },
   
-  // OpenAI配置
+  // OpenAI configuration
   openai: {
     apiKey: process.env.OPENAI_API_KEY,
+    // Proxy configuration - used in local development, not in production
+    proxy: process.env.NODE_ENV === 'development' ? {
+      host: process.env.PROXY_HOST || '127.0.0.1',
+      port: process.env.PROXY_PORT || 7890,
+      protocol: process.env.PROXY_PROTOCOL || 'http'
+    } : null
   },
   
-  // 文件上传配置
+  // File upload configuration
   upload: {
     maxFileSize: 5 * 1024 * 1024, // 5MB
     allowedTypes: ['image/jpeg', 'image/png', 'image/jpg'],
   },
 
-  // API配置
+  // API configuration
   api: {
     prefix: '/api',
     version: 'v1',
     rateLimit: {
-      windowMs: 15 * 60 * 1000, // 15分钟
-      max: 100 // 限制每个IP 15分钟内最多100个请求
+      windowMs: 15 * 60 * 1000, // 15 minutes
+      max: 100 // Limit each IP to 100 requests per 15 minutes
     }
   }
 };
 
-// 验证必要的环境变量
+// Validate required environment variables
 const requiredEnvVars = [
   'SUPABASE_URL',
   'SUPABASE_ANON_KEY',
@@ -63,7 +71,7 @@ const requiredEnvVars = [
 const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
 
 if (missingEnvVars.length > 0) {
-  console.error('缺少必要的环境变量:', missingEnvVars.join(', '));
+  console.error('Missing required environment variables:', missingEnvVars.join(', '));
   process.exit(1);
 }
 
