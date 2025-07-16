@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './FoodModal.css';
 import { validateFoodForm } from '../../../utils/validation';
 import { foodApi, handleApiError } from '../../../utils/api';
+import ModalWrapper from '../../../components/ModalWrapper';
 
 export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal, aiData, userId, onDataChange }) {
   const [form, setForm] = useState({
@@ -27,8 +28,6 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
       });
     }
   }, [aiData]);
-
-  if (!open) return null;
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -76,7 +75,7 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
   };
 
   return (
-    <div className="eat-modal-overlay food-modal-overlay">
+    <ModalWrapper open={open} onClose={onCloseModal}>
       <div className="eat-modal food-modal">
         <div className="eat-modal-group1 food-modal-group1">
           <div className="food-modal-title-group">
@@ -130,6 +129,6 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
         {success && <div className="food-modal-success">Saved!</div>}
         {error && <div className="food-modal-error">{error}</div>}
       </div>
-    </div>
+    </ModalWrapper>
   );
 } 

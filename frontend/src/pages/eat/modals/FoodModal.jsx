@@ -3,6 +3,7 @@ import './FoodModal.css';
 import { validateFoodForm } from '../../../utils/validation';
 import { calculateNutritionTotal, multiplyNutrition } from '../../../utils/format';
 import { foodApi, handleApiError } from '../../../utils/api';
+import ModalWrapper from '../../../components/ModalWrapper';
 
 export default function FoodModal({ open, onClose, initialData, userId, onDataChange }) {
   const [form, setForm] = useState({
@@ -47,8 +48,6 @@ export default function FoodModal({ open, onClose, initialData, userId, onDataCh
   useEffect(() => {
     baseNutritionRef.current = baseNutrition;
   }, [baseNutrition]);
-
-  if (!open) return null;
 
   const handleServingsChange = e => {
     const value = e.target.value;
@@ -121,7 +120,7 @@ export default function FoodModal({ open, onClose, initialData, userId, onDataCh
   };
 
   return (
-    <div className="eat-modal-overlay food-modal-overlay">
+    <ModalWrapper open={open} onClose={onClose}>
       <div className="eat-modal food-modal">
         <div className="eat-modal-group1 food-modal-group1">
           <span className="eat-modal-title">Food</span>
@@ -173,6 +172,6 @@ export default function FoodModal({ open, onClose, initialData, userId, onDataCh
         {success && <div className="food-modal-success">Saved!</div>}
         {error && <div className="food-modal-error">{error}</div>}
       </div>
-    </div>
+    </ModalWrapper>
   );
 } 

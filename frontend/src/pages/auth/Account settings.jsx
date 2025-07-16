@@ -284,14 +284,13 @@ export default function AccountSettings({ userEmail }) {
         <span>Delete Account</span>
         <span>About</span>
       </div>
-      {showEatModal && (
-        <EatModal
-          onClose={() => setShowEatModal(false)}
-          foods={[]}
-          onDescribe={() => {}}
-          onEnterValue={() => {}}
-        />
-      )}
+      <EatModal
+        open={showEatModal}
+        onClose={() => setShowEatModal(false)}
+        foods={[]}
+        onDescribe={() => {}}
+        onEnterValue={() => {}}
+      />
       <UserInfoModal
         open={showUserInfoModal}
         onClose={() => setShowUserInfoModal(false)}
