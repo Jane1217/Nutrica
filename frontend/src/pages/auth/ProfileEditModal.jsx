@@ -199,6 +199,55 @@ export default function ProfileEditModal({ open, onClose, userInfo = {}, onSave 
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  // 删除头像
+  const handleDeleteAvatar = async () => {
+    if (!croppedUrl && !userInfo.avatarUrl) return;
+    
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+      
+      // 删除Supabase Storage中的头像文件
+      if (userInfo.avatarUrl) {
+        try {
+          const urlParts = userInfo.avatarUrl.split('/');
+          const fileName = urlParts[urlParts.length - 1];
+          if (fileName && fileName.startsWith('avatar_')) {
+            const { error: deleteError } = await supabase.storage
+              .from('avatars')
+              .remove([fileName]);
+            
+            if (deleteError) {
+              console.error('删除头像文件失败:', deleteError);
+            }
+          }
+        } catch (error) {
+          console.error('删除头像文件时出错:', error);
+        }
+      }
+      
+      // 从user_metadata中删除avatarUrl
+      const { error: updateError } = await supabase.auth.updateUser({
+        data: { avatarUrl: null }
+      });
+      
+      if (updateError) {
+        console.error('删除头像URL失败:', updateError);
+      } else {
+        // 清除本地状态
+        setCroppedUrl(null);
+        setAvatarUrl(null);
+        setShowCropper(false);
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        
+        // 通知父组件更新
+        if (onSave) onSave({ name: firstName, lastName, avatarUrl: null });
+      }
+    } catch (error) {
+      console.error('删除头像失败:', error);
+    }
+  };
+
   return (
     <ModalWrapper open={open} onClose={onClose}>
       <form onSubmit={handleSubmit} style={{padding: 0, background: 'transparent'}}>
@@ -276,11 +325,18 @@ export default function ProfileEditModal({ open, onClose, userInfo = {}, onSave 
               <button type="button" className="h5" style={{background: '#eee', color: '#222', border: 'none', borderRadius: 24, padding: '8px 24px', fontSize: 16, cursor: 'pointer'}} onClick={handleReSelect}>Reselect</button>
             </div>
           )}
-          <div style={{color: '#bbb', fontSize: 18, marginTop: 8, marginBottom: 8}}>Delete</div>
+          <div className="h5" style={{
+            color: (croppedUrl || userInfo.avatarUrl) ? '#22221B' : '#bbb', 
+            marginTop: 8, 
+            marginBottom: 8,
+            cursor: (croppedUrl || userInfo.avatarUrl) ? 'pointer' : 'default'
+          }} onClick={handleDeleteAvatar}>
+            Delete
+          </div>
         </div>
         <div style={{padding: '0 24px', width: 360, maxWidth: '90vw', margin: '0 auto'}}>
-          <InputField label="First Name" value={firstName} onChange={setFirstName} required />
-          <InputField label="Last Name (Optional)" value={lastName} onChange={setLastName} />
+          <InputField label=" First Name (Nickname)" value={firstName} onChange={setFirstName} required />
+          <InputField label=" Last Name (Optional)" value={lastName} onChange={setLastName} />
         </div>
         <div style={{display: 'flex', justifyContent: 'center', marginTop: 32, marginBottom: 24}}>
           <button type="submit" className="h5" disabled={uploading} style={{width: 240, height: 64, borderRadius: 32, background: uploading ? '#ccc' : '#2A4E14', color: '#fff', border: 'none', fontSize: 22, fontWeight: 500, cursor: uploading ? 'not-allowed' : 'pointer'}}>
