@@ -22,6 +22,25 @@ export default function AccountSettings({ userEmail }) {
   const nickname = userInfo?.name || 'Your Name';
   const [latestCalories, setLatestCalories] = useState(2000);
 
+  // 初始化时立即加载缓存数据
+  React.useEffect(() => {
+    const cachedData = localStorage.getItem('nutrica_user_cache');
+    if (cachedData) {
+      try {
+        const parsed = JSON.parse(cachedData);
+        if (parsed.data) {
+          setUserInfo(parsed.data);
+          if (parsed.data.avatarUrl) {
+            setAvatarUrl(parsed.data.avatarUrl);
+          }
+        }
+      } catch (error) {
+        console.error('初始化时解析缓存失败:', error);
+        localStorage.removeItem('nutrica_user_cache');
+      }
+    }
+  }, []);
+
   // 头像显示逻辑：优先使用昵称第一个字母，其次使用邮箱第一个字母
   const getAvatarText = () => {
     if (userInfo?.name && userInfo.name[0]) {
@@ -34,18 +53,57 @@ export default function AccountSettings({ userEmail }) {
   };
   const avatarText = getAvatarText();
 
-  // 页面加载时自动从supabase user_metadata读取用户信息
+  // 立即从本地缓存加载数据，然后异步更新
   React.useEffect(() => {
+    // 立即尝试从本地缓存读取数据（同步操作）
+    const cachedData = localStorage.getItem('nutrica_user_cache');
+    if (cachedData) {
+      try {
+        const parsed = JSON.parse(cachedData);
+        if (parsed.data) {
+          setUserInfo(parsed.data);
+          if (parsed.data.avatarUrl) {
+            setAvatarUrl(parsed.data.avatarUrl);
+          }
+          console.log('立即从本地缓存加载用户数据');
+        }
+      } catch (error) {
+        console.error('解析本地缓存失败:', error);
+        localStorage.removeItem('nutrica_user_cache');
+      }
+    }
+
+    // 异步获取最新数据
     const fetchUserInfo = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return setUserInfo(null);
-      const userMeta = user.user_metadata || {};
-      setUserInfo(userMeta);
-      if (userMeta.avatarUrl) {
-        setAvatarUrl(userMeta.avatarUrl);
+      if (!user) {
+        localStorage.removeItem('nutrica_user_cache');
+        setUserInfo(null);
+        return;
+      }
+
+      const freshUserMeta = user.user_metadata || {};
+      const currentData = userInfo || {};
+      const hasChanges = JSON.stringify(freshUserMeta) !== JSON.stringify(currentData);
+      
+      if (hasChanges || !cachedData) {
+        setUserInfo(freshUserMeta);
+        if (freshUserMeta.avatarUrl) {
+          setAvatarUrl(freshUserMeta.avatarUrl);
+        }
+        
+        const cacheData = {
+          userId: user.id,
+          data: freshUserMeta,
+          timestamp: Date.now()
+        };
+        localStorage.setItem('nutrica_user_cache', JSON.stringify(cacheData));
+        console.log('更新本地缓存');
       }
     };
-    fetchUserInfo();
+    
+    // 延迟执行异步更新，让UI先渲染缓存数据
+    setTimeout(fetchUserInfo, 100);
   }, [userEmail]);
 
   // 查询数据库中当前用户最近一次提交的calories
@@ -86,6 +144,14 @@ export default function AccountSettings({ userEmail }) {
     const { error } = await supabase.auth.updateUser({ data: newMeta });
     if (error) {
       console.error('保存用户信息失败:', error);
+    } else {
+      // 更新本地缓存
+      const cacheData = {
+        userId: user.id,
+        data: newMeta,
+        timestamp: Date.now()
+      };
+      localStorage.setItem('nutrica_user_cache', JSON.stringify(cacheData));
     }
   };
 
@@ -135,8 +201,9 @@ export default function AccountSettings({ userEmail }) {
   };
 
   const handleSignOut = async () => {
-    // 清除用户信息弹窗标记，确保重新登录时能正确弹出
+    // 清除用户信息弹窗标记和本地缓存，确保重新登录时能正确弹出
     localStorage.removeItem('nutrica_userinfo_shown');
+    localStorage.removeItem('nutrica_user_cache');
     await supabase.auth.signOut();
     navigate('/', { replace: true }); // 跳转到welcome页面
   };
@@ -275,6 +342,14 @@ export default function AccountSettings({ userEmail }) {
           const { error } = await supabase.auth.updateUser({ data: newMeta });
           if (error) {
             console.error('保存用户信息失败:', error);
+          } else {
+            // 更新本地缓存
+            const cacheData = {
+              userId: user.id,
+              data: newMeta,
+              timestamp: Date.now()
+            };
+            localStorage.setItem('nutrica_user_cache', JSON.stringify(cacheData));
           }
         }} 
       />
