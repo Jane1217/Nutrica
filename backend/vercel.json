@@ -8,8 +8,28 @@
   ],
   "routes": [
     {
+      "src": "/api/food",
+      "dest": "index.js"
+    },
+    {
+      "src": "/api/food/",
+      "dest": "index.js"
+    },
+    {
+      "src": "/api/ai/parse/description",
+      "dest": "index.js"
+    },
+    {
+      "src": "/api/ai/parse/food",
+      "dest": "index.js"
+    },
+    {
+      "src": "/api/ai/parse/emoji",
+      "dest": "index.js"
+    },
+    {
       "src": "/api/(.*)",
       "dest": "index.js"
-    }
+  }
   ]
 }
