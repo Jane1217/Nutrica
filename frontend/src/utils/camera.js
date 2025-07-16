@@ -23,7 +23,11 @@ export const startCamera = async ({
   
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ 
-      video: { facingMode } 
+      video: { 
+        facingMode, 
+        width: { ideal: 1920 }, 
+        height: { ideal: 1080 }
+      } 
     });
     
     if (videoRef?.current && isMounted) {

@@ -1,6 +1,11 @@
 .eat-modal-overlay {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
   background: rgba(35, 38, 31, 0.60);
   z-index: 999;
 }
@@ -15,7 +20,7 @@
   left: 0;
   display: flex;
   flex-direction: column;
-  padding: 24px 16px;
+  padding: calc(24px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom)) 16px;
   z-index: 1000;
   box-sizing: border-box;
   border-radius: 36px 36px 0px 0px;
@@ -44,6 +49,7 @@
   border: 1px solid #CDD3C4;
   cursor: pointer;
   background: #F3F3EC;
+  top: calc(0px + env(safe-area-inset-top));
 }
 .eat-modal-close-btn {
   display: flex;
@@ -181,7 +187,7 @@
   flex-direction: column;
   gap: 16px;
   margin-top: 16px;
-  margin-bottom: 16px;
+  margin-bottom: env(safe-area-inset-bottom);
   width: 100%;
   flex-shrink: 0; /* 防止压缩 */
 }
