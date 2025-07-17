@@ -1,11 +1,43 @@
 import React, { useState } from 'react';
 import ModalWrapper from '../../../components/common/ModalWrapper';
 import InputField from '../../../components/auth/InputField';
+import { supabase } from '../../../supabaseClient';
 import styles from '../styles/Auth.module.css';
 import '../../../index.css';
 
 export default function ForgotPassword({ open, onClose, onBackToLogin }) {
   const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleResetPassword = async () => {
+    if (!email) {
+      setError('Please enter your email address');
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`
+      });
+
+      if (error) {
+        setError(error.message);
+      } else {
+        setSuccess('Password reset email sent! Please check your inbox and click the link to set a new password.');
+        setEmail('');
+      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <ModalWrapper open={open} onClose={onClose}>
@@ -29,12 +61,21 @@ export default function ForgotPassword({ open, onClose, onBackToLogin }) {
             type="email"
             value={email}
             onChange={setEmail}
-            error={null}
+            error={error}
           />
+          {success && (
+            <div style={{color: 'var(--Alert-Success, #6FB977)', fontSize: '14px', textAlign: 'center', marginTop: '8px'}}>
+              {success}
+            </div>
+          )}
         </div>
         <div className={styles.actionGroup} style={{marginTop: 32}}>
-          <button className={styles.forgotPasswordConfirmBtn}>
-            Confirm
+          <button 
+            className={styles.forgotPasswordConfirmBtn} 
+            onClick={handleResetPassword}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Sending...' : 'Confirm'}
           </button>
         </div>
         <button className={styles.forgotPasswordBackBtn} style={{marginTop: 24}} onClick={onBackToLogin}>
