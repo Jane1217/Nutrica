@@ -3,15 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
 import InputField from '../../components/auth/InputField';
 import ModalWrapper from '../../components/ModalWrapper';
-import ForgotPassword from './ForgotPassword';
 import styles from './Auth.module.css';
 import '../../index.css';
 
-export default function LogIn({ open, onClose, onAuth, onSwitchToSignUp }) {
+export default function LogIn({ open, onClose, onAuth, onSwitchToSignUp, onSwitchToForgotPassword }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -42,11 +40,9 @@ export default function LogIn({ open, onClose, onAuth, onSwitchToSignUp }) {
   };
 
   const handleForgotPassword = () => {
-    setShowForgotPassword(true);
-  };
-
-  const handleBackToLogin = () => {
-    setShowForgotPassword(false);
+    if (onSwitchToForgotPassword) {
+      onSwitchToForgotPassword();
+    }
   };
 
   return (
@@ -87,11 +83,6 @@ export default function LogIn({ open, onClose, onAuth, onSwitchToSignUp }) {
           <button className={`${styles.actionModuleBtn} h5`} onClick={handleSwitchToSignUp}>Create Free Account</button>
         </div>
       </main>
-      <ForgotPassword 
-        open={showForgotPassword} 
-        onClose={() => setShowForgotPassword(false)}
-        onBackToLogin={handleBackToLogin}
-      />
     </ModalWrapper>
   );
 } 
