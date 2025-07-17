@@ -30,6 +30,7 @@ export default function ResetPassword() {
   const [isLoading, setIsLoading] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoadingPage, setIsLoadingPage] = useState(true);
+  const [showSuccess, setShowSuccess] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -163,11 +164,11 @@ export default function ResetPassword() {
         setError(error.message);
       } else {
         console.log('Password updated successfully:', data);
-        setSuccess('Password updated successfully! Redirecting...');
-        // 密码更新成功后，跳转到成功页面
+        setSuccess('Password updated successfully!');
+        setShowSuccess(true);
+        // 密码更新成功后，登出用户
         setTimeout(async () => {
           await supabase.auth.signOut();
-          navigate('/reset-password-success');
         }, 1500);
       }
     } catch (err) {
@@ -195,66 +196,93 @@ export default function ResetPassword() {
 
       {/* Main Content */}
       <div className={styles.mainContent}>
-        <div className={styles.card}>
-          <h1 className={`${styles.title} h1`}>
-            Reset Password
-          </h1>
-          <p className={`${styles.subtitle} body1`}>
-            Please set your new password.
-          </p>
+        {!showSuccess ? (
+          <div className={styles.card}>
+            <h1 className={`${styles.title} h1`}>
+              Reset Password
+            </h1>
+            <p className={`${styles.subtitle} body1`}>
+              Please set your new password.
+            </p>
 
-          {!isAuthenticated && (
-            <div className={styles.warning}>
-              Please click the link in your email to continue with password reset.
+            {!isAuthenticated && (
+              <div className={styles.warning}>
+                Please click the link in your email to continue with password reset.
+              </div>
+            )}
+
+            <div className={styles.inputWrapper}>
+              <InputField
+                label="New Password"
+                type="password"
+                value={password}
+                onChange={setPassword}
+                error={null}
+              />
             </div>
-          )}
 
-          <div className={styles.inputWrapper}>
-            <InputField
-              label="New Password"
-              type="password"
-              value={password}
-              onChange={setPassword}
-              error={null}
-            />
-          </div>
-
-          <div className={styles.inputWrapper}>
-            <InputField
-              label="Confirm New Password"
-              type="password"
-              value={confirmPassword}
-              onChange={setConfirmPassword}
-              error={null}
-            />
-          </div>
-
-          <div className={`${styles.hint} body2`}>
-            Password must have at least 8 characters.
-          </div>
-
-          {error && (
-            <div className={styles.error}>
-              {error}
+            <div className={styles.inputWrapper}>
+              <InputField
+                label="Confirm New Password"
+                type="password"
+                value={confirmPassword}
+                onChange={setConfirmPassword}
+                error={null}
+              />
             </div>
-          )}
 
-          {success && (
-            <div className={styles.success}>
-              {success}
+            <div className={`${styles.hint} body2`}>
+              Password must have at least 8 characters.
             </div>
-          )}
 
-          <div className={styles.btnWrapper}>
-            <button
-              className={`${styles.btn} ${(!isAuthenticated || isLoading) ? styles.btnDisabled : ''}`}
-              onClick={handleResetPassword}
-              disabled={!isAuthenticated || isLoading}
-            >
-              {isLoading ? 'Updating...' : 'Reset password'}
-            </button>
+            {error && (
+              <div className={styles.error}>
+                {error}
+              </div>
+            )}
+
+            {success && (
+              <div className={styles.success}>
+                {success}
+              </div>
+            )}
+
+            <div className={styles.btnWrapper}>
+              <button
+                className={`${styles.btn} ${(!isAuthenticated || isLoading) ? styles.btnDisabled : ''}`}
+                onClick={handleResetPassword}
+                disabled={!isAuthenticated || isLoading}
+              >
+                {isLoading ? 'Updating...' : 'Reset password'}
+              </button>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className={styles.successCard}>
+            {/* Success Icon */}
+            <div className={styles.successIcon}>
+              <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="40" cy="40" r="40" fill="var(--Alert-Success, #477E2D)"/>
+                <path d="M25 40L35 50L55 30" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+
+            {/* Success Message */}
+            <p className={`${styles.successMessage} body1`}>
+              Your password has been reset successfully.
+            </p>
+
+            {/* Login Button */}
+            <div className={styles.successBtnWrapper}>
+              <button 
+                className={styles.successBtn} 
+                onClick={() => navigate('/', { state: { showLoginModal: true } })}
+              >
+                Log in
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
