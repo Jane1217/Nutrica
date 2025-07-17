@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/home/home';
 import LogIn from './pages/auth/pages/Log In';
 import SignUp from './pages/auth/pages/Sign up';
+import ResetPassword from './pages/auth/pages/ResetPassword';
 import AccountSettings from './pages/auth/pages/Account settings';
 import Tutorials from './pages/auth/pages/Tutorials';
 import ScanLabelPage from './pages/eat/pages/scan-label/ScanLabelPage';
@@ -59,6 +60,14 @@ export default function App() {
                   onAuth={handleAuth}
                   onSwitchToLogin={() => window.location.href = '/log-in'}
                 />
+          }
+        />
+        <Route
+          path="/reset-password"
+          element={
+            user
+              ? <ResetPassword />
+              : <ResetPassword />
           }
         />
         <Route path="/account" element={<AccountSettings userEmail={user?.email || ''} />} />

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import NavLogo from '../../components/navbar/Nav-Logo';
 import LogIn from '../auth/pages/Log In';
 import SignUp from '../auth/pages/Sign up';
-import ForgotPassword from '../auth/modals/ForgotPassword';
+import ForgotPassword from '../auth/pages/ForgotPassword';
 import styles from './Welcome.module.css';
 
 export default function Welcome() {
