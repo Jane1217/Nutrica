@@ -2,7 +2,7 @@
 :root {
   --Brand-Dark: #2A4E14;
   --Brand-Light: #C6D9C6;
-  --Brand-Background: #EEF0EB;
+  --Brand-Background: #F3F3EC;
   --Neutral-Black: #000;
   --neutral-black-60: rgba(0, 0, 0, 0.60);
   --neutral-black-40: rgba(0, 0, 0, 0.40);
@@ -16,28 +16,20 @@
   --Alert-Error: #E16A60;
 }
 
-html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  background: #F3F3EC;
-  position: fixed;
-  inset: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-}
-
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: #F3F3EC;
-  z-index: -1;
+body, #root, .app-root {
+  background: #F3F3EC !important;
 }
 
 /* Typography */
 .h1 {
+  /*
+  font-family: Inter;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 150%;
+  letter-spacing: -0.48px;
+  */
   font-family: Kanit;
   font-size: 24px;
   font-style: normal;
@@ -45,13 +37,15 @@ body::before {
   line-height: 150%; /* 36px */
 }
 .h2 {
+  /* H2 */
   font-family: Kanit;
-  font-size: 18px;
+  font-size: 24px;
   font-style: normal;
   font-weight: 700;
-  line-height: 150%; /* 27px */
+  line-height: 150%; /* 36px */
 }
 .h3 {
+  /* H3 */
   font-family: Kanit;
   font-size: 18px;
   font-style: normal;
@@ -59,11 +53,12 @@ body::before {
   line-height: 150%; /* 27px */
 }
 .h4 {
-  font-family: Kanit;
+  font-family: Inter;
   font-size: 16px;
   font-style: normal;
   font-weight: 700;
-  line-height: 150%; /* 24px */
+  line-height: 150%;
+  letter-spacing: -0.32px;
 }
 .h5 {
   font-family: Kanit;
