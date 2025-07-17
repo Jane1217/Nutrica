@@ -247,14 +247,14 @@
 .signupMainContent {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 36px;
   max-width: 300px;
   width: 100%;
-  margin: 24px auto;
-  padding: 48px 32px;
+  margin: 0 auto;
+  padding: 32px 32px;
   box-sizing: border-box;
-  background: #F3F3EC;
+  background: var(--Brand-Background, #F3F3EC);
 }
 @media (max-width: 500px) {
   .signupMainContent {
@@ -265,14 +265,14 @@
 .loginMainContent {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 36px;
   max-width: 300px;
   width: 100%;
-  margin: 24px auto;
-  padding: 48px 32px;
+  margin: 0 auto;
+  padding: 32px 32px;
   box-sizing: border-box;
-  background: #F3F3EC;
+  background: var(--Brand-Background, #F3F3EC);
 }
 @media (max-width: 500px) {
   .loginMainContent {
@@ -282,17 +282,54 @@
 }
 .signupHeader {
   display: flex;
-  width: 233px;
+  width: 100%;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
+  padding: 0;
+  margin-top: 0;
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 16px;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+
+.closeButton {
+  display: flex;
+  width: 48px;
+  height: 48px;
+  padding: 14px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--Brand-Outline, #DBE2D0);
+  background: var(--Brand-Background, #F3F3EC);
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  margin-left: auto;
+  margin-right: 0;
+  margin-top: -4px;
+}
+
+.closeButton:hover {
+  background-color: #f5f5f5;
+  border-color: #ccc;
 }
 .loginHeader {
   display: flex;
-  width: 233px;
+  width: 100%;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
+  padding: 0;
+  margin-top: 0;
 }
 .signupOverline1 {
   align-self: stretch;
@@ -307,12 +344,12 @@
 .signupOverline2 {
   align-self: stretch;
   color: #000;
-  text-align: center;
+  text-align: left;
 }
 .loginOverline2 {
   align-self: stretch;
   color: #000;
-  text-align: center;
+  text-align: left;
 }
 .inputWrapper {
   display: flex;
@@ -334,16 +371,17 @@
   align-items: center;
   gap: 8px;
   width: 100%;
+  align-self: center;
 }
 .signupBtn {
   display: flex;
-  width: 200px;
-  height: 64px;
-  padding: 13px 21px;
+  width: 240px;
+  height: 80px;
+  padding: 0px 16px;
   justify-content: center;
   align-items: center;
   gap: 10px;
-  border-radius: 8px;
+  border-radius: 36px;
   background: var(--Brand-Dark, #2A4E14);
   color: #FFF;
   border: none;
@@ -351,17 +389,91 @@
 }
 .loginBtn {
   display: flex;
-  width: 200px;
-  height: 64px;
-  padding: 13px 21px;
+  width: 240px;
+  height: 80px;
+  padding: 0px 16px;
   justify-content: center;
   align-items: center;
   gap: 10px;
-  border-radius: 8px;
+  border-radius: 36px;
   background: var(--Brand-Dark, #2A4E14);
   color: #FFF;
   border: none;
   cursor: pointer;
+}
+
+.forgotPasswordBtn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  color: var(--Brand-Dark, #2A4E14);
+  border: none;
+  cursor: pointer;
+  margin-top: 16px;
+  padding: 0;
+}
+
+.forgotPasswordMainContent {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 36px;
+  max-width: 300px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 32px 32px;
+  box-sizing: border-box;
+  background: var(--Brand-Background, #F3F3EC);
+}
+
+.forgotPasswordHeader {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 0;
+  margin-top: 0;
+}
+
+.forgotPasswordOverline2 {
+  align-self: stretch;
+  color: #000;
+  text-align: left;
+}
+
+.forgotPasswordInstruction {
+  width: 100%;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+
+.resetPasswordBtn {
+  display: flex;
+  width: 240px;
+  height: 80px;
+  padding: 0px 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 36px;
+  background: var(--Brand-Dark, #2A4E14);
+  color: #FFF;
+  border: none;
+  cursor: pointer;
+}
+
+.backToLoginBtn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
+  color: var(--Brand-Dark, #2A4E14);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-weight: 700;
 }
 .signupTerms {
   width: 240px;
@@ -370,19 +482,32 @@
   margin-top: 8px;
 }
 .termsBold {
-  color: #000;
+  color: var(--Neutral-Primary-Text, #22221B);
+  font-family: Kanit;
+  font-size: 14px;
+  font-style: normal;
   font-weight: 700;
+  line-height: 150%;
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-skip-ink: auto;
+  text-decoration-thickness: auto;
+  text-underline-offset: auto;
+  text-underline-position: from-font;
 }
 .actionModule {
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
   gap: 8px;
   width: 100%;
+  align-self: center;
 }
 .actionModuleText {
   color: #000;
   text-align: center;
+  margin-top: -16px;
 }
 .actionModuleBtn {
   color: var(--Brand-Dark, #2A4E14);
@@ -391,6 +516,7 @@
   border: none;
   cursor: pointer;
   padding: 0;
+  font-weight: 700;
 }
 .account-container {
   max-width: 400px;
