@@ -3,7 +3,6 @@ import Home from './pages/home/home';
 import LogIn from './pages/auth/pages/Log In';
 import SignUp from './pages/auth/pages/Sign up';
 import ResetPassword from './pages/auth/pages/ResetPassword';
-import ResetPasswordSuccess from './pages/auth/pages/ResetPasswordSuccess';
 import AccountSettings from './pages/auth/pages/Account settings';
 import Tutorials from './pages/auth/pages/Tutorials';
 import ScanLabelPage from './pages/eat/pages/scan-label/ScanLabelPage';
@@ -71,7 +70,7 @@ export default function App() {
               : <ResetPassword />
           }
         />
-        <Route path="/reset-password-success" element={<ResetPasswordSuccess />} />
+
         <Route path="/account" element={<AccountSettings userEmail={user?.email || ''} />} />
         <Route path="/tutorials" element={<Tutorials isLoggedIn={!!user} userEmail={user?.email || ''} />} />
         <Route path="/eat/scan-label" element={<ScanLabelPage userId={user?.id} />} />
