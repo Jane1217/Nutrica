@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
-import ModalWrapper from '../../components/ModalWrapper';
-import InputField from '../../components/auth/InputField';
+import ModalWrapper from '../../../components/common/ModalWrapper';
+import InputField from '../../../components/auth/InputField';
 import Cropper from 'react-easy-crop';
-import { supabase } from '../../supabaseClient';
+import { supabase } from '../../../supabaseClient';
 
 // 将裁剪区域转换为blob
 const createImage = (url) =>

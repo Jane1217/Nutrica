@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import './FoodModal.css';
-import ModalWrapper from '../../../components/ModalWrapper';
+import '../styles/FoodModal.css';
+import ModalWrapper from '../../../components/common/ModalWrapper';
 
 export default function DescribeModal({ open, onClose, onBack, onCloseModal, onNext }) {
   const [description, setDescription] = useState('');

@@ -4,11 +4,11 @@ import EnterValueModal from './EnterValueModal';
 import DescribeModal from './DescribeModal';
 import DescribeFoodModal from './DescribeFoodModal';
 // 移除本地ScanLabelPage引用，后续用路由跳转
-import './EatModal.css';
+import '../styles/EatModal.css';
 import { useNavigate } from 'react-router-dom';
 import { foodApi, handleApiError } from '../../../utils/api';
 import { formatFoodTime, formatFoodTimeSmart } from '../../../utils/format';
-import ModalWrapper from '../../../components/ModalWrapper';
+import ModalWrapper from '../../../components/common/ModalWrapper';
 
 export default function EatModal({ onClose, foods = [], foodsLoading = false, onDescribe, onEnterValue, userId, onDataChange, onFoodsScroll, open }) {
   const [step, setStep] = useState('main'); // 'main' | 'camera-permission' | 'scan' | 'enter-value' | 'describe' | 'describe-food'

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import NavLogo from '../../components/navbar/Nav-Logo';
-import styles from './Auth.module.css';
+import NavLogo from '../../../components/navbar/Nav-Logo';
+import styles from '../styles/Auth.module.css';
 
 const tabs = ['Safari', 'Chrome', 'Edge', 'Other'];
 
