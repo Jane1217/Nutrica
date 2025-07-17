@@ -21,7 +21,11 @@ export default function DescribeModal({ open, onClose, onBack, onCloseModal, onN
             </button>
             <span className="eat-modal-title">Describe</span>
           </div>
-          <button className="eat-modal-close-btn" onClick={onCloseModal}>×</button>
+          <button className="eat-modal-close-btn" onClick={onCloseModal}>
+            <span className="close-fill">
+              <img src="/assets/mingcute_close-fill-black.svg" alt="close" width="24" height="24" />
+            </span>
+          </button>
         </div>
         
         <div className="describe-input-container">

@@ -24,7 +24,8 @@ html, body {
   background: #F3F3EC;
   position: fixed;
   inset: 0;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 body::before {
