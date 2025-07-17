@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../../supabaseClient';
-import InputField from '../../components/auth/InputField';
-import ModalWrapper from '../../components/ModalWrapper';
-import styles from './Auth.module.css';
-import '../../index.css';
+import { supabase } from '../../../supabaseClient';
+import InputField from '../../../components/auth/InputField';
+import ModalWrapper from '../../../components/common/ModalWrapper';
+import styles from '../styles/Auth.module.css';
+import '../../../index.css';
 
 export default function LogIn({ open, onClose, onAuth, onSwitchToSignUp }) {
   const [email, setEmail] = useState('');

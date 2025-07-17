@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import ModalWrapper from '../../components/ModalWrapper';
-import styles from './Auth.module.css';
+import ModalWrapper from '../../../components/common/ModalWrapper';
+import styles from '../styles/Auth.module.css';
 
 // 哈里斯-贝内迪克特公式计算BMR
 const calculateBMR = (gender, age, height, weight, unit) => {

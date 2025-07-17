@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import './FoodModal.css';
+import '../styles/FoodModal.css';
 import { validateFoodForm } from '../../../utils/validation';
 import { foodApi, handleApiError } from '../../../utils/api';
-import ModalWrapper from '../../../components/ModalWrapper';
+import ModalWrapper from '../../../components/common/ModalWrapper';
 
 export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal, aiData, userId, onDataChange }) {
   const [form, setForm] = useState({

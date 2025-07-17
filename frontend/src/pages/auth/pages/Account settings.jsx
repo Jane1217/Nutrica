@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import NavLogo from '../../components/navbar/Nav-Logo';
-import EatModal from '../eat/modals/EatModal';
+import NavLogo from '../../../components/navbar/Nav-Logo';
+import EatModal from '../../../pages/eat/modals/EatModal';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../../supabaseClient';
-import styles from './Auth.module.css';
-import UserInfoModal from './UserInfoModal';
-import NutritionGoalModal from './NutritionGoalModal';
-import ProfileEditModal from './ProfileEditModal';
-import ModalWrapper from '../../components/ModalWrapper';
+import { supabase } from '../../../supabaseClient';
+import styles from '../styles/Auth.module.css';
+import UserInfoModal from '../modals/UserInfoModal';
+import NutritionGoalModal from '../modals/NutritionGoalModal';
+import ProfileEditModal from '../modals/ProfileEditModal';
+import ModalWrapper from '../../../components/common/ModalWrapper';
 
 export default function AccountSettings({ userEmail }) {
   const navigate = useNavigate();
