@@ -7,7 +7,6 @@
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  padding-top: env(safe-area-inset-top);
   /* 不加height/width/padding，确保背景全屏覆盖刘海 */
 }
 .scan-video {
@@ -99,7 +98,6 @@
   border: none;
   cursor: pointer;
   z-index: 3;
-  margin-bottom: env(safe-area-inset-bottom);
 }
 .scan-close-btn {
   display: flex;
@@ -115,7 +113,7 @@
   font-size: 2rem;
   cursor: pointer;
   position: absolute;
-  top: calc(16px + env(safe-area-inset-top));
+  top: 16px;
   left: 16px;
   z-index: 4;
 }

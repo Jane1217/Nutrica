@@ -39,7 +39,7 @@ export default function DescribeModal({ open, onClose, onBack, onCloseModal, onN
         </div>
         
         <button 
-          className="food-modal-confirm-btn" 
+          className="food-modal-confirm-btn h5" 
           onClick={handleNext}
           disabled={!description.trim()}
         >
