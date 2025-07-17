@@ -184,10 +184,11 @@
   flex-direction: column;
   gap: 16px;
   margin-top: 5px;
-  margin-bottom: 24px;
+  margin-bottom: 0;
   width: 100%;
   flex-shrink: 0; /* 防止压缩 */
   position: relative;
+  margin-top: auto;
 }
 .eat-modal-group3-1 {
   display: flex;
