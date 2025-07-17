@@ -1,0 +1,391 @@
+/* UserInfoModal Styles */
+
+.modalForm {
+  display: flex;
+  flex-direction: column;
+  max-width: 400px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px;
+  background: var(--Brand-Background, #F3F3EC);
+  box-sizing: border-box;
+}
+
+.modalHeader {
+  margin-bottom: 24px;
+}
+
+.modalInputWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modalInput {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid #CDD3C4;
+  background: #FCFCF8;
+  padding: 20px 16px;
+  font-family: inherit;
+  font-size: 16px;
+}
+
+.modalDivider {
+  border: none;
+  height: 1px;
+  background: #CDD3C4;
+  margin: 24px 0;
+}
+
+.modalOptionBtn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1.5px solid #CDD3C4;
+  background: #F3F3EC;
+  color: #26361B;
+  font-family: Inter;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 48px;
+}
+
+.modalOptionBtnActive {
+  background: #26361B;
+  color: #FFF;
+  border-color: #26361B;
+}
+
+.nameInput {
+  margin-bottom: 24px;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid #CDD3C4;
+  background: #FCFCF8;
+  padding: 20px 16px;
+}
+
+.privacyText {
+  font-size: 14px;
+  color: #22221B;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.privacyTextHighlight {
+  color: #22221B;
+}
+
+.privacyTextSecondary {
+  color: rgba(34, 34, 27, 0.60);
+}
+
+.privacyLink {
+  color: #888;
+  text-decoration: underline;
+}
+
+.sectionTitle {
+  font-weight: 700;
+  margin-top: 8px;
+  margin-bottom: 6px;
+  text-align: left;
+}
+
+.genderButtons {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.genderButtons .modalOptionBtn {
+  display: flex;
+  min-width: 80px;
+  padding: 12px 24px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 999px;
+  border: 1px solid var(--Brand-Outline, #DBE2D0);
+  background: var(--Brand-Off-White, #FCFCF8);
+}
+
+.genderButtons .modalOptionBtnActive {
+  background: var(--Brand-Secondary-Dark, #26361B);
+}
+
+.ageContainer {
+  display: flex;
+  align-items: center;
+  margin: 20px 0 24px 0;
+  width: 100%;
+  height: 48px;
+}
+
+.ageLabel {
+  font-weight: 700;
+  text-align: left;
+  min-width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+.ageInputWrapper {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 48px;
+}
+
+.ageInput {
+  width: 96px;
+  height: 48px;
+  line-height: 48px;
+  border-radius: 8px;
+  border: 1px solid var(--Brand-Outline, #DBE2D0);
+  background: var(--Brand-Off-White, #FCFCF8);
+  text-align: center;
+  display: block;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+.unitButtons {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.unitButton {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 48px;
+  border-radius: 999px;
+  border: 1px solid #CDD3C4;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+}
+
+.unitButtonActive {
+  background: #26361B;
+  color: #FFF;
+  border: none;
+}
+
+.unitButtonInactive {
+  border: 1px solid var(--Brand-Outline, #DBE2D0);
+  background: var(--Brand-Off-White, #FCFCF8);
+  color: #26361B;
+}
+
+.measurementContainer {
+  display: flex;
+  align-items: center;
+  margin: 8px 0;
+  width: 100%;
+  height: 48px;
+}
+
+.measurementLabel {
+  font-weight: 700;
+  text-align: left;
+  min-width: 90px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+.measurementInputWrapper {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 48px;
+}
+
+.measurementInputContainer {
+  position: relative;
+  width: 96px;
+  height: 48px;
+}
+
+.usHeightInputs {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.measurementInput {
+  width: 96px;
+  height: 48px;
+  line-height: 24px;
+  border-radius: 8px;
+  border: 1px solid var(--Brand-Outline, #DBE2D0);
+  background: var(--Brand-Off-White, #FCFCF8);
+  text-align: left;
+  display: flex;
+  box-sizing: border-box;
+  margin: 0;
+  font-weight: 500;
+  padding: 12px 16px;
+  padding-right: 38px;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+}
+
+.measurementUnit {
+  position: absolute;
+  right: 16px;
+  top: 0;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  color: rgba(0,0,0,0.60);
+  font-family: Kanit;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 24px;
+  text-align: right;
+  pointer-events: none;
+}
+
+.activityGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.activityButton {
+  width: 100%;
+  justify-content: center;
+  text-align: center;
+  padding: 12px 16px;
+  height: auto;
+  min-height: 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.activityGrid .modalOptionBtn {
+  display: flex;
+  min-width: 80px;
+  padding: 12px 24px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 999px;
+  border: 1px solid var(--Brand-Outline, #DBE2D0);
+  background: var(--Brand-Off-White, #FCFCF8);
+}
+
+.activityGrid .modalOptionBtnActive {
+  background: var(--Brand-Secondary-Dark, #26361B);
+}
+
+.activityLabel {
+  text-align: center;
+  font-family: Inter;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 150%;
+  letter-spacing: -0.32px;
+}
+
+.activityDescription {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.weightGoalGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.weightGoalButton {
+  display: flex;
+  min-width: 80px;
+  padding: 12px 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 999px;
+  border: 1px solid var(--Brand-Outline, #DBE2D0);
+  background: var(--Brand-Off-White, #FCFCF8);
+  width: 100%;
+  text-align: center;
+  height: auto;
+  min-height: 48px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+}
+
+.weightGoalButtonActive {
+  background: var(--Brand-Secondary-Dark, #26361B);
+  color: #FFF;
+  border: 1px solid var(--Brand-Secondary-Dark, #26361B);
+}
+
+.weightGoalButtonThird {
+  grid-column: 1 / 2;
+}
+
+
+
+.buttonContainer {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.skipButton {
+  display: flex;
+  width: 119px;
+  height: 80px;
+  padding: 12px 24px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  border-radius: 36px;
+  background: #E7E7D5;
+  border: none;
+  cursor: pointer;
+}
+
+.nextButton {
+  display: flex;
+  width: 200px;
+  height: 80px;
+  padding: 13px 21px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  border-radius: 36px;
+  background: var(--Brand-Dark, #2A4E14);
+  color: #FFF;
+  border: none;
+  cursor: pointer;
+}

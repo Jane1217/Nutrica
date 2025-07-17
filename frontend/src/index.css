@@ -45,12 +45,12 @@ body, #root, .app-root {
   line-height: 150%; /* 27px */
 }
 .h4 {
-  font-family: Inter;
-  font-size: 16px;
+  /* H4 */
+  font-family: Kanit;
+  font-size: 18px;
   font-style: normal;
-  font-weight: 700;
-  line-height: 150%;
-  letter-spacing: -0.32px;
+  font-weight: 500;
+  line-height: 150%; /* 27px */
 }
 .h5 {
   font-family: Kanit;

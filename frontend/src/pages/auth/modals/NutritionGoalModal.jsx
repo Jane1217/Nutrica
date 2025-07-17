@@ -3,7 +3,7 @@ import styles from "../styles/Auth.module.css";
 import { calculateNutritionFromCalories } from '../../../utils/nutrition';
 import ModalWrapper from '../../../components/common/ModalWrapper';
 
-export default function NutritionGoalModal({ onClose, onBack, onSave, name = '', calories = 2000 }) {
+export default function NutritionGoalModal({ open, onClose, onBack, onSave, name = '', calories = 2000 }) {
   const [userInput, setUserInput] = useState('');
   const [isUserEditing, setIsUserEditing] = useState(false);
   
@@ -45,13 +45,8 @@ export default function NutritionGoalModal({ onClose, onBack, onSave, name = '',
   
   return (
     <ModalWrapper
-      isOpen={true} // Assuming this modal is always open for now
+      open={open}
       onClose={onClose}
-      onBack={onBack}
-      onSave={handleSave}
-      title="Nutrition Goal"
-      saveText="Save"
-      backText="Back"
     >
       {/* 滚动内容区域 */}
       <div style={{
