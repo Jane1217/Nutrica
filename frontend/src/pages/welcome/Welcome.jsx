@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import NavLogo from '../../components/navbar/Nav-Logo';
 import LogIn from '../auth/Log In';
 import SignUp from '../auth/Sign up';
+import ForgotPassword from '../auth/ForgotPassword';
 import styles from './Welcome.module.css';
 
 export default function Welcome() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showSignUpModal, setShowSignUpModal] = useState(false);
+  const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
 
   return (
     <div className={styles.welcomeRoot}>
@@ -44,6 +46,10 @@ export default function Welcome() {
           setShowLoginModal(false);
           setShowSignUpModal(true);
         }}
+        onSwitchToForgotPassword={() => {
+          setShowLoginModal(false);
+          setShowForgotPasswordModal(true);
+        }}
       />
       {/* 注册弹窗 */}
       <SignUp
@@ -52,6 +58,15 @@ export default function Welcome() {
         onAuth={() => setShowSignUpModal(false)}
         onSwitchToLogin={() => {
           setShowSignUpModal(false);
+          setShowLoginModal(true);
+        }}
+      />
+      {/* 忘记密码弹窗 */}
+      <ForgotPassword
+        open={showForgotPasswordModal}
+        onClose={() => setShowForgotPasswordModal(false)}
+        onBackToLogin={() => {
+          setShowForgotPasswordModal(false);
           setShowLoginModal(true);
         }}
       />

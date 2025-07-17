@@ -350,6 +350,9 @@
   align-self: stretch;
   color: #000;
   text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .inputWrapper {
   display: flex;
@@ -414,67 +417,7 @@
   padding: 0;
 }
 
-.forgotPasswordMainContent {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 36px;
-  max-width: 300px;
-  width: 100%;
-  margin: 0 auto;
-  padding: 32px 32px;
-  box-sizing: border-box;
-  background: var(--Brand-Background, #F3F3EC);
-}
 
-.forgotPasswordHeader {
-  display: flex;
-  width: 100%;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 0;
-  margin-top: 0;
-}
-
-.forgotPasswordOverline2 {
-  align-self: stretch;
-  color: #000;
-  text-align: left;
-}
-
-.forgotPasswordInstruction {
-  width: 100%;
-  padding: 0 16px;
-  box-sizing: border-box;
-}
-
-.resetPasswordBtn {
-  display: flex;
-  width: 240px;
-  height: 80px;
-  padding: 0px 16px;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  border-radius: 36px;
-  background: var(--Brand-Dark, #2A4E14);
-  color: #FFF;
-  border: none;
-  cursor: pointer;
-}
-
-.backToLoginBtn {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: transparent;
-  color: var(--Brand-Dark, #2A4E14);
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  font-weight: 700;
-}
 .signupTerms {
   width: 240px;
   color: #000;
