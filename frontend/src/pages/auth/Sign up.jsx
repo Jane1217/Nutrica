@@ -43,7 +43,6 @@ export default function SignUp({ open, onClose, onAuth, onSwitchToLogin }) {
     <ModalWrapper open={open} onClose={onClose}>
       <main className={styles.signupMainContent}>
         <header className={styles.signupHeader}>
-          <div className={`${styles.signupOverline1} h6`}>Welcome to Nutrica</div>
           <div className={`${styles.signupOverline2} h1`}>Create Free Account</div>
         </header>
         <div className={styles.inputWrapper}>

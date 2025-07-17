@@ -250,7 +250,7 @@ export default function ProfileEditModal({ open, onClose, userInfo = {}, onSave 
 
   return (
     <ModalWrapper open={open} onClose={onClose}>
-      <form onSubmit={handleSubmit} style={{padding: 0, background: 'transparent'}}>
+      <form onSubmit={handleSubmit} style={{padding: 0, background: 'transparent', height: '100vh', overflowY: 'auto', WebkitOverflowScrolling: 'touch'}}>
         <div style={{position: 'relative', marginBottom: 0}}>
           <div className="h1" style={{ marginBottom: 0, textAlign: 'left', padding: '24px 0 0 24px' }}>Edit Profile</div>
           <button type="button" onClick={onClose} style={{position: 'absolute', right: 16, top: 16, background: 'none', border: 'none', cursor: 'pointer', width: 48, height: 48, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
@@ -340,14 +340,11 @@ export default function ProfileEditModal({ open, onClose, userInfo = {}, onSave 
           <InputField label=" Last Name (Optional)" value={lastName} onChange={setLastName} />
         </div>
         <div style={{
-          position: 'fixed',
-          bottom: 24,
-          left: 0,
-          right: 0,
           display: 'flex',
           justifyContent: 'center',
-          zIndex: 1000,
-          marginTop:24,
+          marginTop: 64,
+          marginBottom: 24,
+          paddingBottom: 24
         }}>
           <button type="submit" className="h5" disabled={uploading} style={{
             display: 'flex',

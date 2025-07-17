@@ -43,7 +43,6 @@ export default function LogIn({ open, onClose, onAuth, onSwitchToSignUp }) {
     <ModalWrapper open={open} onClose={onClose}>
       <main className={styles.loginMainContent}>
         <header className={styles.loginHeader}>
-          <div className={`${styles.loginOverline1} h6`}>Welcome to Nutrica</div>
           <div className={`${styles.loginOverline2} h1`}>Log In</div>
         </header>
         <div className={styles.inputWrapper}>
