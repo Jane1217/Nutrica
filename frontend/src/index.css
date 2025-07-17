@@ -11,7 +11,7 @@
   --Accent-2: #D8E8E7;
   --Accent-3: #D7E8D5;
   --Accent-4: #E8D8E6;
-  --Alert-Success: #6FB977;
+  --Alert-Success:#477E2D;
   --Alert-Warning: #EEB85B;
   --Alert-Error: #E16A60;
 }
@@ -22,19 +22,11 @@ body, #root, .app-root {
 
 /* Typography */
 .h1 {
-  /*
-  font-family: Inter;
-  font-size: 24px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 150%;
-  letter-spacing: -0.48px;
-  */
   font-family: Kanit;
-  font-size: 24px;
+  font-size: 32px;
   font-style: normal;
   font-weight: 700;
-  line-height: 150%; /* 36px */
+  line-height: 120%; /* 38.4px */
 }
 .h2 {
   /* H2 */

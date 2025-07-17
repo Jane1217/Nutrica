@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import NavLogo from '../../components/navbar/Nav-Logo';
 import LogIn from '../auth/pages/Log In';
 import SignUp from '../auth/pages/Sign up';
@@ -9,6 +10,16 @@ export default function Welcome() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [showSignUpModal, setShowSignUpModal] = useState(false);
   const [showForgotPasswordModal, setShowForgotPasswordModal] = useState(false);
+  const location = useLocation();
+
+  // 检查是否从ResetPasswordSuccess页面跳转过来，需要显示登录模态框
+  useEffect(() => {
+    if (location.state?.showLoginModal) {
+      setShowLoginModal(true);
+      // 清除状态，避免重复触发
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   return (
     <div className={styles.welcomeRoot}>

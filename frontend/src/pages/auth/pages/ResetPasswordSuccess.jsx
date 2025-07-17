@@ -1,13 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { supabase } from '../../../supabaseClient';
-import InputField from '../../../components/auth/InputField';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from '../styles/ResetPassword.module.css';
-import '../../../index.css';
 
 // 简单的Logo组件，只显示Logo
 const SimpleLogo = () => (
-  <div className={styles.logo}>
+  <div className={styles.successLogo}>
     <svg xmlns="http://www.w3.org/2000/svg" width="69" height="19" viewBox="0 0 69 19" fill="none">
       <path d="M66.2886 15H64.8081V13.5H66.2886V15ZM66.2886 13.5H64.8081V12H66.2886V13.5ZM64.8081 13.5H63.3276V12H64.8081V13.5ZM63.3276 15H61.8472V13.5H63.3276V15ZM61.8472 15H60.3667V13.5H61.8472V15ZM60.3667 15H58.8862V13.5H60.3667V15ZM60.3667 13.5H58.8862V12H60.3667V13.5ZM61.8472 13.5H60.3667V12H61.8472V13.5ZM58.8862 13.5H57.4058V12H58.8862V13.5ZM58.8862 12H57.4058V10.5H58.8862V12ZM58.8862 6H57.4058V4.5H58.8862V6ZM60.3667 6H58.8862V4.5H60.3667V6ZM60.3667 12H58.8862V10.5H60.3667V12ZM61.8472 6H60.3667V4.5H61.8472V6ZM60.3667 4.5H58.8862V3H60.3667V4.5ZM61.8472 4.5H60.3667V3H61.8472V4.5ZM63.3276 4.5H61.8472V3H63.3276V4.5ZM64.8081 4.5H63.3276V3H64.8081V4.5ZM66.2886 4.5H64.8081V3H66.2886V4.5ZM66.2886 6H64.8081V4.5H66.2886V6ZM64.8081 6H63.3276V4.5H64.8081V6ZM66.2886 7.5H64.8081V6H66.2886V7.5ZM67.769 6H66.2886V4.5H67.769V6ZM67.769 7.5H66.2886V6H67.769V7.5ZM67.769 9H66.2886V7.5H67.769V9ZM67.769 10.5H66.2886V9H67.769V10.5ZM67.769 12H66.2886V10.5H67.769V12ZM67.769 13.5H66.2886V12H67.769V13.5ZM66.2886 12H64.8081V10.5H66.2886V12ZM66.2886 10.5H64.8081V9H66.2886V10.5ZM66.2886 9H64.8081V7.5H66.2886V9ZM63.3276 6H61.8472V4.5H63.3276V6ZM63.3276 13.5H61.8472V12H63.3276V13.5ZM66.2886 13.5H67.769V15H66.2886V13.5ZM63.3276 7.5H64.8081V9H63.3276V7.5ZM61.8472 7.5H63.3276V9H61.8472V7.5ZM60.3667 7.5H61.8472V9H60.3667V7.5ZM58.8862 7.5H60.3667V9H58.8862V7.5ZM57.4058 9H58.8862V10.5H57.4058V9ZM58.8862 9H60.3667V10.5H58.8862V9ZM63.3276 9H64.8081V10.5H63.3276V9ZM61.8472 9H63.3276V10.5H61.8472V9ZM60.3667 9H61.8472V10.5H60.3667V9Z" fill="#49693D"/>
       <path d="M49.0723 3H50.5527V4.5H49.0723V3ZM47.5918 3H49.0723V4.5H47.5918V3ZM47.5918 4.5H49.0723V6H47.5918V4.5ZM49.0723 4.5H50.5527V6H49.0723V4.5ZM50.5527 3H52.0332V4.5H50.5527V3ZM52.0332 3H53.5137V4.5H52.0332V3ZM53.5137 3H54.9941V4.5H53.5137V3ZM53.5137 4.5H54.9941V6H53.5137V4.5ZM52.0332 4.5H53.5137V6H52.0332V4.5ZM54.9941 4.5H56.4746V6H54.9941V4.5ZM54.9941 6H56.4746V7.5H54.9941V6ZM54.9941 10.5H56.4746V12H54.9941V10.5ZM54.9941 12H56.4746V13.5H54.9941V12ZM53.5137 12H54.9941V13.5H53.5137V12ZM53.5137 10.5H54.9941V12H53.5137V10.5ZM53.5137 6H54.9941V7.5H53.5137V6ZM52.0332 12H53.5137V13.5H52.0332V12ZM53.5137 13.5H54.9941V15H53.5137V13.5ZM52.0332 13.5H53.5137V15H52.0332V13.5ZM50.5527 13.5H52.0332V15H50.5527V13.5ZM49.0723 13.5H50.5527V15H49.0723V13.5ZM47.5918 13.5H49.0723V15H47.5918V13.5ZM47.5918 12H49.0723V13.5H47.5918V12ZM49.0723 12H50.5527V13.5H49.0723V12ZM47.5918 10.5H49.0723V12H47.5918V10.5ZM46.1113 12H47.5918V13.5H46.1113V12ZM46.1113 10.5H47.5918V12H46.1113V10.5ZM46.1113 9H47.5918V10.5H46.1113V9ZM46.1113 7.5H47.5918V9H46.1113V7.5ZM46.1113 6H47.5918V7.5H46.1113V6ZM46.1113 4.5H47.5918V6H46.1113V4.5ZM47.5918 6H49.0723V7.5H47.5918V6ZM47.5918 7.5H49.0723V9H47.5918V7.5ZM47.5918 9H49.0723V10.5H47.5918V9ZM50.5527 12H52.0332V13.5H50.5527V12ZM50.5527 4.5H52.0332V6H50.5527V4.5Z" fill="#49693D"/>
@@ -22,240 +19,45 @@ const SimpleLogo = () => (
   </div>
 );
 
-export default function ResetPassword() {
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoadingPage, setIsLoadingPage] = useState(true);
+export default function ResetPasswordSuccess() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
 
-  // 检查用户是否已通过邮件链接认证
-  useEffect(() => {
-    console.log('ResetPassword page loaded');
-    
-    const checkAuthAndSession = async () => {
-      try {
-        // 检查URL参数
-        const token = searchParams.get('token');
-        const type = searchParams.get('type');
-        const access_token = searchParams.get('access_token');
-        const refresh_token = searchParams.get('refresh_token');
-        
-        console.log('URL params - token:', token, 'type:', type, 'access_token:', access_token);
-        
-        // 检查当前session状态
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        console.log('Current session:', session);
-        console.log('Session error:', sessionError);
-        
-        if (sessionError) {
-          console.error('Error getting session:', sessionError);
-        }
-        
-        if (session) {
-          console.log('User is authenticated for password reset');
-          setIsAuthenticated(true);
-          setError('');
-        } else if (access_token && refresh_token) {
-          console.log('Found access_token and refresh_token in URL, setting session');
-          // 如果有access_token和refresh_token，设置session
-          const { data, error } = await supabase.auth.setSession({
-            access_token: access_token,
-            refresh_token: refresh_token
-          });
-          
-          if (error) {
-            console.error('Error setting session:', error);
-            setError('Invalid or expired reset link. Please request a new one.');
-          } else {
-            console.log('Session set successfully');
-            setIsAuthenticated(true);
-            setError('');
-          }
-        } else if (token && type === 'recovery') {
-          console.log('Token found in URL, attempting to verify');
-          // 如果有token，尝试验证
-          const { data, error } = await supabase.auth.verifyOtp({
-            token_hash: token,
-            type: 'recovery'
-          });
-          
-          if (error) {
-            console.error('Token verification error:', error);
-            setError('Invalid or expired reset link. Please request a new one.');
-          } else {
-            console.log('Token verified successfully');
-            setIsAuthenticated(true);
-            setError('');
-          }
-        } else {
-          console.log('No session or valid token found');
-          setError('Please click the link in your email to reset your password.');
-        }
-      } catch (err) {
-        console.error('Error in auth check:', err);
-        setError('Error loading page. Please try again.');
-      } finally {
-        setIsLoadingPage(false);
-      }
-    };
-
-    checkAuthAndSession();
-
-    // 监听认证状态变化
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth state changed:', event, session);
-      if (event === 'PASSWORD_RECOVERY' && session) {
-        console.log('Password recovery session established');
-        setIsAuthenticated(true);
-        setError('');
-      } else if (event === 'SIGNED_IN' && session) {
-        console.log('User signed in, checking if this is password recovery');
-        // 检查是否是通过密码重置链接登录的
-        const token = searchParams.get('token');
-        const access_token = searchParams.get('access_token');
-        if (token || access_token) {
-          setIsAuthenticated(true);
-          setError('');
-        }
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [searchParams]);
-
-  const handleResetPassword = async () => {
-    if (!isAuthenticated) {
-      setError('Please click the link in your email first');
-      return;
-    }
-
-    if (!password) {
-      setError('Please enter a new password');
-      return;
-    }
-
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters long');
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
-    setIsLoading(true);
-    setError('');
-    setSuccess('');
-
-    try {
-      const { data, error } = await supabase.auth.updateUser({
-        password: password
-      });
-
-      if (error) {
-        console.error('Password update error:', error);
-        setError(error.message);
-      } else {
-        console.log('Password updated successfully:', data);
-        setSuccess('Password updated successfully! Redirecting...');
-        // 密码更新成功后，跳转到成功页面
-        setTimeout(async () => {
-          await supabase.auth.signOut();
-          navigate('/reset-password-success');
-        }, 1500);
-      }
-    } catch (err) {
-      console.error('Unexpected error:', err);
-      setError('An unexpected error occurred. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
+  const handleLogin = () => {
+    // 导航到根路径（Welcome页面），并传递参数来触发登录模态框
+    navigate('/', { state: { showLoginModal: true } });
   };
 
-  if (isLoadingPage) {
-    return (
-      <div className={styles.loading}>
-        <div className={styles.loadingText}>Loading...</div>
-      </div>
-    );
-  }
-
   return (
-    <div className={styles.container}>
+    <div className={styles.successContainer}>
       {/* Header */}
-      <div className={styles.header}>
+      <div className={styles.successHeader}>
         <SimpleLogo />
       </div>
 
       {/* Main Content */}
-      <div className={styles.mainContent}>
-        <div className={styles.card}>
-          <h1 className={`${styles.title} h1`}>
-            Reset Password
-          </h1>
-          <p className={`${styles.subtitle} body1`}>
-            Please set your new password.
+      <div className={styles.successMainContent}>
+        <div className={styles.successCard}>
+          {/* Success Icon */}
+          <div className={styles.successIcon}>
+            <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="40" cy="40" r="40" fill="var(--Alert-Success, #477E2D)"/>
+              <path d="M25 40L35 50L55 30" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+
+          {/* Success Message */}
+          <p className={`${styles.successMessage} body1`}>
+            Your password has been reset successfully.
           </p>
 
-          {!isAuthenticated && (
-            <div className={styles.warning}>
-              Please click the link in your email to continue with password reset.
-            </div>
-          )}
-
-          <div className={styles.inputWrapper}>
-            <InputField
-              label="New Password"
-              type="password"
-              value={password}
-              onChange={setPassword}
-              error={null}
-            />
-          </div>
-
-          <div className={styles.inputWrapper}>
-            <InputField
-              label="Confirm New Password"
-              type="password"
-              value={confirmPassword}
-              onChange={setConfirmPassword}
-              error={null}
-            />
-          </div>
-
-          <div className={`${styles.hint} body2`}>
-            Password must have at least 8 characters.
-          </div>
-
-          {error && (
-            <div className={styles.error}>
-              {error}
-            </div>
-          )}
-
-          {success && (
-            <div className={styles.success}>
-              {success}
-            </div>
-          )}
-
-          <div className={styles.btnWrapper}>
-            <button
-              className={`${styles.btn} ${(!isAuthenticated || isLoading) ? styles.btnDisabled : ''}`}
-              onClick={handleResetPassword}
-              disabled={!isAuthenticated || isLoading}
-            >
-              {isLoading ? 'Updating...' : 'Reset password'}
+          {/* Login Button */}
+          <div className={styles.successBtnWrapper}>
+            <button className={styles.successBtn} onClick={handleLogin}>
+              Log in
             </button>
           </div>
         </div>
       </div>
     </div>
   );
-}
+} 
