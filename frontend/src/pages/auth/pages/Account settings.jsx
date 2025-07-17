@@ -65,7 +65,6 @@ export default function AccountSettings({ userEmail }) {
           if (parsed.data.avatarUrl) {
             setAvatarUrl(parsed.data.avatarUrl);
           }
-          console.log('立即从本地缓存加载用户数据');
         }
       } catch (error) {
         console.error('解析本地缓存失败:', error);
@@ -98,7 +97,6 @@ export default function AccountSettings({ userEmail }) {
           timestamp: Date.now()
         };
         localStorage.setItem('nutrica_user_cache', JSON.stringify(cacheData));
-        console.log('更新本地缓存');
       }
     };
     
@@ -132,11 +130,13 @@ export default function AccountSettings({ userEmail }) {
   // 提交信息时写入supabase user_metadata，并并行切换弹窗
   const handleUserInfoSubmit = async (data) => {
     setShowUserInfoModal(false); // 立即关闭信息收集弹窗
-    setShowNutritionGoalModal(true); // 立即打开营养目标弹窗
     
     // 立即更新userInfo状态，包含计算出的卡路里值
     const newMeta = { ...userInfo, ...data };
     setUserInfo(newMeta);
+    
+    // 立即打开营养目标弹窗，使用计算出的卡路里值
+    setShowNutritionGoalModal(true);
     
     // 异步保存到Supabase，不阻塞UI更新
     const { data: { user } } = await supabase.auth.getUser();
@@ -297,18 +297,17 @@ export default function AccountSettings({ userEmail }) {
         initialData={userInfo || {}}
         onSubmit={handleUserInfoSubmit}
       />
-      <ModalWrapper open={showNutritionGoalModal} onClose={() => setShowNutritionGoalModal(false)}>
-        <NutritionGoalModal
-          onClose={() => setShowNutritionGoalModal(false)}
-          onBack={() => {
-            setShowNutritionGoalModal(false);
-            setShowUserInfoModal(true);
-          }}
-          onSave={handleSaveCalories}
-          name={userInfo?.name || ''}
-          calories={getDisplayCalories()}
-        />
-      </ModalWrapper>
+      <NutritionGoalModal
+        open={showNutritionGoalModal}
+        onClose={() => setShowNutritionGoalModal(false)}
+        onBack={() => {
+          setShowNutritionGoalModal(false);
+          setShowUserInfoModal(true);
+        }}
+        onSave={handleSaveCalories}
+        name={userInfo?.name || ''}
+        calories={userInfo?.calculatedCalories || latestCalories || 2000}
+      />
       <ProfileEditModal 
         open={showProfileEditModal} 
         onClose={() => setShowProfileEditModal(false)} 
