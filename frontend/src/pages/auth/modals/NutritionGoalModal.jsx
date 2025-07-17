@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import styles from "./Auth.module.css";
-import { calculateNutritionFromCalories } from "../../utils/nutrition";
+import styles from "../styles/Auth.module.css";
+import { calculateNutritionFromCalories } from '../../../utils/nutrition';
+import ModalWrapper from '../../../components/common/ModalWrapper';
 
 export default function NutritionGoalModal({ onClose, onBack, onSave, name = '', calories = 2000 }) {
   const [userInput, setUserInput] = useState('');
@@ -43,12 +44,15 @@ export default function NutritionGoalModal({ onClose, onBack, onSave, name = '',
   const displayValue = isUserEditing ? userInput : calories;
   
   return (
-    <div className={styles.nutritionGoalModalWrapper} style={{
-      display: 'flex', 
-      flexDirection: 'column', 
-      height: '100%',
-      overflow: 'hidden'
-    }}>
+    <ModalWrapper
+      isOpen={true} // Assuming this modal is always open for now
+      onClose={onClose}
+      onBack={onBack}
+      onSave={handleSave}
+      title="Nutrition Goal"
+      saveText="Save"
+      backText="Back"
+    >
       {/* 滚动内容区域 */}
       <div style={{
         flex: 1,
@@ -226,6 +230,6 @@ export default function NutritionGoalModal({ onClose, onBack, onSave, name = '',
           <span className='h5'>Save</span>
         </button>
       </div>
-    </div>
+    </ModalWrapper>
   );
 } 

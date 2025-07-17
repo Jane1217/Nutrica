@@ -1,10 +1,10 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/home/home';
-import LogIn from './pages/auth/Log In';
-import SignUp from './pages/auth/Sign up';
-import AccountSettings from './pages/auth/Account settings';
-import Tutorials from './pages/auth/Tutorials';
-import ScanLabelPage from './pages/eat/scan-label/ScanLabelPage';
+import LogIn from './pages/auth/pages/Log In';
+import SignUp from './pages/auth/pages/Sign up';
+import AccountSettings from './pages/auth/pages/Account settings';
+import Tutorials from './pages/auth/pages/Tutorials';
+import ScanLabelPage from './pages/eat/pages/scan-label/ScanLabelPage';
 import Welcome from './pages/welcome/Welcome';
 import React, { useEffect, useState } from 'react';
 import { supabase } from './supabaseClient';

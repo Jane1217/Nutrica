@@ -1,16 +1,16 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import FoodModal from '../modals/FoodModal';
-import { foodApi, handleApiError } from '../../../utils/api';
+import FoodModal from '../../modals/FoodModal';
+import { foodApi, handleApiError } from '../../../../utils/api';
 import { 
   startCamera, 
   stopCamera, 
   forceReleaseCamera, 
   captureVideoFrame,
   setupCameraEventListeners 
-} from '../../../utils/camera';
+} from '../../../../utils/camera';
 import './ScanLabelPage.css';
-import CameraPermissionModal from '../modals/CameraPermissionModal';
+import CameraPermissionModal from '../../modals/CameraPermissionModal';
 
 // 组件外部，避免多次挂载重复判断
 const CAMERA_PERMISSION_KEY = 'nutrica_camera_permission_shown';
