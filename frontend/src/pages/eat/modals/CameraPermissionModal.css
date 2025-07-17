@@ -9,7 +9,7 @@
 }
 .camera-permission-modal {
   display: flex;
-  padding: 24px 24px 120px 24px; /* 底部多留空间，防止内容被按钮遮挡 */
+  padding: 24px 24px 24px 24px;
   flex-direction: column;
   box-sizing: border-box;
   z-index: 1000;
@@ -21,10 +21,11 @@
   top: 0;
   bottom: 0;
   margin: auto 16px;
-  align-items: center;
-  min-height: 320px;
   max-height: 60vh;
+  align-items: center;
   overflow-y: auto;
+  overflow-x: hidden;
+  justify-content: flex-start;
 }
 
 .camera-permission-group1 {
@@ -84,9 +85,5 @@
   background: #2A4E14;
   color: var(--Brand-Background, #EEF0EB);
   border: none;
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 24px;
-  margin: auto;
+  margin: auto auto 8px auto;
 } 
