@@ -7,22 +7,20 @@
   /* 不加height/width/padding，确保全屏覆盖刘海 */
 }
 .food-modal {
-  flex-shrink: 0;
-  background: #F3F3EC;
-  width: 100vw;
-  max-height: 95vh;
-  min-height: 320px;
-  height: auto;
   position: fixed;
-  bottom: 0;
+  top: 0;
   left: 0;
+  right: 0;
+  bottom: 0;
+  background: #F3F3EC;
   display: flex;
   flex-direction: column;
-  padding: calc(24px + env(safe-area-inset-top)) 16px calc(120px + env(safe-area-inset-bottom)) 16px;
+  padding: 16px 16px 16px 16px;
   z-index: 1000;
   box-sizing: border-box;
   border-radius: 36px 36px 0px 0px;
   overflow-y: auto;
+  overflow-x: hidden;
   justify-content: flex-start;
 }
 
@@ -146,14 +144,10 @@
   flex-shrink: 0;
   border-radius: 36px;
   background: #2A4E14;
-  color: var(--Brand-Background, #EEF0EB);
+  color: var(--Brand-Background, #F3F3EC);
   font-weight: 500;
   border: none;
   margin: auto auto 0 auto;
-  margin-bottom: env(safe-area-inset-bottom);
-}
-.food-modal-confirm-btn.h5 {
-  /* 只需加.h5类即可 */
 }
 .food-modal-success {
   color: green;
@@ -207,7 +201,7 @@
   border: none;
   cursor: pointer;
   padding: 0;
-  top: calc(0px + env(safe-area-inset-top));
+  top: 0;
 }
 
 /* 带返回按钮的标题组 */
