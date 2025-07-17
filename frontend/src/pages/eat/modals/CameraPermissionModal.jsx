@@ -1,5 +1,5 @@
 import React from 'react';
-import './CameraPermissionModal.css';
+import '../styles/CameraPermissionModal.css';
 
 export default function CameraPermissionModal({ onClose, onOk }) {
   return (
