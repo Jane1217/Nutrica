@@ -3,9 +3,9 @@ import { supabase } from '../../supabaseClient';
 import NavLogo from '../../components/navbar/Nav-Logo';
 import DateDisplayBox from '../../components/home/DateDisplayBox';
 import EatModal from '../eat/modals/EatModal';
-import UserInfoModal from '../auth/UserInfoModal';
-import NutritionGoalModal from '../auth/NutritionGoalModal';
-import ModalWrapper from '../../components/ModalWrapper';
+import UserInfoModal from '../auth/modals/UserInfoModal';
+import NutritionGoalModal from '../auth/modals/NutritionGoalModal';
+import ModalWrapper from '../../components/common/ModalWrapper';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import styles from './Home.module.css';
 import { calculateNutritionFromCalories, formatFoods } from '../../utils/nutrition';
@@ -135,6 +135,9 @@ export default function Home(props) {
     }
   };
 
+  // 关闭EatModal时不重置foodsPage和foods
+  // 只在handleEatModalDataChange时重置
+
   // 检查用户信息是否缺失，缺失则弹窗
   useEffect(() => {
     const checkUserInfo = async () => {
@@ -224,22 +227,21 @@ export default function Home(props) {
       <NavLogo onEatClick={() => setShowEatModal(true)} isLoggedIn={props.isLoggedIn} isAuth={false} />
       <div className={styles['home-main']}>
       <DateDisplayBox />
-        {showEatModal && (
-          <EatModal
-            onClose={() => {
-              setShowEatModal(false);
-              navigate('/', { replace: true });
-            }}
-            foods={foods}
-            foodsLoading={foodsLoading}
-            onDescribe={() => alert('Describe')}
-            onEnterValue={() => alert('Enter Value')}
-            onScanLabel={() => alert('Scan Label')}
-            userId={userId}
-            onDataChange={handleEatModalDataChange}
-            onFoodsScroll={handleEatModalScroll}
-          />
-        )}
+        <EatModal
+          open={showEatModal}
+          onClose={() => {
+            setShowEatModal(false);
+            navigate('/', { replace: true });
+          }}
+          foods={foods}
+          foodsLoading={foodsLoading}
+          onDescribe={() => alert('Describe')}
+          onEnterValue={() => alert('Enter Value')}
+          onScanLabel={() => alert('Scan Label')}
+          userId={userId}
+          onDataChange={handleEatModalDataChange}
+          onFoodsScroll={handleEatModalScroll}
+        />
         <UserInfoModal
           open={showUserInfoModal}
           onClose={() => setShowUserInfoModal(false)}

@@ -28,6 +28,8 @@ Thumbs.db
 # 缓存
 .cache/
 .parcel-cache/
+# Vite缓存
+.vite/
 
 # 测试覆盖率
 coverage/

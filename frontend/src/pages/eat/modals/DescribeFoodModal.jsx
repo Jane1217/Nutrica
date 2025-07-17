@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import './FoodModal.css';
+import '../styles/FoodModal.css';
 import { validateFoodForm } from '../../../utils/validation';
 import { foodApi, handleApiError } from '../../../utils/api';
+import ModalWrapper from '../../../components/common/ModalWrapper';
 
 export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal, aiData, userId, onDataChange }) {
   const [form, setForm] = useState({
@@ -27,8 +28,6 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
       });
     }
   }, [aiData]);
-
-  if (!open) return null;
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -76,7 +75,7 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
   };
 
   return (
-    <div className="eat-modal-overlay food-modal-overlay">
+    <ModalWrapper open={open} onClose={onCloseModal}>
       <div className="eat-modal food-modal">
         <div className="eat-modal-group1 food-modal-group1">
           <div className="food-modal-title-group">
@@ -85,7 +84,11 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
             </button>
             <span className="eat-modal-title">Food</span>
           </div>
-          <button className="eat-modal-close-btn" onClick={onCloseModal}>×</button>
+          <button className="eat-modal-close-btn" onClick={onCloseModal}>
+            <span className="close-fill">
+              <img src="/assets/mingcute_close-fill-black.svg" alt="close" width="24" height="24" />
+            </span>
+          </button>
         </div>
         <div className="food-modal-label h5">Food name</div>
         <input 
@@ -130,6 +133,6 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
         {success && <div className="food-modal-success">Saved!</div>}
         {error && <div className="food-modal-error">{error}</div>}
       </div>
-    </div>
+    </ModalWrapper>
   );
 } 

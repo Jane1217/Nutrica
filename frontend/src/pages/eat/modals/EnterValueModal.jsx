@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import './FoodModal.css';
+import '../styles/FoodModal.css';
 import { validateFoodForm } from '../../../utils/validation';
 import { foodApi, handleApiError } from '../../../utils/api';
+import ModalWrapper from '../../../components/common/ModalWrapper';
 
 export default function EnterValueModal({ open, onClose, onBack, onCloseModal, userId, onDataChange }) {
   const [form, setForm] = useState({
@@ -14,8 +15,6 @@ export default function EnterValueModal({ open, onClose, onBack, onCloseModal, u
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
-
-  if (!open) return null;
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -77,7 +76,7 @@ export default function EnterValueModal({ open, onClose, onBack, onCloseModal, u
   };
 
   return (
-    <div className="eat-modal-overlay food-modal-overlay">
+    <ModalWrapper open={open} onClose={onCloseModal}>
       <div className="eat-modal food-modal">
         <div className="eat-modal-group1 food-modal-group1">
           <div className="food-modal-title-group">
@@ -86,7 +85,11 @@ export default function EnterValueModal({ open, onClose, onBack, onCloseModal, u
             </button>
             <span className="eat-modal-title">Enter Value</span>
           </div>
-          <button className="eat-modal-close-btn" onClick={onCloseModal}>×</button>
+          <button className="eat-modal-close-btn" onClick={onCloseModal}>
+            <span className="close-fill">
+              <img src="/assets/mingcute_close-fill-black.svg" alt="close" width="24" height="24" />
+            </span>
+          </button>
         </div>
         <div className="food-modal-label h5">Food name</div>
         <input 
@@ -132,6 +135,6 @@ export default function EnterValueModal({ open, onClose, onBack, onCloseModal, u
         {success && <div className="food-modal-success">Saved!</div>}
         {error && <div className="food-modal-error">{error}</div>}
       </div>
-    </div>
+    </ModalWrapper>
   );
 } 

@@ -4,12 +4,13 @@ import EnterValueModal from './EnterValueModal';
 import DescribeModal from './DescribeModal';
 import DescribeFoodModal from './DescribeFoodModal';
 // 移除本地ScanLabelPage引用，后续用路由跳转
-import './EatModal.css';
+import '../styles/EatModal.css';
 import { useNavigate } from 'react-router-dom';
 import { foodApi, handleApiError } from '../../../utils/api';
 import { formatFoodTime, formatFoodTimeSmart } from '../../../utils/format';
+import ModalWrapper from '../../../components/common/ModalWrapper';
 
-export default function EatModal({ onClose, foods = [], foodsLoading = false, onDescribe, onEnterValue, userId, onDataChange, onFoodsScroll }) {
+export default function EatModal({ onClose, foods = [], foodsLoading = false, onDescribe, onEnterValue, userId, onDataChange, onFoodsScroll, open }) {
   const [step, setStep] = useState('main'); // 'main' | 'camera-permission' | 'scan' | 'enter-value' | 'describe' | 'describe-food'
   const [aiData, setAiData] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -21,6 +22,13 @@ export default function EatModal({ onClose, foods = [], foodsLoading = false, on
   useEffect(() => {
     setFoodsState(foods);
   }, [foods]);
+
+  // 当EatModal关闭时重置step状态
+  useEffect(() => {
+    if (!open) {
+      setStep('main');
+    }
+  }, [open]);
 
   // 监听弹窗内容区滚动，触发加载更多
   const group2Ref = React.useRef(null);
@@ -83,8 +91,8 @@ export default function EatModal({ onClose, foods = [], foodsLoading = false, on
 
   return (
     <>
-      <div className="eat-modal-overlay" onClick={onClose}></div>
-      {step === 'main' && (
+      {/* 主EatModal */}
+      <ModalWrapper open={open && step === 'main'} onClose={onClose}>
         <div className="eat-modal">
           <div className="eat-modal-group1">
             <span className="eat-modal-title">Eat</span>
@@ -164,41 +172,36 @@ export default function EatModal({ onClose, foods = [], foodsLoading = false, on
             </div>
           </div>
         </div>
-      )}
+      </ModalWrapper>
+      
+      {/* 子模态框 */}
       {step === 'camera-permission' && (
         <CameraPermissionModal onClose={() => setStep('main')} onOk={handleCameraPermissionOk} />
       )}
-      {step === 'enter-value' && (
-        <EnterValueModal 
-          open={true} 
-          onClose={handleCloseEnterValue}
-          onBack={handleBackEnterValue}
-          onCloseModal={onClose}
-          userId={userId}
-          onDataChange={handleDataChange}
-        />
-      )}
-      {step === 'describe' && (
-        <DescribeModal 
-          open={true} 
-          onClose={handleCloseDescribe}
-          onBack={handleBackDescribe}
-          onCloseModal={onClose}
-          onNext={handleDescribeNext}
-        />
-      )}
-      {step === 'describe-food' && (
-        <DescribeFoodModal 
-          open={true} 
-          onClose={handleCloseDescribeFood}
-          onBack={handleBackDescribeFood}
-          onCloseModal={onClose}
-          aiData={aiData}
-          userId={userId}
-          onDataChange={handleDataChange}
-        />
-      )}
-      {/* 跳转到 scan label 页面，不再本地渲染 */}
+      <EnterValueModal 
+        open={open && step === 'enter-value'} 
+        onClose={handleCloseEnterValue}
+        onBack={handleBackEnterValue}
+        onCloseModal={onClose}
+        userId={userId}
+        onDataChange={handleDataChange}
+      />
+      <DescribeModal 
+        open={open && step === 'describe'} 
+        onClose={handleCloseDescribe}
+        onBack={handleBackDescribe}
+        onCloseModal={onClose}
+        onNext={handleDescribeNext}
+      />
+      <DescribeFoodModal 
+        open={open && step === 'describe-food'} 
+        onClose={handleCloseDescribeFood}
+        onBack={handleBackDescribeFood}
+        onCloseModal={onClose}
+        aiData={aiData}
+        userId={userId}
+        onDataChange={handleDataChange}
+      />
     </>
   );
 } 

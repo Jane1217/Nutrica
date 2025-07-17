@@ -16,8 +16,24 @@
   --Alert-Error: #E16A60;
 }
 
-body, #root, .app-root {
-  background: #F3F3EC !important;
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: #F3F3EC;
+  position: fixed;
+  inset: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: #F3F3EC;
+  z-index: -1;
 }
 
 /* Typography */

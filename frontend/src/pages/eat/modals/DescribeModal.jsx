@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import './FoodModal.css';
+import '../styles/FoodModal.css';
+import ModalWrapper from '../../../components/common/ModalWrapper';
 
 export default function DescribeModal({ open, onClose, onBack, onCloseModal, onNext }) {
   const [description, setDescription] = useState('');
-
-  if (!open) return null;
 
   const handleNext = () => {
     if (description.trim()) {
@@ -13,7 +12,7 @@ export default function DescribeModal({ open, onClose, onBack, onCloseModal, onN
   };
 
   return (
-    <div className="eat-modal-overlay food-modal-overlay">
+    <ModalWrapper open={open} onClose={onCloseModal}>
       <div className="eat-modal food-modal">
         <div className="eat-modal-group1 food-modal-group1">
           <div className="food-modal-title-group">
@@ -22,7 +21,11 @@ export default function DescribeModal({ open, onClose, onBack, onCloseModal, onN
             </button>
             <span className="eat-modal-title">Describe</span>
           </div>
-          <button className="eat-modal-close-btn" onClick={onCloseModal}>×</button>
+          <button className="eat-modal-close-btn" onClick={onCloseModal}>
+            <span className="close-fill">
+              <img src="/assets/mingcute_close-fill-black.svg" alt="close" width="24" height="24" />
+            </span>
+          </button>
         </div>
         
         <div className="describe-input-container">
@@ -36,13 +39,13 @@ export default function DescribeModal({ open, onClose, onBack, onCloseModal, onN
         </div>
         
         <button 
-          className="food-modal-confirm-btn" 
+          className="food-modal-confirm-btn h5" 
           onClick={handleNext}
           disabled={!description.trim()}
         >
           Next
         </button>
       </div>
-    </div>
+    </ModalWrapper>
   );
 } 

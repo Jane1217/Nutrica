@@ -11,5 +11,5 @@ if (!process.env.VERCEL) {
   });
 }
 
-// 云端部署时只导出 app
-module.exports = app; 
+
+module.exports = app;

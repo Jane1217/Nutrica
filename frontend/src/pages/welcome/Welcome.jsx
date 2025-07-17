@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import NavLogo from '../../components/navbar/Nav-Logo';
-import LogIn from '../auth/Log In';
-import SignUp from '../auth/Sign up';
+import LogIn from '../auth/pages/Log In';
+import SignUp from '../auth/pages/Sign up';
 import styles from './Welcome.module.css';
 
 export default function Welcome() {
