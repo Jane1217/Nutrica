@@ -28,7 +28,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  height: calc(85vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  height: calc(74vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
   background: #f6f6f0;
   border-radius: 36px 36px 0px 0px;
   z-index: 1002;
