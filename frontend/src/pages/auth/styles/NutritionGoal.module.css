@@ -1,0 +1,151 @@
+/* NutritionGoal.css - 迁移自NutritionGoalModal.jsx 的内联样式 */
+
+.scrollArea {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 24px 24px 24px;
+}
+
+.title {
+  margin-bottom: 16px;
+}
+
+.subtitle {
+  margin-bottom: 24px;
+}
+
+.calcBox {
+  background: #F3F3EC;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 32px;
+  border: 1px solid #CDD3C4;
+}
+
+.calcTitle {
+  margin-bottom: 8px;
+  color: #26361B;
+}
+
+.calcDesc {
+  color: #666;
+  line-height: 1.4;
+}
+
+.macrosBox {
+  margin-bottom: 32px;
+}
+
+.caloriesRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 45px;
+}
+
+.caloriesLabel {
+  flex: 1;
+}
+
+.caloriesInputWrap {
+  position: relative;
+  width: 120px;
+  height: 48px;
+}
+
+.caloriesInput {
+  width: 120px;
+  height: 48px;
+  line-height: 24px;
+  text-align: left;
+  display: block;
+  box-sizing: border-box;
+  margin: 0;
+  font-weight: 500;
+  padding: 12px 16px;
+  padding-right: 38px;
+  border-radius: 8px;
+  border: 1px solid var(--Brand-Outline, #DBE2D0);
+  background: var(--Brand-Off-White, #FCFCF8);
+}
+
+.kcalUnit {
+  position: absolute;
+  right: 16px;
+  top: 0;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  color: rgba(0,0,0,0.60);
+  font-family: Kanit;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 24px;
+  text-align: right;
+  pointer-events: none;
+}
+
+.macroRow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.macroLabel {
+  flex: 1;
+}
+
+.macroUnit {
+  color: rgba(0,0,0,0.60);
+  margin-left: 6px;
+}
+
+.footerBtnArea {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  padding: 24px 32px 48px 32px;
+  background: #f6f6f0;
+  border-top: 1px solid #E7E7D5;
+}
+
+.backBtn {
+  display: flex;
+  width: 120px;
+  height: 64px;
+  padding: 0px 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 36px;
+  background: var(--Brand-Secondary-Background, #E7E7D5);
+  color: #222;
+  border: none;
+  font-size: 20px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.saveBtn {
+  display: flex;
+  height: 64px;
+  padding: 0px 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex: 1 0 0;
+  border-radius: 36px;
+  background: var(--Brand-Dark, #2A4E14);
+  color: #fff;
+  border: none;
+  font-size: 22px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.divider {
+  width: 100%;
+  height: 0px;
+  border-bottom: 1px solid var(--Brand-Outline, #DBE2D0);
+  margin: -28px auto 18px auto;
+}

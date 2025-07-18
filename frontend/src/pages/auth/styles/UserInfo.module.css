@@ -102,7 +102,7 @@
 .genderButtons {
   display: flex;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .genderButtons .modalOptionBtn {
@@ -197,7 +197,7 @@
 .measurementContainer {
   display: flex;
   align-items: center;
-  margin: 8px 0;
+  margin: 0 0;
   width: 100%;
   height: 48px;
 }
@@ -364,28 +364,26 @@
 
 .skipButton {
   display: flex;
-  width: 119px;
-  height: 80px;
-  padding: 12px 24px;
+  width: 120px;
+  height: 64px;
+  padding: 0px 16px;
   justify-content: center;
   align-items: center;
   gap: 10px;
-  flex-shrink: 0;
   border-radius: 36px;
-  background: #E7E7D5;
+  background: var(--Brand-Secondary-Background, #E7E7D5);
   border: none;
   cursor: pointer;
 }
 
 .nextButton {
   display: flex;
-  width: 200px;
-  height: 80px;
-  padding: 13px 21px;
+  height: 64px;
+  padding: 0px 16px;
   justify-content: center;
   align-items: center;
   gap: 10px;
-  flex-shrink: 0;
+  flex: 1 0 0;
   border-radius: 36px;
   background: var(--Brand-Dark, #2A4E14);
   color: #FFF;
