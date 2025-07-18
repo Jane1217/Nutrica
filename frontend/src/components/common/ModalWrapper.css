@@ -53,10 +53,10 @@
     right: 0;
     transform: translateY(100%);
     max-width: 100%;
-  }
-  
-  .modal-content.open {
-    transform: translateY(0);
+}
+
+.modal-content.open {
+  transform: translateY(0);
   }
 }
 
