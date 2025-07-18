@@ -1,5 +1,5 @@
 .auth-main {
-  max-width: 375px;
+  max-width: 768px;
   margin: 0 auto;
   padding: 32px 0 0 0;
 }
@@ -184,7 +184,7 @@
   background: #F3F3EC;
 }
 .tutorial-main {
-  max-width: 375px;
+  max-width: 768px;
   margin: 0 auto;
   padding: 24px 0 0 0;
 }
@@ -248,7 +248,7 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 36px;
-  max-width: 300px;
+  max-width: 768px;
   width: 100%;
   margin: 0 auto;
   padding: 32px 32px;
@@ -266,7 +266,7 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 36px;
-  max-width: 300px;
+  max-width: 768px;
   width: 100%;
   margin: 0 auto;
   padding: 32px 32px;
@@ -772,4 +772,6 @@
   text-underline-position: from-font;
   margin-top: 2px;
 }
+
+
 

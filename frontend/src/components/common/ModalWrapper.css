@@ -84,4 +84,12 @@
   .modal-mask {
     background: rgba(0,0,0,0.6);
   }
+  
+  /* Auth弹窗（login和sign up）使用640x640尺寸 */
+  .modal-content-auth {
+    width: 640px;
+    height: 640px;
+    max-width: 640px;
+    max-height: 640px;
+  }
 } 

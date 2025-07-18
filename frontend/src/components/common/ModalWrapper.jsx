@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./ModalWrapper.css";
 
-export default function ModalWrapper({ open, children, onClose }) {
+export default function ModalWrapper({ open, children, onClose, size = 'default' }) {
   const [show, setShow] = useState(open);
   const [animate, setAnimate] = useState(false);
   const timerRef = useRef(null);
@@ -29,7 +29,7 @@ export default function ModalWrapper({ open, children, onClose }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className={`modal-mask${animate ? " open" : ""}`} />
       <div
-        className={`modal-content${animate ? " open" : ""}`}
+        className={`modal-content${animate ? " open" : ""} ${size === 'auth' ? 'modal-content-auth' : ''}`}
         onClick={e => e.stopPropagation()}
       >
         {children}
