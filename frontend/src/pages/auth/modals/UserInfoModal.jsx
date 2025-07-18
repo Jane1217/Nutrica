@@ -152,12 +152,12 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
             <button
               type="button"
               onClick={() => setUnit('us')}
-              className={`${styles.unitButton} ${unit === 'us' ? styles.unitButtonActive : styles.unitButtonInactive}`}
+              className={`${styles.unitButton} h5 ${unit === 'us' ? styles.unitButtonActive : styles.unitButtonInactive}`}
             >US Units</button>
             <button
               type="button"
               onClick={() => setUnit('metric')}
-              className={`${styles.unitButton} ${unit === 'metric' ? styles.unitButtonActive : styles.unitButtonInactive}`}
+              className={`${styles.unitButton} h5 ${unit === 'metric' ? styles.unitButtonActive : styles.unitButtonInactive}`}
             >Metric Units</button>
           </div>
           
