@@ -248,14 +248,14 @@ export default function Home(props) {
           onSubmit={handleUserInfoSubmit}
           initialData={userInfo || {}}
         />
-        <NutritionGoalModal
+          <NutritionGoalModal
           open={showNutritionGoalModal}
-          onClose={() => setShowNutritionGoalModal(false)}
-          onBack={handleNutritionGoalBack}
-          onSave={handleSaveCalories}
-          name={userInfo?.name || ''}
-          calories={getDisplayCalories()}
-        />
+            onClose={() => setShowNutritionGoalModal(false)}
+            onBack={handleNutritionGoalBack}
+            onSave={handleSaveCalories}
+            name={userInfo?.name || ''}
+            calories={getDisplayCalories()}
+          />
     </div>
     </>
   );

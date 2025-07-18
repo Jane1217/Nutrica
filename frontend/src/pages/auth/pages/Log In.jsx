@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../../supabaseClient';
 import InputField from '../../../components/auth/InputField';
+import BottomButton from '../../../components/common/BottomButton';
 import ModalWrapper from '../../../components/common/ModalWrapper';
 import styles from '../styles/Auth.module.css';
 import '../../../index.css';
@@ -75,7 +76,9 @@ export default function LogIn({ open, onClose, onAuth, onSwitchToSignUp, onSwitc
           />
         </div>
         <div className={styles.actionGroup}>
-          <button className={`${styles.loginBtn} h4`} onClick={e => { e.preventDefault(); handleLogin(e); }}>Log In</button>
+          <BottomButton onClick={e => { e.preventDefault(); handleLogin(e); }}>
+            Log In
+          </BottomButton>
           <button className={`${styles.forgotPasswordBtn} h4`} onClick={handleForgotPassword} style={{fontWeight: 700}}>Forgot Password</button>
         </div>
         <div className={styles.actionModule}>

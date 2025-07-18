@@ -1,0 +1,32 @@
+.bottomButtonContainer {
+  display: flex;
+  justify-content: center;
+  margin-top: 64px;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+}
+
+.bottomButton {
+  display: flex;
+  width: 240px;
+  height: 48px;
+  padding: 0px 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 36px;
+  background: var(--Brand-Dark, #2A4E14);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.bottomButton:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.bottomButton:hover:not(:disabled) {
+  background: var(--Brand-Dark-Hover, #1f3a0f);
+} 

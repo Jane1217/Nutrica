@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../../../supabaseClient';
 import InputField from '../../../components/auth/InputField';
+import BottomButton from '../../../components/common/BottomButton';
 import styles from '../styles/ResetPassword.module.css';
 import '../../../index.css';
 
@@ -247,15 +248,14 @@ export default function ResetPassword() {
               </div>
             )}
 
-            <div className={styles.btnWrapper}>
-              <button
-                className={`${styles.btn} ${(!isAuthenticated || isLoading) ? styles.btnDisabled : ''}`}
-                onClick={handleResetPassword}
-                disabled={!isAuthenticated || isLoading}
-              >
-                {isLoading ? 'Updating...' : 'Reset password'}
-              </button>
-            </div>
+            <BottomButton
+              onClick={handleResetPassword}
+              disabled={!isAuthenticated}
+              isLoading={isLoading}
+              loadingText="Updating..."
+            >
+              Reset password
+            </BottomButton>
           </div>
         ) : (
           <div className={styles.successCard}>
@@ -273,14 +273,11 @@ export default function ResetPassword() {
             </p>
 
             {/* Login Button */}
-            <div className={styles.successBtnWrapper}>
-              <button 
-                className={styles.successBtn} 
-                onClick={() => navigate('/', { state: { showLoginModal: true } })}
-              >
-                Log in
-              </button>
-            </div>
+            <BottomButton
+              onClick={() => navigate('/', { state: { showLoginModal: true } })}
+            >
+              Log in
+            </BottomButton>
           </div>
         )}
       </div>

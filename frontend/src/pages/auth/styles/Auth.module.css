@@ -1,79 +1,4 @@
-.auth-main {
-  max-width: 768px;
-  margin: 0 auto;
-  padding: 32px 0 0 0;
-}
-.auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  background: #fff;
-  border-radius: 8px;
-  padding: 24px;
-  border: 1.5px solid #000;
-}
-.auth-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: #000;
-  margin-bottom: 16px;
-  text-align: center;
-}
-.auth-input {
-  width: 100%;
-  padding: 16px;
-  border: 1.5px solid #000;
-  border-radius: 4px;
-  font-size: 18px;
-  font-family: 'Inter', Arial, sans-serif;
-  margin-bottom: 0;
-  box-sizing: border-box;
-}
-.auth-btn {
-  width: 100%;
-  padding: 14px;
-  background: #000;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  font-size: 18px;
-  font-weight: bold;
-  cursor: pointer;
-  margin-top: 8px;
-}
-.auth-error {
-  color: #e00;
-  font-size: 14px;
-  margin-bottom: 8px;
-  text-align: center;
-}
-.auth-success {
-  color: #008800;
-  font-size: 15px;
-  margin-bottom: 8px;
-  text-align: center;
-}
-.auth-bottom {
-  margin-top: 40px;
-  text-align: center;
-  font-size: 16px;
-  color: #000;
-  font-family: 'Inter', Arial, sans-serif;
-}
-.auth-link {
-  font-weight: bold;
-  text-decoration: underline;
-  cursor: pointer;
-  color: #000;
-}
-.auth-terms {
-  margin-top: 48px;
-  font-size: 14px;
-  color: #000;
-  text-align: left;
-  font-family: 'Inter', Arial, sans-serif;
-  max-width: 320px;
-}
+
 .account-main {
   display: flex;
   flex-direction: column;
@@ -335,16 +260,7 @@
   margin-top: 0;
   background: var(--Brand-Background, #F3F3EC);
 }
-.signupOverline1 {
-  align-self: stretch;
-  color: #000;
-  text-align: center;
-}
-.loginOverline1 {
-  align-self: stretch;
-  color: #000;
-  text-align: center;
-}
+
 .signupOverline2 {
   align-self: stretch;
   color: #000;
@@ -380,34 +296,7 @@
   width: 100%;
   align-self: center;
 }
-.signupBtn {
-  display: flex;
-  width: 240px;
-  height: 80px;
-  padding: 0px 16px;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  border-radius: 36px;
-  background: var(--Brand-Dark, #2A4E14);
-  color: #FFF;
-  border: none;
-  cursor: pointer;
-}
-.loginBtn {
-  display: flex;
-  width: 240px;
-  height: 80px;
-  padding: 0px 16px;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  border-radius: 36px;
-  background: var(--Brand-Dark, #2A4E14);
-  color: #FFF;
-  border: none;
-  cursor: pointer;
-}
+
 
 .forgotPasswordBtn {
   display: flex;
@@ -425,7 +314,7 @@
 
 
 .signupTerms {
-  width: 240px;
+  width: 100%;
   color: #000;
   text-align: center;
   margin-top: 0;
@@ -467,31 +356,8 @@
   padding: 0;
   font-weight: 700;
 }
-.account-container {
-  max-width: 400px;
-  margin: 0 auto;
-  padding: 16px;
-  background: #f9f9f9;
-  min-height: 100vh;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-@media (max-width: 500px) {
-  .account-container {
-    max-width: 100vw;
-    padding: 8px;
-  }
-}
-.account-header {
-  text-align: center;
-  margin: 24px 0 16px 0;
-}
-.account-username {
-  font-weight: bold;
-  font-size: 24px;
-}
+
+
 .account-email {
   color: #888;
   font-size: 18px;
@@ -511,23 +377,7 @@
   box-sizing: border-box;
   margin: 16px 0 16px 0;
 }
-.account-btn-group {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  width: 100%;
-  margin: 16px 0;
-}
-.account-btn {
-  width: 100%;
-  padding: 16px;
-  border-radius: 12px;
-  border: none;
-  background: #fff;
-  font-size: 16px;
-  text-align: left;
-  box-sizing: border-box;
-}
+
 .account-footer-bar {
   margin-top: 32px;
   border-top: 1px solid #ddd;
@@ -582,13 +432,14 @@
 }
 
 .modalInput {
-  font-size: 20px;
-  padding: 16px;
-  border-radius: 8px;
-  margin-bottom: 24px;
   width: 100%;
-  border: 1px solid #e0e0d9;
-  background: #fff;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid #CDD3C4;
+  background: #FCFCF8;
+  padding: 20px 16px;
+  font-family: inherit;
+  font-size: 16px;
 }
 
 .modalDivider {
@@ -656,20 +507,7 @@
   border: 1px solid #26361B;
 }
 
-.forgotPasswordConfirmBtn {
-  display: flex;
-  width: 240px;
-  height: 80px;
-  padding: 0px 16px;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  border-radius: 36px;
-  background: var(--Brand-Dark, #2A4E14);
-  color: #FFF;
-  border: none;
-  cursor: pointer;
-}
+
 .forgotPasswordBackBtn {
   font-family: Kanit;
   font-size: 16px;

@@ -7,6 +7,7 @@ import styles from '../styles/Auth.module.css';
 import UserInfoModal from '../modals/UserInfoModal';
 import NutritionGoalModal from '../modals/NutritionGoalModal';
 import ProfileEditModal from '../modals/ProfileEditModal';
+import ChangePasswordModal from '../modals/ChangePasswordModal';
 import ModalWrapper from '../../../components/common/ModalWrapper';
 
 export default function AccountSettings({ userEmail }) {
@@ -16,6 +17,7 @@ export default function AccountSettings({ userEmail }) {
   const [showUserInfoModal, setShowUserInfoModal] = useState(false);
   const [showNutritionGoalModal, setShowNutritionGoalModal] = useState(false);
   const [showProfileEditModal, setShowProfileEditModal] = useState(false);
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
   const initial = userEmail ? userEmail[0].toUpperCase() : '';
   const [userInfo, setUserInfo] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState(null);
@@ -252,7 +254,7 @@ export default function AccountSettings({ userEmail }) {
           Update Nutrition Goal
           <span>{'>'}</span>
         </button>
-        <button className={`${styles['account-card-btn']} body1`} disabled>
+        <button className={`${styles['account-card-btn']} body1`} onClick={() => setShowChangePasswordModal(true)}>
           Change Password
           <span>{'>'}</span>
         </button>
@@ -271,7 +273,7 @@ export default function AccountSettings({ userEmail }) {
             We&apos;d love to hear your feedback!<br />Contact us at
           </span>
           <div className={`${styles.accountEmailContact} h5`}>Nutrica.life.app@gmail.com</div>
-        </div>
+      </div>
       <EatModal
         open={showEatModal}
         onClose={() => setShowEatModal(false)}
@@ -339,6 +341,10 @@ export default function AccountSettings({ userEmail }) {
             localStorage.setItem('nutrica_user_cache', JSON.stringify(cacheData));
           }
         }} 
+      />
+      <ChangePasswordModal
+        open={showChangePasswordModal}
+        onClose={() => setShowChangePasswordModal(false)}
       />
       </div>
     </>

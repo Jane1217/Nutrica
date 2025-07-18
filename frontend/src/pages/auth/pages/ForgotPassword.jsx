@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ModalWrapper from '../../../components/common/ModalWrapper';
 import InputField from '../../../components/auth/InputField';
+import BottomButton from '../../../components/common/BottomButton';
 import { supabase } from '../../../supabaseClient';
 import styles from '../styles/Auth.module.css';
 import resetPasswordStyles from '../styles/ResetPassword.module.css';
@@ -77,13 +78,13 @@ export default function ForgotPassword({ open, onClose, onBackToLogin }) {
               />
             </div>
             <div className={styles.actionGroup} style={{marginTop: 32}}>
-              <button 
-                className={`${styles.forgotPasswordConfirmBtn} h4`} 
+              <BottomButton
                 onClick={handleResetPassword}
-                disabled={isLoading}
+                isLoading={isLoading}
+                loadingText="Sending..."
               >
-                {isLoading ? 'Sending...' : 'Confirm'}
-              </button>
+                Confirm
+              </BottomButton>
             </div>
             <button className={styles.forgotPasswordBackBtn} style={{marginTop: 24, fontWeight: 700}} onClick={onBackToLogin}>
               Back to login

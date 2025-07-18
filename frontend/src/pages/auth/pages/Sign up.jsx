@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../../supabaseClient';
 import InputField from '../../../components/auth/InputField';
+import BottomButton from '../../../components/common/BottomButton';
 import ModalWrapper from '../../../components/common/ModalWrapper';
 import styles from '../styles/Auth.module.css';
 import '../../../index.css';
@@ -70,7 +71,9 @@ export default function SignUp({ open, onClose, onAuth, onSwitchToLogin }) {
           <div className={`${styles.signupHintText} body2`}>Password must have at least 8 characters.</div>
         </div>
         <div className={styles.actionGroup}>
-          <button className={`${styles.signupBtn} h4`} onClick={e => { e.preventDefault(); handleSignup(e); }}>Sign up</button>
+          <BottomButton onClick={e => { e.preventDefault(); handleSignup(e); }}>
+            Sign up
+          </BottomButton>
           <div className={`${styles.signupTerms} body2`}>
             By creating an account, you agree to our <span className={styles.termsBold}>Privacy Notice</span>
           </div>
