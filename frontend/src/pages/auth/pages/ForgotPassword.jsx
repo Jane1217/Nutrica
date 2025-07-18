@@ -50,7 +50,7 @@ export default function ForgotPassword({ open, onClose, onBackToLogin }) {
   };
 
   return (
-    <ModalWrapper open={open} onClose={onClose}>
+    <ModalWrapper open={open} onClose={onClose} size="auth">
       <main className={styles.signupMainContent}>
         <header className={styles.signupHeader}>
           <div className={styles.headerRow}>
