@@ -108,13 +108,12 @@
   margin-bottom: 12px;
 }
 .account-nickname {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: bold;
   margin-bottom: 4px;
 }
 .account-email {
   color: #888;
-  font-size: 15px;
   margin-bottom: 24px;
 }
 .account-card-list {
@@ -141,20 +140,20 @@
 }
 .account-card-btn {
   display: flex;
-  padding: 20px 16px 20px 16px;
+  padding: 20px 16px;
   justify-content: space-between;
   align-items: center;
   align-self: stretch;
   border-radius: 16px;
-  border: 1px solid var(--neutral-black-10, rgba(0, 0, 0, 0.10));
-  color: #22221B;
+  border: 1px solid var(--Brand-Outline, #DBE2D0);
+  background: var(--Brand-Off-White, #FCFCF8);
+  color: var(--Neutral-Primary-Text, #22221B);
   font-family: Inter;
   font-size: 16px;
   font-style: normal;
   font-weight: 500;
   line-height: 150%; /* 24px */
   letter-spacing: -0.32px;
-  background: #F3F3EC;
   box-sizing: border-box;
   width: 100%;
 }
@@ -535,15 +534,8 @@
   width: 100%;
 }
 .account-title {
-  /*
-  font-size: 2rem;
-  font-weight: bold;
-  margin: 32px 0 16px 0;
-  width: 100%;
-  text-align: left;
-  */
-  color: #22221B;
-  font-family: Inter;
+  color: var(--Neutral-Primary-Text, #22221B);
+  font-family: Kanit;
   font-size: 36px;
   font-style: normal;
   font-weight: 700;
@@ -691,5 +683,93 @@
   cursor: pointer;
   display: block;
   width: 100%;
+}
+.accountHeaderRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  width: 100%;
+}
+.accountEditBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: #767676;
+  cursor: pointer;
+  margin-right: 0;
+  margin-bottom: 24px;
+  padding-bottom: 6px;
+  font-size: 16px;
+}
+.accountEditIcon {
+  margin-right: 2px;
+}
+.accountAvatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  image-rendering: high-quality;
+}
+.accountInfoBoxHeader {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+}
+.accountInfoBoxTitle {
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #22221B;
+  font-size: 16px;
+}
+.accountInfoBoxIcon {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+}
+.accountInfoBoxClose {
+  cursor: pointer;
+  font-size: 24px;
+  color: #666;
+  font-weight: 300;
+}
+.accountInfoBoxDesc {
+  font-size: 15px;
+  color: #666;
+  line-height: 1.4;
+}
+.accountFeedback {
+  align-self: stretch;
+  color: var(--Neutral-Primary-Text, #22221B);
+  text-align: center;
+  font-family: Kanit;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 150%; /* 24px */
+  margin-top: 12px;
+}
+.accountEmailContact {
+  height: 24px;
+  align-self: stretch;
+  color: var(--Brand-Dark, #2A4E14);
+  text-align: center;
+  font-family: Kanit;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 150%; /* 24px */
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-skip-ink: auto;
+  text-decoration-thickness: auto;
+  text-underline-offset: auto;
+  text-underline-position: from-font;
+  margin-top: 2px;
 }
 
