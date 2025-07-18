@@ -120,9 +120,7 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
             Tell us some info so that we can estimate your Basal Metabolic Rate (BMR) and Macros needed for healthy eating.
           </div>
           <div className={`${styles.privacyText} body2`}>
-            * <span className={styles.privacyTextHighlight}>Your data will remain private.</span> <span className={styles.privacyTextSecondary}>
-              You may skip this section now and we will estimate based on the <a href="https://www.nal.usda.gov/human-nutrition-and-food-safety/usda-nutrition-recommendations" target="_blank" rel="noopener noreferrer" className={styles.privacyLink}>USDA recommendation</a>. Come back anytime from the account page.
-            </span>
+            * <span className={styles.privacyTextHighlight}>Your data will remain private. You can update your answers anytime on the Account page.</span>
           </div>
           
           {/* Gender Selection */}
