@@ -27,12 +27,12 @@ const ACTIVITY_FACTORS = {
 
 // 调整目标
 const WEIGHT_GOALS = {
-  maintain: { value: 0, label: 'Maintain Weight' },
-  lose: { value: -500, label: 'Lose Weight' },
-  gain: { value: 500, label: 'Gain Weight' }
+  maintain: { value: 0, label: 'maintain weight' },
+  lose: { value: -500, label: 'lose weight' },
+  gain: { value: 500, label: 'gain weight' }
 };
 
-export default function UserInfoModal({ open, onClose, onSubmit, initialData = {} }) {
+export default function UserInfoModal({ open, onClose, onSubmit, initialData = {}, isUpdateMode = false }) {
   const [name, setName] = useState(initialData.name || '');
   const [gender, setGender] = useState(initialData.gender || 'male');
   const [age, setAge] = useState(initialData.age || '');
@@ -111,12 +111,16 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
       <div className={styles.modalContainer}>
         <form className={styles.modalForm} onSubmit={handleSubmit}>
           <header className={styles.modalHeader}>
-            <div className="h2">Welcome to Nutrica!</div>
+            <div className="h1">{isUpdateMode ? 'Update Nutrition Goal' : 'Welcome to Nutrica!'}</div>
           </header>
           <div className={styles.modalInputWrapper}>
-            <label className="h5">Let us know your first name:</label>
-            <input className={`${styles.nameInput} body1`} value={name} onChange={e => setName(e.target.value)} required />
-            <hr className={styles.modalDivider} />
+            {!isUpdateMode && (
+              <>
+                <label className="h5">Let us know your first name:</label>
+                <input className={`${styles.nameInput} body1`} value={name} onChange={e => setName(e.target.value)} required />
+                <hr className={styles.modalDivider} />
+              </>
+            )}
             <div className="h5">
               Tell us some info so that we can estimate your Basal Metabolic Rate (BMR) and Macros needed for healthy eating.
             </div>

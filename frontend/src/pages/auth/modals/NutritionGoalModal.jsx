@@ -51,9 +51,9 @@ export default function NutritionGoalModal({ open, onClose, onBack, onSave, name
     >
       <div className={nutritionGoalStyles.modalContainer}>
         <div className={nutritionGoalStyles.scrollArea}>
-          <h2 className={nutritionGoalStyles.title}>
+          <h1 className={nutritionGoalStyles.title}>
             Thanks for the info{name ? `, ${name}` : ''}!
-          </h2>
+          </h1>
           <div className={`h5 ${nutritionGoalStyles.subtitle}`}>
           Here's our estimate of the macros you need to stay healthy and energized. 
           </div>
