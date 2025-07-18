@@ -44,6 +44,7 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
   const [activityLevel, setActivityLevel] = useState(initialData.activityLevel || 'sedentary');
   const [weightGoal, setWeightGoal] = useState(initialData.weightGoal || 'maintain');
   const [calculatedCalories, setCalculatedCalories] = useState(2000);
+  const [isLoading, setIsLoading] = useState(false);
 
   // 关键：每次initialData变化时自动同步state
   useEffect(() => {
@@ -81,6 +82,7 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    setIsLoading(true);
     
     // 处理US单位的身高数据
     let finalHeight = height;
@@ -91,20 +93,44 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
       finalHeight = feet * 12 + inches;
     }
     
-    onSubmit && onSubmit({ 
-      name, 
-      gender, 
-      age, 
-      unit, 
-      height: finalHeight,
-      heightFeet,
-      heightInches,
-      weight, 
-      activityLevel, 
-      weightGoal,
-      calculatedCalories 
-    });
+    // 3秒后调用onSubmit
+    setTimeout(() => {
+      setIsLoading(false);
+      onSubmit && onSubmit({ 
+        name, 
+        gender, 
+        age, 
+        unit, 
+        height: finalHeight,
+        heightFeet,
+        heightInches,
+        weight, 
+        activityLevel, 
+        weightGoal,
+        calculatedCalories 
+      });
+    }, 3000);
   };
+
+  // 如果正在加载，显示加载界面
+  if (isLoading) {
+    return (
+      <ModalWrapper open={open} onClose={onClose}>
+        <div className={styles.modalContainer}>
+          <div className={styles.modalForm}>
+            <header className={styles.modalHeader}>
+              <div className="h2">{isUpdateMode ? 'Update Nutrition Goal' : 'Welcome to Nutrica!'}</div>
+            </header>
+            <div className={styles.loadingContent}>
+              <div className="body1" style={{textAlign: 'center', marginBottom: '24px'}}>
+                Estimating your daily macronutrient intake based on your input...
+              </div>
+            </div>
+          </div>
+        </div>
+      </ModalWrapper>
+    );
+  }
 
   return (
     <ModalWrapper open={open} onClose={onClose}>
