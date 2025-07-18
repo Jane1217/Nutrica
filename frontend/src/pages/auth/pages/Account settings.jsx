@@ -225,118 +225,118 @@ export default function AccountSettings({ userEmail }) {
           </button>
         </div>
         <div className={styles['account-avatar']}>
-          {avatarUrl ? (
+        {avatarUrl ? (
             <img src={avatarUrl} alt="avatar" className={styles.accountAvatarImg} />
-          ) : (
-            avatarText
-          )}
-        </div>
+        ) : (
+          avatarText
+        )}
+      </div>
         <div className={styles['account-nickname'] + ' h2'}>{nickname}</div>
         <div className={styles['account-email']+ ' h4'}>{userEmail}</div>
-        {showSafariSetup && (
-          <div className={styles['account-info-box']}>
+      {showSafariSetup && (
+        <div className={styles['account-info-box']}>
             <div className={styles.accountInfoBoxHeader}>
               <span className={styles.accountInfoBoxTitle}>
                 <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f30d.svg" alt="safari" className={styles.accountInfoBoxIcon} />
-                Safari Camera Permission Setup
-              </span>
+              Safari Camera Permission Setup
+            </span>
               <span className={styles.accountInfoBoxClose} onClick={() => setShowSafariSetup(false)}>&times;</span>
-            </div>
-            <div className={styles.accountInfoBoxDesc}>
-              Avoid repeated camera permission popups for seamless scanning on Nutrica.life, with Safari.
-            </div>
           </div>
-        )}
-        <div className={styles['account-card-list']}>
-          <button className={styles['account-card-btn']} onClick={() => setShowUserInfoModal(true)}>
-            Update Nutrition Goal
-            <span>{'>'}</span>
-          </button>
-          <button className={styles['account-card-btn']} disabled>
-            Change Password
-            <span>{'>'}</span>
-          </button>
-          <button className={styles['account-card-btn']} onClick={handleSignOut}>
-            Sign Out
-            <span>{'>'}</span>
-          </button>
+            <div className={styles.accountInfoBoxDesc}>
+            Avoid repeated camera permission popups for seamless scanning on Nutrica.life, with Safari.
+          </div>
         </div>
-        <div className={styles['account-footer-bar']}>
-          <span>Privacy Notice</span>
-          <span>Delete Account</span>
-          <span>About</span>
-        </div>
+      )}
+      <div className={styles['account-card-list']}>
+        <button className={styles['account-card-btn']} onClick={() => setShowUserInfoModal(true)}>
+          Update Nutrition Goal
+          <span>{'>'}</span>
+        </button>
+        <button className={styles['account-card-btn']} disabled>
+          Change Password
+          <span>{'>'}</span>
+        </button>
+        <button className={styles['account-card-btn']} onClick={handleSignOut}>
+          Sign Out
+          <span>{'>'}</span>
+        </button>
+      </div>
+      <div className={styles['account-footer-bar']}>
+        <span>Privacy Notice</span>
+        <span>Delete Account</span>
+        <span>About</span>
+      </div>
         <div className={styles.accountFeedback}>
           We&apos;d love to hear your feedback!<br />Contact us at
           <div className={styles.accountEmailContact}>Nutrica.life.app@gmail.com</div>
         </div>
-        <EatModal
-          open={showEatModal}
-          onClose={() => setShowEatModal(false)}
-          foods={[]}
-          onDescribe={() => {}}
-          onEnterValue={() => {}}
-        />
-        <UserInfoModal
-          open={showUserInfoModal}
-          onClose={() => setShowUserInfoModal(false)}
-          initialData={userInfo || {}}
-          onSubmit={handleUserInfoSubmit}
-        />
-        <NutritionGoalModal
-          open={showNutritionGoalModal}
-          onClose={() => setShowNutritionGoalModal(false)}
-          onBack={() => {
-            setShowNutritionGoalModal(false);
-            setShowUserInfoModal(true);
-          }}
-          onSave={handleSaveCalories}
-          name={userInfo?.name || ''}
-          calories={userInfo?.calculatedCalories || latestCalories || 2000}
-        />
-        <ProfileEditModal 
-          open={showProfileEditModal} 
-          onClose={() => setShowProfileEditModal(false)} 
-          userInfo={{...userInfo, email: userEmail}} 
-          onSave={async (data) => {
-            const newMeta = { ...userInfo, ...data };
-            setUserInfo(newMeta);
-            
-            // 更新头像
-            if (data.avatarUrl) {
-              setAvatarUrl(data.avatarUrl);
-            } else if (data.avatarUrl === null) {
-              // 删除头像时，重新获取用户信息
-              setAvatarUrl(null);
-              const { data: { user } } = await supabase.auth.getUser();
-              if (user) {
-                const userMeta = user.user_metadata || {};
-                setUserInfo(userMeta);
-              }
-            }
-            
-            // 更新昵称显示
-            if (data.name) {
-              // 立即更新昵称显示，无需等待数据库
-              setUserInfo(prev => ({ ...prev, name: data.name, lastName: data.lastName }));
-            }
-            
+      <EatModal
+        open={showEatModal}
+        onClose={() => setShowEatModal(false)}
+        foods={[]}
+        onDescribe={() => {}}
+        onEnterValue={() => {}}
+      />
+      <UserInfoModal
+        open={showUserInfoModal}
+        onClose={() => setShowUserInfoModal(false)}
+        initialData={userInfo || {}}
+        onSubmit={handleUserInfoSubmit}
+      />
+      <NutritionGoalModal
+        open={showNutritionGoalModal}
+        onClose={() => setShowNutritionGoalModal(false)}
+        onBack={() => {
+          setShowNutritionGoalModal(false);
+          setShowUserInfoModal(true);
+        }}
+        onSave={handleSaveCalories}
+        name={userInfo?.name || ''}
+        calories={userInfo?.calculatedCalories || latestCalories || 2000}
+      />
+      <ProfileEditModal 
+        open={showProfileEditModal} 
+        onClose={() => setShowProfileEditModal(false)} 
+        userInfo={{...userInfo, email: userEmail}} 
+        onSave={async (data) => {
+          const newMeta = { ...userInfo, ...data };
+          setUserInfo(newMeta);
+          
+          // 更新头像
+          if (data.avatarUrl) {
+            setAvatarUrl(data.avatarUrl);
+          } else if (data.avatarUrl === null) {
+            // 删除头像时，重新获取用户信息
+            setAvatarUrl(null);
             const { data: { user } } = await supabase.auth.getUser();
-            if (!user) return;
-            const { error } = await supabase.auth.updateUser({ data: newMeta });
-            if (error) {
-              console.error('保存用户信息失败:', error);
-            } else {
-              // 更新本地缓存
-              const cacheData = {
-                userId: user.id,
-                data: newMeta,
-                timestamp: Date.now()
-              };
-              localStorage.setItem('nutrica_user_cache', JSON.stringify(cacheData));
+            if (user) {
+              const userMeta = user.user_metadata || {};
+              setUserInfo(userMeta);
             }
-          }} 
-        />
+          }
+          
+          // 更新昵称显示
+          if (data.name) {
+            // 立即更新昵称显示，无需等待数据库
+            setUserInfo(prev => ({ ...prev, name: data.name, lastName: data.lastName }));
+          }
+          
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) return;
+          const { error } = await supabase.auth.updateUser({ data: newMeta });
+          if (error) {
+            console.error('保存用户信息失败:', error);
+          } else {
+            // 更新本地缓存
+            const cacheData = {
+              userId: user.id,
+              data: newMeta,
+              timestamp: Date.now()
+            };
+            localStorage.setItem('nutrica_user_cache', JSON.stringify(cacheData));
+          }
+        }} 
+      />
       </div>
     </>
   );

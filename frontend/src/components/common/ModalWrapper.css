@@ -25,15 +25,17 @@
 
 .modal-content {
   position: fixed;
-  left: 0;
-  right: 0;
+  left: 50%;
+  right: auto;
   bottom: 0;
+  transform: translateX(-50%) translateY(100%);
+  width: 100%;
+  max-width: 768px;
   height: calc(74vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
   background: var(--Brand-Background, #F3F3EC);
   border-radius: 36px 36px 0px 0px;
   z-index: 1002;
   box-shadow: 0 -2px 16px rgba(0,0,0,0.1);
-  transform: translateY(100%);
   transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
   box-sizing: border-box;
   overflow-y: auto;
@@ -41,5 +43,45 @@
 }
 
 .modal-content.open {
-  transform: translateY(0);
+  transform: translateX(-50%) translateY(0);
+}
+
+/* 响应式断点 */
+@media (max-width: 768px) {
+  .modal-content {
+    left: 0;
+    right: 0;
+    transform: translateY(100%);
+    max-width: 100%;
+  }
+  
+  .modal-content.open {
+    transform: translateY(0);
+  }
+}
+
+/* 768px及以上：Centered Modal */
+@media (min-width: 768px) {
+  .modal-content {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    bottom: auto;
+    transform: translate(-50%, -50%) scale(0.8);
+    width: 640px;
+    height: 960px;
+    max-width: 640px;
+    max-height: 960px;
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    overflow: hidden;
+  }
+  
+  .modal-content.open {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  
+  .modal-mask {
+    background: rgba(0,0,0,0.6);
+  }
 } 
