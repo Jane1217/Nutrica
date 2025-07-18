@@ -40,7 +40,7 @@ export default function SignUp({ open, onClose, onAuth, onSwitchToLogin }) {
   };
 
   return (
-    <ModalWrapper open={open} onClose={onClose}>
+    <ModalWrapper open={open} onClose={onClose} size="auth">
       <main className={styles.signupMainContent}>
         <header className={styles.signupHeader}>
           <div className={styles.headerRow}>

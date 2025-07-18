@@ -46,7 +46,7 @@ export default function LogIn({ open, onClose, onAuth, onSwitchToSignUp, onSwitc
   };
 
   return (
-    <ModalWrapper open={open} onClose={onClose}>
+    <ModalWrapper open={open} onClose={onClose} size="auth">
       <main className={styles.loginMainContent}>
         <header className={styles.loginHeader}>
           <div className={styles.headerRow}>
