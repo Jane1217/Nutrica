@@ -78,14 +78,14 @@ export default function ForgotPassword({ open, onClose, onBackToLogin }) {
             </div>
             <div className={styles.actionGroup} style={{marginTop: 32}}>
               <button 
-                className={`${styles.forgotPasswordConfirmBtn} h5`} 
+                className={`${styles.forgotPasswordConfirmBtn} h4`} 
                 onClick={handleResetPassword}
                 disabled={isLoading}
               >
                 {isLoading ? 'Sending...' : 'Confirm'}
               </button>
             </div>
-            <button className={styles.forgotPasswordBackBtn} style={{marginTop: 24}} onClick={onBackToLogin}>
+            <button className={styles.forgotPasswordBackBtn} style={{marginTop: 24, fontWeight: 700}} onClick={onBackToLogin}>
               Back to login
             </button>
           </>

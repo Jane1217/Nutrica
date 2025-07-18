@@ -213,9 +213,9 @@ export default function AccountSettings({ userEmail }) {
       <NavLogo onEatClick={() => setShowEatModal(true)} isLoggedIn={true} isAuth={false} />
       <div className={styles['account-main']}>
         <div className={styles.accountHeaderRow}>
-          <h1 className={styles['account-title']}>Account</h1>
+          <h1 className={`${styles['account-title']} h1`}>Account</h1>
           <button
-            className={styles.accountEditBtn + ' h5'}
+            className={styles.accountEditBtn + ' h4'}
             onClick={() => setShowProfileEditModal(true)}
           >
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={styles.accountEditIcon}>
@@ -231,44 +231,46 @@ export default function AccountSettings({ userEmail }) {
           avatarText
         )}
       </div>
-        <div className={styles['account-nickname'] + ' h1'}>{nickname}</div>
-        <div className={styles['account-email']+ ' h3'}>{userEmail}</div>
+        <div className={styles['account-nickname'] + ' h3'}>{nickname}</div>
+        <div className={styles['account-email']+ ' h4'}>{userEmail}</div>
       {showSafariSetup && (
         <div className={styles['account-info-box']}>
             <div className={styles.accountInfoBoxHeader}>
-              <span className={styles.accountInfoBoxTitle}>
+              <span className={`${styles.accountInfoBoxTitle} body1`}>
                 <img src="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/1f30d.svg" alt="safari" className={styles.accountInfoBoxIcon} />
               Safari Camera Permission Setup
             </span>
               <span className={styles.accountInfoBoxClose} onClick={() => setShowSafariSetup(false)}>&times;</span>
           </div>
-            <div className={styles.accountInfoBoxDesc}>
+            <div className={`${styles.accountInfoBoxDesc} body2`}>
             Avoid repeated camera permission popups for seamless scanning on Nutrica.life, with Safari.
           </div>
         </div>
       )}
       <div className={styles['account-card-list']}>
-        <button className={styles['account-card-btn']} onClick={() => setShowUserInfoModal(true)}>
+        <button className={`${styles['account-card-btn']} body1`} onClick={() => setShowUserInfoModal(true)}>
           Update Nutrition Goal
           <span>{'>'}</span>
         </button>
-        <button className={styles['account-card-btn']} disabled>
+        <button className={`${styles['account-card-btn']} body1`} disabled>
           Change Password
           <span>{'>'}</span>
         </button>
-        <button className={styles['account-card-btn']} onClick={handleSignOut}>
+        <button className={`${styles['account-card-btn']} body1`} onClick={handleSignOut}>
           Sign Out
           <span>{'>'}</span>
         </button>
       </div>
       <div className={styles['account-footer-bar']}>
-        <span>Privacy Notice</span>
-        <span>Delete Account</span>
-        <span>About</span>
+        <span className="h4">Privacy Notice</span>
+        <span className="h4">About</span>
+        <span className="h4">Delete Account</span>        
       </div>
         <div className={styles.accountFeedback}>
-          We&apos;d love to hear your feedback!<br />Contact us at
-          <div className={styles.accountEmailContact}>Nutrica.life.app@gmail.com</div>
+          <span className="h5" style={{color: 'var(--Neutral-Primary-Text, #22221B)', textAlign: 'center'}}>
+            We&apos;d love to hear your feedback!<br />Contact us at
+          </span>
+          <div className={`${styles.accountEmailContact} h5`}>Nutrica.life.app@gmail.com</div>
         </div>
       <EatModal
         open={showEatModal}

@@ -252,7 +252,7 @@ export default function ProfileEditModal({ open, onClose, userInfo = {}, onSave 
     <ModalWrapper open={open} onClose={onClose}>
       <form onSubmit={handleSubmit} style={{padding: 0, background: 'transparent', height: '100vh', overflowY: 'auto', WebkitOverflowScrolling: 'touch'}}>
         <div style={{position: 'relative', marginBottom: 0}}>
-          <div className="h1" style={{ marginBottom: 0, textAlign: 'left', padding: '24px 0 0 24px' }}>Edit Profile</div>
+          <div className="h2" style={{ marginBottom: 0, textAlign: 'left', padding: '24px 0 0 24px' }}>Edit Profile</div>
           <button type="button" onClick={onClose} style={{position: 'absolute', right: 16, top: 16, background: 'none', border: 'none', cursor: 'pointer', width: 48, height: 48, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
             <span style={{fontSize: 32, color: '#222'}}>&times;</span>
           </button>
@@ -325,7 +325,7 @@ export default function ProfileEditModal({ open, onClose, userInfo = {}, onSave 
               <button type="button" className="h5" style={{background: '#eee', color: '#222', border: 'none', borderRadius: 24, padding: '8px 24px', fontSize: 16, cursor: 'pointer'}} onClick={handleReSelect}>Reselect</button>
             </div>
           )}
-          <div className="h5" style={{
+          <div className="h4" style={{
             color: (croppedUrl || userInfo.avatarUrl) ? '#22221B' : '#bbb', 
             marginTop: 8, 
             marginBottom: 8,
@@ -346,7 +346,7 @@ export default function ProfileEditModal({ open, onClose, userInfo = {}, onSave 
           marginBottom: 24,
           paddingBottom: 24
         }}>
-          <button type="submit" className="h5" disabled={uploading} style={{
+          <button type="submit" className="h4" disabled={uploading} style={{
             display: 'flex',
             width: 200,
             height: 80,

@@ -65,17 +65,17 @@ export default function NutritionGoalModal({ open, onClose, onBack, onSave, name
             </div>
             <div className={`body2 ${nutritionGoalStyles.calcDesc}`}>
               • BMR calculated using Harris-Benedict formula<br/>
-              • Adjusted for your activity level (1.2-1.9x) and weight goal<br/>
+              • Adjusted for your activity level and weight goal<br/>
               • You can modify the calories below if needed
             </div>
           </div>
           
           <div className={nutritionGoalStyles.macrosBox}>
-            <div className={`h4 ${nutritionGoalStyles.caloriesRow}`}>
-              <span className={`h4 ${nutritionGoalStyles.caloriesLabel}`}>Calories</span>
+            <div className={`h3 ${nutritionGoalStyles.caloriesRow}`}>
+              <span className={`h3 ${nutritionGoalStyles.caloriesLabel}`}>Calories</span>
               <div className={nutritionGoalStyles.caloriesInputWrap}>
                 <input
-                  className={`${styles.modalInput} h5 ${nutritionGoalStyles.caloriesInput}`}
+                  className={`${styles.modalInput} h4 ${nutritionGoalStyles.caloriesInput}`}
                   type="number"
                   min={0}
                   value={displayValue}
@@ -88,19 +88,19 @@ export default function NutritionGoalModal({ open, onClose, onBack, onSave, name
             <div className={nutritionGoalStyles.divider} />
             
             <div className={nutritionGoalStyles.macroRow}>
-              <span className={`h4 ${nutritionGoalStyles.macroLabel}`}>Carbs</span>
-              <span className='h5'>{carbs}</span>
-              <span className={`h5 ${nutritionGoalStyles.macroUnit}`}>g</span>
+              <span className={`h3 ${nutritionGoalStyles.macroLabel}`}>Carbs</span>
+              <span className='h4'>{carbs}</span>
+              <span className={`h4 ${nutritionGoalStyles.macroUnit}`}>g</span>
             </div>
             <div className={nutritionGoalStyles.macroRow}>
-              <span className={`h4 ${nutritionGoalStyles.macroLabel}`}>Fats</span>
-              <span className='h5'>{fats}</span>
-              <span className={`h5 ${nutritionGoalStyles.macroUnit}`}>g</span>
+              <span className={`h3 ${nutritionGoalStyles.macroLabel}`}>Fats</span>
+              <span className='h4'>{fats}</span>
+              <span className={`h4 ${nutritionGoalStyles.macroUnit}`}>g</span>
             </div>
             <div className={nutritionGoalStyles.macroRow}>
-              <span className={`h4 ${nutritionGoalStyles.macroLabel}`}>Protein</span>
-              <span className='h5'>{protein}</span>
-              <span className={`h5 ${nutritionGoalStyles.macroUnit}`}>g</span>
+              <span className={`h3 ${nutritionGoalStyles.macroLabel}`}>Protein</span>
+              <span className='h4'>{protein}</span>
+              <span className={`h4 ${nutritionGoalStyles.macroUnit}`}>g</span>
             </div>
           </div>
         </div>
@@ -109,13 +109,13 @@ export default function NutritionGoalModal({ open, onClose, onBack, onSave, name
             className={nutritionGoalStyles.backBtn}
             onClick={() => { if (onBack) onBack(); }}
           >
-            <span className='h5'>Back</span>
+            <span className='h4'>Back</span>
           </button>
           <button
             className={nutritionGoalStyles.saveBtn}
             onClick={handleSave}
           >
-            <span className='h5'>Save</span>
+            <span className='h4'>Save</span>
           </button>
         </div>
       </div>

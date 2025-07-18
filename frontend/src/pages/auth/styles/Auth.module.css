@@ -98,14 +98,15 @@
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background: #767676;
+  background: #905021;
   color: #fff;
   font-size: 32px;
   font-weight: bold;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 12px;
+  margin-top: 16px;
+  margin-bottom: 16px;
 }
 .account-nickname {
   font-size: 24px;
@@ -128,7 +129,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin-bottom: 32px;
+  margin-bottom: 16px;
   margin-left: 0;
   margin-right: 0;
   align-self: stretch;
@@ -136,7 +137,7 @@
   font-size: 16px;
   font-style: normal;
   font-weight: 500;
-  padding-bottom: 80px;
+  padding-bottom: 24px;
 }
 .account-card-btn {
   display: flex;
@@ -173,7 +174,7 @@
   max-width: 368px;
   display: flex;
   justify-content: space-around;
-  color: rgba(34, 34, 27, 0.60);
+  color: var(--Neutral-Secondary-Text, #6A6A61);
   /* H5 */
   font-family: Kanit;
   font-size: 16px;
@@ -182,6 +183,9 @@
   line-height: 150%; /* 24px */
   padding-bottom: 24px;
   background: #F3F3EC;
+}
+.account-footer-bar span {
+  color: var(--Neutral-Secondary-Text, #6A6A61);
 }
 .tutorial-main {
   max-width: 768px;
@@ -372,7 +376,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 24px;
   width: 100%;
   align-self: center;
 }
@@ -416,6 +420,7 @@
   margin-top: 32px;
   margin-bottom: 16px;
   padding: 0;
+  font-weight: 700;
 }
 
 
@@ -423,7 +428,7 @@
   width: 240px;
   color: #000;
   text-align: center;
-  margin-top: 8px;
+  margin-top: 0;
 }
 .termsBold {
   color: var(--Neutral-Primary-Text, #22221B);
@@ -535,13 +540,8 @@
 }
 .account-title {
   color: var(--Neutral-Primary-Text, #22221B);
-  font-family: Kanit;
-  font-size: 36px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 150%; /* 54px */
   letter-spacing: -0.72px;
-  margin: 32px 0 16px 16px;
+  margin: 0 0 16px 8px;
   width: 100%;
   text-align: left;
   align-self: flex-start;
@@ -699,7 +699,7 @@
   color: #767676;
   cursor: pointer;
   margin-right: 0;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
   padding-bottom: 6px;
   font-size: 16px;
 }
@@ -722,10 +722,10 @@
 .accountInfoBoxTitle {
   font-weight: 700;
   display: flex;
+  flex: 1 0 0;
   align-items: center;
   gap: 8px;
-  color: #22221B;
-  font-size: 16px;
+  color: var(--Neutral-Primary-Text, #22221B);
 }
 .accountInfoBoxIcon {
   width: 24px;
@@ -752,18 +752,13 @@
   font-style: normal;
   font-weight: 500;
   line-height: 150%; /* 24px */
-  margin-top: 12px;
+  margin-top: 0px;
 }
 .accountEmailContact {
   height: 24px;
   align-self: stretch;
   color: var(--Brand-Dark, #2A4E14);
   text-align: center;
-  font-family: Kanit;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 150%; /* 24px */
   text-decoration-line: underline;
   text-decoration-style: solid;
   text-decoration-skip-ink: auto;

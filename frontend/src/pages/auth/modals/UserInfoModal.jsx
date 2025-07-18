@@ -111,7 +111,7 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
       <div className={styles.modalContainer}>
         <form className={styles.modalForm} onSubmit={handleSubmit}>
           <header className={styles.modalHeader}>
-            <div className="h1">{isUpdateMode ? 'Update Nutrition Goal' : 'Welcome to Nutrica!'}</div>
+            <div className="h2">{isUpdateMode ? 'Update Nutrition Goal' : 'Welcome to Nutrica!'}</div>
           </header>
           <div className={styles.modalInputWrapper}>
             {!isUpdateMode && (
@@ -121,7 +121,7 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
                 <hr className={styles.modalDivider} />
               </>
             )}
-            <div className="h5">
+            <div className="h4">
               Tell us some info so that we can estimate your Basal Metabolic Rate (BMR) and Macros needed for healthy eating.
             </div>
             <div className={`${styles.privacyText} body2`}>
@@ -129,16 +129,16 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
             </div>
             
             {/* Gender Selection */}
-            <div className={`${styles.sectionTitle} h4`}>Gender*</div>
+            <div className={`${styles.sectionTitle} h3`}>Gender*</div>
             <div className={styles.genderButtons}>
-              <button type="button" className={`${styles.modalOptionBtn} ${gender === 'male' ? styles.modalOptionBtnActive : ''}`} onClick={() => setGender('male')}>Male</button>
-              <button type="button" className={`${styles.modalOptionBtn} ${gender === 'female' ? styles.modalOptionBtnActive : ''}`} onClick={() => setGender('female')}>Female</button>
-              <button type="button" className={`${styles.modalOptionBtn} ${gender === 'other' ? styles.modalOptionBtnActive : ''}`} onClick={() => setGender('other')}>Other</button>
+              <button type="button" className={`${styles.modalOptionBtn} h5 ${gender === 'male' ? styles.modalOptionBtnActive : ''}`} onClick={() => setGender('male')}>Male</button>
+              <button type="button" className={`${styles.modalOptionBtn} h5 ${gender === 'female' ? styles.modalOptionBtnActive : ''}`} onClick={() => setGender('female')}>Female</button>
+              <button type="button" className={`${styles.modalOptionBtn} h5 ${gender === 'other' ? styles.modalOptionBtnActive : ''}`} onClick={() => setGender('other')}>Other</button>
             </div>
             
             {/* Age Input */}
             <div className={styles.ageContainer}>
-              <div className={`${styles.ageLabel} h4`}>Age*</div>
+              <div className={`${styles.ageLabel} h3`}>Age*</div>
               <div className={styles.ageInputWrapper}>
                 <input
                   className={`${styles.ageInput} h5`}
@@ -166,7 +166,7 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
             
             {/* Height Input */}
             <div className={styles.measurementContainer}>
-              <div className={`${styles.measurementLabel} h4`}>Height*</div>
+              <div className={`${styles.measurementLabel} h3`}>Height*</div>
               <div className={styles.measurementInputWrapper}>
                 {unit === 'us' ? (
                   <div className={styles.usHeightInputs}>
@@ -211,7 +211,7 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
             
             {/* Weight Input */}
             <div className={styles.measurementContainer}>
-              <div className={`${styles.measurementLabel} h4`}>Weight*</div>
+              <div className={`${styles.measurementLabel} h3`}>Weight*</div>
               <div className={styles.measurementInputWrapper}>
                 <div className={styles.measurementInputContainer}>
                   <input
@@ -227,7 +227,7 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
             </div>
 
             {/* Activity Level Selection */}
-            <div className={`${styles.sectionTitle} h4`}>How many days per week are you physically active?</div>
+            <div className={`${styles.sectionTitle} h3`}>How many days per week are you physically active?</div>
             <div className={styles.activityGrid}>
               {Object.entries(ACTIVITY_FACTORS).map(([key, factor]) => (
                 <button
@@ -242,7 +242,7 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
             </div>
 
             {/* Weight Goal Selection */}
-            <div className={`${styles.sectionTitle} h4`}>I would like to:</div>
+            <div className={`${styles.sectionTitle} h3`}>I would like to:</div>
             <div className={styles.weightGoalGrid}>
               {Object.entries(WEIGHT_GOALS).map(([key, goal], index) => (
                 <button
@@ -262,12 +262,12 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
         <div className={styles.buttonContainerFixed}>
           <button
             type="button"
-            className={`${styles.skipButton} h5`}
+            className={`${styles.skipButton} h4`}
             onClick={onClose}
           >Cancel</button>
           <button
             type="submit"
-            className={`${styles.nextButton} h5`}
+            className={`${styles.nextButton} h4`}
             onClick={handleSubmit}
           >Next</button>
         </div>
