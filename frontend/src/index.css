@@ -23,18 +23,19 @@ body, #root, .app-root {
 
 /* Typography */
 .h1 {
+  /* H1 */
+  font-family: Kanit;
+  font-size: 28px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 120%; /* 33.6px */
+}
+.h2 {
   font-family: Kanit;
   font-size: 24px;
   font-style: normal;
   font-weight: 700;
   line-height: 150%; /* 36px */
-}
-.h2 {
-  font-family: Kanit;
-  font-size: 18px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 150%; /* 27px */
 }
 .h3 {
   font-family: Kanit;
@@ -47,16 +48,16 @@ body, #root, .app-root {
   font-family: Kanit;
   font-size: 16px;
   font-style: normal;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 150%; /* 24px */
 }
 .h5 {
   /* H5 */
   font-family: Kanit;
-  font-size: 16px;
+  font-size: 14px;
   font-style: normal;
   font-weight: 500;
-  line-height: 150%; /* 24px */
+  line-height: 150%; /* 21px */
 }
 .h6 {
   font-family: Kanit;
@@ -70,7 +71,7 @@ body, #root, .app-root {
   font-size: 16px;
   font-style: normal;
   font-weight: 400;
-  line-height: 150%; /* 24px *//
+  line-height: 150%; /* 24px */
 }
 .body2 {
   font-family: Kanit;
@@ -86,6 +87,13 @@ body, #root, .app-root {
   font-weight: 500;
   line-height: 150%; /* 18px */
 }
+.labelSmall{
+  font-family: Kanit;
+font-size: 10px;
+font-style: normal;
+font-weight: 500;
+line-height: 150%; /* 15px */
+} 
 
 /* 只保留全局基础样式，业务样式写在各自的 module.css 文件中 */
 
