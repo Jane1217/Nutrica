@@ -1,14 +1,25 @@
 /* UserInfoModal Styles */
 
+.modalContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
 .modalForm {
   display: flex;
   flex-direction: column;
-  max-width: 400px;
+  max-width: 768px;
   width: 100%;
   margin: 0 auto;
   padding: 24px;
+  padding-bottom: 120px;
   background: var(--Brand-Background, #F3F3EC);
   box-sizing: border-box;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .modalHeader {
@@ -269,7 +280,7 @@
 
 .activityGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 12px;
   margin-bottom: 8px;
 }
@@ -289,10 +300,10 @@
 .activityGrid .modalOptionBtn {
   display: flex;
   min-width: 80px;
-  padding: 12px 24px;
+  padding: 12px 0px;
   justify-content: center;
   align-items: center;
-  gap: 10px;
+  gap: 0;
   border-radius: 999px;
   border: 1px solid var(--Brand-Outline, #DBE2D0);
   background: var(--Brand-Off-White, #FCFCF8);
@@ -309,7 +320,7 @@
   font-style: normal;
   font-weight: 500;
   line-height: 150%;
-  letter-spacing: -0.32px;
+  letter-spacing: 0;
 }
 
 .activityDescription {
@@ -319,9 +330,10 @@
 
 .weightGoalGrid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(157px, 1fr));
   gap: 12px;
   margin-bottom: 16px;
+  justify-items: start;
 }
 
 .weightGoalButton {
@@ -346,10 +358,6 @@
   background: var(--Brand-Secondary-Dark, #26361B);
   color: #FFF;
   border: 1px solid var(--Brand-Secondary-Dark, #26361B);
-}
-
-.weightGoalButtonThird {
-  grid-column: 1 / 2;
 }
 
 
@@ -383,10 +391,33 @@
   justify-content: center;
   align-items: center;
   gap: 10px;
-  flex: 1 0 0;
   border-radius: 36px;
   background: var(--Brand-Dark, #2A4E14);
   color: #FFF;
   border: none;
   cursor: pointer;
+  font-size: 18px;
+  font-weight: 500;
+  width: 100%;
+  max-width: 560px;
+  min-width: 120px;
+  box-sizing: border-box;
+}
+
+.buttonContainerFixed {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 768px;
+  background: var(--Brand-Background, #F3F3EC);
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+  padding: 16px 24px 32px 24px;
+  z-index: 100;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.03);
+  box-sizing: border-box;
 }

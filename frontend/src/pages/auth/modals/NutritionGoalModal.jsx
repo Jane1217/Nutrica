@@ -49,73 +49,75 @@ export default function NutritionGoalModal({ open, onClose, onBack, onSave, name
       open={open}
       onClose={onClose}
     >
-      {/* 滚动内容区域 */}
-      <div className={nutritionGoalStyles.scrollArea}>
-        <h2 className={nutritionGoalStyles.title}>
-          Thanks for the info{name ? `, ${name}` : ''}!
-        </h2>
-        <div className={`h5 ${nutritionGoalStyles.subtitle}`}>
-        Here's our estimate of the macros you need to stay healthy and energized. 
-        </div>
-        
-        {/* 显示计算说明 */}
-        <div className={nutritionGoalStyles.calcBox}>
-          <div className={`h5 ${nutritionGoalStyles.calcTitle}`}>
-            Calculation Method:
+      <div className={nutritionGoalStyles.modalContainer}>
+        <div className={nutritionGoalStyles.scrollArea}>
+          <h2 className={nutritionGoalStyles.title}>
+            Thanks for the info{name ? `, ${name}` : ''}!
+          </h2>
+          <div className={`h5 ${nutritionGoalStyles.subtitle}`}>
+          Here's our estimate of the macros you need to stay healthy and energized. 
           </div>
-          <div className={`body2 ${nutritionGoalStyles.calcDesc}`}>
-            • BMR calculated using Harris-Benedict formula<br/>
-            • Adjusted for your activity level and weight goal<br/>
-            • You can modify the calories below if needed
-          </div>
-        </div>
-        
-        <div className={nutritionGoalStyles.macrosBox}>
-          <div className={`h4 ${nutritionGoalStyles.caloriesRow}`}>
-            <span className={`h4 ${nutritionGoalStyles.caloriesLabel}`}>Calories</span>
-            <div className={nutritionGoalStyles.caloriesInputWrap}>
-              <input
-                className={`${styles.modalInput} h5 ${nutritionGoalStyles.caloriesInput}`}
-                type="number"
-                min={0}
-                value={displayValue}
-                onChange={handleCaloriesChange}
-                onBlur={handleBlur}
-              />
-              <span className={nutritionGoalStyles.kcalUnit}>kcal</span>
+          
+          {/* 显示计算说明 */}
+          <div className={nutritionGoalStyles.calcBox}>
+            <div className={`h5 ${nutritionGoalStyles.calcTitle}`}>
+              Calculation Method:
+            </div>
+            <div className={`body2 ${nutritionGoalStyles.calcDesc}`}>
+              • BMR calculated using Harris-Benedict formula<br/>
+              • Adjusted for your activity level (1.2-1.9x) and weight goal<br/>
+              • You can modify the calories below if needed
             </div>
           </div>
-          <div className={nutritionGoalStyles.divider} />        
-          <div className={nutritionGoalStyles.macroRow}>
-            <span className={`h4 ${nutritionGoalStyles.macroLabel}`}>Carbs</span>
-            <span className='h5'>{carbs}</span>
-            <span className={`h5 ${nutritionGoalStyles.macroUnit}`}>g</span>
-          </div>
-          <div className={nutritionGoalStyles.macroRow}>
-            <span className={`h4 ${nutritionGoalStyles.macroLabel}`}>Fats</span>
-            <span className='h5'>{fats}</span>
-            <span className={`h5 ${nutritionGoalStyles.macroUnit}`}>g</span>
-          </div>
-          <div className={nutritionGoalStyles.macroRow}>
-            <span className={`h4 ${nutritionGoalStyles.macroLabel}`}>Protein</span>
-            <span className='h5'>{protein}</span>
-            <span className={`h5 ${nutritionGoalStyles.macroUnit}`}>g</span>
+          
+          <div className={nutritionGoalStyles.macrosBox}>
+            <div className={`h4 ${nutritionGoalStyles.caloriesRow}`}>
+              <span className={`h4 ${nutritionGoalStyles.caloriesLabel}`}>Calories</span>
+              <div className={nutritionGoalStyles.caloriesInputWrap}>
+                <input
+                  className={`${styles.modalInput} h5 ${nutritionGoalStyles.caloriesInput}`}
+                  type="number"
+                  min={0}
+                  value={displayValue}
+                  onChange={handleCaloriesChange}
+                  onBlur={handleBlur}
+                />
+                <span className={nutritionGoalStyles.kcalUnit}>kcal</span>
+              </div>
+            </div>
+            <div className={nutritionGoalStyles.divider} />
+            
+            <div className={nutritionGoalStyles.macroRow}>
+              <span className={`h4 ${nutritionGoalStyles.macroLabel}`}>Carbs</span>
+              <span className='h5'>{carbs}</span>
+              <span className={`h5 ${nutritionGoalStyles.macroUnit}`}>g</span>
+            </div>
+            <div className={nutritionGoalStyles.macroRow}>
+              <span className={`h4 ${nutritionGoalStyles.macroLabel}`}>Fats</span>
+              <span className='h5'>{fats}</span>
+              <span className={`h5 ${nutritionGoalStyles.macroUnit}`}>g</span>
+            </div>
+            <div className={nutritionGoalStyles.macroRow}>
+              <span className={`h4 ${nutritionGoalStyles.macroLabel}`}>Protein</span>
+              <span className='h5'>{protein}</span>
+              <span className={`h5 ${nutritionGoalStyles.macroUnit}`}>g</span>
+            </div>
           </div>
         </div>
-      </div>
-      
-      {/* 固定在底部的按钮区域 */}
-      <div className={nutritionGoalStyles.footerBtnArea}>
-        <button className={nutritionGoalStyles.backBtn}
-          onClick={() => { if (onBack) onBack(); }}
-        >
-          <span className='h5'>Back</span>
-        </button>
-        <button className={nutritionGoalStyles.saveBtn}
-          onClick={handleSave}
-        >
-          <span className='h5'>Save</span>
-        </button>
+        <div className={nutritionGoalStyles.bottomContainer}>
+          <button
+            className={nutritionGoalStyles.backBtn}
+            onClick={() => { if (onBack) onBack(); }}
+          >
+            <span className='h5'>Back</span>
+          </button>
+          <button
+            className={nutritionGoalStyles.saveBtn}
+            onClick={handleSave}
+          >
+            <span className='h5'>Save</span>
+          </button>
+        </div>
       </div>
     </ModalWrapper>
   );
