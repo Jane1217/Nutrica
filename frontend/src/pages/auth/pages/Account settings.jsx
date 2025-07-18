@@ -231,8 +231,8 @@ export default function AccountSettings({ userEmail }) {
           avatarText
         )}
       </div>
-        <div className={styles['account-nickname'] + ' h2'}>{nickname}</div>
-        <div className={styles['account-email']+ ' h4'}>{userEmail}</div>
+        <div className={styles['account-nickname'] + ' h1'}>{nickname}</div>
+        <div className={styles['account-email']+ ' h3'}>{userEmail}</div>
       {showSafariSetup && (
         <div className={styles['account-info-box']}>
             <div className={styles.accountInfoBoxHeader}>
@@ -282,6 +282,7 @@ export default function AccountSettings({ userEmail }) {
         onClose={() => setShowUserInfoModal(false)}
         initialData={userInfo || {}}
         onSubmit={handleUserInfoSubmit}
+        isUpdateMode={true}
       />
       <NutritionGoalModal
         open={showNutritionGoalModal}
