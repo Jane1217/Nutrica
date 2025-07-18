@@ -568,13 +568,13 @@
 .accountInfoBoxIcon {
   width: 24px;
   height: 24px;
-  margin-right: 8px;
+  fill: #FFF;
 }
 .accountInfoBoxClose {
   cursor: pointer;
-  font-size: 24px;
-  color: #666;
-  font-weight: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .accountInfoBoxDesc {
   font-size: 15px;
