@@ -8,6 +8,15 @@
   flex-direction: column;
 }
 
+.loadingContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  padding: 24px;
+}
+
 .modalForm {
   display: flex;
   flex-direction: column;
