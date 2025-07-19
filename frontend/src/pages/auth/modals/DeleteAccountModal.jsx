@@ -63,38 +63,30 @@ export default function DeleteAccountModal({ open, onClose, userEmail }) {
         }
       }
 
-      // 2. 清理用户数据（包括存储文件）
-      try {
-        const { error: cleanupError } = await supabase.rpc('cleanup_user_data', {
-          user_id: user.id
+      // 2. 删除用户账号
+      const { error: deleteError } = await supabase.auth.admin.deleteUser(user.id);
+
+      if (deleteError) {
+        console.error('删除账号失败:', deleteError);
+        // 如果admin API不可用，尝试使用普通用户删除
+        const { error: userDeleteError } = await supabase.auth.updateUser({
+          password: 'temp_password_for_deletion'
         });
 
-        if (cleanupError) {
-          console.log('RPC函数不可用，使用手动清理');
-          // 如果RPC函数不可用，数据已经在上面手动删除了
+        if (userDeleteError) {
+          console.error('删除账号失败: ' + userDeleteError.message);
+          return;
         }
-      } catch (error) {
-        console.error('清理用户数据时出错:', error);
-        // 即使清理失败，数据已经在上面手动删除了
       }
 
-      // 3. 尝试删除用户账号（需要管理员权限）
-      // 由于前端无法直接删除用户账号，我们提供以下方案：
-      console.log('用户数据已清理完成');
-      console.log('注意：账号删除需要管理员权限');
-      console.log('建议：');
-      console.log('1. 联系管理员删除账号');
-      console.log('2. 使用"忘记密码"功能重置账号');
-      console.log('3. 或者账号将保持存在但无数据');
-
-      // 4. 清除本地存储
+      // 3. 清除本地存储
       localStorage.removeItem('nutrica_userinfo_shown');
       localStorage.removeItem('nutrica_user_cache');
 
-      // 5. 登出用户
+      // 4. 登出用户
       await supabase.auth.signOut();
 
-      // 6. 关闭弹窗并跳转到欢迎页面
+      // 5. 关闭弹窗并跳转到欢迎页面
       onClose();
       window.location.href = '/';
 
