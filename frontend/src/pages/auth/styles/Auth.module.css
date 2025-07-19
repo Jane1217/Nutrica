@@ -176,7 +176,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 36px;
+  gap: 0px;
   max-width: 768px;
   width: 100%;
   margin: 0 auto;
@@ -194,7 +194,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 36px;
+  gap: 0px;
   max-width: 768px;
   width: 100%;
   margin: 0 auto;
@@ -216,6 +216,7 @@
   gap: 8px;
   padding: 0;
   margin-top: 0;
+  margin-bottom: 24px;
 }
 
 .headerRow {
@@ -258,6 +259,7 @@
   gap: 8px;
   padding: 0;
   margin-top: 0;
+  margin-bottom: 24px;
   background: var(--Brand-Background, #F3F3EC);
 }
 
@@ -297,6 +299,10 @@
   align-self: center;
 }
 
+.signupActionGroup {
+  gap: 16px;
+}
+
 
 .forgotPasswordBtn {
   display: flex;
@@ -306,15 +312,15 @@
   color: var(--Brand-Dark, #2A4E14);
   border: none;
   cursor: pointer;
-  margin-top: 32px;
-  margin-bottom: 16px;
+  margin-top: -16px;
+  margin-bottom: 8px;
   padding: 0;
   font-weight: 700;
 }
 
 
 .signupTerms {
-  width: 100%;
+  width: 241px;
   color: #000;
   text-align: center;
   margin-top: 0;
@@ -341,11 +347,12 @@
   gap: 8px;
   width: 100%;
   align-self: center;
+  margin-top: 24px;
 }
 .actionModuleText {
   color: #000;
   text-align: center;
-  margin-top: -16px;
+  margin-top: 24px;
 }
 .actionModuleBtn {
   color: var(--Brand-Dark, #2A4E14);

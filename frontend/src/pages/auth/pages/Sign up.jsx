@@ -70,7 +70,7 @@ export default function SignUp({ open, onClose, onAuth, onSwitchToLogin }) {
           />
           <div className={`${styles.signupHintText} body2`}>Password must have at least 8 characters.</div>
         </div>
-        <div className={styles.actionGroup}>
+        <div className={`${styles.actionGroup} ${styles.signupActionGroup}`}>
           <BottomButton onClick={e => { e.preventDefault(); handleSignup(e); }}>
             Sign up
           </BottomButton>
