@@ -23,7 +23,7 @@ class DatabaseService {
 
     this.supabase = createClient(
       config.database.supabaseUrl,
-      config.database.supabaseKey,
+      config.database.supabaseServiceKey, // 使用服务端密钥，绕过RLS
       supabaseConfig
     );
     this.bucketName = 'nutrition-images';

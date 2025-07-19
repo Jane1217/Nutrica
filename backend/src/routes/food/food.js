@@ -4,20 +4,22 @@ const databaseService = require('../../services/databaseService');
 const { validateRequiredFields, cleanNutritionData } = require('../../utils/validation');
 const { successResponse, errorResponse, validationErrorResponse } = require('../../utils/response');
 const { logApiRequest, logApiResponse, logError } = require('../../utils/logger');
+const { authenticateUser } = require('../../middleware/auth');
 
 // Add new food record
-router.post('/', async (req, res) => {
+router.post('/', authenticateUser, async (req, res) => {
   try {
     logApiRequest('POST', '/api/food', req.body);
     
     // 新增：打印完整body内容，便于排查
     console.log('API POST /api/food body:', JSON.stringify(req.body));
     
-    const { user_id, name, nutrition, number_of_servings, time, emoji } = req.body;
+    const { name, nutrition, number_of_servings, time, emoji } = req.body;
+    const user_id = req.user.id; // 从认证中间件获取用户ID
     
     // 验证必需字段
     try {
-      validateRequiredFields({ user_id, name, nutrition }, ['user_id', 'name', 'nutrition']);
+      validateRequiredFields({ name, nutrition }, ['name', 'nutrition']);
     } catch (error) {
       return validationErrorResponse(res, error.message);
     }
