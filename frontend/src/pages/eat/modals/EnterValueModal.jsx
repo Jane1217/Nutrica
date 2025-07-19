@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import '../styles/FoodModal.css';
 import { validateFoodForm } from '../../../utils/validation';
 import { foodApi, handleApiError } from '../../../utils/api';
+import { supabase } from '../../../supabaseClient';
 import ModalWrapper from '../../../components/common/ModalWrapper';
 
 export default function EnterValueModal({ open, onClose, onBack, onCloseModal, userId, onDataChange }) {
@@ -54,13 +55,23 @@ export default function EnterValueModal({ open, onClose, onBack, onCloseModal, u
         setLoading(false);
         return;
       }
+      
+      // 获取访问令牌
+      const session = await supabase.auth.getSession();
+      const accessToken = session.data.session?.access_token;
+      
+      if (!accessToken) {
+        setError('无法获取访问令牌，请重新登录');
+        setLoading(false);
+        return;
+      }
+      
       const data = await foodApi.addFood({
-        user_id: userId,
         name: form.name,
         number_of_servings: 1, // 固定为1
         nutrition,
         emoji
-      });
+      }, accessToken);
       if (data.success) {
         setSuccess(true);
         if (onDataChange) onDataChange();

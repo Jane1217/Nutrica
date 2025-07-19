@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import ModalWrapper from '../../../components/common/ModalWrapper';
 import { supabase } from '../../../supabaseClient';
+import { userApi } from '../../../utils/api';
 import styles from '../styles/Auth.module.css';
 
 export default function DeleteAccountModal({ open, onClose, userEmail }) {
@@ -17,89 +18,46 @@ export default function DeleteAccountModal({ open, onClose, userEmail }) {
     setIsLoading(true);
 
     try {
-      // 1. 首先删除用户相关的数据
+      // 1. 获取当前用户信息
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         console.error('用户未登录');
         return;
       }
 
-      // 删除用户的食物记录
-      const { error: foodError } = await supabase
-        .from('food')
-        .delete()
-        .eq('user_id', user.id);
-
-      if (foodError) {
-        console.error('删除食物记录失败:', foodError);
+      // 2. 调用后端API删除用户账号
+      const session = await supabase.auth.getSession();
+      const accessToken = session.data.session?.access_token;
+      
+      if (!accessToken) {
+        console.error('无法获取访问令牌');
+        alert('无法获取访问令牌，请重新登录');
+        return;
       }
 
-      // 删除用户的营养目标记录
-      const { error: goalError } = await supabase
-        .from('nutrition_goal')
-        .delete()
-        .eq('user_id', user.id);
-
-      if (goalError) {
-        console.error('删除营养目标记录失败:', goalError);
-      }
-
-      // 删除用户的头像文件
-      if (user.user_metadata?.avatarUrl) {
-        try {
-          const urlParts = user.user_metadata.avatarUrl.split('/');
-          const fileName = urlParts[urlParts.length - 1];
-          if (fileName && fileName.startsWith('avatar_')) {
-            const { error: avatarError } = await supabase.storage
-              .from('avatars')
-              .remove([fileName]);
-            
-            if (avatarError) {
-              console.error('删除头像文件失败:', avatarError);
-            }
-          }
-        } catch (error) {
-          console.error('删除头像时出错:', error);
-        }
-      }
-
-      // 2. 清理用户数据（包括存储文件）
       try {
-        const { error: cleanupError } = await supabase.rpc('cleanup_user_data', {
-          user_id: user.id
-        });
-
-        if (cleanupError) {
-          console.log('RPC函数不可用，使用手动清理');
-          // 如果RPC函数不可用，数据已经在上面手动删除了
-        }
+        await userApi.deleteAccount(user.id, accessToken);
+        console.log('删除账号成功');
       } catch (error) {
-        console.error('清理用户数据时出错:', error);
-        // 即使清理失败，数据已经在上面手动删除了
+        console.error('删除账号失败:', error);
+        alert('删除账号失败: ' + error.message);
+        return;
       }
 
-      // 3. 尝试删除用户账号（需要管理员权限）
-      // 由于前端无法直接删除用户账号，我们提供以下方案：
-      console.log('用户数据已清理完成');
-      console.log('注意：账号删除需要管理员权限');
-      console.log('建议：');
-      console.log('1. 联系管理员删除账号');
-      console.log('2. 使用"忘记密码"功能重置账号');
-      console.log('3. 或者账号将保持存在但无数据');
-
-      // 4. 清除本地存储
+      // 3. 清除本地存储
       localStorage.removeItem('nutrica_userinfo_shown');
       localStorage.removeItem('nutrica_user_cache');
 
-      // 5. 登出用户
+      // 4. 登出用户
       await supabase.auth.signOut();
 
-      // 6. 关闭弹窗并跳转到欢迎页面
+      // 5. 关闭弹窗并跳转到欢迎页面
       onClose();
       window.location.href = '/';
 
     } catch (err) {
       console.error('删除账号时出错:', err);
+      alert('删除账号时出错: ' + err.message);
     } finally {
       setIsLoading(false);
     }

@@ -85,7 +85,13 @@ export const uploadFile = async (endpoint, file, onProgress = null) => {
 // 食物相关API
 export const foodApi = {
   // 添加食物
-  addFood: (foodData) => apiPost('/api/food', foodData),
+  addFood: (foodData, accessToken) => apiRequest('/api/food', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`
+    },
+    body: JSON.stringify(foodData)
+  }),
   
   // 解析食物图片
   parseFoodImage: (file) => uploadFile('/api/ai/parse/food', file),
@@ -95,6 +101,18 @@ export const foodApi = {
   
   // 获取食物emoji
   getFoodEmoji: (foodNameOrDesc) => apiPost('/api/ai/parse/emoji', { text: foodNameOrDesc }),
+};
+
+// 用户相关API
+export const userApi = {
+  // 删除用户账号
+  deleteAccount: (userId, accessToken) => apiRequest('/api/user/delete-account', {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`
+    },
+    body: JSON.stringify({ userId })
+  }),
 };
 
 // 错误处理
