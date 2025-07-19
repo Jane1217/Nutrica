@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { supabase } from '../../supabaseClient';
 import NavLogo from '../../components/navbar/Nav-Logo';
-import DateDisplayBox from '../../components/home/DateDisplayBox';
+import DatePicker from '../../components/home/DatePicker';
 import EatModal from '../eat/modals/EatModal';
 import UserInfoModal from '../auth/modals/UserInfoModal';
 import NutritionGoalModal from '../auth/modals/NutritionGoalModal';
@@ -226,7 +226,7 @@ export default function Home(props) {
     <>
       <NavLogo onEatClick={() => setShowEatModal(true)} isLoggedIn={props.isLoggedIn} isAuth={false} />
       <div className={styles['home-main']}>
-      <DateDisplayBox />
+      <DatePicker />
         <EatModal
           open={showEatModal}
           onClose={() => {
