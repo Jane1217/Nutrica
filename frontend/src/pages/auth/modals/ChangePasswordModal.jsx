@@ -60,7 +60,7 @@ export default function ChangePasswordModal({ open, onClose }) {
 
   return (
     <ModalWrapper open={open} onClose={onClose} size="auth">
-      <form onSubmit={handleSubmit} style={{padding: 0, background: 'transparent', height: '100vh', overflowY: 'auto', WebkitOverflowScrolling: 'touch'}}>
+      <form onSubmit={handleSubmit} style={{padding: 0, background: 'transparent', height: '100vh', overflowY: 'auto', WebkitOverflowScrolling: 'touch', width: '100%', boxSizing: 'border-box'}}>
         <div style={{position: 'relative', marginBottom: 0}}>
           <div className="h2" style={{ marginBottom: 0, textAlign: 'left', padding: '24px 0 0 24px' }}>Change Password</div>
                    <button type="button" onClick={onClose} style={{position: 'absolute', right: 16, top: 16, display: 'flex', width: 48, height: 48, padding: 14, justifyContent: 'center', alignItems: 'center', borderRadius: 999, border: '1px solid var(--Brand-Outline, #DBE2D0)', background: 'none', cursor: 'pointer'}}>
@@ -69,7 +69,7 @@ export default function ChangePasswordModal({ open, onClose }) {
            </svg>
          </button>
         </div>
-        <div style={{padding: '0 24px', width: 360, maxWidth: '90vw', margin: '0 auto'}}>
+        <div style={{padding: '0 24px', width: '100%', maxWidth: '100%', margin: '0 auto', boxSizing: 'border-box'}}>
           <div style={{display: 'flex', flexDirection: 'column', gap: '24px', marginTop: '24px'}}>
             {/* Current Password */}
             <InputField
