@@ -25,7 +25,7 @@ export default function Welcome() {
     <div className={styles.welcomeRoot}>
       {/* 顶部Logo和登录按钮 */}
       <div className={styles.header}>
-        <NavLogo hideEat />
+        <NavLogo hideEat hideMenu />
         <button
           className={styles.loginBtn}
           onClick={() => setShowLoginModal(true)}
