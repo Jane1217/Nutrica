@@ -262,7 +262,7 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
                 className={`${styles.activityButton} ${styles.modalOptionBtn} ${activityLevel === key ? styles.modalOptionBtnActive : ''}`}
                 onClick={() => setActivityLevel(key)}
               >
-                <span className={styles.activityLabel}>{factor.label}</span>
+                <span className={`${styles.activityLabel} h5`}>{factor.label}</span>
               </button>
             ))}
           </div>
@@ -290,12 +290,16 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
             type="button"
             className={`${styles.skipButton} h4`}
             onClick={onClose}
-          >Cancel</button>
+          >
+            <span className='h4'>Cancel</span>
+          </button>
           <button
             type="submit"
             className={`${styles.nextButton} h4`}
             onClick={handleSubmit}
-          >Next</button>
+          >
+            <span className='h4'>Next</span>
+          </button>
         </div>
       </div>
     </ModalWrapper>

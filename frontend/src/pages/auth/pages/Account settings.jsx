@@ -8,6 +8,7 @@ import UserInfoModal from '../modals/UserInfoModal';
 import NutritionGoalModal from '../modals/NutritionGoalModal';
 import ProfileEditModal from '../modals/ProfileEditModal';
 import ChangePasswordModal from '../modals/ChangePasswordModal';
+import DeleteAccountModal from '../modals/DeleteAccountModal';
 import ModalWrapper from '../../../components/common/ModalWrapper';
 
 export default function AccountSettings({ userEmail }) {
@@ -18,6 +19,7 @@ export default function AccountSettings({ userEmail }) {
   const [showNutritionGoalModal, setShowNutritionGoalModal] = useState(false);
   const [showProfileEditModal, setShowProfileEditModal] = useState(false);
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+  const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
   const initial = userEmail ? userEmail[0].toUpperCase() : '';
   const [userInfo, setUserInfo] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState(null);
@@ -295,7 +297,7 @@ export default function AccountSettings({ userEmail }) {
       <div className={styles['account-footer-bar']}>
         <span className="h4">Privacy Notice</span>
         <span className="h4">About</span>
-        <span className="h4">Delete Account</span>        
+        <span className="h4" onClick={() => setShowDeleteAccountModal(true)} style={{cursor: 'pointer'}}>Delete Account</span>        
       </div>
         <div className={styles.accountFeedback}>
           <span className="h5" style={{color: 'var(--Neutral-Primary-Text, #22221B)', textAlign: 'center'}}>
@@ -374,6 +376,11 @@ export default function AccountSettings({ userEmail }) {
       <ChangePasswordModal
         open={showChangePasswordModal}
         onClose={() => setShowChangePasswordModal(false)}
+      />
+      <DeleteAccountModal
+        open={showDeleteAccountModal}
+        onClose={() => setShowDeleteAccountModal(false)}
+        userEmail={userEmail}
       />
       </div>
     </>

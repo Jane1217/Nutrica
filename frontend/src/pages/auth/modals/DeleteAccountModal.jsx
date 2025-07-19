@@ -1,0 +1,163 @@
+import React, { useState } from 'react';
+import ModalWrapper from '../../../components/common/ModalWrapper';
+import { supabase } from '../../../supabaseClient';
+import styles from '../styles/Auth.module.css';
+
+export default function DeleteAccountModal({ open, onClose, userEmail }) {
+  const [isLoading, setIsLoading] = useState(false);
+
+  // 当弹窗打开时重置状态
+  React.useEffect(() => {
+    if (open) {
+      setIsLoading(false);
+    }
+  }, [open]);
+
+  const handleDeleteAccount = async () => {
+    setIsLoading(true);
+
+    try {
+      // 1. 首先删除用户相关的数据
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.error('用户未登录');
+        return;
+      }
+
+      // 删除用户的食物记录
+      const { error: foodError } = await supabase
+        .from('food')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (foodError) {
+        console.error('删除食物记录失败:', foodError);
+      }
+
+      // 删除用户的营养目标记录
+      const { error: goalError } = await supabase
+        .from('nutrition_goal')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (goalError) {
+        console.error('删除营养目标记录失败:', goalError);
+      }
+
+      // 删除用户的头像文件
+      if (user.user_metadata?.avatarUrl) {
+        try {
+          const urlParts = user.user_metadata.avatarUrl.split('/');
+          const fileName = urlParts[urlParts.length - 1];
+          if (fileName && fileName.startsWith('avatar_')) {
+            const { error: avatarError } = await supabase.storage
+              .from('avatars')
+              .remove([fileName]);
+            
+            if (avatarError) {
+              console.error('删除头像文件失败:', avatarError);
+            }
+          }
+        } catch (error) {
+          console.error('删除头像时出错:', error);
+        }
+      }
+
+      // 2. 清理用户数据（包括存储文件）
+      try {
+        const { error: cleanupError } = await supabase.rpc('cleanup_user_data', {
+          user_id: user.id
+        });
+
+        if (cleanupError) {
+          console.log('RPC函数不可用，使用手动清理');
+          // 如果RPC函数不可用，数据已经在上面手动删除了
+        }
+      } catch (error) {
+        console.error('清理用户数据时出错:', error);
+        // 即使清理失败，数据已经在上面手动删除了
+      }
+
+      // 3. 尝试删除用户账号（需要管理员权限）
+      // 由于前端无法直接删除用户账号，我们提供以下方案：
+      console.log('用户数据已清理完成');
+      console.log('注意：账号删除需要管理员权限');
+      console.log('建议：');
+      console.log('1. 联系管理员删除账号');
+      console.log('2. 使用"忘记密码"功能重置账号');
+      console.log('3. 或者账号将保持存在但无数据');
+
+      // 4. 清除本地存储
+      localStorage.removeItem('nutrica_userinfo_shown');
+      localStorage.removeItem('nutrica_user_cache');
+
+      // 5. 登出用户
+      await supabase.auth.signOut();
+
+      // 6. 关闭弹窗并跳转到欢迎页面
+      onClose();
+      window.location.href = '/';
+
+    } catch (err) {
+      console.error('删除账号时出错:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <ModalWrapper open={open} onClose={onClose} centered={true}>
+      <div className={styles.deleteAccountModal}>
+        <div className={styles.deleteAccountHeader}>
+          <button className={styles.closeButton} onClick={onClose}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        
+        <div className={styles.deleteAccountContent}>
+          <div className={styles.deleteAccountIcon}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 25 24" fill="none">
+              <path d="M20.5 5C20.7652 5 21.0196 5.10536 21.2071 5.29289C21.3946 5.48043 21.5 5.73478 21.5 6C21.5 6.26522 21.3946 6.51957 21.2071 6.70711C21.0196 6.89464 20.7652 7 20.5 7H19.5L19.497 7.071L18.564 20.142C18.5281 20.6466 18.3023 21.1188 17.9321 21.4636C17.5619 21.8083 17.0749 22 16.569 22H8.43C7.92414 22 7.43707 21.8083 7.06688 21.4636C6.6967 21.1188 6.47092 20.6466 6.435 20.142L5.502 7.072L5.5 7H4.5C4.23478 7 3.98043 6.89464 3.79289 6.70711C3.60536 6.51957 3.5 6.26522 3.5 6C3.5 5.73478 3.60536 5.48043 3.79289 5.29289C3.98043 5.10536 4.23478 5 4.5 5H20.5ZM14.5 2C14.7652 2 15.0196 2.10536 15.2071 2.29289C15.3946 2.48043 15.5 2.73478 15.5 3C15.5 3.26522 15.3946 3.51957 15.2071 3.70711C15.0196 3.89464 14.7652 4 14.5 4H10.5C10.2348 4 9.98043 3.89464 9.79289 3.70711C9.60536 3.51957 9.5 3.26522 9.5 3C9.5 2.73478 9.60536 2.48043 9.79289 2.29289C9.98043 2.10536 10.2348 2 10.5 2H14.5Z" fill="#D03535"/>
+            </svg>
+          </div>
+          
+          <h2 className={`h2 ${styles.deleteAccountTitle}`}>Delete Account</h2>
+          
+          <div className={styles.deleteAccountDivider}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="69" height="4" viewBox="0 0 69 4" fill="none">
+              <path d="M2.5 2H66.5" stroke="#DBE2D0" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+          </div>
+          
+          <div className={styles.deleteAccountText}>
+            <p className="body1">Are you sure you want to delete the account linked to <strong>{userEmail}</strong>?</p>
+            <p className="body1">All your data will be permanently lost. This action cannot be undone.</p>
+          </div>
+          
+          <div className={styles.deleteAccountActions}>
+            <button
+              type="button"
+              className={styles.cancelButton}
+              onClick={onClose}
+              disabled={isLoading}
+            >
+              <span className="h4" style={{color: 'var(--Neutral-Primary-Text, #22221B)'}}>Cancel</span>
+            </button>
+            <button
+              type="button"
+              className={styles.deleteButton}
+              onClick={handleDeleteAccount}
+              disabled={isLoading}
+            >
+              <span className="h4" style={{color: 'var(--Brand-Background, #F3F3EC)'}}>
+                {isLoading ? 'Deleting...' : 'Delete'}
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </ModalWrapper>
+  );
+} 

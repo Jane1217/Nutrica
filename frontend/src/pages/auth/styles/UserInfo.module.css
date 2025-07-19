@@ -41,16 +41,7 @@
   gap: 12px;
 }
 
-.modalInput {
-  width: 100%;
-  box-sizing: border-box;
-  border-radius: 8px;
-  border: 1px solid #CDD3C4;
-  background: #FCFCF8;
-  padding: 20px 16px;
-  font-family: inherit;
-  font-size: 16px;
-}
+
 
 .modalDivider {
   border: none;
@@ -103,14 +94,7 @@
   color: #22221B;
 }
 
-.privacyTextSecondary {
-  color: rgba(34, 34, 27, 0.60);
-}
 
-.privacyLink {
-  color: #888;
-  text-decoration: underline;
-}
 
 .sectionTitle {
   font-weight: 700;
@@ -332,11 +316,6 @@
   letter-spacing: 0;
 }
 
-.activityDescription {
-  font-size: 12px;
-  opacity: 0.8;
-}
-
 .weightGoalGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(157px, 1fr));
@@ -369,14 +348,8 @@
   border: 1px solid var(--Brand-Secondary-Dark, #26361B);
 }
 
-
-
-.buttonContainer {
-  display: flex;
-  gap: 16px;
-  margin-top: 16px;
-  justify-content: center;
-  margin-bottom: 16px;
+.weightGoalButtonThird {
+  /* 第三个按钮的特殊样式，如果需要的话可以在这里添加 */
 }
 
 .skipButton {
@@ -389,7 +362,10 @@
   gap: 10px;
   border-radius: 36px;
   background: var(--Brand-Secondary-Background, #E7E7D5);
+  color: #222;
   border: none;
+  font-size: 20px;
+  font-weight: 500;
   cursor: pointer;
 }
 
@@ -400,17 +376,14 @@
   justify-content: center;
   align-items: center;
   gap: 10px;
+  flex: 1 0 0;
   border-radius: 36px;
   background: var(--Brand-Dark, #2A4E14);
-  color: #FFF;
+  color: #fff;
   border: none;
-  cursor: pointer;
-  font-size: 18px;
+  font-size: 22px;
   font-weight: 500;
-  width: 100%;
-  max-width: 560px;
-  min-width: 120px;
-  box-sizing: border-box;
+  cursor: pointer;
 }
 
 .buttonContainerFixed {
