@@ -2,63 +2,77 @@ import React, { useState, useEffect } from 'react';
 import { icons } from '../../utils/icons';
 import { formatDate, getRelativeDateText } from '../../utils/format';
 import styles from './DatePicker.module.css';
+import DatePickerModal from './DatePickerModal';
+import { supabase } from '../../supabaseClient';
+import { apiGet } from '../../utils/api';
 
 export default function DatePicker() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [canGoBack, setCanGoBack] = useState(false);
   const [canGoForward, setCanGoForward] = useState(false);
+  const [showDatePickerModal, setShowDatePickerModal] = useState(false);
+  const [userId, setUserId] = useState(null);
 
-  // 检查指定日期是否有图像数据
+  // Check if specified date has image data
   const checkDateHasImage = async (date) => {
     try {
-      const response = await fetch(`/api/nutrition-images?date=${date.toISOString().split('T')[0]}`);
-      const data = await response.json();
-      return data.hasImage;
+      const { hasImage } = await apiGet(`/api/nutrition-images?date=${date.toISOString().split('T')[0]}`);
+      return hasImage;
     } catch (error) {
       console.error('Error checking date image:', error);
       return false;
     }
   };
 
-  // 获取第一个有图像的日期
+  // Get first date with image
   const getFirstImageDate = async () => {
     try {
-      const response = await fetch('/api/nutrition-images/first');
-      const data = await response.json();
-      return data.firstDate ? new Date(data.firstDate) : null;
+      const { firstDate } = await apiGet('/api/nutrition-images/first');
+      return firstDate ? new Date(firstDate) : null;
     } catch (error) {
       console.error('Error getting first image date:', error);
       return null;
     }
   };
 
-  // 检查导航状态
+  // Update navigation state
   const updateNavigationState = async () => {
     const today = new Date();
     const isToday = currentDate.toDateString() === today.toDateString();
     
-    // 检查是否可以向前导航（到未来）
+    // Check if can navigate forward (to future dates with images, but not beyond today)
     setCanGoForward(!isToday);
     
-    // 检查是否可以向后导航（到过去有图像的日期）
-    const firstImageDate = await getFirstImageDate();
-    if (firstImageDate) {
-      setCanGoBack(currentDate > firstImageDate);
-    } else {
+    // Check if can navigate backward (to past dates with images)
+    try {
+      const firstImageDate = await getFirstImageDate();
+      if (firstImageDate) {
+        const earliestDate = new Date(firstImageDate);
+        earliestDate.setHours(0, 0, 0, 0);
+        setCanGoBack(currentDate > earliestDate);
+      } else {
+        setCanGoBack(false);
+      }
+    } catch (error) {
+      console.error('Failed to update navigation state:', error);
+      // If fetch fails, disable backward navigation
       setCanGoBack(false);
     }
   };
 
-  // 导航到前一天
+  // Navigate to previous day
   const goToPreviousDay = async () => {
     if (!canGoBack) return;
     
     const prevDate = new Date(currentDate);
     prevDate.setDate(prevDate.getDate() - 1);
     
-    // 检查前一天是否有图像，如果没有则继续往前找
+    // Check if previous day has image, if not continue searching backward
     let targetDate = prevDate;
-    while (targetDate > new Date(0)) { // 防止无限循环
+    const firstImageDate = await getFirstImageDate();
+    const earliestDate = firstImageDate || new Date(0);
+    
+    while (targetDate >= earliestDate) {
       const hasImage = await checkDateHasImage(targetDate);
       if (hasImage) {
         setCurrentDate(targetDate);
@@ -68,16 +82,18 @@ export default function DatePicker() {
     }
   };
 
-  // 导航到后一天
+  // Navigate to next day
   const goToNextDay = async () => {
     if (!canGoForward) return;
     
     const nextDate = new Date(currentDate);
     nextDate.setDate(nextDate.getDate() + 1);
     
-    // 检查后一天是否有图像，如果没有则继续往后找
+    // Check if next day has image, if not continue searching forward
     let targetDate = nextDate;
     const today = new Date();
+    today.setHours(23, 59, 59, 999); // End of today
+    
     while (targetDate <= today) {
       const hasImage = await checkDateHasImage(targetDate);
       if (hasImage) {
@@ -88,13 +104,34 @@ export default function DatePicker() {
     }
   };
 
+  // Get current user ID
+  useEffect(() => {
+    const getCurrentUserId = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
+      }
+    };
+    getCurrentUserId();
+  }, []);
+
   useEffect(() => {
     updateNavigationState();
   }, [currentDate]);
 
+  // Handle date selection
+  const handleDateSelect = (date) => {
+    setCurrentDate(date);
+  };
+
+  // Open date picker modal
+  const openDatePickerModal = () => {
+    setShowDatePickerModal(true);
+  };
+
   return (
     <div className={styles.datePicker}>
-      {/* 左侧箭头 */}
+      {/* Left arrow */}
       <img 
         src={icons.arrowBack} 
         alt="Previous" 
@@ -102,25 +139,34 @@ export default function DatePicker() {
         onClick={goToPreviousDay}
       />
       
-      {/* 中间日期模块 */}
-      <div className={styles.dateModule}>
-        {/* 日期文本 */}
+      {/* Center date module */}
+      <div className={styles.dateModule} onClick={openDatePickerModal}>
+        {/* Date text */}
         <span className={`${styles.dateText} h4`}>
           {formatDate(currentDate)}
         </span>
         
-        {/* 相对日期文本 */}
+        {/* Relative date text */}
         <span className={`${styles.relativeDateText} body2`}>
           {getRelativeDateText(currentDate)}
         </span>
       </div>
       
-      {/* 右侧箭头 */}
+      {/* Right arrow */}
       <img 
         src={icons.arrowForward} 
         alt="Next" 
         className={`${styles.arrow} ${!canGoForward ? styles.arrowDisabled : ''}`}
         onClick={goToNextDay}
+      />
+      
+      {/* DatePicker Modal */}
+      <DatePickerModal
+        open={showDatePickerModal}
+        onClose={() => setShowDatePickerModal(false)}
+        onDateSelect={handleDateSelect}
+        currentDate={currentDate}
+        userId={userId}
       />
     </div>
   );

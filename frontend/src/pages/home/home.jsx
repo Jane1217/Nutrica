@@ -246,7 +246,6 @@ export default function Home(props) {
             proteinGoal={nutritionGoals.protein}
             fatsGoal={nutritionGoals.fats}
             hasSelectedPuzzle={false}
-            onHelpClick={() => alert('Help clicked!')}
           />
         </div>
         

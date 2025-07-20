@@ -2,16 +2,34 @@
  * 前端API工具函数
  */
 
+import { supabase } from '../supabaseClient';
+
 // API基础URL
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+
+// 获取认证头
+const getAuthHeaders = async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  const headers = {
+    'Content-Type': 'application/json',
+  };
+  
+  if (session?.access_token) {
+    headers['Authorization'] = `Bearer ${session.access_token}`;
+  }
+  
+  return headers;
+};
 
 // 通用API请求函数
 export const apiRequest = async (endpoint, options = {}) => {
   const url = `${API_BASE_URL}${endpoint}`;
   
+  const authHeaders = await getAuthHeaders();
+  
   const defaultOptions = {
     headers: {
-      'Content-Type': 'application/json',
+      ...authHeaders,
       ...options.headers,
     },
   };
