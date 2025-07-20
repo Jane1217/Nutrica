@@ -85,7 +85,7 @@ export default function DeleteAccountModal({ open, onClose, userEmail }) {
           
           <div className={styles.deleteAccountDivider}>
             <svg xmlns="http://www.w3.org/2000/svg" width="69" height="4" viewBox="0 0 69 4" fill="none">
-              <path d="M2.5 2H66.5" stroke="#DBE2D0" stroke-width="4" stroke-linecap="round"/>
+              <path d="M2.5 2H66.5" stroke="#DBE2D0" strokeWidth="4" strokeLinecap="round"/>
             </svg>
           </div>
           
