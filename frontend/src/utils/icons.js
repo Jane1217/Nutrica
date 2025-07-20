@@ -24,6 +24,9 @@ export const icons = {
   inputBox: '/assets/streamline-plump_input-box-solid.svg',
   achievement: '/assets/fluent_collections-empty-16-filled.svg',
   frame: '/assets/Frame 79.svg',
+  help: '/assets/help.svg',
+  puzzleGrid: '/assets/puzzle grid.svg',
+  addAlt: '/assets/add (1).svg',
 };
 
 // 获取图标URL的辅助函数

@@ -30,13 +30,13 @@ export default function NavLogo({ hideEat = false, hideCtaButtons = false, isAut
         
         {/* Actions */}
         <div className={styles.actions}>
-          {!shouldHideEat && (
+        {!shouldHideEat && (
             <button 
               className={styles.ctaButton} 
               onClick={() => {
-                // 设置URL参数并调用onEatClick
-                navigate('/?eat=1');
-                onEatClick && onEatClick();
+            // 设置URL参数并调用onEatClick
+            navigate('/?eat=1');
+            onEatClick && onEatClick();
               }}
             >
               <span className={`${styles.buttonText} h4`}>Eat</span>
@@ -45,8 +45,8 @@ export default function NavLogo({ hideEat = false, hideCtaButtons = false, isAut
                 alt="Add" 
                 className={styles.add}
               />
-            </button>
-          )}
+          </button>
+        )}
         </div>
       </div>
       <SidebarMenu open={sidebarOpen} onClose={() => setSidebarOpen(false)} isLoggedIn={isLoggedIn} />

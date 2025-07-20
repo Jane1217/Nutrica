@@ -2,13 +2,17 @@ import React, { useEffect, useState, useRef } from 'react';
 import { supabase } from '../../supabaseClient';
 import NavLogo from '../../components/navbar/Nav-Logo';
 import DatePicker from '../../components/home/DatePicker';
+import PuzzleTextModule from '../../components/home/PuzzleTextModule';
+import PuzzleContainer from '../../components/home/PuzzleContainer';
+import NutritionCard from '../../components/home/NutritionCard';
 import EatModal from '../eat/modals/EatModal';
 import UserInfoModal from '../auth/modals/UserInfoModal';
 import NutritionGoalModal from '../auth/modals/NutritionGoalModal';
-import ModalWrapper from '../../components/common/ModalWrapper';
+
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import styles from './Home.module.css';
-import { calculateNutritionFromCalories, formatFoods } from '../../utils/nutrition';
+import { calculateNutritionFromCalories, formatFoods, fetchNutritionGoals, fetchTodayNutrition } from '../../utils/nutrition';
+import { getCurrentUser, getUserMetadata, updateUserMetadata, isUserInfoComplete, hasShownUserInfoModal, setUserInfoModalShown, getDisplayCalories } from '../../utils/user';
 
 export default function Home(props) {
   const [showEatModal, setShowEatModal] = useState(false);
@@ -25,6 +29,10 @@ export default function Home(props) {
   const [foodsTotal, setFoodsTotal] = useState(0); // 总数据量
   const foodsPerPage = 5;
   const foodsAllRef = useRef([]); // 保存所有foods原始数据
+  
+  // 营养数据状态
+  const [nutritionGoals, setNutritionGoals] = useState({ calories: 2000, carbs: 200, protein: 150, fats: 65 });
+  const [todayNutrition, setTodayNutrition] = useState({ calories: 0, carbs: 0, protein: 0, fats: 0 });
 
   useEffect(() => {
     if (searchParams.get('eat') === '1') {
@@ -35,32 +43,31 @@ export default function Home(props) {
   // 页面加载时自动从supabase user_metadata读取用户信息
   useEffect(() => {
     const fetchUserInfo = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const user = await getCurrentUser();
       if (!user) {
         setUserInfo(null);
         setUserId(null);
         return;
       }
-      setUserInfo(user.user_metadata || {});
+      const metadata = await getUserMetadata();
+      setUserInfo(metadata);
       setUserId(user.id);
     };
     fetchUserInfo();
   }, []);
 
-  // 查询数据库中当前用户最近一次提交的calories
-  const fetchLatestGoal = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return 2000;
-    const { data, error } = await supabase
-      .from('nutrition_goal')
-      .select('calories')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-      .limit(1);
-    if (error || !data || data.length === 0) {
-      return 2000;
-    }
-    return data[0].calories || 2000;
+  // 获取用户最新的营养目标
+  const fetchNutritionGoalsData = async () => {
+    if (!userId) return;
+    const goals = await fetchNutritionGoals(supabase, userId);
+    setNutritionGoals(goals);
+  };
+
+  // 获取今日营养摄入数据
+  const fetchTodayNutritionData = async () => {
+    if (!userId) return;
+    const nutrition = await fetchTodayNutrition(supabase, userId);
+    setTodayNutrition(nutrition);
   };
 
   // 分页加载foods
@@ -103,23 +110,21 @@ export default function Home(props) {
     }
   };
 
-  // 首次加载和userId变化时重置分页
+  // 首次加载和userId变化时重置分页并获取营养数据
   useEffect(() => {
     setFoodsPage(1);
     fetchFoods(true);
+    fetchNutritionGoalsData();
+    fetchTodayNutritionData();
   }, [userId]);
 
-  // 分页加载更多
-  const handleLoadMoreFoods = () => {
-    const nextPage = foodsPage + 1;
-    setFoodsPage(nextPage);
-    fetchFoods(false);
-  };
 
-  // EatModal 新增/修改后自动刷新foods
+
+  // EatModal 新增/修改后自动刷新foods和营养数据
   const handleEatModalDataChange = () => {
     setFoodsPage(1);
     fetchFoods(true);
+    fetchTodayNutritionData(); // 刷新今日营养数据
   };
 
   // EatModal滚动到底部时加载更多
@@ -141,15 +146,14 @@ export default function Home(props) {
   // 检查用户信息是否缺失，缺失则弹窗
   useEffect(() => {
     const checkUserInfo = async () => {
-      const hasShown = localStorage.getItem('nutrica_userinfo_shown');
-      if (hasShown) return;
+      if (hasShownUserInfoModal()) return;
       
-      const { data: { user } } = await supabase.auth.getUser();
+      const user = await getCurrentUser();
       if (!user) return;
       
-      const info = user.user_metadata || {};
+      const info = await getUserMetadata();
       // 检查是否缺少关键信息
-      if (!info.name || !info.gender || !info.age || !info.height || !info.weight) {
+      if (!isUserInfoComplete(info)) {
         setShowUserInfoModal(true);
       }
     };
@@ -165,16 +169,12 @@ export default function Home(props) {
     const newMeta = { ...userInfo, ...data };
     setUserInfo(newMeta);
     
-    // 异步保存到Supabase，不阻塞UI更新
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
-    
-    const { error } = await supabase.auth.updateUser({ data: newMeta });
-    
-    if (!error) {
+    try {
+      // 异步保存到Supabase，不阻塞UI更新
+      await updateUserMetadata(newMeta);
       // 只有在成功保存后才设置标记，避免重复弹出
-      localStorage.setItem('nutrica_userinfo_shown', '1');
-    } else {
+      setUserInfoModalShown();
+    } catch (error) {
       console.error('保存用户信息失败:', error);
       // 保存失败时关闭营养目标弹窗，重新打开用户信息弹窗
       setShowNutritionGoalModal(false);
@@ -215,18 +215,41 @@ export default function Home(props) {
   };
 
   // 获取要显示的卡路里值：优先使用计算值，其次使用数据库值
-  const getDisplayCalories = () => {
-    if (userInfo?.calculatedCalories) {
-      return userInfo.calculatedCalories;
-    }
-    return latestCalories;
+  const getDisplayCaloriesValue = () => {
+    return getDisplayCalories(userInfo, latestCalories);
   };
 
   return (
     <>
       <NavLogo onEatClick={() => setShowEatModal(true)} isLoggedIn={props.isLoggedIn} isAuth={false} />
       <div className={styles['home-main']}>
-      <DatePicker />
+        <div className={styles.container}>
+          <DatePicker />
+          <PuzzleTextModule 
+            puzzleName="Magic Garden"
+            puzzleText="Carrot"
+            userName={userInfo?.name || 'User'}
+            hasSelectedPuzzle={false}
+          />
+          <PuzzleContainer
+            hasSelectedPuzzle={false}
+            onChoosePuzzle={() => alert('Choose puzzle clicked!')}
+          >
+            {/* 拼图内容将在这里 */}
+          </PuzzleContainer>
+          <NutritionCard 
+            calories={todayNutrition.calories}
+            carbs={todayNutrition.carbs}
+            protein={todayNutrition.protein}
+            fats={todayNutrition.fats}
+            carbsGoal={nutritionGoals.carbs}
+            proteinGoal={nutritionGoals.protein}
+            fatsGoal={nutritionGoals.fats}
+            hasSelectedPuzzle={false}
+            onHelpClick={() => alert('Help clicked!')}
+          />
+        </div>
+        
         <EatModal
           open={showEatModal}
           onClose={() => {
@@ -248,15 +271,15 @@ export default function Home(props) {
           onSubmit={handleUserInfoSubmit}
           initialData={userInfo || {}}
         />
-          <NutritionGoalModal
+                  <NutritionGoalModal
           open={showNutritionGoalModal}
             onClose={() => setShowNutritionGoalModal(false)}
             onBack={handleNutritionGoalBack}
             onSave={handleSaveCalories}
             name={userInfo?.name || ''}
-            calories={getDisplayCalories()}
+            calories={getDisplayCaloriesValue()}
           />
-    </div>
+      </div>
     </>
   );
 } 
