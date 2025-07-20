@@ -1,0 +1,57 @@
+.puzzleContainer {
+  display: flex;
+  width: 280px;
+  height: 280px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 24px;
+  border: 1px solid var(--Neutral-Primary-Text, #22221B);
+  background: var(--Brand-Off-White, #FCFCF8);
+  box-shadow: 0px 4px 0px 0px #000;
+  position: relative;
+}
+
+.puzzleGrid {
+  width: 250px;
+  height: 250px;
+  flex-shrink: 0;
+  aspect-ratio: 1/1;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.choosePuzzleButton {
+  display: flex;
+  height: 80px;
+  padding: 12px 24px 12px 20px;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 24px;
+  background: #2A4E14;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  min-width: fit-content;
+}
+
+.buttonText {
+  color: #FFF;
+  font-family: Kanit;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 150%; /* 24px */
+}
+
+.addIcon {
+  width: 16px;
+  height: 16px;
+  aspect-ratio: 1/1;
+} 

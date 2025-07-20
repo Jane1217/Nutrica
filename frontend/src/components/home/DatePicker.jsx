@@ -98,7 +98,7 @@ export default function DatePicker() {
       <img 
         src={icons.arrowBack} 
         alt="Previous" 
-        className={canGoBack ? styles.arrow : styles.arrowDisabled}
+        className={`${styles.arrow} ${!canGoBack ? styles.arrowDisabled : ''}`}
         onClick={goToPreviousDay}
       />
       
@@ -119,7 +119,7 @@ export default function DatePicker() {
       <img 
         src={icons.arrowForward} 
         alt="Next" 
-        className={canGoForward ? styles.arrow : styles.arrowDisabled}
+        className={`${styles.arrow} ${!canGoForward ? styles.arrowDisabled : ''}`}
         onClick={goToNextDay}
       />
     </div>

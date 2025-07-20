@@ -19,4 +19,74 @@ export function formatFoods(rawFoods) {
       { type: 'Protein', value: (item.nutrition?.protein ?? '-') + 'g' },
     ]
   }));
+}
+
+// 获取用户最新的营养目标
+export async function fetchNutritionGoals(supabase, userId) {
+  if (!userId) return { calories: 2000, carbs: 200, protein: 150, fats: 65 };
+  
+  const { data, error } = await supabase
+    .from('nutrition_goal')
+    .select('calories, carbs, fats, protein')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(1);
+  
+  if (error) {
+    console.error('获取营养目标失败:', error);
+    return { calories: 2000, carbs: 200, protein: 150, fats: 65 };
+  }
+  
+  if (data && data.length > 0) {
+    return {
+      calories: data[0].calories || 2000,
+      carbs: data[0].carbs || 200,
+      protein: data[0].protein || 150,
+      fats: data[0].fats || 65
+    };
+  }
+  
+  return { calories: 2000, carbs: 200, protein: 150, fats: 65 };
+}
+
+// 获取今日营养摄入数据
+export async function fetchTodayNutrition(supabase, userId) {
+  if (!userId) return { calories: 0, carbs: 0, protein: 0, fats: 0 };
+  
+  const today = new Date();
+  const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+  
+  const { data, error } = await supabase
+    .from('food')
+    .select('nutrition')
+    .eq('user_id', userId)
+    .gte('time', startOfDay.toISOString())
+    .lte('time', endOfDay.toISOString());
+  
+  if (error) {
+    console.error('获取今日营养数据失败:', error);
+    return { calories: 0, carbs: 0, protein: 0, fats: 0 };
+  }
+  
+  // 计算今日总摄入
+  const totalNutrition = data?.reduce((acc, food) => ({
+    calories: acc.calories + (food.nutrition?.calories || 0),
+    carbs: acc.carbs + (food.nutrition?.carbs || 0),
+    protein: acc.protein + (food.nutrition?.protein || 0),
+    fats: acc.fats + (food.nutrition?.fats || 0)
+  }), { calories: 0, carbs: 0, protein: 0, fats: 0 }) || { calories: 0, carbs: 0, protein: 0, fats: 0 };
+  
+  return totalNutrition;
+}
+
+// 检查营养目标是否达成
+export function checkNutritionGoal(current, goal) {
+  return current >= goal;
+}
+
+// 获取营养完成百分比
+export function getNutritionPercentage(current, goal) {
+  if (goal === 0) return 0;
+  return Math.min(Math.round((current / goal) * 100), 100);
 } 
