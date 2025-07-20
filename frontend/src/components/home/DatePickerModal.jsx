@@ -5,6 +5,7 @@ import 'react-day-picker/style.css';
 import styles from './DatePickerModal.module.css';
 import { supabase } from '../../supabaseClient';
 import { apiGet } from '../../utils/api';
+import ModalWrapper from '../common/ModalWrapper';
 
 // Error Boundary Component
 class DatePickerErrorBoundary extends React.Component {
@@ -146,13 +147,6 @@ export default function DatePickerModal({ open, onClose, onDateSelect, currentDa
     }
   };
 
-  // Handle click outside to close
-  const handleOverlayClick = (e) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
-
   // Check if a date has nutrition data
   const hasDataForDate = (date) => {
     if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
@@ -214,10 +208,8 @@ export default function DatePickerModal({ open, onClose, onDateSelect, currentDa
     return !hasSelectableDatesInMonth(nextMonth);
   };
 
-  if (!open) return null;
-
   return (
-    <div className={styles.overlay} onClick={handleOverlayClick}>
+    <ModalWrapper open={open} onClose={onClose} centered={true}>
       <div className={styles.modal}>
         {/* DatePicker */}
         <div className={styles.datePickerContainer}>
@@ -246,6 +238,6 @@ export default function DatePickerModal({ open, onClose, onDateSelect, currentDa
           )}
         </div>
       </div>
-    </div>
+    </ModalWrapper>
   );
 } 
