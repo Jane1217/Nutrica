@@ -1,9 +1,14 @@
 // 图标资源导入
 export const icons = {
   // 箭头图标
-  arrowBack: '/assets/Arrow-back-ios.svg',
+  arrowBack: '/assets/back.svg',
   arrowLeft: '/assets/arrow-left.svg',
-  arrowForward: '/assets/Arrow forward.svg',
+  arrowForward: '/assets/forward.svg',
+  
+  // 导航图标
+  menu: '/assets/Menu.svg',
+  logo: '/assets/logo.svg',
+  add: '/assets/add.svg',
   
   // 关闭图标
   close: '/assets/mingcute_close-fill.svg',
@@ -19,6 +24,9 @@ export const icons = {
   inputBox: '/assets/streamline-plump_input-box-solid.svg',
   achievement: '/assets/fluent_collections-empty-16-filled.svg',
   frame: '/assets/Frame 79.svg',
+  help: '/assets/help.svg',
+  puzzleGrid: '/assets/puzzle grid.svg',
+  addAlt: '/assets/add (1).svg',
 };
 
 // 获取图标URL的辅助函数
