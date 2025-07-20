@@ -20,6 +20,11 @@
   padding: 20px 16px;
   box-sizing: border-box;
   width: 100%;
+  transition: border-color 0.2s ease;
+}
+
+.inputFieldBoxError {
+  border-color: var(--Alert-Error, #E16A60);
 }
 .inputFieldInput {
   border: none;

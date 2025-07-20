@@ -1,12 +1,11 @@
 import React from 'react';
+import ModalWrapper from '../common/ModalWrapper';
 import styles from './NutritionHelpModal.module.css';
 
 export default function NutritionHelpModal({ open, onClose }) {
-  if (!open) return null;
-
   return (
-    <div className={styles.overlay}>
-      <div className={styles.modal}>
+    <ModalWrapper open={open} onClose={onClose} centered={true}>
+      <div className={`${styles.modal} nutritionHelpModal`}>
         {/* Close button */}
         <button className={styles.closeButton} onClick={onClose}>
           <img src="/assets/close.svg" alt="close" width="20" height="20" />
@@ -37,6 +36,6 @@ export default function NutritionHelpModal({ open, onClose }) {
           <span className="h4">Ok</span>
         </button>
       </div>
-    </div>
+    </ModalWrapper>
   );
 } 

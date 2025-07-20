@@ -11,13 +11,41 @@ export default function SignUp({ open, onClose, onAuth, onSwitchToLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
+
+  // 邮箱格式验证函数
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // 密码长度验证函数
+  const validatePassword = (password) => {
+    return password.length >= 8;
+  };
 
   const handleSignup = async (e) => {
     e.preventDefault();
     setError('');
+    setEmailError('');
+    setPasswordError('');
     setSuccess('');
+    
+    // 验证邮箱格式
+    if (!validateEmail(email)) {
+      setEmailError('Not a valid email address format.');
+      return;
+    }
+
+    // 验证密码长度
+    if (!validatePassword(password)) {
+      setPasswordError("Password doesn't meet requirements.");
+      return;
+    }
+    
     try {
       const { data: emailExists, error: rpcError } = await supabase.rpc('check_email_exists', {
         email_to_check: email
@@ -25,7 +53,7 @@ export default function SignUp({ open, onClose, onAuth, onSwitchToLogin }) {
       if (rpcError) {
         console.error('RPC function error:', rpcError);
       } else if (emailExists) {
-        setError('Email already registered.');
+        setEmailError('An account with this email already exists.');
         return;
       }
       const { data, error } = await supabase.auth.signUp({ email, password });
@@ -59,14 +87,14 @@ export default function SignUp({ open, onClose, onAuth, onSwitchToLogin }) {
             type="email"
             value={email}
             onChange={setEmail}
-            error={null}
+            error={emailError}
           />
           <InputField
             label="Password"
             type="password"
             value={password}
             onChange={setPassword}
-            error={error ? "Password doesn't meet requirements" : null}
+            error={passwordError}
           />
           <div className={`${styles.signupHintText} body2`}>Password must have at least 8 characters.</div>
         </div>

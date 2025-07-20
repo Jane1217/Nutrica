@@ -132,6 +132,12 @@
   opacity: 1;
 }
 
+/* NutritionHelpModal 特定样式 */
+.modal-content-centered .nutritionHelpModal {
+  width: 343px;
+  height: auto;
+}
+
 /* 弹窗字体样式 */
 .modal-content h1 {
   font-family: Kanit;
