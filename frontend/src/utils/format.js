@@ -10,6 +10,30 @@ export const formatToday = () => {
   return `${week[d.getDay()]}, ${month[d.getMonth()]} ${d.getDate()}`;
 };
 
+// 格式化指定日期
+export const formatDate = (date) => {
+  const d = new Date(date);
+  const week = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  return `${week[d.getDay()]}, ${month[d.getMonth()]} ${d.getDate()}`;
+};
+
+// 获取相对日期文本（Today, Yesterday, 或空字符串）
+export const getRelativeDateText = (date) => {
+  const d = new Date(date);
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  
+  if (d.toDateString() === today.toDateString()) {
+    return 'Today';
+  } else if (d.toDateString() === yesterday.toDateString()) {
+    return 'Yesterday';
+  } else {
+    return ''; // 超过昨天的日期不显示相对文本
+  }
+};
+
 // 格式化食物时间显示 (2025/7/15 4:26PM)
 export const formatFoodTime = (timeStr) => {
   if (!timeStr) return '';

@@ -1,0 +1,157 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 0 16px;
+}
+
+.modal {
+  display: flex;
+  width: 100%;
+  max-width: 400px;
+  padding: 40px 24px 24px 24px;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  border-radius: 36px;
+  background: var(--Brand-Background, #F3F3EC);
+  position: relative;
+}
+
+.datePickerContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/* DayPicker CSS变量自定义 - 按照官方文档示例 */
+.customDayPicker {
+  --rdp-accent-color: var(--Brand-Dark, #2A4E14);
+  --rdp-accent-background-color: var(--Brand-Dark, #2A4E14);
+  --rdp-today-color: var(--Brand-Dark, #2A4E14);
+  --rdp-day-height: 40px;
+  --rdp-day-width: 40px;
+  --rdp-day_button-height: 40px;
+  --rdp-day_button-width: 40px;
+  --rdp-day_button-border-radius: 20px;
+  --rdp-day_button-border: none;
+  --rdp-nav_button-height: 32px;
+  --rdp-nav_button-width: 32px;
+  --rdp-nav_button-disabled-opacity: 0.4;
+  --rdp-animation_duration: 0.2s;
+  --rdp-animation_timing: ease;
+}
+
+/* 自定义导航箭头颜色 */
+.datePickerContainer :global(.rdp-nav_button) {
+  color: var(--Neutral-Secondary-Text, #6A6A61) !important;
+}
+
+.datePickerContainer :global(.rdp-nav_button:hover) {
+  color: var(--Neutral-Secondary-Text, #6A6A61) !important;
+  background-color: var(--Brand-Light, #A1CE90) !important;
+}
+
+/* 禁用状态的导航箭头 */
+.datePickerContainer :global(.rdp-nav_button[disabled]) {
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
+
+.datePickerContainer :global(.rdp-nav_button[disabled]:hover) {
+  background-color: transparent !important;
+  color: var(--Neutral-Secondary-Text, #6A6A61) !important;
+}
+
+/* 自定义禁用状态的导航按钮 */
+.navButtonDisabled {
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
+
+.navButtonDisabled:hover {
+  background-color: transparent !important;
+  color: var(--Neutral-Secondary-Text, #6A6A61) !important;
+}
+
+/* 移除DatePicker选中时的绿色背景 */
+.datePickerContainer :global(.rdp-button[aria-selected="true"]) {
+  background-color: transparent !important;
+  color: var(--Neutral-Primary-Text, #22221B) !important;
+}
+
+.datePickerContainer :global(.rdp-button[aria-selected="true"]:hover) {
+  background-color: transparent !important;
+  color: var(--Neutral-Primary-Text, #22221B) !important;
+}
+
+/* 隐藏禁用的日期，让它们完全不显示 */
+.datePickerContainer :global(.rdp-button[disabled]) {
+  visibility: hidden !important;
+  display: none !important;
+}
+
+.datePickerContainer :global(.rdp-td:has(.rdp-button[disabled])) {
+  visibility: hidden !important;
+  display: none !important;
+}
+
+/* 加载状态样式 */
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 40px 20px;
+  min-height: 200px;
+}
+
+.loadingSpinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--Brand-Outline, #DBE2D0);
+  border-top: 3px solid var(--Brand-Dark, #2A4E14);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 错误容器样式 */
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 40px 20px;
+  min-height: 200px;
+  text-align: center;
+}
+
+.retryButton {
+  padding: 8px 16px;
+  background-color: var(--Brand-Dark, #2A4E14);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.retryButton:hover {
+  background-color: var(--Brand-Light, #A1CE90);
+  color: var(--Neutral-Primary-Text, #22221B);
+} 
