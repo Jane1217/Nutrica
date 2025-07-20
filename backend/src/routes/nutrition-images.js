@@ -55,6 +55,29 @@ router.get('/first', authenticateUser, async (req, res) => {
   }
 });
 
+// 获取用户所有有图像的日期
+router.get('/dates', authenticateUser, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const { data, error } = await supabase
+      .from('nutrition_images')
+      .select('date')
+      .eq('user_id', userId)
+      .order('date', { ascending: true });
+
+    if (error) {
+      throw error;
+    }
+
+    const dates = data.map(item => item.date);
+    res.json({ dates });
+  } catch (error) {
+    console.error('Error getting nutrition image dates:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // 获取指定日期的营养图像数据
 router.get('/:date', authenticateUser, async (req, res) => {
   try {
