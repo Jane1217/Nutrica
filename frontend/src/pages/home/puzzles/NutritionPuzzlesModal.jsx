@@ -7,28 +7,22 @@ import { puzzleCategories } from "../../../data/puzzlesData";
 
 const puzzleList = puzzleCategories;
 
-export default function NutritionPuzzlesModal({ open, onClose }) {
+export default function NutritionPuzzlesModal({ open, onClose, onReopen }) {
   const [showPuzzleSelectModal, setShowPuzzleSelectModal] = useState(false);
-  const [showSelf, setShowSelf] = useState(open);
-
-  React.useEffect(() => {
-    setShowSelf(open);
-  }, [open]);
 
   const handleCardClick = () => {
     setShowPuzzleSelectModal(true);
-    setShowSelf(false);
-    if (onClose) onClose();
+    if (onClose) onClose(); // 关闭自身
   };
 
   const handleBack = () => {
     setShowPuzzleSelectModal(false);
-    setShowSelf(true);
+    if (onReopen) onReopen(); // 重新打开自身
   };
 
   return (
     <>
-      <ModalWrapper open={showSelf} onClose={onClose}>
+      <ModalWrapper open={open} onClose={onClose}>
         <div style={{ position: 'relative', marginBottom: 0 }}>
           <div className="h2" style={{ marginBottom: 0, textAlign: 'left', padding: '24px 0 0 24px' }}>Nutrition Puzzles</div>
           <button type="button" onClick={onClose} style={{
