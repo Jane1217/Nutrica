@@ -3,36 +3,24 @@ import ModalWrapper from "../../../components/common/ModalWrapper";
 import styles from "./NutritionPuzzlesModal.module.css";
 import PuzzleList from "../../../components/puzzles/PuzzleList";
 import PuzzleSelectModal from "./PuzzleSelectModal";
+import { puzzleCategories } from "../../../data/puzzlesData";
 
-// 示例数据
-const puzzleList = [
-  {
-    id: 1,
-    title: "Magic Garden",
-    count: 6,
-    desc: "Complete daily nutrition challenge and collect 6 nutrition puzzles in the Magic Garden. Little by little, your garden is coming alive. Keep tending to it with care.",
-    pieces: [1, 1, 1, 0, 0, 0], // 1:已获得, 0:未获得
-  },
-  // 可扩展更多拼图合集
-];
+const puzzleList = puzzleCategories;
 
 export default function NutritionPuzzlesModal({ open, onClose }) {
   const [showPuzzleSelectModal, setShowPuzzleSelectModal] = useState(false);
   const [showSelf, setShowSelf] = useState(open);
 
-  // 同步外部open状态
   React.useEffect(() => {
     setShowSelf(open);
   }, [open]);
 
-  // 点击卡片时弹出选择弹窗，并同步关闭本弹窗
   const handleCardClick = () => {
     setShowPuzzleSelectModal(true);
     setShowSelf(false);
     if (onClose) onClose();
   };
 
-  // 返回按钮：关闭选择弹窗，重新显示本弹窗
   const handleBack = () => {
     setShowPuzzleSelectModal(false);
     setShowSelf(true);
@@ -53,7 +41,6 @@ export default function NutritionPuzzlesModal({ open, onClose }) {
           </button>
         </div>
         <div className={styles.modalBody}>
-          {/* PuzzleList每个卡片都可点击 */}
           <div onClick={handleCardClick} style={{cursor: 'pointer'}}>
             <PuzzleList puzzleList={puzzleList} />
           </div>
@@ -63,7 +50,7 @@ export default function NutritionPuzzlesModal({ open, onClose }) {
         open={showPuzzleSelectModal}
         onClose={() => setShowPuzzleSelectModal(false)}
         onBack={handleBack}
-        puzzleList={puzzleList}
+        puzzleList={puzzleList[0]?.puzzles || []}
         onSelect={() => setShowPuzzleSelectModal(false)}
       />
     </>

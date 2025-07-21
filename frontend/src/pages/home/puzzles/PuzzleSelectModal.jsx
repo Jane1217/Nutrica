@@ -1,12 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import ModalWrapper from "../../../components/common/ModalWrapper";
-import PuzzleSelectCard from "../../../components/puzzles/PuzzleSelectCard";
+import SelectableCard from "../../../components/puzzles/SelectableCard";
 import styles from "./PuzzleSelectModal.module.css";
 
-export default function PuzzleSelectModal({ open, onClose, onBack, puzzleList, onSelect, selectedPuzzle }) {
+export default function PuzzleSelectModal({ open, onClose, onBack, puzzleList, onSelect }) {
+  const [selectedIdx, setSelectedIdx] = useState(null);
+  const selectableList = (puzzleList.length === 1
+    ? Array.from({ length: 6 }, (_, idx) => ({ ...puzzleList[0], id: `${puzzleList[0].id}_${idx}` }))
+    : puzzleList
+  );
   return (
     <ModalWrapper open={open} onClose={onClose}>
-      <div style={{padding: 0, minWidth: 340, maxWidth: 480}}>
+      <div className={styles.modalContainer}>
         {/* Header */}
         <div className={styles.modalHeader}>
           {/* 返回箭头和标题 */}
@@ -33,20 +38,31 @@ export default function PuzzleSelectModal({ open, onClose, onBack, puzzleList, o
             </svg>
           </button>
         </div>
-        {/* List */}
-        <div className={styles.listArea}>
-          {puzzleList.map((puzzle, idx) => (
-            <PuzzleSelectCard
-              key={idx}
-              puzzle={puzzle}
-              selected={selectedPuzzle && selectedPuzzle.id === puzzle.id}
-              onSelect={() => onSelect(puzzle)}
-            />
-          ))}
+        {/* 滚动内容区 */}
+        <div className={styles.scrollArea}>
+          <div className={styles.listArea}>
+            {selectableList.map((puzzle, idx) => (
+              <SelectableCard
+                key={puzzle.id || idx}
+                title={puzzle.name}
+                desc={puzzle.description}
+                img={puzzle.img}
+                bgColor={puzzle.bgColor}
+                inCollection={puzzle.inCollection}
+                onAdd={() => setSelectedIdx(idx)}
+                isSelected={selectedIdx === idx}
+                style={{ cursor: 'pointer' }}
+              />
+            ))}
+          </div>
         </div>
-        {/* Bottom Button */}
-        <div className={styles.bottomBar}>
-          <button className={styles.selectButton}>
+        {/* 底部按钮 */}
+        <div className={styles.bottomContainer}>
+          <button
+            className={styles.selectButton}
+            disabled={selectedIdx === null}
+            style={{ opacity: selectedIdx === null ? 0.4 : 1 }}
+          >
             Select puzzle
           </button>
         </div>
