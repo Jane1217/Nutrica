@@ -283,6 +283,7 @@ export default function Home(props) {
         <NutritionPuzzlesModal
           open={showPuzzlesModal}
           onClose={() => setShowPuzzlesModal(false)}
+          onReopen={() => setShowPuzzlesModal(true)}
         />
       </div>
     </>
