@@ -1,6 +1,6 @@
 import React from 'react';
 import styles from './PuzzleContainer.module.css';
-import { icons } from '../../utils/icons';
+import { icons } from '../../../utils/icons';
 
 export default function PuzzleContainer({ children, hasSelectedPuzzle = false, onChoosePuzzle }) {
   return (
