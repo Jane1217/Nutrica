@@ -8,6 +8,7 @@ import NutritionCard from '../../components/home/NutritionCard';
 import EatModal from '../eat/modals/EatModal';
 import UserInfoModal from '../auth/modals/UserInfoModal';
 import NutritionGoalModal from '../auth/modals/NutritionGoalModal';
+import NutritionPuzzlesModal from './puzzles/NutritionPuzzlesModal';
 
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import styles from './Home.module.css';
@@ -18,6 +19,7 @@ export default function Home(props) {
   const [showEatModal, setShowEatModal] = useState(false);
   const [showUserInfoModal, setShowUserInfoModal] = useState(false);
   const [showNutritionGoalModal, setShowNutritionGoalModal] = useState(false);
+  const [showPuzzlesModal, setShowPuzzlesModal] = useState(false);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState(null);
@@ -233,7 +235,7 @@ export default function Home(props) {
           />
           <PuzzleContainer
             hasSelectedPuzzle={false}
-            onChoosePuzzle={() => alert('Choose puzzle clicked!')}
+            onChoosePuzzle={() => setShowPuzzlesModal(true)}
           >
             {/* 拼图内容将在这里 */}
           </PuzzleContainer>
@@ -278,6 +280,10 @@ export default function Home(props) {
             name={userInfo?.name || ''}
             calories={getDisplayCaloriesValue()}
           />
+        <NutritionPuzzlesModal
+          open={showPuzzlesModal}
+          onClose={() => setShowPuzzlesModal(false)}
+        />
       </div>
     </>
   );
