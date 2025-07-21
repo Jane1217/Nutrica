@@ -1,14 +1,14 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { supabase } from '../../supabaseClient';
 import NavLogo from '../../components/navbar/Nav-Logo';
-import DatePicker from '../../components/home/DatePicker';
-import PuzzleTextModule from '../../components/home/PuzzleTextModule';
-import PuzzleContainer from '../../components/home/PuzzleContainer';
-import NutritionCard from '../../components/home/NutritionCard';
+import DatePicker from '../../components/home/date/DatePicker';
+import PuzzleTextModule from '../../components/home/puzzle/PuzzleTextModule';
+import PuzzleContainer from '../../components/home/puzzle/PuzzleContainer';
+import NutritionCard from '../../components/home/nutrition/NutritionCard';
 import EatModal from '../eat/modals/EatModal';
 import UserInfoModal from '../auth/modals/UserInfoModal';
 import NutritionGoalModal from '../auth/modals/NutritionGoalModal';
-import NutritionPuzzlesModal from './puzzles/NutritionPuzzlesModal';
+import NutritionPuzzlesModal from '../../components/home/puzzle/NutritionPuzzlesModal';
 
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import styles from './Home.module.css';
