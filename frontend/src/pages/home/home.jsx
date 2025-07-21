@@ -8,7 +8,7 @@ import NutritionCard from '../../components/home/nutrition/NutritionCard';
 import EatModal from '../eat/modals/EatModal';
 import UserInfoModal from '../auth/modals/UserInfoModal';
 import NutritionGoalModal from '../auth/modals/NutritionGoalModal';
-import NutritionPuzzlesModal from '../../components/home/puzzle/NutritionPuzzlesModal';
+import NutritionPuzzlesModal from './puzzles/NutritionPuzzlesModal';
 
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import styles from './Home.module.css';
