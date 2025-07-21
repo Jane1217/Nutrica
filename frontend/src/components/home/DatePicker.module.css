@@ -33,9 +33,6 @@
   transition: background-color 0.2s ease;
 }
 
-.dateModule:hover {
-  background-color: var(--Brand-Light, #A1CE90);
-}
 
 .dateText {
   align-self: stretch;
@@ -47,4 +44,4 @@
   align-self: stretch;
   color: var(--Neutral-Secondary-Text, #6A6A61);
   text-align: center;
-} 
+}
