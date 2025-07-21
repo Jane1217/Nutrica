@@ -9,6 +9,7 @@
   background: var(--Brand-Off-White, #FCFCF8);
   box-shadow: 0px 4px 0px 0px #000;
   position: relative;
+  padding: 8px;
 }
 
 .puzzleGrid {
@@ -39,6 +40,7 @@
   cursor: pointer;
   white-space: nowrap;
   min-width: fit-content;
+  z-index: 2;
 }
 
 .buttonText {
@@ -54,4 +56,15 @@
   width: 16px;
   height: 16px;
   aspect-ratio: 1/1;
+}
+
+.pixelGridWrapper {
+  width: 264px;
+  height: 264px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
 } 
