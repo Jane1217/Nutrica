@@ -141,8 +141,7 @@
 }
 
 .selected {
-  border: 2px solid #2A4E14;
-  box-shadow: 0 0 0 2px #BFCDB3;
+  border: 2px solid var(--Neutral-Primary-Text, #22221B);
 }
 
 .selectedCircleBtn {
