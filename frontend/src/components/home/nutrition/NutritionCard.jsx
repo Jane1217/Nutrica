@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from './NutritionCard.module.css';
-import { icons } from '../../utils/icons';
+import { icons } from '../../../utils/icons';
 import NutritionHelpModal from './NutritionHelpModal';
 
 export default function NutritionCard({ 
