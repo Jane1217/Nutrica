@@ -1,3 +1,15 @@
+//carrot pixelMap像素数据定义
+const B = { color: '#FFFFFF', nutrient: 0 };      // 背景
+const C1 = { color: '#FF9F58', nutrient: 1 };     // 碳水-浅橙
+const C2 = { color: '#FB6D03', nutrient: 1 };     // 碳水-中橙
+const C3 = { color: '#FB3503', nutrient: 1 };     // 碳水-深橙
+const C4 = { color: '#B92F17', nutrient: 1 };     // 碳水-褐橙
+const P1 = { color: '#3B0E09', nutrient: 2 };     // 蛋白-深棕
+const F1 = { color: '#98E673', nutrient: 3 };     // 脂肪-浅绿
+const F2 = { color: '#60BF32', nutrient: 3 };     // 脂肪-中绿
+const F3 = { color: '#60BF32', nutrient: 3 };     // 脂肪-深绿
+const F4 = { color: '#1D793B', nutrient: 3 };     // 脂肪-墨绿
+
 export const puzzleCategories = [
   {
     id: 'magic_garden',
@@ -9,10 +21,60 @@ export const puzzleCategories = [
       {
         id: 'carrot',
         name: 'Carrot',
-        description: "Bright, balanced, and well-fed. That’s the carrot energy we love to see.",
+        description: "Bright, balanced, and well-fed. That's the carrot energy we love to see.",
         img: '/assets/puzzles/puzzle_carrot.svg',
         inCollection: true,
-        bgColor: '#FFB279'
+        bgColor: '#FFB279',
+        pixelMap: [
+            // 1
+            [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
+            // 2
+            [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
+            // 3
+            [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
+            // 4
+            [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
+            // 5
+            [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
+            // 6
+            [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
+            // 7
+            [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
+            // 8
+            [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
+            // 9
+            [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
+            // 10
+            [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
+            // 11
+            [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
+            // 12
+            [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
+            // 13
+            [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
+            // 14
+            [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
+            // 15
+            [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
+            // 16
+            [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
+            // 17
+            [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
+            // 18
+            [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
+            // 19
+            [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
+            // 20
+            [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
+            // 21
+            [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
+            // 22
+            [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
+            // 23
+            [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
+            // 24
+            [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
+          ]
       },
       // 其他puzzle...
     ]
