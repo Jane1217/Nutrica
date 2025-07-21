@@ -1,11 +1,13 @@
-import React from "react";
+import React, { useState } from "react";
 import ModalWrapper from "../../../components/common/ModalWrapper";
 import styles from "./NutritionPuzzlesModal.module.css";
 import PuzzleList from "../../../components/puzzles/PuzzleList";
+import PuzzleSelectModal from "./PuzzleSelectModal";
 
 // 示例数据
 const puzzleList = [
   {
+    id: 1,
     title: "Magic Garden",
     count: 6,
     desc: "Complete daily nutrition challenge and collect 6 nutrition puzzles in the Magic Garden. Little by little, your garden is coming alive. Keep tending to it with care.",
@@ -15,23 +17,55 @@ const puzzleList = [
 ];
 
 export default function NutritionPuzzlesModal({ open, onClose }) {
+  const [showPuzzleSelectModal, setShowPuzzleSelectModal] = useState(false);
+  const [showSelf, setShowSelf] = useState(open);
+
+  // 同步外部open状态
+  React.useEffect(() => {
+    setShowSelf(open);
+  }, [open]);
+
+  // 点击卡片时弹出选择弹窗，并同步关闭本弹窗
+  const handleCardClick = () => {
+    setShowPuzzleSelectModal(true);
+    setShowSelf(false);
+    if (onClose) onClose();
+  };
+
+  // 返回按钮：关闭选择弹窗，重新显示本弹窗
+  const handleBack = () => {
+    setShowPuzzleSelectModal(false);
+    setShowSelf(true);
+  };
+
   return (
-    <ModalWrapper open={open} onClose={onClose}>
-      <div style={{ position: 'relative', marginBottom: 0 }}>
-        <div className="h2" style={{ marginBottom: 0, textAlign: 'left', padding: '24px 0 0 24px' }}>Nutrition Puzzles</div>
-        <button type="button" onClick={onClose} style={{
-          position: 'absolute', right: 16, top: 16, display: 'flex', width: 48, height: 48, padding: 14,
-          justifyContent: 'center', alignItems: 'center', borderRadius: 999, border: '1px solid var(--Brand-Outline, #DBE2D0)',
-          background: 'none', cursor: 'pointer'
-        }}>
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ width: 20, height: 20, flexShrink: 0, aspectRatio: '1/1' }}>
-            <path fillRule="evenodd" clipRule="evenodd" d="M10.008 11.8844L14.7227 16.5938C14.9729 16.8437 15.3122 16.9841 15.666 16.9841C16.0198 16.9841 16.3591 16.8437 16.6093 16.5938C16.8595 16.3439 17 16.005 17 15.6516C17 15.2982 16.8595 14.9592 16.6093 14.7093L11.8928 10L16.6084 5.29067C16.7322 5.16693 16.8304 5.02005 16.8974 4.85841C16.9644 4.69676 16.9988 4.52352 16.9988 4.34858C16.9988 4.17363 16.9642 4.00041 16.8972 3.83879C16.8301 3.67718 16.7318 3.53034 16.6079 3.40667C16.4841 3.28299 16.337 3.1849 16.1752 3.11799C16.0134 3.05108 15.8399 3.01666 15.6648 3.0167C15.4896 3.01674 15.3162 3.05124 15.1544 3.11823C14.9926 3.18522 14.8456 3.28338 14.7218 3.40711L10.008 8.11644L5.29327 3.40711C5.17031 3.27983 5.0232 3.17828 4.86053 3.10839C4.69786 3.0385 4.52288 3.00168 4.34581 3.00006C4.16874 2.99844 3.99311 3.03206 3.82919 3.09896C3.66526 3.16586 3.51632 3.2647 3.39105 3.38971C3.26577 3.51472 3.16668 3.66341 3.09955 3.82708C3.03242 3.99076 2.99859 4.16615 3.00005 4.34302C3.0015 4.51989 3.03821 4.6947 3.10802 4.85725C3.17783 5.0198 3.27936 5.16684 3.40667 5.28978L8.12316 10L3.40756 14.7102C3.28025 14.8332 3.17872 14.9802 3.10891 15.1427C3.03909 15.3053 3.00239 15.4801 3.00093 15.657C2.99948 15.8339 3.0333 16.0092 3.10044 16.1729C3.16757 16.3366 3.26666 16.4853 3.39193 16.6103C3.51721 16.7353 3.66615 16.8341 3.83008 16.901C3.994 16.9679 4.16963 17.0016 4.3467 16.9999C4.52377 16.9983 4.69875 16.9615 4.86142 16.8916C5.02409 16.8217 5.1712 16.7202 5.29416 16.5929L10.008 11.8844Z" fill="#6A6A61" />
-          </svg>
-        </button>
-      </div>
-      <div className={styles.modalBody}>
-        <PuzzleList puzzleList={puzzleList} />
-      </div>
-    </ModalWrapper>
+    <>
+      <ModalWrapper open={showSelf} onClose={onClose}>
+        <div style={{ position: 'relative', marginBottom: 0 }}>
+          <div className="h2" style={{ marginBottom: 0, textAlign: 'left', padding: '24px 0 0 24px' }}>Nutrition Puzzles</div>
+          <button type="button" onClick={onClose} style={{
+            position: 'absolute', right: 16, top: 16, display: 'flex', width: 48, height: 48, padding: 14,
+            justifyContent: 'center', alignItems: 'center', borderRadius: 999, border: '1px solid var(--Brand-Outline, #DBE2D0)', background: 'none', cursor: 'pointer'
+          }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ width: 20, height: 20, flexShrink: 0, aspectRatio: '1/1' }}>
+              <path fillRule="evenodd" clipRule="evenodd" d="M10.008 11.8844L14.7227 16.5938C14.9729 16.8437 15.3122 16.9841 15.666 16.9841C16.0198 16.9841 16.3591 16.8437 16.6093 16.5938C16.8595 16.3439 17 16.005 17 15.6516C17 15.2982 16.8595 14.9592 16.6093 14.7093L11.8928 10L16.6084 5.29067C16.7322 5.16693 16.8304 5.02005 16.8974 4.85841C16.9644 4.69676 16.9988 4.52352 16.9988 4.34858C16.9988 4.17363 16.9642 4.00041 16.8972 3.83879C16.8301 3.67718 16.7318 3.53034 16.6079 3.40667C16.4841 3.28299 16.337 3.1849 16.1752 3.11799C16.0134 3.05108 15.8399 3.01666 15.6648 3.0167C15.4896 3.01674 15.3162 3.05124 15.1544 3.11823C14.9926 3.18522 14.8456 3.28338 14.7218 3.40711L10.008 8.11644L5.29327 3.40711C5.17031 3.27983 5.0232 3.17828 4.86053 3.10839C4.69786 3.0385 4.52288 3.00168 4.34581 3.00006C4.16874 2.99844 3.99311 3.03206 3.82919 3.09896C3.66526 3.16586 3.51632 3.2647 3.39105 3.38971C3.26577 3.51472 3.16668 3.66341 3.09955 3.82708C3.03242 3.99076 2.99859 4.16615 3.00005 4.34302C3.0015 4.51989 3.03821 4.6947 3.10802 4.85725C3.17783 5.0198 3.27936 5.16684 3.40667 5.28978L8.12316 10L3.40756 14.7102C3.28025 14.8332 3.17872 14.9802 3.10891 15.1427C3.03909 15.3053 3.00239 15.4801 3.00093 15.657C2.99948 15.8339 3.0333 16.0092 3.10044 16.1729C3.16757 16.3366 3.26666 16.4853 3.39193 16.6103C3.51721 16.7353 3.66615 16.8341 3.83008 16.901C3.994 16.9679 4.16963 17.0016 4.3467 16.9999C4.52377 16.9983 4.69875 16.9615 4.86142 16.8916C5.02409 16.8217 5.1712 16.7202 5.29416 16.5929L10.008 11.8844Z" fill="#6A6A61" />
+            </svg>
+          </button>
+        </div>
+        <div className={styles.modalBody}>
+          {/* PuzzleList每个卡片都可点击 */}
+          <div onClick={handleCardClick} style={{cursor: 'pointer'}}>
+            <PuzzleList puzzleList={puzzleList} />
+          </div>
+        </div>
+      </ModalWrapper>
+      <PuzzleSelectModal
+        open={showPuzzleSelectModal}
+        onClose={() => setShowPuzzleSelectModal(false)}
+        onBack={handleBack}
+        puzzleList={puzzleList}
+        onSelect={() => setShowPuzzleSelectModal(false)}
+      />
+    </>
   );
 } 
