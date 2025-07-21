@@ -1,5 +1,5 @@
 import React from 'react';
-import ModalWrapper from '../common/ModalWrapper';
+import ModalWrapper from '../../common/ModalWrapper';
 import styles from './NutritionHelpModal.module.css';
 
 export default function NutritionHelpModal({ open, onClose }) {

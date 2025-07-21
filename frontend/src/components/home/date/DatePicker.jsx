@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { icons } from '../../utils/icons';
-import { formatDate, getRelativeDateText } from '../../utils/format';
+import { icons } from '../../../utils/icons';
+import { formatDate, getRelativeDateText } from '../../../utils/format';
 import styles from './DatePicker.module.css';
 import DatePickerModal from './DatePickerModal';
-import { supabase } from '../../supabaseClient';
-import { apiGet } from '../../utils/api';
+import { supabase } from '../../../supabaseClient';
+import { apiGet } from '../../../utils/api';
 
 export default function DatePicker() {
   const [currentDate, setCurrentDate] = useState(new Date());
