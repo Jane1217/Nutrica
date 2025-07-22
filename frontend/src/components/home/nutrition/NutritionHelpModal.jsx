@@ -25,11 +25,11 @@ export default function NutritionHelpModal({ open, onClose }) {
         </div>
 
         {/* Text content */}
-        <p className="body1">
-          Each puzzle is carefully designed with a specific shape and a set number of pixel blocks.
-          Each pixel block represents a fixed amount of a nutrient.
-          As you log more of that nutrient, the corresponding colored pixel blocks will gradually fill in. Once all blocks are filled, you've reached your daily goal!
-        </p>
+        <span className="body1">
+          Each puzzle is carefully designed with a specific shape and a set number of pixel blocks.<br/><br/>
+          Each pixel block represents a fixed amount of a nutrient.<br/><br/>
+          As you log more of that nutrient, the corresponding colored pixel blocks will gradually fill in. Once all blocks are filled, you’ve reached your daily goal!
+        </span>
 
         {/* CTA Button */}
         <button className={styles.ctaButton} onClick={onClose}>
