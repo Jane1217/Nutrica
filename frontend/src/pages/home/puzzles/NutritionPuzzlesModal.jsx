@@ -7,7 +7,7 @@ import { puzzleCategories } from "../../../data/puzzlesData";
 
 const puzzleList = puzzleCategories;
 
-export default function NutritionPuzzlesModal({ open, onClose, onReopen }) {
+export default function NutritionPuzzlesModal({ open, onClose, onReopen, onPuzzleSelect }) {
   const [showPuzzleSelectModal, setShowPuzzleSelectModal] = useState(false);
 
   const handleCardClick = () => {
@@ -18,6 +18,11 @@ export default function NutritionPuzzlesModal({ open, onClose, onReopen }) {
   const handleBack = () => {
     setShowPuzzleSelectModal(false);
     if (onReopen) onReopen(); // 重新打开自身
+  };
+
+  const handlePuzzleSelect = (puzzle) => {
+    if (onPuzzleSelect) onPuzzleSelect(puzzle);
+    setShowPuzzleSelectModal(false);
   };
 
   return (
@@ -45,7 +50,7 @@ export default function NutritionPuzzlesModal({ open, onClose, onReopen }) {
         onClose={() => setShowPuzzleSelectModal(false)}
         onBack={handleBack}
         puzzleList={puzzleList[0]?.puzzles || []}
-        onSelect={() => setShowPuzzleSelectModal(false)}
+        onSelect={handlePuzzleSelect}
       />
     </>
   );
