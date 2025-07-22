@@ -8,6 +8,7 @@ import Tutorials from './pages/auth/pages/Tutorials';
 import ScanLabelPage from './pages/eat/pages/scan-label/ScanLabelPage';
 import Welcome from './pages/welcome/Welcome';
 import MyCollections from './pages/my-collections/MyCollections';
+import CollectionDetail from './pages/my-collections/CollectionDetail';
 import React, { useEffect, useState } from 'react';
 import { supabase } from './supabaseClient';
 
@@ -76,6 +77,7 @@ export default function App() {
         <Route path="/tutorials" element={<Tutorials isLoggedIn={!!user} userEmail={user?.email || ''} />} />
         <Route path="/eat/scan-label" element={<ScanLabelPage userId={user?.id} />} />
         <Route path="/my-collections" element={<MyCollections />} />
+        <Route path="/my-collections/detail/:puzzleName" element={<CollectionDetail />} />
       </Routes>
     </BrowserRouter>
   );
