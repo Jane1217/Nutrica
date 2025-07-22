@@ -10,7 +10,7 @@ export default function PuzzleContainer({ children, hasSelectedPuzzle = false, o
   const [showUnfinishedBlocks, setShowUnfinishedBlocks] = useState(true);
 
   return (
-    <div className={styles.puzzleContainer} onClick={() => setShowMenu(true)}>
+    <div className={styles.puzzleContainer} onClick={() => { if (hasSelectedPuzzle) setShowMenu(true); }}>
       {hasSelectedPuzzle ? (
         <div className={styles.pixelGridWrapper}>
           <PixelArtGrid 
