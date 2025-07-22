@@ -228,6 +228,15 @@ export default function Home(props) {
     setShowPuzzlesModal(false);
   };
 
+  // 计算营养进度
+  const calculateNutritionProgress = () => {
+    return {
+      1: Math.min(todayNutrition.carbs / nutritionGoals.carbs, 1), // carbs
+      2: Math.min(todayNutrition.protein / nutritionGoals.protein, 1), // protein  
+      3: Math.min(todayNutrition.fats / nutritionGoals.fats, 1) // fats
+    };
+  };
+
   return (
     <>
       <NavLogo onEatClick={() => setShowEatModal(true)} isLoggedIn={props.isLoggedIn} isAuth={false} />
@@ -244,6 +253,7 @@ export default function Home(props) {
             hasSelectedPuzzle={!!selectedPuzzle}
             onChoosePuzzle={() => setShowPuzzlesModal(true)}
             selectedPuzzle={selectedPuzzle}
+            progress={calculateNutritionProgress()}
           >
             {/* 拼图内容将在这里 */}
           </PuzzleContainer>

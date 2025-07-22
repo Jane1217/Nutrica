@@ -17,15 +17,17 @@ export default function PixelArtGrid({ pixelMap, progress = {}, showGrid = true 
         }))
       );
 
-  // 统计每种营养素的像素索引
+  // 统计每种营养素的像素索引，按从下至上、从左至右的顺序
   const nutrientPixels = {};
-  safePixelMap.forEach((row, y) =>
-    row.forEach((pix, x) => {
-      if (!pix.nutrient) return;
+  for (let y = 23; y >= 0; y--) { // 从下至上
+    for (let x = 0; x < 24; x++) { // 从左至右
+      const pix = safePixelMap[y][x];
+      if (!pix.nutrient) continue;
       if (!nutrientPixels[pix.nutrient]) nutrientPixels[pix.nutrient] = [];
       nutrientPixels[pix.nutrient].push({ x, y });
-    })
-  );
+    }
+  }
+  
   // 计算每种营养素要填色的像素数量
   const fillCounts = {};
   Object.keys(nutrientPixels).forEach(n => {
@@ -48,24 +50,42 @@ export default function PixelArtGrid({ pixelMap, progress = {}, showGrid = true 
     >
       {safePixelMap.map((row, y) =>
         row.map((pix, x) => {
-          // 如果有pixelMap数据，直接显示颜色；否则按进度显示
-          const shouldShowColor = pixelMap && Array.isArray(pixelMap) && pixelMap.length === 24;
+          // 如果有pixelMap数据，按进度显示；否则按默认逻辑
+          const shouldShowProgress = pixelMap && Array.isArray(pixelMap) && pixelMap.length === 24;
           
-          if (shouldShowColor) {
-            // 直接显示pixelMap中的颜色
+          if (shouldShowProgress) {
+            // 按营养进度显示
+            const idx = nutrientPixels[pix.nutrient]?.findIndex(p => p.x === x && p.y === y);
+            const isFilled = idx > -1 && idx < fillCounts[pix.nutrient];
+            
             return (
               <div
                 key={x + "-" + y}
                 className={showGrid ? styles.pixelWithGrid : styles.pixel}
                 style={{
-                  background: pix.color,
+                  background: pix.color, // 始终显示对应颜色
                   border: "0.5px solid var(--Brand-Outline, #DBE2D0)",
                   position: "relative"
                 }}
-              />
+              >
+                {/* 未完成部分用倾斜网格线覆盖，但底层颜色仍然显示 */}
+                {!isFilled && pix.nutrient !== 0 && (
+                  <div 
+                    className={styles.incompleteMask}
+                    style={{
+                      backgroundImage: 'url(/assets/puzzles/grid.svg)',
+                      backgroundSize: 'cover',
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'center',
+                      //backgroundColor: 'rgba(0, 0, 0, 0.3)', // 添加半透明黑色遮罩
+                      opacity: 1 // 增加整体不透明度
+                    }}
+                  />
+                )}
+              </div>
             );
           } else {
-            // 按进度显示（默认逻辑）
+            // 默认逻辑（无pixelMap时）
             const idx = nutrientPixels[pix.nutrient]?.findIndex(p => p.x === x && p.y === y);
             const isFilled = idx > -1 && idx < fillCounts[pix.nutrient];
             return (
