@@ -3,14 +3,14 @@ import styles from './PuzzleContainer.module.css';
 import { icons } from '../../../utils/icons';
 import PixelArtGrid from './PixelArtGrid';
 
-export default function PuzzleContainer({ children, hasSelectedPuzzle = false, onChoosePuzzle, selectedPuzzle }) {
+export default function PuzzleContainer({ children, hasSelectedPuzzle = false, onChoosePuzzle, selectedPuzzle, progress = {} }) {
   return (
     <div className={styles.puzzleContainer}>
       {hasSelectedPuzzle ? (
         <div className={styles.pixelGridWrapper}>
           <PixelArtGrid 
             pixelMap={selectedPuzzle?.pixelMap} 
-            progress={{}} 
+            progress={progress} 
             showGrid={true} 
           />
         </div>
