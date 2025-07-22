@@ -5,14 +5,15 @@ import styles from '../../home/puzzle/PixelArtGrid.module.css';
  * @param {Array} pixelMap 24x24二维数组，每个元素为{color, nutrient}
  * @param {Object} progress 进度对象，如{1: 0.7, 2: 0.5, 3: 1.0}
  * @param {boolean} showGrid 是否显示网格线
+ * @param {boolean} showUnfinishedBlocks 是否显示未完成像素的底色和网格线
  */
-export default function PixelArtGrid({ pixelMap, progress = {}, showGrid = true }) {
+export default function PixelArtGrid({ pixelMap, progress = {}, showGrid = true, showUnfinishedBlocks = true }) {
   // 如果 pixelMap 为空，生成默认 24x24 灰色占位
   const safePixelMap = pixelMap && Array.isArray(pixelMap) && pixelMap.length === 24
     ? pixelMap
     : Array.from({ length: 24 }, () =>
         Array.from({ length: 24 }, () => ({
-          color: '#FCFCF',
+          color: '#FCFCF8',
           nutrient: 0
         }))
       );
@@ -44,7 +45,7 @@ export default function PixelArtGrid({ pixelMap, progress = {}, showGrid = true 
         gridTemplateRows: "repeat(24, 1fr)",
         width: 384, // 16px*24
         height: 384,
-        border: "1px solid #ccc",
+        border: showGrid ? "1px solid #ccc" : "none",
         background: "#fff"
       }}
     >
@@ -63,13 +64,15 @@ export default function PixelArtGrid({ pixelMap, progress = {}, showGrid = true 
                 key={x + "-" + y}
                 className={showGrid ? styles.pixelWithGrid : styles.pixel}
                 style={{
-                  background: pix.color, // 始终显示对应颜色
-                  border: "0.5px solid var(--Brand-Outline, #DBE2D0)",
+                  background: !isFilled && !showUnfinishedBlocks
+                    ? "#FCFCF8"
+                    : (pix.nutrient === 0 ? "#FCFCF8" : pix.color),
+                  border: showGrid ? "0.5px solid var(--Brand-Outline, #DBE2D0)" : "none",
                   position: "relative"
                 }}
               >
                 {/* 未完成部分用倾斜网格线覆盖，但底层颜色仍然显示 */}
-                {!isFilled && pix.nutrient !== 0 && (
+                {showUnfinishedBlocks && !isFilled && pix.nutrient !== 0 && (
                   <>
                     {/* grid.svg 网格线在底色之上 */}
                     <div 

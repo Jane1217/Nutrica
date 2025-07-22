@@ -1,5 +1,5 @@
 //carrot pixelMap像素数据定义
-const B = { color: '#FFFFFF', nutrient: 0 };      // 背景
+const B = { color: '#FCFCF8', nutrient: 0 };      // 背景
 const C1 = { color: '#FF9F58', nutrient: 1 };     // 碳水-浅橙
 const C2 = { color: '#FB6D03', nutrient: 1 };     // 碳水-中橙
 const C3 = { color: '#FB3503', nutrient: 1 };     // 碳水-深橙
