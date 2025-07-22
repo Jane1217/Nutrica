@@ -1,11 +1,11 @@
 import React from 'react';
 import styles from './PuzzleTextModule.module.css';
 
-export default function PuzzleTextModule({ puzzleName, puzzleText, userName, hasSelectedPuzzle = false }) {
+export default function PuzzleTextModule({ puzzleName, puzzleText, userName, hasSelectedPuzzle = false, categoryName }) {
   return (
     <div className={styles.puzzleTextModule}>
       <span className={`${styles.puzzleName} label`}>
-        {hasSelectedPuzzle ? (puzzleName || 'Magic Garden') : ''}
+        {hasSelectedPuzzle ? (categoryName && puzzleName ? `${categoryName} · ${puzzleName}` : puzzleName || '') : ''}
       </span>
       <div className={styles.puzzleText}>
         {hasSelectedPuzzle 

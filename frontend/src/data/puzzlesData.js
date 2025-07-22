@@ -24,6 +24,13 @@ export const puzzleCategories = [
         id: 'carrot',
         name: 'Carrot',
         description: "Bright, balanced, and well-fed. That's the carrot energy we love to see.",
+        descriptions: [
+          "Even a carrot starts with almost nothing. Give your day a little care.", // 0%
+          "You've planted the rhythm. A little balance, like a carrot finding light.", // 25%
+          "Halfway there. Your plate’s looking more like a garden—colorful and real.", // 50%
+          "You're almost there. The roots are strong, the colors are coming.", // 75%
+          "Bright, balanced, and well-fed. That’s the carrot energy we love to see.", // 100%
+        ],
         img: '/assets/puzzles/puzzle_carrot.svg',
         inCollection: true,
         bgColor: '#FFB279',

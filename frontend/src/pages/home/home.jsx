@@ -14,7 +14,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import styles from './Home.module.css';
 import { calculateNutritionFromCalories, formatFoods, fetchNutritionGoals, fetchTodayNutrition } from '../../utils/nutrition';
 import { getCurrentUser, getUserMetadata, updateUserMetadata, isUserInfoComplete, hasShownUserInfoModal, setUserInfoModalShown, getDisplayCalories } from '../../utils/user';
-import { getColorOrder } from '../../data/puzzlesData';
+import { puzzleCategories, getColorOrder } from '../../data/puzzlesData';
 
 // 工具函数：按顺序提取某营养素的所有颜色
 function getNutrientColorsByOrder(pixelMap, nutrientType, colorOrder) {
@@ -253,6 +253,45 @@ export default function Home(props) {
     };
   };
 
+  // 计算puzzle完成度（已填色/有颜色的像素）
+  function getPuzzleProgress(puzzle, progress) {
+    if (!puzzle?.pixelMap) return 0;
+    let total = 0, filled = 0;
+    const nutrientPixels = [];
+    puzzle.pixelMap.forEach((row, y) =>
+      row.forEach((pix, x) => {
+        if (pix.nutrient !== 0) {
+          total++;
+          // 计算该像素是否已填色
+          const p = progress?.[pix.nutrient] || 0;
+          // 统计该营养素所有像素
+          if (!nutrientPixels[pix.nutrient]) nutrientPixels[pix.nutrient] = [];
+          nutrientPixels[pix.nutrient].push({ x, y });
+        }
+      })
+    );
+    // 计算每种营养素已填色数量
+    Object.keys(nutrientPixels).forEach(n => {
+      const nInt = parseInt(n);
+      const count = Math.round(nutrientPixels[n].length * (progress?.[nInt] || 0));
+      filled += count;
+    });
+    return total === 0 ? 0 : filled / total;
+  }
+
+  // 获取当前puzzle的描述
+  function getPuzzleDescription(puzzle, progress, userName) {
+    if (!puzzle) return `Hey ${userName || 'User'}! Ready to collect today’s nutrition puzzle?`;
+    const percent = getPuzzleProgress(puzzle, progress);
+    if (!puzzle.descriptions || puzzle.descriptions.length === 0) return puzzle.description;
+    if (percent === 0) return puzzle.descriptions[0];
+    if (percent < 0.25) return puzzle.descriptions[0];
+    if (percent < 0.5) return puzzle.descriptions[1];
+    if (percent < 0.75) return puzzle.descriptions[2];
+    if (percent < 1) return puzzle.descriptions[3];
+    return puzzle.descriptions[4];
+  }
+
   // 选中puzzle时提取颜色（自动顺序）
   const carbsColors = getNutrientColorsByOrder(selectedPuzzle?.pixelMap, 1, getColorOrder('C'));
   const proteinColors = getNutrientColorsByOrder(selectedPuzzle?.pixelMap, 2, getColorOrder('P'));
@@ -268,8 +307,9 @@ console.log('carbsColors', carbsColors, 'proteinColors', proteinColors, 'fatsCol
         <div className={styles.container}>
           <DatePicker />
           <PuzzleTextModule 
-            puzzleName={selectedPuzzle?.name || "Magic Garden"}
-            puzzleText={selectedPuzzle?.name || "Carrot"}
+            puzzleName={selectedPuzzle?.name || ''}
+            categoryName={selectedPuzzle ? (puzzleCategories.find(cat => cat.puzzles.some(p => selectedPuzzle.id.startsWith(p.id)))?.title || '') : ''}
+            puzzleText={getPuzzleDescription(selectedPuzzle, calculateNutritionProgress(), userInfo?.name)}
             userName={userInfo?.name || 'User'}
             hasSelectedPuzzle={!!selectedPuzzle}
           />
