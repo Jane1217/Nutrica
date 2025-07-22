@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import NavLogo from '../../components/navbar/Nav-Logo';
 import styles from './MyCollections.module.css';
 import { supabase } from '../../supabaseClient';
+import { useNavigate } from 'react-router-dom';
 
 // Magic Garden 主题的拼图顺序和图标配置（6个坑位，均匀分布）
 const MAGIC_GARDEN_PUZZLES = [
@@ -22,6 +23,7 @@ const USER_ID = 'a6d8972f-23cd-4978-a80c-8f2d362b9f15'; // 实际项目应从登
 export default function MyCollections() {
   const [collections, setCollections] = useState([]); // 用户已收集的 puzzle
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchCollections() {
@@ -56,6 +58,12 @@ export default function MyCollections() {
   const collectedKinds = slots.filter((slot) => slot.collected).length;
   const totalKinds = MAGIC_GARDEN_PUZZLES.length;
 
+  // 点击 puzzle 跳转到详情页
+  const handlePuzzleClick = (slot) => {
+    if (!slot.collected) return;
+    navigate(`/my-collections/detail/${slot.puzzle_name.toLowerCase()}`);
+  };
+
   return (
     <div className={styles.myCollectionsPage}>
       <NavLogo hideEat hideMenu />
@@ -70,7 +78,11 @@ export default function MyCollections() {
                   <div className={styles.puzzleSlot} key={idx}>
                     {/* puzzle 图标 */}
                     {slot.collected && slot.icon_url && (
-                      <div className={styles.puzzleImgWrapper}>
+                      <div
+                        className={styles.puzzleImgWrapper}
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => handlePuzzleClick(slot)}
+                      >
                         <img
                           src={slot.icon_url}
                           alt={slot.puzzle_name}
