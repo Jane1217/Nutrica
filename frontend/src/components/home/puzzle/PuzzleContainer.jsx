@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styles from './PuzzleContainer.module.css';
 import { icons } from '../../../utils/icons';
 import PixelArtGrid from './PixelArtGrid';
+import NutritionPuzzlesModal from '../../../pages/home/puzzles/NutritionPuzzlesModal';
 
 export default function PuzzleContainer({ children, hasSelectedPuzzle = false, onChoosePuzzle, selectedPuzzle, progress = {} }) {
   const [showMenu, setShowMenu] = useState(false);
@@ -42,7 +43,7 @@ export default function PuzzleContainer({ children, hasSelectedPuzzle = false, o
       {showMenu && (
         <div className={styles.menuOverlay} onClick={e => { e.stopPropagation(); }}>
           <div className={styles.menuButtons}>
-            <button className={styles.menuBtn}>
+            <button className={styles.menuBtn} onClick={() => { setShowMenu(false); if (onChoosePuzzle) onChoosePuzzle(); }}>
               <img src="/assets/switch icon.svg" alt="switch" style={{width: 24, height: 24, aspectRatio: '1/1', marginRight: 0}} />
               <span className="h5">Change puzzle</span>
             </button>
