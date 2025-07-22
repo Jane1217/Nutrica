@@ -8,18 +8,35 @@ import NutritionCard from '../../components/home/nutrition/NutritionCard';
 import EatModal from '../eat/modals/EatModal';
 import UserInfoModal from '../auth/modals/UserInfoModal';
 import NutritionGoalModal from '../auth/modals/NutritionGoalModal';
-import NutritionPuzzlesModal from '../../components/home/puzzle/NutritionPuzzlesModal';
+import NutritionPuzzlesModal from './puzzles/NutritionPuzzlesModal';
 
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import styles from './Home.module.css';
 import { calculateNutritionFromCalories, formatFoods, fetchNutritionGoals, fetchTodayNutrition } from '../../utils/nutrition';
 import { getCurrentUser, getUserMetadata, updateUserMetadata, isUserInfoComplete, hasShownUserInfoModal, setUserInfoModalShown, getDisplayCalories } from '../../utils/user';
+import { puzzleCategories, getColorOrder } from '../../data/puzzlesData';
+
+// 工具函数：按顺序提取某营养素的所有颜色
+function getNutrientColorsByOrder(pixelMap, nutrientType, colorOrder) {
+  if (!pixelMap) return [];
+  const colorSet = new Set();
+  for (let y = 0; y < pixelMap.length; y++) {
+    for (let x = 0; x < pixelMap[y].length; x++) {
+      const pix = pixelMap[y][x];
+      if (pix.nutrient === nutrientType) {
+        colorSet.add(pix.color);
+      }
+    }
+  }
+  return colorOrder.filter(color => colorSet.has(color));
+}
 
 export default function Home(props) {
   const [showEatModal, setShowEatModal] = useState(false);
   const [showUserInfoModal, setShowUserInfoModal] = useState(false);
   const [showNutritionGoalModal, setShowNutritionGoalModal] = useState(false);
   const [showPuzzlesModal, setShowPuzzlesModal] = useState(false);
+  const [selectedPuzzle, setSelectedPuzzle] = useState(null); // 新增：选中的puzzle
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState(null);
@@ -56,6 +73,16 @@ export default function Home(props) {
       setUserId(user.id);
     };
     fetchUserInfo();
+  }, []);
+
+  // 页面加载时自动恢复上次选中的puzzle
+  useEffect(() => {
+    const saved = localStorage.getItem('selectedPuzzle');
+    if (saved) {
+      try {
+        setSelectedPuzzle(JSON.parse(saved));
+      } catch {}
+    }
   }, []);
 
   // 获取用户最新的营养目标
@@ -221,6 +248,69 @@ export default function Home(props) {
     return getDisplayCalories(userInfo, latestCalories);
   };
 
+  // 新增：处理puzzle选择
+  const handlePuzzleSelect = (puzzle) => {
+    setSelectedPuzzle(puzzle);
+    setShowPuzzlesModal(false);
+    localStorage.setItem('selectedPuzzle', JSON.stringify(puzzle));
+  };
+
+  // 计算营养进度
+  const calculateNutritionProgress = () => {
+    return {
+      1: Math.min(todayNutrition.carbs / nutritionGoals.carbs, 1), // carbs
+      2: Math.min(todayNutrition.protein / nutritionGoals.protein, 1), // protein  
+      3: Math.min(todayNutrition.fats / nutritionGoals.fats, 1) // fats
+    };
+  };
+
+  // 计算puzzle完成度（已填色/有颜色的像素）
+  function getPuzzleProgress(puzzle, progress) {
+    if (!puzzle?.pixelMap) return 0;
+    let total = 0, filled = 0;
+    const nutrientPixels = [];
+    puzzle.pixelMap.forEach((row, y) =>
+      row.forEach((pix, x) => {
+        if (pix.nutrient !== 0) {
+          total++;
+          // 计算该像素是否已填色
+          const p = progress?.[pix.nutrient] || 0;
+          // 统计该营养素所有像素
+          if (!nutrientPixels[pix.nutrient]) nutrientPixels[pix.nutrient] = [];
+          nutrientPixels[pix.nutrient].push({ x, y });
+        }
+      })
+    );
+    // 计算每种营养素已填色数量
+    Object.keys(nutrientPixels).forEach(n => {
+      const nInt = parseInt(n);
+      const count = Math.round(nutrientPixels[n].length * (progress?.[nInt] || 0));
+      filled += count;
+    });
+    return total === 0 ? 0 : filled / total;
+  }
+
+  // 获取当前puzzle的描述
+  function getPuzzleDescription(puzzle, progress, userName) {
+    if (!puzzle) return `Hey ${userName || 'User'}! Ready to collect today’s nutrition puzzle?`;
+    const percent = getPuzzleProgress(puzzle, progress);
+    if (!puzzle.descriptions || puzzle.descriptions.length === 0) return puzzle.description;
+    if (percent === 0) return puzzle.descriptions[0];
+    if (percent < 0.25) return puzzle.descriptions[0];
+    if (percent < 0.5) return puzzle.descriptions[1];
+    if (percent < 0.75) return puzzle.descriptions[2];
+    if (percent < 1) return puzzle.descriptions[3];
+    return puzzle.descriptions[4];
+  }
+
+  // 选中puzzle时提取颜色（自动顺序）
+  const carbsColors = getNutrientColorsByOrder(selectedPuzzle?.pixelMap, 1, getColorOrder('C'));
+  const proteinColors = getNutrientColorsByOrder(selectedPuzzle?.pixelMap, 2, getColorOrder('P'));
+  const fatsColors = getNutrientColorsByOrder(selectedPuzzle?.pixelMap, 3, getColorOrder('F'));
+
+  console.log('selectedPuzzle', selectedPuzzle);
+console.log('carbsColors', carbsColors, 'proteinColors', proteinColors, 'fatsColors', fatsColors);
+
   return (
     <>
       <NavLogo onEatClick={() => setShowEatModal(true)} isLoggedIn={props.isLoggedIn} isAuth={false} />
@@ -228,14 +318,17 @@ export default function Home(props) {
         <div className={styles.container}>
           <DatePicker />
           <PuzzleTextModule 
-            puzzleName="Magic Garden"
-            puzzleText="Carrot"
+            puzzleName={selectedPuzzle?.name || ''}
+            categoryName={selectedPuzzle ? (puzzleCategories.find(cat => cat.puzzles.some(p => selectedPuzzle.id.startsWith(p.id)))?.title || '') : ''}
+            puzzleText={getPuzzleDescription(selectedPuzzle, calculateNutritionProgress(), userInfo?.name)}
             userName={userInfo?.name || 'User'}
-            hasSelectedPuzzle={false}
+            hasSelectedPuzzle={!!selectedPuzzle}
           />
           <PuzzleContainer
-            hasSelectedPuzzle={false}
+            hasSelectedPuzzle={!!selectedPuzzle}
             onChoosePuzzle={() => setShowPuzzlesModal(true)}
+            selectedPuzzle={selectedPuzzle}
+            progress={calculateNutritionProgress()}
           >
             {/* 拼图内容将在这里 */}
           </PuzzleContainer>
@@ -247,7 +340,10 @@ export default function Home(props) {
             carbsGoal={nutritionGoals.carbs}
             proteinGoal={nutritionGoals.protein}
             fatsGoal={nutritionGoals.fats}
-            hasSelectedPuzzle={false}
+            hasSelectedPuzzle={!!selectedPuzzle}
+            carbsColors={carbsColors}
+            proteinColors={proteinColors}
+            fatsColors={fatsColors}
           />
         </div>
         
@@ -283,6 +379,8 @@ export default function Home(props) {
         <NutritionPuzzlesModal
           open={showPuzzlesModal}
           onClose={() => setShowPuzzlesModal(false)}
+          onReopen={() => setShowPuzzlesModal(true)}
+          onPuzzleSelect={handlePuzzleSelect}
         />
       </div>
     </>
