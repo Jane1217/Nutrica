@@ -1,0 +1,98 @@
+.modalHeader {
+  display: flex;
+  align-items: center;
+  padding: 12px 24px 0 24px;
+  position: relative;
+  min-height: 56px;
+}
+.headerLeft {
+  display: flex;
+  align-items: flex-start;
+  flex: 1;
+}
+.backButton {
+  margin-right: 4px;
+  background: none;
+  border: none;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.headerTitle {
+  color: var(--Neutral-Primary-Text, #22221B);
+}
+.closeButton {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  display: flex;
+  width: 48px;
+  height: 48px;
+  padding: 14px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--Brand-Outline, #DBE2D0);
+  background: none;
+  cursor: pointer;
+}
+.listArea {
+  padding: 16px 16px 80px 16px;
+}
+.listArea > * + * {
+  margin-top: 24px;
+}
+.bottomBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #F3F3EC;
+  padding: 16px 0;
+  display: flex;
+  justify-content: center;
+  z-index: 1002;
+}
+.bottomContainer {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background: var(--Brand-Background, #F3F3EC);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px 24px 32px 24px;
+  z-index: 100;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.03);
+  box-sizing: border-box;
+}
+.selectButton {
+  width: 320px;
+  height: 64px;
+  border-radius: 36px;
+  background: #2A4E14;
+  color: #fff;
+  font-weight: 700;
+  font-size: 20px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modalContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.scrollArea {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 40px;
+}
