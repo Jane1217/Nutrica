@@ -70,17 +70,32 @@ export default function PixelArtGrid({ pixelMap, progress = {}, showGrid = true 
               >
                 {/* 未完成部分用倾斜网格线覆盖，但底层颜色仍然显示 */}
                 {!isFilled && pix.nutrient !== 0 && (
-                  <div 
-                    className={styles.incompleteMask}
-                    style={{
-                      backgroundImage: 'url(/assets/puzzles/grid.svg)',
-                      backgroundSize: 'cover',
-                      backgroundRepeat: 'no-repeat',
-                      backgroundPosition: 'center',
-                      //backgroundColor: 'rgba(0, 0, 0, 0.3)', // 添加半透明黑色遮罩
-                      opacity: 1 // 增加整体不透明度
-                    }}
-                  />
+                  <>
+                    {/* grid.svg 网格线在底色之上 */}
+                    <div 
+                      style={{
+                        position: 'absolute',
+                        left: 0, top: 0, right: 0, bottom: 0,
+                        backgroundImage: 'url(/assets/puzzles/grid.svg)',
+                        backgroundSize: 'cover',
+                        backgroundRepeat: 'no-repeat',
+                        backgroundPosition: 'center',
+                        pointerEvents: 'none',
+                        zIndex: 1
+                      }}
+                    />
+                    {/* 半透明遮罩在最上层 */}
+                    <div 
+                      style={{
+                        position: 'absolute',
+                        left: 0, top: 0, right: 0, bottom: 0,
+                        backgroundColor: 'rgba(231, 231, 213, 0.60)',
+                        opacity: 0.5,
+                        pointerEvents: 'none',
+                        zIndex: 2
+                      }}
+                    />
+                  </>
                 )}
               </div>
             );
