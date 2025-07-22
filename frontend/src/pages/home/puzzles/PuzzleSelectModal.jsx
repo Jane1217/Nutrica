@@ -62,6 +62,11 @@ export default function PuzzleSelectModal({ open, onClose, onBack, puzzleList, o
             className={styles.selectButton}
             disabled={selectedIdx === null}
             style={{ opacity: selectedIdx === null ? 0.4 : 1 }}
+            onClick={() => {
+              if (selectedIdx !== null) {
+                onSelect(selectableList[selectedIdx]);
+              }
+            }}
           >
             Select puzzle
           </button>

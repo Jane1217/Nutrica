@@ -20,6 +20,7 @@ export default function Home(props) {
   const [showUserInfoModal, setShowUserInfoModal] = useState(false);
   const [showNutritionGoalModal, setShowNutritionGoalModal] = useState(false);
   const [showPuzzlesModal, setShowPuzzlesModal] = useState(false);
+  const [selectedPuzzle, setSelectedPuzzle] = useState(null); // 新增：选中的puzzle
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState(null);
@@ -221,6 +222,12 @@ export default function Home(props) {
     return getDisplayCalories(userInfo, latestCalories);
   };
 
+  // 新增：处理puzzle选择
+  const handlePuzzleSelect = (puzzle) => {
+    setSelectedPuzzle(puzzle);
+    setShowPuzzlesModal(false);
+  };
+
   return (
     <>
       <NavLogo onEatClick={() => setShowEatModal(true)} isLoggedIn={props.isLoggedIn} isAuth={false} />
@@ -228,14 +235,15 @@ export default function Home(props) {
         <div className={styles.container}>
           <DatePicker />
           <PuzzleTextModule 
-            puzzleName="Magic Garden"
-            puzzleText="Carrot"
+            puzzleName={selectedPuzzle?.name || "Magic Garden"}
+            puzzleText={selectedPuzzle?.name || "Carrot"}
             userName={userInfo?.name || 'User'}
-            hasSelectedPuzzle={false}
+            hasSelectedPuzzle={!!selectedPuzzle}
           />
           <PuzzleContainer
-            hasSelectedPuzzle={false}
+            hasSelectedPuzzle={!!selectedPuzzle}
             onChoosePuzzle={() => setShowPuzzlesModal(true)}
+            selectedPuzzle={selectedPuzzle}
           >
             {/* 拼图内容将在这里 */}
           </PuzzleContainer>
@@ -247,7 +255,7 @@ export default function Home(props) {
             carbsGoal={nutritionGoals.carbs}
             proteinGoal={nutritionGoals.protein}
             fatsGoal={nutritionGoals.fats}
-            hasSelectedPuzzle={false}
+            hasSelectedPuzzle={!!selectedPuzzle}
           />
         </div>
         
@@ -284,6 +292,7 @@ export default function Home(props) {
           open={showPuzzlesModal}
           onClose={() => setShowPuzzlesModal(false)}
           onReopen={() => setShowPuzzlesModal(true)}
+          onPuzzleSelect={handlePuzzleSelect}
         />
       </div>
     </>
