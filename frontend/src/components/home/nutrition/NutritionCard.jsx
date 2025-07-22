@@ -83,7 +83,7 @@ export default function NutritionCard({
               <div className={styles.values}>
                 <div className={styles.heading}>
                   <span className={`${styles.nutritionLabel} h5`}>Carbs</span>
-                  {carbs >= carbsGoal && <div className={styles.success}></div>}
+                  {carbs >= carbsGoal && <img src="/assets/success.svg" alt="success" width={17} height={17} style={{marginLeft: 4}} />}
                 </div>
                 <div className={styles.nutritionValues}>
                   <span className={`${styles.nutritionValue} h4`}>{carbs}g</span>
@@ -100,7 +100,7 @@ export default function NutritionCard({
               <div className={styles.values}>
                 <div className={styles.heading}>
                   <span className={`${styles.nutritionLabel} h5`}>Protein</span>
-                  {protein >= proteinGoal && <div className={styles.success}></div>}
+                  {protein >= proteinGoal && <img src="/assets/success.svg" alt="success" width={17} height={17} style={{marginLeft: 4}} />}
                 </div>
                 <div className={styles.nutritionValues}>
                   <span className={`${styles.nutritionValue} h4`}>{protein}g</span>
@@ -117,7 +117,7 @@ export default function NutritionCard({
               <div className={styles.values}>
                 <div className={styles.heading}>
                   <span className={`${styles.nutritionLabel} h5`}>Fats</span>
-                  {fats >= fatsGoal && <div className={styles.success}></div>}
+                  {fats >= fatsGoal && <img src="/assets/success.svg" alt="success" width={17} height={17} style={{marginLeft: 4}} />}
                 </div>
                 <div className={styles.nutritionValues}>
                   <span className={`${styles.nutritionValue} h4`}>{fats}g</span>
