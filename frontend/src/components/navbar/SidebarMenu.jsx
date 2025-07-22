@@ -45,11 +45,11 @@ export default function SidebarMenu({ open, onClose, isLoggedIn = false }) {
             </span>
             <span className="h4">Home</span>
           </div>
-          <div className={styles.sidebarItem}>
+          <div className={styles.sidebarItem} onClick={() => { navigate('/my-collections'); onClose(); }}>
             <span className={styles.symbol}>
               <img src="/assets/fluent_collections-empty-16-filled.svg" alt="Achievement" width="24" height="24" />
             </span>
-            <span className="h4">Achievement</span>
+            <span className="h4">My Collections</span>
           </div>
           {isLoggedIn && (
             <div className={styles.sidebarItem} onClick={() => { navigate('/account'); onClose(); }}>
