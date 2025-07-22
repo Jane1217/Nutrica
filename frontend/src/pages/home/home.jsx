@@ -75,6 +75,16 @@ export default function Home(props) {
     fetchUserInfo();
   }, []);
 
+  // 页面加载时自动恢复上次选中的puzzle
+  useEffect(() => {
+    const saved = localStorage.getItem('selectedPuzzle');
+    if (saved) {
+      try {
+        setSelectedPuzzle(JSON.parse(saved));
+      } catch {}
+    }
+  }, []);
+
   // 获取用户最新的营养目标
   const fetchNutritionGoalsData = async () => {
     if (!userId) return;
@@ -242,6 +252,7 @@ export default function Home(props) {
   const handlePuzzleSelect = (puzzle) => {
     setSelectedPuzzle(puzzle);
     setShowPuzzlesModal(false);
+    localStorage.setItem('selectedPuzzle', JSON.stringify(puzzle));
   };
 
   // 计算营养进度
