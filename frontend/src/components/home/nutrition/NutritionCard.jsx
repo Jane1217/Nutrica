@@ -12,6 +12,9 @@ export default function NutritionCard({
   proteinGoal = 150,
   fatsGoal = 65,
   hasSelectedPuzzle = false,
+  carbsColors = [],
+  proteinColors = [],
+  fatsColors = [],
   onHelpClick 
 }) {
   const [showHelpModal, setShowHelpModal] = useState(false);
@@ -20,6 +23,30 @@ export default function NutritionCard({
     setShowHelpModal(true);
     if (onHelpClick) onHelpClick();
   };
+
+  // 分段色块渲染函数
+  const renderColorSegments = (colors) => (
+    <div className={styles.paletteSegments}>
+      {colors.length === 0 ? (
+        <div className={styles.paletteSegment} style={{background: '#F0F0F0', height: 24, borderRadius: 12}} />
+      ) : (
+        colors.map((color, idx) => (
+          <div
+            key={idx}
+            className={styles.paletteSegment}
+            style={{
+              background: color,
+              '--segment-count': colors.length,
+              borderTopLeftRadius: idx === 0 ? 4 : 0,
+              borderTopRightRadius: idx === 0 ? 4 : 0,
+              borderBottomLeftRadius: idx === colors.length - 1 ? 4 : 0,
+              borderBottomRightRadius: idx === colors.length - 1 ? 4 : 0,
+            }}
+          />
+        ))
+      )}
+    </div>
+  );
 
   return (
     <>
@@ -51,9 +78,7 @@ export default function NutritionCard({
             {/* Carbs Module */}
             <div className={styles.nutritionModule}>
               <div className={styles.colorTile}>
-                <div className={`${styles.palette} ${hasSelectedPuzzle ? styles.paletteSelected : ''}`} 
-                     style={hasSelectedPuzzle ? { background: '#FF6B6B' } : {}}>
-                </div>
+                {renderColorSegments(carbsColors)}
               </div>
               <div className={styles.values}>
                 <div className={styles.heading}>
@@ -70,9 +95,7 @@ export default function NutritionCard({
             {/* Protein Module */}
             <div className={styles.nutritionModule}>
               <div className={styles.colorTile}>
-                <div className={`${styles.palette} ${hasSelectedPuzzle ? styles.paletteSelected : ''}`}
-                     style={hasSelectedPuzzle ? { background: '#4ECDC4' } : {}}>
-                </div>
+                {renderColorSegments(proteinColors)}
               </div>
               <div className={styles.values}>
                 <div className={styles.heading}>
@@ -89,9 +112,7 @@ export default function NutritionCard({
             {/* Fats Module */}
             <div className={styles.nutritionModule}>
               <div className={styles.colorTile}>
-                <div className={`${styles.palette} ${hasSelectedPuzzle ? styles.paletteSelected : ''}`}
-                     style={hasSelectedPuzzle ? { background: '#45B7D1' } : {}}>
-                </div>
+                {renderColorSegments(fatsColors)}
               </div>
               <div className={styles.values}>
                 <div className={styles.heading}>

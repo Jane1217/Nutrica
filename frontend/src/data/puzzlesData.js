@@ -7,8 +7,10 @@ const C4 = { color: '#B92F17', nutrient: 1 };     // 碳水-褐橙
 const P1 = { color: '#3B0E09', nutrient: 2 };     // 蛋白-深棕
 const F1 = { color: '#98E673', nutrient: 3 };     // 脂肪-浅绿
 const F2 = { color: '#60BF32', nutrient: 3 };     // 脂肪-中绿
-const F3 = { color: '#60BF32', nutrient: 3 };     // 脂肪-深绿
+const F3 = { color: '#0FA23A', nutrient: 3 };     // 脂肪-深绿
 const F4 = { color: '#1D793B', nutrient: 3 };     // 脂肪-墨绿
+
+export const COLOR_DEFS = { C1, C2, C3, C4, P1, F1, F2, F3, F4 };
 
 export const puzzleCategories = [
   {
@@ -80,4 +82,18 @@ export const puzzleCategories = [
     ]
   },
   // 其他分类...
-]; 
+];
+
+// 自动获取某类营养素的所有颜色（如C1~Cn），按编号排序
+export function getColorOrder(prefix) {
+  // prefix: 'C', 'P', 'F'
+  const colorVars = Object.entries(COLOR_DEFS)
+    .filter(([key, val]) => key.startsWith(prefix) && typeof val === 'object' && val.color)
+    .sort((a, b) => {
+      // 按数字编号排序
+      const numA = parseInt(a[0].slice(prefix.length), 10);
+      const numB = parseInt(b[0].slice(prefix.length), 10);
+      return numA - numB;
+    });
+  return colorVars.map(([key, val]) => val.color);
+} 

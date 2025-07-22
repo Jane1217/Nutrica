@@ -14,6 +14,22 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import styles from './Home.module.css';
 import { calculateNutritionFromCalories, formatFoods, fetchNutritionGoals, fetchTodayNutrition } from '../../utils/nutrition';
 import { getCurrentUser, getUserMetadata, updateUserMetadata, isUserInfoComplete, hasShownUserInfoModal, setUserInfoModalShown, getDisplayCalories } from '../../utils/user';
+import { getColorOrder } from '../../data/puzzlesData';
+
+// 工具函数：按顺序提取某营养素的所有颜色
+function getNutrientColorsByOrder(pixelMap, nutrientType, colorOrder) {
+  if (!pixelMap) return [];
+  const colorSet = new Set();
+  for (let y = 0; y < pixelMap.length; y++) {
+    for (let x = 0; x < pixelMap[y].length; x++) {
+      const pix = pixelMap[y][x];
+      if (pix.nutrient === nutrientType) {
+        colorSet.add(pix.color);
+      }
+    }
+  }
+  return colorOrder.filter(color => colorSet.has(color));
+}
 
 export default function Home(props) {
   const [showEatModal, setShowEatModal] = useState(false);
@@ -237,6 +253,14 @@ export default function Home(props) {
     };
   };
 
+  // 选中puzzle时提取颜色（自动顺序）
+  const carbsColors = getNutrientColorsByOrder(selectedPuzzle?.pixelMap, 1, getColorOrder('C'));
+  const proteinColors = getNutrientColorsByOrder(selectedPuzzle?.pixelMap, 2, getColorOrder('P'));
+  const fatsColors = getNutrientColorsByOrder(selectedPuzzle?.pixelMap, 3, getColorOrder('F'));
+
+  console.log('selectedPuzzle', selectedPuzzle);
+console.log('carbsColors', carbsColors, 'proteinColors', proteinColors, 'fatsColors', fatsColors);
+
   return (
     <>
       <NavLogo onEatClick={() => setShowEatModal(true)} isLoggedIn={props.isLoggedIn} isAuth={false} />
@@ -266,6 +290,9 @@ export default function Home(props) {
             proteinGoal={nutritionGoals.protein}
             fatsGoal={nutritionGoals.fats}
             hasSelectedPuzzle={!!selectedPuzzle}
+            carbsColors={carbsColors}
+            proteinColors={proteinColors}
+            fatsColors={fatsColors}
           />
         </div>
         

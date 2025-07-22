@@ -84,10 +84,12 @@
   display: flex;
   width: 36px;
   height: 36px;
-  justify-content: center;
+  padding: 6px;
+  justify-content: space-between;
   align-items: center;
   border-radius: 8px;
   border: 1px solid var(--Brand-Outline, #DBE2D0);
+  box-sizing: border-box;
 }
 
 .palette {
@@ -147,3 +149,22 @@
   color: var(--Neutral-Secondary-Text, #6A6A61);
   text-align: center;
 } 
+
+.paletteSegments {
+  display: flex;
+  width: 24px;
+  height: 24px;
+  flex-direction: column;
+  align-items: flex-start;
+  flex-shrink: 0;
+  border-radius: 4px;
+  background: var(--Brand-Background, #F3F3EC);
+  overflow: hidden;
+}
+
+.paletteSegment {
+  width: 100%;
+  min-height: 0;
+  height: calc(24px / var(--segment-count, 1));
+  flex: none;
+}
