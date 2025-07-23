@@ -3,10 +3,10 @@ import styles from './ShareLinkModal.module.css';
 import ModalWrapper from '../../components/common/ModalWrapper';
 import { getCurrentUser } from '../../utils/user';
 
-export default function ShareLinkModal({ open, onClose, puzzleName = 'carrot', iconUrl }) {
+export default function ShareLinkModal({ open, onClose, puzzleName = 'carrot', nickname }) {
   const [userId, setUserId] = useState(null);
   const [copySuccess, setCopySuccess] = useState(false);
-  
+
   // 获取当前用户ID
   useEffect(() => {
     const fetchUserId = async () => {
@@ -18,21 +18,30 @@ export default function ShareLinkModal({ open, onClose, puzzleName = 'carrot', i
     fetchUserId();
   }, []);
 
-  const BASE_URL = 'https://my-nutrition-demo-openai-frontend.vercel.app';
-  // 生成包含用户ID的唯一分享链接
-  const shareLink = userId ? `${BASE_URL}/share/${userId}/${puzzleName.toLowerCase()}` : '';
+  // 根据环境动态生成分享链接
+  let BASE_URL = '';
+  if (typeof window !== 'undefined') {
+    if (window.location.hostname === 'localhost') {
+      BASE_URL = 'https://localhost:3000';
+    } else {
+      BASE_URL = 'https://my-nutrition-demo-openai-frontend.vercel.app';
+    }
+  }
+  // nickname必须传递真实值
+  const params = [
+    `nickname=${encodeURIComponent(nickname || '')}`
+  ];
+  const paramStr = `?${params.join('&')}`;
+  const shareLink = userId ? `${BASE_URL}/share/${userId}/${puzzleName.toLowerCase()}${paramStr}` : '';
 
   const handleCopy = async () => {
     if (!shareLink) return;
-    
     try {
       await navigator.clipboard.writeText(shareLink);
       setCopySuccess(true);
-      // 3秒后隐藏成功提示
       setTimeout(() => setCopySuccess(false), 3000);
     } catch (err) {
       console.error('Failed to copy link:', err);
-      // 降级方案：使用传统复制方法
       const textArea = document.createElement('textarea');
       textArea.value = shareLink;
       document.body.appendChild(textArea);

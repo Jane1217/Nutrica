@@ -1,6 +1,7 @@
 .myCollectionsPage {
-  min-height: 100vh;
   background-color: var(--Brand-Background, #F3F3EC);
+  overflow-y: auto;
+  max-height: 100vh;
 }
 
 .container {
