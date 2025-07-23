@@ -16,7 +16,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import styles from './Home.module.css';
 import { calculateNutritionFromCalories, formatFoods, fetchNutritionGoals, fetchTodayNutrition } from '../../utils/nutrition';
 import { getCurrentUser, getUserMetadata, updateUserMetadata, isUserInfoComplete, hasShownUserInfoModal, setUserInfoModalShown, getDisplayCalories } from '../../utils/user';
-import { puzzleCategories, getColorOrder } from '../../data/puzzlesData';
+import { puzzleCategories, colorOrders } from '../../data/puzzlesData';
 import { format } from 'date-fns';
 
 // 工具函数：按顺序提取某营养素的所有颜色
@@ -384,9 +384,10 @@ export default function Home(props) {
   }
 
   // 选中puzzle时提取颜色（自动顺序）
-  const carbsColors = getNutrientColorsByOrder(selectedPuzzle?.pixelMap, 1, getColorOrder('C'));
-  const proteinColors = getNutrientColorsByOrder(selectedPuzzle?.pixelMap, 2, getColorOrder('P'));
-  const fatsColors = getNutrientColorsByOrder(selectedPuzzle?.pixelMap, 3, getColorOrder('F'));
+  const colorOrder = selectedPuzzle ? colorOrders[selectedPuzzle.id.replace(/_.*/, '')] || [] : [];
+  const carbsColors = getNutrientColorsByOrder(selectedPuzzle?.pixelMap, 1, colorOrder);
+  const proteinColors = getNutrientColorsByOrder(selectedPuzzle?.pixelMap, 2, colorOrder);
+  const fatsColors = getNutrientColorsByOrder(selectedPuzzle?.pixelMap, 3, colorOrder);
 
   console.log('selectedPuzzle', selectedPuzzle);
 console.log('carbsColors', carbsColors, 'proteinColors', proteinColors, 'fatsColors', fatsColors);
