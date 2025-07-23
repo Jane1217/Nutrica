@@ -1,56 +1,44 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
 import styles from './SharePage.module.css';
 
+function useQuery() {
+  return new URLSearchParams(useLocation().search);
+}
+
 export default function SharePage() {
   const { userId, puzzleName } = useParams();
-  const [shareData, setShareData] = useState(null);
+  const query = useQuery();
+  const [nutritionData, setNutritionData] = useState(null);
+  const [firstCompletedAt, setFirstCompletedAt] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // 优先从URL参数获取nickname
+  const nicknameFromQuery = query.get('nickname');
 
   useEffect(() => {
     const fetchShareData = async () => {
       try {
         setLoading(true);
-        
-        // 查询用户收藏数据
+        // 只查公开的nutrition等数据
         const { data: collectionData, error: collectionError } = await supabase
           .from('user_collections')
-          .select(`
-            first_completed_at,
-            nutrition,
-            user_id,
-            collection_type
-          `)
+          .select('first_completed_at, nutrition')
           .eq('user_id', userId)
           .eq('puzzle_name', puzzleName.charAt(0).toUpperCase() + puzzleName.slice(1))
           .eq('collection_type', 'Magic Garden')
           .single();
 
-        if (collectionError) {
+        if (collectionError || !collectionData) {
           console.error('Failed to fetch collection data:', collectionError);
           setError('Collection not found');
           setLoading(false);
           return;
         }
-
-        // 查询用户信息 - 使用管理员API获取用户元数据
-        const { data: userData, error: userError } = await supabase.auth.admin.getUserById(userId);
-
-        if (userError) {
-          console.error('Failed to fetch user data:', userError);
-          // 如果获取用户数据失败，仍然显示收藏数据，只是用户名显示为默认值
-          setShareData({
-            collection: collectionData,
-            user: null
-          });
-        } else {
-          setShareData({
-            collection: collectionData,
-            user: userData
-          });
-        }
+        setNutritionData(collectionData.nutrition);
+        setFirstCompletedAt(collectionData.first_completed_at);
       } catch (err) {
         console.error('Error fetching share data:', err);
         setError('Failed to load share data');
@@ -76,28 +64,20 @@ export default function SharePage() {
     });
   };
 
-  // 获取用户名 - 参考Account页面的方式
+  // 获取昵称，优先用URL参数
   const getUserName = () => {
-    if (!shareData?.user?.user_metadata?.name) {
-      // 如果没有name，尝试使用email的第一个字符
-      const email = shareData?.user?.email;
-      if (email && email[0]) {
-        return email[0].toUpperCase();
-      }
-      return 'Someone';
-    }
-    return shareData.user.user_metadata.name;
+    return nicknameFromQuery || '';
   };
 
   // 获取营养数据
   const getNutritionData = () => {
-    if (!shareData?.collection?.nutrition) {
+    if (!nutritionData) {
       return { carbs: 0, protein: 0, fats: 0 };
     }
     return {
-      carbs: shareData.collection.nutrition.carbs || 0,
-      protein: shareData.collection.nutrition.protein || 0,
-      fats: shareData.collection.nutrition.fats || 0
+      carbs: nutritionData.carbs || 0,
+      protein: nutritionData.protein || 0,
+      fats: nutritionData.fats || 0
     };
   };
 
@@ -136,8 +116,8 @@ export default function SharePage() {
     );
   }
 
-  const nutritionData = getNutritionData();
-  const dateStr = getDateString(shareData?.collection?.first_completed_at);
+  const nutrition = getNutritionData();
+  const dateStr = getDateString(firstCompletedAt);
 
   return (
     <div className={styles.sharePage}>
@@ -151,16 +131,16 @@ export default function SharePage() {
       {/* Container */}
       <div className={styles.container}>
         {/* Title */}
-        <h2 className={styles.title}>
+        <div className={`h2 ${styles.title}`}>
           {getUserName()} collected a nutrition puzzle!
-        </h2>
+        </div>
 
         {/* Puzzle Card */}
         <div className={styles.puzzleCard}>
           <div className={`${styles.timestamp} h5`}>{dateStr}</div>
           <div className={styles.headingModule}>
             <div className={`${styles.collectionInfo} label`}>
-              {shareData?.collection?.collection_type}・{puzzleName.charAt(0).toUpperCase() + puzzleName.slice(1)}
+              Magic Garden・{puzzleName.charAt(0).toUpperCase() + puzzleName.slice(1)}
             </div>
             <div className={styles.heading}>
               Bright, balanced, and well-fed. That's the {puzzleName} energy we love to see.
@@ -193,7 +173,7 @@ export default function SharePage() {
                   ))}
                 </div>
                 <div className={styles.nutritionValueWrapper}>
-                  <div className={`${styles.nutritionValue} h5`}>{nutritionData[item.key]}g</div>
+                  <div className={`${styles.nutritionValue} h5`}>{nutrition[item.key]}g</div>
                   <div className={`${styles.nutritionLabel} label`}>{item.label}</div>
                 </div>
               </div>
@@ -203,16 +183,16 @@ export default function SharePage() {
 
         {/* Action Module */}
         <div className={styles.actionModule}>
-          <h4 className={styles.actionText}>
+          <div className={`${styles.actionText} h4`}>
             Collect your nutrition puzzles on
-          </h4>
+          </div>
           <a 
             href="https://my-nutrition-demo-openai-frontend.vercel.app/" 
             className={styles.ctaButton}
             target="_blank"
             rel="noopener noreferrer"
           >
-            <h4 className={styles.ctaLabel}>Nutrica.life</h4>
+            <span className={`${styles.ctaLabel} h4`}>Nutrica.life</span>
           </a>
         </div>
       </div>
