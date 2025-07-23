@@ -5,18 +5,45 @@ import styles from './DatePicker.module.css';
 import DatePickerModal from './DatePickerModal';
 import { supabase } from '../../../supabaseClient';
 import { apiGet } from '../../../utils/api';
+import { format } from 'date-fns';
 
-export default function DatePicker() {
-  const [currentDate, setCurrentDate] = useState(new Date());
+// 保存 daily_home_data 快照到 supabase
+async function saveDailyHomeData(data) {
+  if (!data.user_id || !data.date) return;
+  const { error } = await supabase
+    .from('daily_home_data')
+    .upsert([
+      {
+        ...data,
+        updated_at: new Date().toISOString()
+      }
+    ], { onConflict: ['user_id', 'date'] });
+  if (error) {
+    console.error('Failed to save daily home data:', error);
+  }
+}
+
+// 工具函数：获取本地 yyyy-MM-dd 日期字符串
+function getLocalDateString(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+export default function DatePicker(props) {
+  const currentDate = props.currentDate;
+  const setCurrentDate = props.setCurrentDate;
   const [canGoBack, setCanGoBack] = useState(false);
   const [canGoForward, setCanGoForward] = useState(false);
   const [showDatePickerModal, setShowDatePickerModal] = useState(false);
   const [userId, setUserId] = useState(null);
+  const [activeDates, setActiveDates] = useState([]); // 新增：有数据的日期
 
   // Check if specified date has image data
   const checkDateHasImage = async (date) => {
     try {
-      const { hasImage } = await apiGet(`/api/nutrition-images?date=${date.toISOString().split('T')[0]}`);
+      const { hasImage } = await apiGet(`/api/nutrition-images?date=${getLocalDateString(date)}`);
       return hasImage;
     } catch (error) {
       console.error('Error checking date image:', error);
@@ -115,12 +142,35 @@ export default function DatePicker() {
     getCurrentUserId();
   }, []);
 
+  // 获取当前用户所有有 daily_home_data 的日期
+  useEffect(() => {
+    async function fetchActiveDates() {
+      if (!props.userId) return;
+      const { data, error } = await supabase
+        .from('daily_home_data')
+        .select('date')
+        .eq('user_id', props.userId);
+      if (!error && data) {
+        setActiveDates(data.map(row => getLocalDateString(new Date(row.date))));
+      }
+    }
+    fetchActiveDates();
+  }, [props.userId]);
+
   useEffect(() => {
     updateNavigationState();
   }, [currentDate]);
 
   // Handle date selection
-  const handleDateSelect = (date) => {
+  const handleDateSelect = async (date) => {
+    // 切换日期前，先保存当前页面快照（切换前的日期）
+    if (userId && props.homeSnapshot) {
+      await saveDailyHomeData({
+        ...props.homeSnapshot,
+        user_id: userId,
+        date: getLocalDateString(currentDate)
+      });
+    }
     setCurrentDate(date);
   };
 
@@ -167,6 +217,7 @@ export default function DatePicker() {
         onDateSelect={handleDateSelect}
         currentDate={currentDate}
         userId={userId}
+        activeDates={activeDates} // 新增
       />
     </div>
   );

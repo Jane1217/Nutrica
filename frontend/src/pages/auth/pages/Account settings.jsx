@@ -176,10 +176,10 @@ export default function AccountSettings({ userEmail }) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    // 插入到 nutrition_goal 表
+    // 使用 upsert 保存到 nutrition_goal 表，避免唯一约束冲突
     const { error } = await supabase
       .from('nutrition_goal')
-      .insert([
+      .upsert([
         {
           user_id: user.id,
           calories,
@@ -188,12 +188,11 @@ export default function AccountSettings({ userEmail }) {
           protein,
           created_at: new Date().toISOString()
         }
-      ]);
+      ], { onConflict: ['user_id'] });
     if (error) {
       console.error('Failed to save:', error);
     }
     setShowNutritionGoalModal(false);
-    
   };
 
   // 获取要显示的卡路里值：优先使用计算值，其次使用数据库值

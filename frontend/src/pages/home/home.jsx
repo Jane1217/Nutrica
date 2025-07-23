@@ -9,12 +9,15 @@ import EatModal from '../eat/modals/EatModal';
 import UserInfoModal from '../auth/modals/UserInfoModal';
 import NutritionGoalModal from '../auth/modals/NutritionGoalModal';
 import NutritionPuzzlesModal from './puzzles/NutritionPuzzlesModal';
+// 删除 HomeDataTestPanel 的引入
+// import HomeDataTestPanel from './HomeDataTestPanel';
 
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import styles from './Home.module.css';
 import { calculateNutritionFromCalories, formatFoods, fetchNutritionGoals, fetchTodayNutrition } from '../../utils/nutrition';
 import { getCurrentUser, getUserMetadata, updateUserMetadata, isUserInfoComplete, hasShownUserInfoModal, setUserInfoModalShown, getDisplayCalories } from '../../utils/user';
 import { puzzleCategories, getColorOrder } from '../../data/puzzlesData';
+import { format } from 'date-fns';
 
 // 工具函数：按顺序提取某营养素的所有颜色
 function getNutrientColorsByOrder(pixelMap, nutrientType, colorOrder) {
@@ -29,6 +32,30 @@ function getNutrientColorsByOrder(pixelMap, nutrientType, colorOrder) {
     }
   }
   return colorOrder.filter(color => colorSet.has(color));
+}
+
+// 工具函数：获取本地 yyyy-MM-dd 日期字符串
+function getLocalDateString(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+// 保存 daily_home_data 快照到 supabase
+async function saveDailyHomeData(data) {
+  if (!data.user_id || !data.date) return;
+  const { error } = await supabase
+    .from('daily_home_data')
+    .upsert([
+      {
+        ...data,
+        updated_at: new Date().toISOString()
+      }
+    ], { onConflict: ['user_id', 'date'] });
+  if (error) {
+    console.error('Failed to save daily home data:', error);
+  }
 }
 
 export default function Home(props) {
@@ -52,6 +79,10 @@ export default function Home(props) {
   // 营养数据状态
   const [nutritionGoals, setNutritionGoals] = useState({ calories: 2000, carbs: 200, protein: 150, fats: 65 });
   const [todayNutrition, setTodayNutrition] = useState({ calories: 0, carbs: 0, protein: 0, fats: 0 });
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [snapshotData, setSnapshotData] = useState(null);
+  const [snapshotLoading, setSnapshotLoading] = useState(false); // 新增
+  const [snapshotError, setSnapshotError] = useState(null); // 新增
 
   useEffect(() => {
     if (searchParams.get('eat') === '1') {
@@ -147,6 +178,55 @@ export default function Home(props) {
     fetchTodayNutritionData();
   }, [userId]);
 
+  // 首次进入页面自动保存当天快照
+  useEffect(() => {
+    if (userId && selectedPuzzle) {
+      const today = getLocalDateString(new Date());
+      saveDailyHomeData({
+        user_id: userId,
+        date: today,
+        puzzle_category: selectedPuzzle
+          ? (puzzleCategories.find(cat => cat.puzzles.some(p => selectedPuzzle.id.startsWith(p.id)))?.title || '')
+          : '',
+        puzzle_name: selectedPuzzle?.name || '',
+        daily_text: getPuzzleDescription(selectedPuzzle, calculateNutritionProgress(), userInfo?.name),
+        pixel_art_data: selectedPuzzle?.pixelMap || null,
+        calories: todayNutrition.calories,
+        carbs: todayNutrition.carbs,
+        protein: todayNutrition.protein,
+        fats: todayNutrition.fats,
+        carbs_goal: nutritionGoals.carbs,
+        protein_goal: nutritionGoals.protein,
+        fats_goal: nutritionGoals.fats
+      });
+    }
+    // 设置午夜定时保存
+    const now = new Date();
+    const msToMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 1) - now;
+    const timer = setTimeout(() => {
+      if (userId && selectedPuzzle) {
+        const today = getLocalDateString(new Date());
+        saveDailyHomeData({
+          user_id: userId,
+          date: today,
+          puzzle_category: selectedPuzzle
+            ? (puzzleCategories.find(cat => cat.puzzles.some(p => selectedPuzzle.id.startsWith(p.id)))?.title || '')
+            : '',
+          puzzle_name: selectedPuzzle?.name || '',
+          daily_text: getPuzzleDescription(selectedPuzzle, calculateNutritionProgress(), userInfo?.name),
+          pixel_art_data: selectedPuzzle?.pixelMap || null,
+          calories: todayNutrition.calories,
+          carbs: todayNutrition.carbs,
+          protein: todayNutrition.protein,
+          fats: todayNutrition.fats,
+          carbs_goal: nutritionGoals.carbs,
+          protein_goal: nutritionGoals.protein,
+          fats_goal: nutritionGoals.fats
+        });
+      }
+    }, msToMidnight);
+    return () => clearTimeout(timer);
+  }, [userId, selectedPuzzle, todayNutrition, nutritionGoals, userInfo]);
 
 
   // EatModal 新增/修改后自动刷新foods和营养数据
@@ -311,36 +391,131 @@ export default function Home(props) {
   console.log('selectedPuzzle', selectedPuzzle);
 console.log('carbsColors', carbsColors, 'proteinColors', proteinColors, 'fatsColors', fatsColors);
 
+  // 监听 currentDate 变化，拉取快照
+  useEffect(() => {
+    const todayStr = getLocalDateString(new Date());
+    const selectedStr = getLocalDateString(currentDate);
+    if (selectedStr === todayStr) {
+      setSnapshotData(null);
+      setSnapshotLoading(false);
+      setSnapshotError(null);
+      return;
+    }
+    let cancelled = false;
+    setSnapshotLoading(true);
+    setSnapshotError(null);
+    const timeout = setTimeout(() => {
+      if (!cancelled) {
+        setSnapshotLoading(false);
+        setSnapshotError('快照加载超时，请检查网络或稍后重试');
+      }
+    }, 10000); // 10秒超时
+    async function fetchSnapshot() {
+      if (!userId || !selectedStr) return;
+      let data, error;
+      if (supabase.from('daily_home_data').maybeSingle) {
+        // v2 支持 maybeSingle
+        ({ data, error } = await supabase
+          .from('daily_home_data')
+          .select('*')
+          .eq('user_id', userId)
+          .eq('date', selectedStr)
+          .maybeSingle());
+      } else {
+        // v1 兼容
+        const res = await supabase
+          .from('daily_home_data')
+          .select('*')
+          .eq('user_id', userId)
+          .eq('date', selectedStr)
+          .limit(1);
+        data = res.data && res.data.length > 0 ? res.data[0] : null;
+        error = res.error;
+      }
+      clearTimeout(timeout);
+      if (!cancelled) {
+        setSnapshotData(error ? null : data);
+        setSnapshotLoading(false);
+        setSnapshotError(error ? '快照加载失败' : null);
+      }
+    }
+    fetchSnapshot();
+    return () => { cancelled = true; clearTimeout(timeout); };
+  }, [currentDate, userId]);
+
+  // 渲染时优先用 snapshotData
+  const renderData = snapshotData || {
+    puzzle_category: selectedPuzzle
+      ? (puzzleCategories.find(cat => cat.puzzles.some(p => selectedPuzzle.id.startsWith(p.id)))?.title || '')
+      : '',
+    puzzle_name: selectedPuzzle?.name || '',
+    daily_text: getPuzzleDescription(selectedPuzzle, calculateNutritionProgress(), userInfo?.name),
+    pixel_art_data: selectedPuzzle?.pixelMap || null,
+    calories: todayNutrition.calories,
+    carbs: todayNutrition.carbs,
+    protein: todayNutrition.protein,
+    fats: todayNutrition.fats,
+    carbs_goal: nutritionGoals.carbs,
+    protein_goal: nutritionGoals.protein,
+    fats_goal: nutritionGoals.fats
+  };
+
   return (
     <>
       <NavLogo onEatClick={() => setShowEatModal(true)} isLoggedIn={props.isLoggedIn} isAuth={false} />
       <div className={styles['home-main']}>
         <div className={styles.container}>
-          <DatePicker />
+          <DatePicker
+            userId={userId}
+            homeSnapshot={{
+              puzzle_category: renderData.puzzle_category,
+              puzzle_name: renderData.puzzle_name,
+              daily_text: renderData.daily_text,
+              pixel_art_data: renderData.pixel_art_data,
+              calories: renderData.calories,
+              carbs: renderData.carbs,
+              protein: renderData.protein,
+              fats: renderData.fats,
+              carbs_goal: renderData.carbs_goal,
+              protein_goal: renderData.protein_goal,
+              fats_goal: renderData.fats_goal
+            }}
+            currentDate={currentDate}
+            setCurrentDate={setCurrentDate}
+          />
           <PuzzleTextModule 
-            puzzleName={selectedPuzzle?.name || ''}
-            categoryName={selectedPuzzle ? (puzzleCategories.find(cat => cat.puzzles.some(p => selectedPuzzle.id.startsWith(p.id)))?.title || '') : ''}
-            puzzleText={getPuzzleDescription(selectedPuzzle, calculateNutritionProgress(), userInfo?.name)}
+            puzzleName={renderData.puzzle_name}
+            categoryName={renderData.puzzle_category}
+            puzzleText={renderData.daily_text}
             userName={userInfo?.name || 'User'}
-            hasSelectedPuzzle={!!selectedPuzzle}
+            hasSelectedPuzzle={!!renderData.puzzle_name}
           />
           <PuzzleContainer
-            hasSelectedPuzzle={!!selectedPuzzle}
+            hasSelectedPuzzle={!!renderData.puzzle_name}
             onChoosePuzzle={() => setShowPuzzlesModal(true)}
             selectedPuzzle={selectedPuzzle}
-            progress={calculateNutritionProgress()}
+            pixelArtData={renderData.pixel_art_data} // 新增
+            progress={
+              snapshotData
+                ? {
+                    1: (snapshotData.carbs_goal && snapshotData.carbs ? Math.min(snapshotData.carbs / snapshotData.carbs_goal, 1) : 0),
+                    2: (snapshotData.protein_goal && snapshotData.protein ? Math.min(snapshotData.protein / snapshotData.protein_goal, 1) : 0),
+                    3: (snapshotData.fats_goal && snapshotData.fats ? Math.min(snapshotData.fats / snapshotData.fats_goal, 1) : 0),
+                  }
+                : calculateNutritionProgress()
+            }
           >
             {/* 拼图内容将在这里 */}
           </PuzzleContainer>
           <NutritionCard 
-            calories={todayNutrition.calories}
-            carbs={todayNutrition.carbs}
-            protein={todayNutrition.protein}
-            fats={todayNutrition.fats}
-            carbsGoal={nutritionGoals.carbs}
-            proteinGoal={nutritionGoals.protein}
-            fatsGoal={nutritionGoals.fats}
-            hasSelectedPuzzle={!!selectedPuzzle}
+            calories={renderData.calories}
+            carbs={renderData.carbs}
+            protein={renderData.protein}
+            fats={renderData.fats}
+            carbsGoal={renderData.carbs_goal}
+            proteinGoal={renderData.protein_goal}
+            fatsGoal={renderData.fats_goal}
+            hasSelectedPuzzle={!!renderData.puzzle_name}
             carbsColors={carbsColors}
             proteinColors={proteinColors}
             fatsColors={fatsColors}
