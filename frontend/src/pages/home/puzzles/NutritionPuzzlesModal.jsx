@@ -3,7 +3,7 @@ import ModalWrapper from "../../../components/common/ModalWrapper";
 import styles from "./NutritionPuzzlesModal.module.css";
 import PuzzleList from "../../../components/puzzles/PuzzleList";
 import PuzzleSelectModal from "./PuzzleSelectModal";
-import { puzzleCategories } from "../../../data/puzzlesData";
+import { puzzleCategories } from '../../../data/puzzles';
 
 const puzzleList = puzzleCategories;
 
