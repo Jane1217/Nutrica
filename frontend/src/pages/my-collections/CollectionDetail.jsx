@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import styles from './CollectionDetail.module.css';
 import { useNavigate, useParams } from 'react-router-dom';
-import { puzzleCategories, getColorOrder } from '../../data/puzzlesData';
+import { puzzleCategories, colorOrders } from '../../data/puzzles';
 import ShareLinkModal from './ShareLinkModal';
 import { supabase } from '../../supabaseClient';
 import { getCurrentUser } from '../../utils/user';
@@ -105,9 +105,9 @@ export default function CollectionDetail({
       fats: ['#98E673', '#60BF32', '#0FA23A', '#1D793B']
     };
     return {
-      carbs: getNutrientColorsByOrder(puzzle.pixelMap, 1, getColorOrder('C')),
-      protein: getNutrientColorsByOrder(puzzle.pixelMap, 2, getColorOrder('P')),
-      fats: getNutrientColorsByOrder(puzzle.pixelMap, 3, getColorOrder('F'))
+      carbs: getNutrientColorsByOrder(puzzle.pixelMap, 1, colorOrders['C']),
+      protein: getNutrientColorsByOrder(puzzle.pixelMap, 2, colorOrders['P']),
+      fats: getNutrientColorsByOrder(puzzle.pixelMap, 3, colorOrders['F'])
     };
   }, [puzzle]);
 

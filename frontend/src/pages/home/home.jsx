@@ -16,7 +16,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import styles from './Home.module.css';
 import { calculateNutritionFromCalories, formatFoods, fetchNutritionGoals, fetchTodayNutrition } from '../../utils/nutrition';
 import { getCurrentUser, getUserMetadata, updateUserMetadata, isUserInfoComplete, hasShownUserInfoModal, setUserInfoModalShown, getDisplayCalories } from '../../utils/user';
-import { puzzleCategories, colorOrders } from '../../data/puzzlesData';
+import { puzzleCategories, colorOrders } from '../../data/puzzles';
 import { format } from 'date-fns';
 
 // 工具函数：按顺序提取某营养素的所有颜色
