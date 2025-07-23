@@ -58,6 +58,16 @@ async function saveDailyHomeData(data) {
   }
 }
 
+// 新增：通过puzzle_id查找本地puzzle对象
+function findPuzzleById(puzzleId) {
+  if (!puzzleId) return null;
+  for (const cat of puzzleCategories) {
+    const found = cat.puzzles.find(p => p.id === puzzleId);
+    if (found) return found;
+  }
+  return null;
+}
+
 export default function Home(props) {
   const [showEatModal, setShowEatModal] = useState(false);
   const [showUserInfoModal, setShowUserInfoModal] = useState(false);
@@ -106,25 +116,167 @@ export default function Home(props) {
     fetchUserInfo();
   }, []);
 
-  // 页面加载时自动恢复上次选中的puzzle
+  // 页面加载时，优先用本地缓存渲染selectedPuzzle
   useEffect(() => {
     const saved = localStorage.getItem('selectedPuzzle');
-    if (saved) {
+    const savedDate = localStorage.getItem('selectedPuzzleDate');
+    const todayStr = getLocalDateString(new Date());
+    if (saved && savedDate === todayStr) {
       try {
         setSelectedPuzzle(JSON.parse(saved));
       } catch {}
     }
   }, []);
 
-  // 新增：日期变更时清除puzzle选择
+  // 页面加载时，优先用本地缓存渲染nutritionGoals
+  useEffect(() => {
+    const saved = localStorage.getItem('nutritionGoals');
+    const savedDate = localStorage.getItem('nutritionGoalsDate');
+    const todayStr = getLocalDateString(new Date());
+    if (saved && savedDate === todayStr) {
+      try {
+        setNutritionGoals(JSON.parse(saved));
+      } catch {}
+    }
+  }, []);
+
+  // 页面加载时，优先用本地缓存渲染pixel_art_data和nutrition goal
+  useEffect(() => {
+    const saved = localStorage.getItem('home_snapshot');
+    const savedDate = localStorage.getItem('home_snapshot_date');
+    const todayStr = getLocalDateString(new Date());
+    if (saved && savedDate === todayStr) {
+      try {
+        const snapshot = JSON.parse(saved);
+        if (snapshot.pixel_art_data) setSelectedPuzzle(prev => prev ? { ...prev, pixelMap: snapshot.pixel_art_data } : prev);
+        if (snapshot.carbs_goal || snapshot.protein_goal || snapshot.fats_goal) {
+          setNutritionGoals({
+            carbs: snapshot.carbs_goal || 200,
+            protein: snapshot.protein_goal || 150,
+            fats: snapshot.fats_goal || 65,
+            calories: snapshot.calories_goal || 2000
+          });
+        }
+      } catch {}
+    }
+  }, []);
+
+  // 每次selectedPuzzle、todayNutrition、nutritionGoals变更时，写入home_snapshot缓存
   useEffect(() => {
     const todayStr = getLocalDateString(new Date());
-    const selectedStr = getLocalDateString(currentDate);
-    if (selectedStr !== todayStr) {
+    const snapshot = {
+      date: todayStr,
+      pixel_art_data: selectedPuzzle?.pixelMap || null,
+      carbs_goal: nutritionGoals.carbs,
+      protein_goal: nutritionGoals.protein,
+      fats_goal: nutritionGoals.fats,
+      calories_goal: nutritionGoals.calories
+    };
+    localStorage.setItem('home_snapshot', JSON.stringify(snapshot));
+    localStorage.setItem('home_snapshot_date', todayStr);
+  }, [selectedPuzzle, nutritionGoals]);
+
+  // userId变化时，先清空本地缓存，再拉取supabase当天puzzle选择、nutrition goal和快照
+  useEffect(() => {
+    // 账号切换时，先清空本地缓存和state
+    localStorage.removeItem('selectedPuzzle');
+    localStorage.removeItem('selectedPuzzleDate');
+    localStorage.removeItem('nutritionGoals');
+    localStorage.removeItem('nutritionGoalsDate');
+    localStorage.removeItem('todayNutrition');
+    localStorage.removeItem('todayNutritionDate');
+    localStorage.removeItem('home_snapshot');
+    localStorage.removeItem('home_snapshot_date');
+    setSelectedPuzzle(null);
+    setNutritionGoals({ calories: 2000, carbs: 200, protein: 150, fats: 65 });
+    setTodayNutrition({ calories: 0, carbs: 0, protein: 0, fats: 0 });
+
+    // 然后拉取新账号的supabase数据
+    if (userId) {
+      const today = getLocalDateString(new Date());
+      supabase.from('daily_home_data')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('date', today)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data && data.puzzle_id) {
+            const puzzle = findPuzzleById(data.puzzle_id);
+            if (puzzle) {
+              setSelectedPuzzle(puzzle);
+              localStorage.setItem('selectedPuzzle', JSON.stringify(puzzle));
+              localStorage.setItem('selectedPuzzleDate', today);
+            }
+          }
+          // nutrition goal
+          if (data && (data.carbs_goal || data.protein_goal || data.fats_goal || data.calories_goal)) {
+            const goals = {
+              calories: data.calories_goal || 2000,
+              carbs: data.carbs_goal || 200,
+              protein: data.protein_goal || 150,
+              fats: data.fats_goal || 65
+            };
+            setNutritionGoals(goals);
+            localStorage.setItem('nutritionGoals', JSON.stringify(goals));
+            localStorage.setItem('nutritionGoalsDate', today);
+          }
+          // todayNutrition
+          if (data) {
+            const nutrition = {
+              calories: data.calories || 0,
+              carbs: data.carbs || 0,
+              protein: data.protein || 0,
+              fats: data.fats || 0
+            };
+            setTodayNutrition(nutrition);
+            localStorage.setItem('todayNutrition', JSON.stringify(nutrition));
+            localStorage.setItem('todayNutritionDate', today);
+          }
+          // home_snapshot
+          if (data) {
+            const snapshot = {
+              date: today,
+              pixel_art_data: data.pixel_art_data || null,
+              carbs_goal: data.carbs_goal,
+              protein_goal: data.protein_goal,
+              fats_goal: data.fats_goal,
+              calories_goal: data.calories_goal
+            };
+            localStorage.setItem('home_snapshot', JSON.stringify(snapshot));
+            localStorage.setItem('home_snapshot_date', today);
+          }
+        });
+    }
+  }, [userId]);
+
+  // 页面加载时自动恢复上次选中的puzzle
+  useEffect(() => {
+    const saved = localStorage.getItem('selectedPuzzle');
+    const savedDate = localStorage.getItem('selectedPuzzleDate');
+    const todayStr = getLocalDateString(new Date());
+    if (saved && savedDate === todayStr) {
+      try {
+        setSelectedPuzzle(JSON.parse(saved));
+      } catch {}
+    } else {
       localStorage.removeItem('selectedPuzzle');
+      localStorage.removeItem('selectedPuzzleDate');
       setSelectedPuzzle(null);
     }
-  }, [currentDate]);
+  }, []);
+
+  // 新增：设置定时器在下一个0点清除puzzle选择
+  useEffect(() => {
+    const now = new Date();
+    const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
+    const msToMidnight = nextMidnight - now;
+    const timer = setTimeout(() => {
+      localStorage.removeItem('selectedPuzzle');
+      localStorage.removeItem('selectedPuzzleDate');
+      setSelectedPuzzle(null);
+    }, msToMidnight);
+    return () => clearTimeout(timer);
+  }, []);
 
   // 获取用户最新的营养目标
   const fetchNutritionGoalsData = async () => {
@@ -199,6 +351,7 @@ export default function Home(props) {
           ? (puzzleCategories.find(cat => cat.puzzles.some(p => selectedPuzzle.id.startsWith(p.id)))?.title || '')
           : '',
         puzzle_name: selectedPuzzle?.name || '',
+        puzzle_id: selectedPuzzle?.id || '', //
         daily_text: getPuzzleDescription(selectedPuzzle, calculateNutritionProgress(), userInfo?.name),
         pixel_art_data: selectedPuzzle?.pixelMap || null,
         calories: todayNutrition.calories,
@@ -223,6 +376,7 @@ export default function Home(props) {
             ? (puzzleCategories.find(cat => cat.puzzles.some(p => selectedPuzzle.id.startsWith(p.id)))?.title || '')
             : '',
           puzzle_name: selectedPuzzle?.name || '',
+          puzzle_id: selectedPuzzle?.id || '', // 新增
           daily_text: getPuzzleDescription(selectedPuzzle, calculateNutritionProgress(), userInfo?.name),
           pixel_art_data: selectedPuzzle?.pixelMap || null,
           calories: todayNutrition.calories,
@@ -343,6 +497,7 @@ export default function Home(props) {
     setSelectedPuzzle(puzzle);
     setShowPuzzlesModal(false);
     localStorage.setItem('selectedPuzzle', JSON.stringify(puzzle));
+    localStorage.setItem('selectedPuzzleDate', getLocalDateString(new Date()));
   };
 
   // 计算营养进度
@@ -453,6 +608,73 @@ console.log('carbsColors', carbsColors, 'proteinColors', proteinColors, 'fatsCol
     fetchSnapshot();
     return () => { cancelled = true; clearTimeout(timeout); };
   }, [currentDate, userId]);
+
+  // 页面加载时，优先用本地缓存渲染todayNutrition；本地无数据时立即拉取supabase
+useEffect(() => {
+  const saved = localStorage.getItem('todayNutrition');
+  const savedDate = localStorage.getItem('todayNutritionDate');
+  const todayStr = getLocalDateString(new Date());
+  let hasLocal = false;
+  if (saved && savedDate === todayStr) {
+    try {
+      setTodayNutrition(JSON.parse(saved));
+      hasLocal = true;
+    } catch {}
+  }
+  // 本地无数据时，拉取supabase
+  if (!hasLocal && userId) {
+    supabase.from('daily_home_data')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('date', todayStr)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) {
+          const nutrition = {
+            calories: data.calories || 0,
+            carbs: data.carbs || 0,
+            protein: data.protein || 0,
+            fats: data.fats || 0
+          };
+          setTodayNutrition(nutrition);
+          localStorage.setItem('todayNutrition', JSON.stringify(nutrition));
+          localStorage.setItem('todayNutritionDate', todayStr);
+        }
+      });
+  }
+}, [userId]);
+
+// userId变化时，后台拉取supabase今日营养素数据，如有则覆盖本地和state
+useEffect(() => {
+  if (userId) {
+    const today = getLocalDateString(new Date());
+    supabase.from('daily_home_data')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('date', today)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) {
+          const nutrition = {
+            calories: data.calories || 0,
+            carbs: data.carbs || 0,
+            protein: data.protein || 0,
+            fats: data.fats || 0
+          };
+          setTodayNutrition(nutrition);
+          localStorage.setItem('todayNutrition', JSON.stringify(nutrition));
+          localStorage.setItem('todayNutritionDate', today);
+        }
+      });
+  }
+}, [userId]);
+
+// todayNutrition变更时，同步写入localStorage
+useEffect(() => {
+  const todayStr = getLocalDateString(new Date());
+  localStorage.setItem('todayNutrition', JSON.stringify(todayNutrition));
+  localStorage.setItem('todayNutritionDate', todayStr);
+}, [todayNutrition]);
 
   // 渲染时优先用 snapshotData
   const renderData = snapshotData || {
