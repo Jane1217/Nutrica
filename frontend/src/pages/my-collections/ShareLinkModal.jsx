@@ -1,16 +1,51 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from './ShareLinkModal.module.css';
 import ModalWrapper from '../../components/common/ModalWrapper';
+import { getCurrentUser } from '../../utils/user';
 
 export default function ShareLinkModal({ open, onClose, puzzleName = 'carrot', iconUrl }) {
-  const BASE_URL = 'https://my-nutrition-demo-openai-frontend.vercel.app';
-  const shareLink = `${BASE_URL}/my-collections/detail/${puzzleName.toLowerCase()}`;
+  const [userId, setUserId] = useState(null);
+  const [copySuccess, setCopySuccess] = useState(false);
+  
+  // 获取当前用户ID
+  useEffect(() => {
+    const fetchUserId = async () => {
+      const user = await getCurrentUser();
+      if (user) {
+        setUserId(user.id);
+      }
+    };
+    fetchUserId();
+  }, []);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(shareLink);
+  const BASE_URL = 'https://my-nutrition-demo-openai-frontend.vercel.app';
+  // 生成包含用户ID的唯一分享链接
+  const shareLink = userId ? `${BASE_URL}/share/${userId}/${puzzleName.toLowerCase()}` : '';
+
+  const handleCopy = async () => {
+    if (!shareLink) return;
+    
+    try {
+      await navigator.clipboard.writeText(shareLink);
+      setCopySuccess(true);
+      // 3秒后隐藏成功提示
+      setTimeout(() => setCopySuccess(false), 3000);
+    } catch (err) {
+      console.error('Failed to copy link:', err);
+      // 降级方案：使用传统复制方法
+      const textArea = document.createElement('textarea');
+      textArea.value = shareLink;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 3000);
+    }
   };
 
   const handleShare = () => {
+    if (!shareLink) return;
     window.open(shareLink, '_blank');
   };
 
@@ -30,18 +65,20 @@ export default function ShareLinkModal({ open, onClose, puzzleName = 'carrot', i
             </div>
             <div className={`${styles.headingText} h2`}>Share Link generated!</div>
           </div>
-          <img src="/assets/divider line (1).svg" alt="divider" className={styles.divider} />
+          <img src="/assets/divider line.svg" alt="divider" className={styles.divider} />
           {/* Link module */}
           <div className={styles.linkModule}>
             <div className={styles.linkWrapper}>
-              <span className="body2" style={{ color: 'var(--Neutral-Secondary-Text, #6A6A61)', whiteSpace: 'nowrap', overflowX: 'auto', display: 'block', maxWidth: '180px' }}>{shareLink}</span>
+              <span className="body2" style={{ color: 'var(--Neutral-Secondary-Text, #6A6A61)', whiteSpace: 'nowrap', overflowX: 'auto', display: 'block', maxWidth: '180px' }}>{shareLink || 'Loading...'}</span>
             </div>
-            <button className={styles.copyBtn} onClick={handleCopy}>
-              <span className="h5" style={{ color: 'var(--Neutral-Primary-Text, #22221B)' }}>Copy Link</span>
+            <button className={styles.copyBtn} onClick={handleCopy} disabled={!shareLink}>
+              <span className="h5" style={{ color: 'var(--Neutral-Primary-Text, #22221B)' }}>
+                {copySuccess ? 'Copied!' : 'Copy Link'}
+              </span>
             </button>
           </div>
           {/* Share 按钮 */}
-          <button className={styles.shareBtn} onClick={handleShare}>
+          <button className={styles.shareBtn} onClick={handleShare} disabled={!shareLink}>
             <span className="h4" style={{ color: 'var(--Brand-Background, #F3F3EC)' }}>Share</span>
           </button>
         </div>

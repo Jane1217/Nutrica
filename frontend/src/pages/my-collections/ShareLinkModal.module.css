@@ -47,9 +47,9 @@
 }
 .iconBg {
   display: flex;
-  width: 40px;
-  height: 40px;
-  padding: 11px 10.5px 11px 10.5px;
+  width: 38px;
+  height: 38px;
+  padding: 10px 9.5px 10px 9.5px;
   justify-content: center;
   align-items: center;
   border-radius: 999px;
@@ -68,10 +68,10 @@
 }
 .divider {
   width: 64px;
-  height: 0px;
-  border: none;
-  stroke-width: 4px;
-  stroke: var(--Brand-Outline, #DBE2D0);
+  height: 4px;
+  flex-shrink: 0;
+  object-fit: contain;
+  display: block;
 }
 .linkModule {
   display: flex;
@@ -108,7 +108,18 @@
   cursor: pointer;
   height: 100%;
   margin-left: 0;
+  transition: opacity 0.2s ease;
 }
+
+.copyBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.copyBtn:not(:disabled):hover {
+  background: transparent;
+}
+
 .shareBtn {
   display: flex;
   height: 48px;
@@ -121,4 +132,14 @@
   background: var(--Brand-Dark, #2A4E14);
   border: none;
   cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.shareBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.shareBtn:not(:disabled):hover {
+  background: var(--Brand-Dark-Hover, #1a3a0e);
 } 

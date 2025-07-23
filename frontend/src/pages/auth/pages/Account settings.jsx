@@ -39,7 +39,7 @@ export default function AccountSettings({ userEmail }) {
           }
         }
       } catch (error) {
-        console.error('初始化时解析缓存失败:', error);
+        console.error('Failed to parse cached data:', error);
         localStorage.removeItem('nutrica_user_cache');
       }
     }
@@ -71,7 +71,7 @@ export default function AccountSettings({ userEmail }) {
           }
         }
       } catch (error) {
-        console.error('解析本地缓存失败:', error);
+        console.error('Failed to parse cached data:', error);
         localStorage.removeItem('nutrica_user_cache');
       }
     }
@@ -147,7 +147,7 @@ export default function AccountSettings({ userEmail }) {
     if (!user) return;
     const { error } = await supabase.auth.updateUser({ data: newMeta });
     if (error) {
-      console.error('保存用户信息失败:', error);
+      console.error('Failed to save user info:', error);
     } else {
       // 更新本地缓存
       const cacheData = {
@@ -190,7 +190,7 @@ export default function AccountSettings({ userEmail }) {
         }
       ]);
     if (error) {
-      console.error('保存失败', error);
+      console.error('Failed to save:', error);
     }
     setShowNutritionGoalModal(false);
     
@@ -361,7 +361,7 @@ export default function AccountSettings({ userEmail }) {
           if (!user) return;
           const { error } = await supabase.auth.updateUser({ data: newMeta });
           if (error) {
-            console.error('保存用户信息失败:', error);
+            console.error('Failed to save user info:', error);
           } else {
             // 更新本地缓存
             const cacheData = {
