@@ -19,7 +19,7 @@ const getHttpsConfig = () => {
       };
     }
   } catch (error) {
-    console.log('SSL证书文件不存在，将使用HTTP模式');
+    console.log('SSL certificate files not found, will use HTTP mode');
   }
   return false;
 };

@@ -134,12 +134,32 @@ export const userApi = {
 };
 
 // 错误处理
-export const handleApiError = (error, defaultMessage = '操作失败') => {
-  if (error.message.includes('Network')) {
-    return '网络连接失败，请检查网络设置';
+export const handleApiError = (error, defaultMessage = 'API request failed') => {
+  if (error.response) {
+    // 服务器返回了错误状态码
+    const status = error.response.status;
+    const data = error.response.data;
+    
+    if (status === 401) {
+      return 'Authentication failed. Please log in again.';
+    } else if (status === 403) {
+      return 'Access denied. You do not have permission to perform this action.';
+    } else if (status === 404) {
+      return 'Resource not found.';
+    } else if (status === 429) {
+      return 'Too many requests. Please try again later.';
+    } else if (status >= 500) {
+      return 'Server error. Please try again later.';
+    } else if (data && data.error) {
+      return data.error;
+    } else {
+      return `Request failed with status ${status}`;
+    }
+  } else if (error.request) {
+    // 请求已发出但没有收到响应
+    return 'No response from server. Please check your internet connection.';
+  } else {
+    // 请求设置时发生错误
+    return error.message || defaultMessage;
   }
-  if (error.message.includes('HTTP')) {
-    return error.message;
-  }
-  return defaultMessage;
 }; 

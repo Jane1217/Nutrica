@@ -58,7 +58,7 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
       const accessToken = session.data.session?.access_token;
       
       if (!accessToken) {
-        setError('无法获取访问令牌，请重新登录');
+        setError('Unable to get access token, please log in again');
         setLoading(false);
         return;
       }

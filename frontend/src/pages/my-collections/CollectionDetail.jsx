@@ -1,8 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import styles from './CollectionDetail.module.css';
 import { useNavigate, useParams } from 'react-router-dom';
 import { puzzleCategories, getColorOrder } from '../../data/puzzlesData';
 import ShareLinkModal from './ShareLinkModal';
+import { supabase } from '../../supabaseClient';
+import { getCurrentUser } from '../../utils/user';
 
 // 默认营养素标签
 const NUTRITION_LABELS = [
@@ -38,6 +40,10 @@ export default function CollectionDetail({
   const navigate = useNavigate();
   const params = useParams();
   const [showShareModal, setShowShareModal] = useState(false);
+  const [collectionData, setCollectionData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
   // 支持路由参数和props两种方式
   const puzzleName = propPuzzleName || (params.puzzleName ? params.puzzleName.charAt(0).toUpperCase() + params.puzzleName.slice(1) : 'Carrot');
 
@@ -52,8 +58,44 @@ export default function CollectionDetail({
 
   const collectionType = propCollectionType || (puzzle?.category || 'Magic Garden');
   const iconUrl = propIconUrl || puzzle?.iconUrl || 'https://rejsoyzhhukatdaebgtq.supabase.co/storage/v1/object/public/puzzle-icons//carrot.svg';
-  const description = propDescription || puzzle?.description || "Bright, balanced, and well-fed. That’s the carrot energy we love to see.";
-  const date = propDate || new Date();
+  const description = propDescription || puzzle?.description || "Bright, balanced, and well-fed. That's the carrot energy we love to see.";
+
+  // 从数据库获取collection数据
+  useEffect(() => {
+    const fetchCollectionData = async () => {
+      try {
+        setLoading(true);
+        const user = await getCurrentUser();
+        if (!user) {
+          setError('User not authenticated');
+          setLoading(false);
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from('user_collections')
+          .select('first_completed_at, nutrition')
+          .eq('user_id', user.id)
+          .eq('collection_type', collectionType)
+          .eq('puzzle_name', puzzleName)
+          .single();
+
+        if (error) {
+          console.error('Failed to fetch collection data:', error);
+          setError('Failed to load collection data');
+        } else {
+          setCollectionData(data || []);
+        }
+      } catch (error) {
+        console.error('Error fetching collection data:', error);
+        setError('Failed to load collection data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCollectionData();
+  }, [puzzleName, collectionType]);
 
   // 动态生成palette颜色，兼容不同puzzle
   const paletteColors = useMemo(() => {
@@ -69,12 +111,76 @@ export default function CollectionDetail({
     };
   }, [puzzle]);
 
-  const dateStr = date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+  // 获取日期字符串
+  const dateStr = useMemo(() => {
+    if (collectionData?.first_completed_at) {
+      const date = new Date(collectionData.first_completed_at);
+      return date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+    }
+    // 如果没有数据，使用props中的date或当前时间
+    const fallbackDate = propDate || new Date();
+    return fallbackDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+  }, [collectionData, propDate]);
+
+  // 获取营养数据
+  const nutritionData = useMemo(() => {
+    if (collectionData?.nutrition) {
+      return {
+        carbs: collectionData.nutrition.carbs || 0,
+        protein: collectionData.nutrition.protein || 0,
+        fats: collectionData.nutrition.fats || 0
+      };
+    }
+    // 如果没有数据，使用默认值
+    return { carbs: 0, protein: 0, fats: 0 };
+  }, [collectionData]);
 
   const handleClose = () => {
     if (onClose) onClose();
     else navigate(-1);
   };
+
+  // 如果正在加载，显示加载状态
+  if (loading) {
+    return (
+      <div className={styles.detailPage}>
+        <div className={styles.header}>
+          <h1 className={`${styles.title} h1`}>{puzzleName}</h1>
+          <div className={styles.closeBtn} onClick={handleClose}>
+            <img src="/assets/close (1).svg" alt="close" className={styles.closeIcon} />
+          </div>
+        </div>
+        <div className={styles.container}>
+          <div className={styles.loadingContainer}>
+            <div className={styles.loadingSpinner}></div>
+            <span className="body1">Loading collection details...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 如果有错误，显示错误状态
+  if (error) {
+    return (
+      <div className={styles.detailPage}>
+        <div className={styles.header}>
+          <h1 className={`${styles.title} h1`}>{puzzleName}</h1>
+          <div className={styles.closeBtn} onClick={handleClose}>
+            <img src="/assets/close (1).svg" alt="close" className={styles.closeIcon} />
+          </div>
+        </div>
+        <div className={styles.container}>
+          <div className={styles.errorContainer}>
+            <span className="body1">Failed to load collection data</span>
+            <button onClick={() => window.location.reload()} className={styles.retryButton}>
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.detailPage}>
@@ -116,7 +222,7 @@ export default function CollectionDetail({
                   ))}
                 </div>
                 <div className={styles.nutritionValueWrapper}>
-                  <div className={`${styles.nutritionValue} h5`}>{nutritionGoals[item.key]}g</div>
+                  <div className={`${styles.nutritionValue} h5`}>{nutritionData[item.key]}g</div>
                   <div className={`${styles.nutritionLabel} label`}>{item.label}</div>
                 </div>
               </div>

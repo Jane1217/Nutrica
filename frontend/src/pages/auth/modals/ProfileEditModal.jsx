@@ -62,13 +62,13 @@ export default function ProfileEditModal({ open, onClose, userInfo = {}, onSave 
                 .remove([fileName]);
               
               if (deleteError) {
-                console.error('删除旧头像失败:', deleteError);
+                console.error('Failed to delete old avatar:', deleteError);
               } else {
-                console.log('旧头像已删除:', fileName);
+                console.log('Old avatar deleted:', fileName);
               }
             }
           } catch (error) {
-            console.error('删除旧头像时出错:', error);
+            console.error('Error deleting old avatar:', error);
           }
         }
         
@@ -84,7 +84,7 @@ export default function ProfileEditModal({ open, onClose, userInfo = {}, onSave 
           });
         
         if (error) {
-          console.error('上传头像失败:', error);
+          console.error('Failed to upload avatar:', error);
         } else {
           // 获取公共URL
           const { data: { publicUrl } } = supabase.storage
@@ -98,11 +98,11 @@ export default function ProfileEditModal({ open, onClose, userInfo = {}, onSave 
           });
           
           if (updateError) {
-            console.error('保存头像URL到用户信息失败:', updateError);
+            console.error('Failed to save avatar URL to user info:', updateError);
           }
         }
       } catch (error) {
-        console.error('处理头像失败:', error);
+        console.error('Error processing avatar:', error);
       } finally {
         setUploading(false);
       }
@@ -164,11 +164,11 @@ export default function ProfileEditModal({ open, onClose, userInfo = {}, onSave 
               .remove([fileName]);
             
             if (deleteError) {
-              console.error('删除头像文件失败:', deleteError);
+              console.error('Failed to delete avatar file:', deleteError);
             }
           }
         } catch (error) {
-          console.error('删除头像文件时出错:', error);
+          console.error('Error deleting avatar file:', error);
         }
       }
       
@@ -178,7 +178,7 @@ export default function ProfileEditModal({ open, onClose, userInfo = {}, onSave 
       });
       
       if (updateError) {
-        console.error('删除头像URL失败:', updateError);
+        console.error('Failed to delete avatar URL:', updateError);
       } else {
         // 清除本地状态
         setCroppedUrl(null);
@@ -191,7 +191,7 @@ export default function ProfileEditModal({ open, onClose, userInfo = {}, onSave 
         if (onSave) onSave({ name: firstName, lastName, avatarUrl: null });
       }
     } catch (error) {
-      console.error('删除头像失败:', error);
+      console.error('Failed to delete avatar:', error);
     }
   };
 

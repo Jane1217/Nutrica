@@ -42,18 +42,20 @@ export default function EnterValueModal({ open, onClose, onBack, onCloseModal, u
       // 必须等待AI生成emoji
       let emoji = '';
       try {
-        const emojiRes = await foodApi.getFoodEmoji(form.name.trim());
-        if (emojiRes.success && emojiRes.data.emoji) {
-          emoji = emojiRes.data.emoji;
+        const response = await foodApi.getFoodEmoji(form.name.trim());
+        if (response.success && response.data.emoji) {
+          emoji = response.data.emoji;
         } else {
-          setError('AI未能生成emoji');
+          setError('AI failed to generate emoji');
           setLoading(false);
           return;
         }
-      } catch (e) {
-        setError('AI生成emoji失败');
+      } catch (error) {
+        setError('AI emoji generation failed');
         setLoading(false);
         return;
+      } finally {
+        setLoading(false);
       }
       
       // 获取访问令牌
@@ -61,7 +63,7 @@ export default function EnterValueModal({ open, onClose, onBack, onCloseModal, u
       const accessToken = session.data.session?.access_token;
       
       if (!accessToken) {
-        setError('无法获取访问令牌，请重新登录');
+        setError('Unable to get access token, please log in again');
         setLoading(false);
         return;
       }

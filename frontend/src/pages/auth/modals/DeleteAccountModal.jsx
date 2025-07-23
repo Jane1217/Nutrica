@@ -14,33 +14,29 @@ export default function DeleteAccountModal({ open, onClose, userEmail }) {
     }
   }, [open]);
 
-  const handleDeleteAccount = async () => {
+  const deleteAccount = async () => {
     setIsLoading(true);
 
     try {
-      // 1. 获取当前用户信息
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        console.error('用户未登录');
+        console.error('User not logged in');
         return;
       }
 
-      // 2. 调用后端API删除用户账号
-      const session = await supabase.auth.getSession();
-      const accessToken = session.data.session?.access_token;
-      
-      if (!accessToken) {
-        console.error('无法获取访问令牌');
-        alert('无法获取访问令牌，请重新登录');
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        console.error('Unable to get access token');
+        alert('Unable to get access token, please log in again');
         return;
       }
 
       try {
-        await userApi.deleteAccount(user.id, accessToken);
-        console.log('删除账号成功');
+        await userApi.deleteAccount(user.id, session.access_token);
+        console.log('Account deleted successfully');
       } catch (error) {
-        console.error('删除账号失败:', error);
-        alert('删除账号失败: ' + error.message);
+        console.error('Failed to delete account:', error);
+        alert('Failed to delete account: ' + error.message);
         return;
       }
 
@@ -56,8 +52,8 @@ export default function DeleteAccountModal({ open, onClose, userEmail }) {
       window.location.href = '/';
 
     } catch (err) {
-      console.error('删除账号时出错:', err);
-      alert('删除账号时出错: ' + err.message);
+      console.error('Error deleting account:', err);
+      alert('Error deleting account: ' + err.message);
     } finally {
       setIsLoading(false);
     }
@@ -106,7 +102,7 @@ export default function DeleteAccountModal({ open, onClose, userEmail }) {
             <button
               type="button"
               className={styles.deleteButton}
-              onClick={handleDeleteAccount}
+              onClick={deleteAccount}
               disabled={isLoading}
             >
               <span className="h4" style={{color: 'var(--Brand-Background, #F3F3EC)'}}>

@@ -3,6 +3,7 @@ import NavLogo from '../../components/navbar/Nav-Logo';
 import styles from './MyCollections.module.css';
 import { supabase } from '../../supabaseClient';
 import { useNavigate } from 'react-router-dom';
+import { getCurrentUser } from '../../utils/user';
 
 // Magic Garden 主题的拼图顺序和图标配置（6个坑位，均匀分布）
 const MAGIC_GARDEN_PUZZLES = [
@@ -18,29 +19,56 @@ const MAGIC_GARDEN_PUZZLES = [
   { puzzle_name: 'Cabbage', icon_url: '', slot: 6 },
 ];
 
-const USER_ID = 'a6d8972f-23cd-4978-a80c-8f2d362b9f15'; // 实际项目应从登录态获取
-
 export default function MyCollections() {
   const [collections, setCollections] = useState([]); // 用户已收集的 puzzle
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState(null);
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
+
+  // 获取当前登录用户
+  useEffect(() => {
+    const fetchUser = async () => {
+      const currentUser = await getCurrentUser();
+      if (!currentUser) {
+        // 用户未登录，跳转到登录页
+        navigate('/log-in');
+        return;
+      }
+      setUser(currentUser);
+      setUserId(currentUser.id);
+    };
+    fetchUser();
+  }, [navigate]);
 
   useEffect(() => {
     async function fetchCollections() {
+      if (!userId) return;
+      
       setLoading(true);
-      // 查询用户在 Magic Garden 下所有收集
-      const { data, error } = await supabase
-        .from('user_collections')
-        .select('*')
-        .eq('user_id', USER_ID)
-        .eq('collection_type', 'Magic Garden');
-      if (!error && data) {
-        setCollections(data);
+      try {
+        // 查询用户在 Magic Garden 下所有收集
+        const { data, error } = await supabase
+          .from('user_collections')
+          .select('*')
+          .eq('user_id', userId)
+          .eq('collection_type', 'Magic Garden');
+        
+        if (error) {
+          console.error('Failed to fetch collection data:', error);
+          setCollections([]);
+        } else {
+          setCollections(data || []);
+        }
+      } catch (error) {
+        console.error('Error fetching collection data:', error);
+        setCollections([]);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
     fetchCollections();
-  }, []);
+  }, [userId]);
 
   // 计算每个 slot 的收集情况
   const slots = MAGIC_GARDEN_PUZZLES.map((puzzle) => {
@@ -64,9 +92,30 @@ export default function MyCollections() {
     navigate(`/my-collections/detail/${slot.puzzle_name.toLowerCase()}`);
   };
 
+  // 如果正在加载，显示加载状态
+  if (loading) {
+    return (
+      <div className={styles.myCollectionsPage}>
+        <NavLogo hideEat hideMenu isLoggedIn={true} />
+        <div className={styles.container}>
+          <h1 className={`${styles.title} h1`}>My Collections</h1>
+          <div className={styles.loadingContainer}>
+            <div className={styles.loadingSpinner}></div>
+            <span className="body1">Loading collections...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // 如果用户未登录，不渲染内容（会跳转到登录页）
+  if (!user) {
+    return null;
+  }
+
   return (
     <div className={styles.myCollectionsPage}>
-      <NavLogo hideEat hideMenu />
+      <NavLogo hideEat hideMenu isLoggedIn={true} />
       <div className={styles.container}>
         <h1 className={`${styles.title} h1`}>My Collections</h1>
         {/* Collection 展示区 */}
@@ -113,7 +162,12 @@ export default function MyCollections() {
               </span>
             </div>
             <div className={`${styles.collectionDescription} body1`}>
-              Little by little, your garden is coming alive. Keep tending to it with care.
+              {collectedKinds === 0 
+                ? "Your garden is waiting to bloom. Start collecting nutrition puzzles to see it come alive!"
+                : collectedKinds === totalKinds
+                ? "Congratulations! Your Magic Garden is complete and thriving!"
+                : "Little by little, your garden is coming alive. Keep tending to it with care."
+              }
             </div>
           </div>
         </div>

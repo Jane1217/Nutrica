@@ -118,7 +118,7 @@ export default function Home(props) {
     setFoodsLoading(false);
     
     if (error) {
-      console.error('获取食物数据失败:', error);
+      console.error('Failed to fetch food data:', error);
       setFoods([]);
       foodsAllRef.current = [];
       setFoodsTotal(0);
@@ -204,7 +204,7 @@ export default function Home(props) {
       // 只有在成功保存后才设置标记，避免重复弹出
       setUserInfoModalShown();
     } catch (error) {
-      console.error('保存用户信息失败:', error);
+      console.error('Failed to save user info:', error);
       // 保存失败时关闭营养目标弹窗，重新打开用户信息弹窗
       setShowNutritionGoalModal(false);
       setShowUserInfoModal(true);
@@ -238,7 +238,7 @@ export default function Home(props) {
         }
       ]);
     if (error) {
-      console.error('保存失败', error);
+      console.error('Failed to save calories:', error);
     }
     setShowNutritionGoalModal(false);
   };

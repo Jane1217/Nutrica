@@ -68,7 +68,7 @@ export default function FullScreenCropper({ imageUrl, onCropComplete, onCancel }
         const croppedImageUrl = URL.createObjectURL(blob);
         onCropComplete(croppedImageUrl, blob);
       } catch (error) {
-        console.error('裁剪图片失败:', error);
+        console.error('Failed to crop image:', error);
         // 如果裁剪失败，使用原图
         onCropComplete(imageUrl, null);
       }

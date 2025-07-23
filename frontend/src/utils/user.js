@@ -4,7 +4,7 @@ import { supabase } from '../supabaseClient';
 export async function getCurrentUser() {
   const { data: { user }, error } = await supabase.auth.getUser();
   if (error) {
-    console.error('获取用户信息失败:', error);
+    console.error('Failed to get user info:', error);
     return null;
   }
   return user;
@@ -20,7 +20,7 @@ export async function getUserMetadata() {
 export async function updateUserMetadata(metadata) {
   const { data, error } = await supabase.auth.updateUser({ data: metadata });
   if (error) {
-    console.error('更新用户元数据失败:', error);
+    console.error('Failed to update user metadata:', error);
     throw error;
   }
   return data;

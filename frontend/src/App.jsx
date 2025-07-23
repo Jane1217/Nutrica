@@ -9,6 +9,7 @@ import ScanLabelPage from './pages/eat/pages/scan-label/ScanLabelPage';
 import Welcome from './pages/welcome/Welcome';
 import MyCollections from './pages/my-collections/MyCollections';
 import CollectionDetail from './pages/my-collections/CollectionDetail';
+import SharePage from './pages/share/SharePage';
 import React, { useEffect, useState } from 'react';
 import { supabase } from './supabaseClient';
 
@@ -76,8 +77,23 @@ export default function App() {
         <Route path="/account" element={<AccountSettings userEmail={user?.email || ''} />} />
         <Route path="/tutorials" element={<Tutorials isLoggedIn={!!user} userEmail={user?.email || ''} />} />
         <Route path="/eat/scan-label" element={<ScanLabelPage userId={user?.id} />} />
-        <Route path="/my-collections" element={<MyCollections />} />
-        <Route path="/my-collections/detail/:puzzleName" element={<CollectionDetail />} />
+        <Route 
+          path="/my-collections" 
+          element={
+            user 
+              ? <MyCollections /> 
+              : <Navigate to="/log-in" replace />
+          } 
+        />
+        <Route 
+          path="/my-collections/detail/:puzzleName" 
+          element={
+            user 
+              ? <CollectionDetail /> 
+              : <Navigate to="/log-in" replace />
+          } 
+        />
+        <Route path="/share/:userId/:puzzleName" element={<SharePage />} />
       </Routes>
     </BrowserRouter>
   );
