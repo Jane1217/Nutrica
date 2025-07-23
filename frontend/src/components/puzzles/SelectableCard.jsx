@@ -16,7 +16,7 @@ export default function SelectableCard({
     <div
       className={styles.card + (isSelected ? ' ' + styles.selected : '')}
       onClick={onAdd}
-      style={style}
+      style={{ background: bgColor, ...style }}
     >
       <div className={styles.topRow}>
         <div className={styles.contentArea}>
