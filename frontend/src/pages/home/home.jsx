@@ -116,6 +116,16 @@ export default function Home(props) {
     }
   }, []);
 
+  // 新增：日期变更时清除puzzle选择
+  useEffect(() => {
+    const todayStr = getLocalDateString(new Date());
+    const selectedStr = getLocalDateString(currentDate);
+    if (selectedStr !== todayStr) {
+      localStorage.removeItem('selectedPuzzle');
+      setSelectedPuzzle(null);
+    }
+  }, [currentDate]);
+
   // 获取用户最新的营养目标
   const fetchNutritionGoalsData = async () => {
     if (!userId) return;
@@ -557,7 +567,7 @@ console.log('carbsColors', carbsColors, 'proteinColors', proteinColors, 'fatsCol
           onClose={() => setShowPuzzlesModal(false)}
           onReopen={() => setShowPuzzlesModal(true)}
           onPuzzleSelect={handlePuzzleSelect}
-        />
+          />
       </div>
     </>
   );

@@ -167,4 +167,4 @@
   min-height: 0;
   height: calc(24px / var(--segment-count, 1));
   flex: none;
-}
+} 
