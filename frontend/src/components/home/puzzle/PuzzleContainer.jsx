@@ -4,17 +4,20 @@ import { icons } from '../../../utils/icons';
 import PixelArtGrid from './PixelArtGrid';
 import NutritionPuzzlesModal from '../../../pages/home/puzzles/NutritionPuzzlesModal';
 
-export default function PuzzleContainer({ children, hasSelectedPuzzle = false, onChoosePuzzle, selectedPuzzle, progress = {} }) {
+export default function PuzzleContainer({ children, hasSelectedPuzzle = false, onChoosePuzzle, selectedPuzzle, pixelArtData, progress = {} }) {
   const [showMenu, setShowMenu] = useState(false);
   const [showGrid, setShowGrid] = useState(true);
   const [showUnfinishedBlocks, setShowUnfinishedBlocks] = useState(true);
+
+  // 优先用 pixelArtData（快照），否则用 selectedPuzzle?.pixelMap
+  const pixelMap = pixelArtData || selectedPuzzle?.pixelMap;
 
   return (
     <div className={styles.puzzleContainer} onClick={() => { if (hasSelectedPuzzle) setShowMenu(true); }}>
       {hasSelectedPuzzle ? (
         <div className={styles.pixelGridWrapper}>
           <PixelArtGrid 
-            pixelMap={selectedPuzzle?.pixelMap} 
+            pixelMap={pixelMap} 
             progress={progress} 
             showGrid={showGrid} 
             showUnfinishedBlocks={showUnfinishedBlocks}

@@ -41,17 +41,32 @@ class DatePickerErrorBoundary extends React.Component {
   }
 }
 
-export default function DatePickerModal({ open, onClose, onDateSelect, currentDate, userId }) {
+// 工具函数：获取本地 yyyy-MM-dd 日期字符串
+function getLocalDateString(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+export default function DatePickerModal({ open, onClose, onDateSelect, currentDate, userId, activeDates = [] }) {
   const [selectedDate, setSelectedDate] = useState(() => {
     if (currentDate && currentDate instanceof Date && !isNaN(currentDate.getTime())) {
       return currentDate;
     }
     return new Date();
   });
-  const [availableDates, setAvailableDates] = useState([]);
   const [loading, setLoading] = useState(false);
   const [firstPuzzleDate, setFirstPuzzleDate] = useState(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [availableDates, setAvailableDates] = useState([]); // 新增：可用日期
+
+  // 新增：将 activeDates 转为 Date 对象数组
+  const activeDateObjs = activeDates.map(dateStr => {
+    // 统一用 yyyy-MM-dd 拆分
+    const [year, month, day] = dateStr.split('-');
+    return new Date(Number(year), Number(month) - 1, Number(day));
+  }).filter(Boolean);
 
   // Get dates with nutrition images
   const fetchAvailableDates = async () => {
@@ -66,10 +81,18 @@ export default function DatePickerModal({ open, onClose, onDateSelect, currentDa
         return isNaN(date.getTime()) ? null : date;
       }).filter(date => date !== null);
       
-      setAvailableDates(dateObjects);
+      // 优先使用 activeDates，如果没有则使用 API 返回的日期
+      if (activeDateObjs.length > 0) {
+        setAvailableDates(activeDateObjs);
+      } else {
+        setAvailableDates(dateObjects);
+      }
       
       // Set first puzzle date
-      if (dateObjects.length > 0) {
+      if (activeDateObjs.length > 0) {
+        const sortedDates = activeDateObjs.sort((a, b) => a.getTime() - b.getTime());
+        setFirstPuzzleDate(sortedDates[0]);
+      } else if (dateObjects.length > 0) {
         const sortedDates = dateObjects.sort((a, b) => a.getTime() - b.getTime());
         setFirstPuzzleDate(sortedDates[0]);
       }
@@ -95,10 +118,18 @@ export default function DatePickerModal({ open, onClose, onDateSelect, currentDa
           return isNaN(date.getTime()) ? null : date;
         }).filter(date => date !== null);
         
-        setAvailableDates(dateObjects);
+        // 优先使用 activeDates，如果没有则使用 Supabase 返回的日期
+        if (activeDateObjs.length > 0) {
+          setAvailableDates(activeDateObjs);
+        } else {
+          setAvailableDates(dateObjects);
+        }
         
         // Set first puzzle date
-        if (dateObjects.length > 0) {
+        if (activeDateObjs.length > 0) {
+          const sortedDates = activeDateObjs.sort((a, b) => a.getTime() - b.getTime());
+          setFirstPuzzleDate(sortedDates[0]);
+        } else if (dateObjects.length > 0) {
           const sortedDates = dateObjects.sort((a, b) => a.getTime() - b.getTime());
           setFirstPuzzleDate(sortedDates[0]);
         }
@@ -115,7 +146,7 @@ export default function DatePickerModal({ open, onClose, onDateSelect, currentDa
     if (open) {
       fetchAvailableDates();
     }
-  }, [open, userId]);
+  }, [open, userId, activeDates]); // Add activeDates to dependency array
 
   useEffect(() => {
     if (currentDate && currentDate instanceof Date && !isNaN(currentDate.getTime())) {
@@ -125,17 +156,21 @@ export default function DatePickerModal({ open, onClose, onDateSelect, currentDa
 
   // Set initial month
   useEffect(() => {
-    if (availableDates.length === 0) {
-      // If no data, show current month (which will only have today)
-      setCurrentMonth(new Date());
+    if (activeDateObjs.length === 0) {
+      const now = new Date();
+      if (currentMonth.getMonth() !== now.getMonth() || currentMonth.getFullYear() !== now.getFullYear()) {
+        setCurrentMonth(now);
+      }
     } else if (selectedDate) {
-      // If has data, show the month of the selected date
-      setCurrentMonth(selectedDate);
+      if (currentMonth.getMonth() !== selectedDate.getMonth() || currentMonth.getFullYear() !== selectedDate.getFullYear()) {
+        setCurrentMonth(selectedDate);
+      }
     } else if (firstPuzzleDate) {
-      // If no selected date, show first puzzle date month
-      setCurrentMonth(firstPuzzleDate);
+      if (currentMonth.getMonth() !== firstPuzzleDate.getMonth() || currentMonth.getFullYear() !== firstPuzzleDate.getFullYear()) {
+        setCurrentMonth(firstPuzzleDate);
+      }
     }
-  }, [availableDates, selectedDate, firstPuzzleDate]);
+  }, [activeDateObjs, selectedDate, firstPuzzleDate]);
 
   const handleDateSelect = (date) => {
     if (date && date instanceof Date && !isNaN(date.getTime())) {
@@ -147,33 +182,24 @@ export default function DatePickerModal({ open, onClose, onDateSelect, currentDa
     }
   };
 
-  // Check if a date has nutrition data
+  // 判断某天是否为 active（可选）
   const hasDataForDate = (date) => {
     if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
       return false;
     }
-    return availableDates.some(availableDate => 
-      isSameDay(availableDate, date)
-    );
+    return activeDateObjs.some(activeDate => isSameDay(activeDate, date));
   };
 
-  // Check if date should be disabled
+  // 判断某天是否 disabled
   const isDateDisabled = (date) => {
     const today = startOfDay(new Date());
     const isToday = isSameDay(date, today);
     const isFuture = isAfter(date, today);
-    
-    // Always disable future dates
-    if (isFuture) {
-      return true;
-    }
-    
-    // If no data at all, only allow today
-    if (availableDates.length === 0) {
-      return !isToday;
-    }
-    
-    // Otherwise, disable dates without data
+    // 禁用未来日期
+    if (isFuture) return true;
+    // 没有任何 active 日期时，只允许今天
+    if (activeDateObjs.length === 0) return !isToday;
+    // 只允许 active 日期
     return !hasDataForDate(date);
   };
 
