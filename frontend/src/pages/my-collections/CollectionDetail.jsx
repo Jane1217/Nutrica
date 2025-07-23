@@ -135,6 +135,20 @@ export default function CollectionDetail({
     return { carbs: 0, protein: 0, fats: 0 };
   }, [collectionData]);
 
+  // 获取当前用户昵称和头像（与Account页面一致）
+  const [nickname, setNickname] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
+  useEffect(() => {
+    async function fetchUserMeta() {
+      const user = await getCurrentUser();
+      if (user && user.user_metadata) {
+        setNickname(user.user_metadata.name || '');
+        setAvatarUrl(user.user_metadata.avatarUrl || '');
+      }
+    }
+    fetchUserMeta();
+  }, []);
+
   const handleClose = () => {
     if (onClose) onClose();
     else navigate(-1);
@@ -242,7 +256,12 @@ export default function CollectionDetail({
         </div>
       </div>
       {/* Share Link Modal */}
-      <ShareLinkModal open={showShareModal} onClose={() => setShowShareModal(false)} puzzleName={puzzleName} iconUrl={iconUrl} />
+      <ShareLinkModal 
+        open={showShareModal} 
+        onClose={() => setShowShareModal(false)} 
+        puzzleName={puzzleName} 
+        nickname={nickname} 
+      />
     </div>
   );
 } 
