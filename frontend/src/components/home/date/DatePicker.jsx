@@ -40,49 +40,16 @@ export default function DatePicker(props) {
   const [userId, setUserId] = useState(null);
   const [activeDates, setActiveDates] = useState([]); // 新增：有数据的日期
 
-  // Check if specified date has image data
-  const checkDateHasImage = async (date) => {
-    try {
-      const { hasImage } = await apiGet(`/api/nutrition-images?date=${getLocalDateString(date)}`);
-      return hasImage;
-    } catch (error) {
-      console.error('Error checking date image:', error);
-      return false;
-    }
-  };
-
-  // Get first date with image
-  const getFirstImageDate = async () => {
-    try {
-      const { firstDate } = await apiGet('/api/nutrition-images/first');
-      return firstDate ? new Date(firstDate) : null;
-    } catch (error) {
-      console.error('Error getting first image date:', error);
-      return null;
-    }
-  };
-
   // Update navigation state
   const updateNavigationState = async () => {
     const today = new Date();
     const isToday = currentDate.toDateString() === today.toDateString();
-    
-    // Check if can navigate forward (to future dates with images, but not beyond today)
     setCanGoForward(!isToday);
-    
-    // Check if can navigate backward (to past dates with images)
-    try {
-      const firstImageDate = await getFirstImageDate();
-      if (firstImageDate) {
-        const earliestDate = new Date(firstImageDate);
-        earliestDate.setHours(0, 0, 0, 0);
-        setCanGoBack(currentDate > earliestDate);
-      } else {
-        setCanGoBack(false);
-      }
-    } catch (error) {
-      console.error('Failed to update navigation state:', error);
-      // If fetch fails, disable backward navigation
+    // 只根据 activeDates 判断能否回退
+    if (activeDates.length > 0) {
+      const sortedDates = activeDates.slice().sort();
+      setCanGoBack(getLocalDateString(currentDate) > sortedDates[0]);
+    } else {
       setCanGoBack(false);
     }
   };
@@ -96,12 +63,10 @@ export default function DatePicker(props) {
     
     // Check if previous day has image, if not continue searching backward
     let targetDate = prevDate;
-    const firstImageDate = await getFirstImageDate();
-    const earliestDate = firstImageDate || new Date(0);
     
-    while (targetDate >= earliestDate) {
-      const hasImage = await checkDateHasImage(targetDate);
-      if (hasImage) {
+    while (true) { // Infinite loop until a date with data is found
+      const hasData = activeDates.includes(getLocalDateString(targetDate));
+      if (hasData) {
         setCurrentDate(targetDate);
         break;
       }
@@ -121,9 +86,9 @@ export default function DatePicker(props) {
     const today = new Date();
     today.setHours(23, 59, 59, 999); // End of today
     
-    while (targetDate <= today) {
-      const hasImage = await checkDateHasImage(targetDate);
-      if (hasImage) {
+    while (true) { // Infinite loop until a date with data is found
+      const hasData = activeDates.includes(getLocalDateString(targetDate));
+      if (hasData) {
         setCurrentDate(targetDate);
         break;
       }
@@ -159,7 +124,7 @@ export default function DatePicker(props) {
 
   useEffect(() => {
     updateNavigationState();
-  }, [currentDate]);
+  }, [currentDate, activeDates]); // Add activeDates to dependency array
 
   // Handle date selection
   const handleDateSelect = async (date) => {

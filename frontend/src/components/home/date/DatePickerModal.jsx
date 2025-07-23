@@ -60,6 +60,7 @@ export default function DatePickerModal({ open, onClose, onDateSelect, currentDa
   const [firstPuzzleDate, setFirstPuzzleDate] = useState(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [availableDates, setAvailableDates] = useState([]); // 新增：可用日期
+  const [hasFetchedDates, setHasFetchedDates] = useState(false); // 新增：是否已请求过
 
   // 新增：将 activeDates 转为 Date 对象数组
   const activeDateObjs = activeDates.map(dateStr => {
@@ -72,81 +73,26 @@ export default function DatePickerModal({ open, onClose, onDateSelect, currentDa
   const fetchAvailableDates = async () => {
     setLoading(true);
     try {
-      // First try using API
-      console.log('Trying to fetch dates via API...');
-      const { dates } = await apiGet('/api/nutrition-images/dates');
-      console.log('API returned dates:', dates);
-      const dateObjects = dates.map(dateStr => {
-        const date = new Date(dateStr);
-        return isNaN(date.getTime()) ? null : date;
-      }).filter(date => date !== null);
-      
-      // 优先使用 activeDates，如果没有则使用 API 返回的日期
-      if (activeDateObjs.length > 0) {
-        setAvailableDates(activeDateObjs);
-      } else {
-        setAvailableDates(dateObjects);
-      }
-      
-      // Set first puzzle date
+      // 只用 activeDates，不再请求 nutrition-images API
+      setAvailableDates(activeDateObjs);
       if (activeDateObjs.length > 0) {
         const sortedDates = activeDateObjs.sort((a, b) => a.getTime() - b.getTime());
         setFirstPuzzleDate(sortedDates[0]);
-      } else if (dateObjects.length > 0) {
-        const sortedDates = dateObjects.sort((a, b) => a.getTime() - b.getTime());
-        setFirstPuzzleDate(sortedDates[0]);
       }
     } catch (error) {
-      console.error('API failed to fetch available dates:', error);
-      // If API fails, try to get from Supabase directly
-      try {
-        console.log('API failed, trying to get from Supabase directly...');
-        const { data, error } = await supabase
-          .from('nutrition_images')
-          .select('date')
-          .eq('user_id', userId);
-        
-        if (error) {
-          console.error('Supabase failed to fetch dates:', error);
-          setAvailableDates([]);
-          return;
-        }
-        
-        console.log('Supabase returned data:', data);
-        const dateObjects = data.map(item => {
-          const date = new Date(item.date);
-          return isNaN(date.getTime()) ? null : date;
-        }).filter(date => date !== null);
-        
-        // 优先使用 activeDates，如果没有则使用 Supabase 返回的日期
-        if (activeDateObjs.length > 0) {
-          setAvailableDates(activeDateObjs);
-        } else {
-          setAvailableDates(dateObjects);
-        }
-        
-        // Set first puzzle date
-        if (activeDateObjs.length > 0) {
-          const sortedDates = activeDateObjs.sort((a, b) => a.getTime() - b.getTime());
-          setFirstPuzzleDate(sortedDates[0]);
-        } else if (dateObjects.length > 0) {
-          const sortedDates = dateObjects.sort((a, b) => a.getTime() - b.getTime());
-          setFirstPuzzleDate(sortedDates[0]);
-        }
-      } catch (supabaseError) {
-        console.error('Supabase fallback also failed:', supabaseError);
-        setAvailableDates([]);
-      }
+      console.error('Failed to fetch available dates:', error);
+      setAvailableDates([]);
     } finally {
       setLoading(false);
     }
   };
 
+  // 优化：只在首次打开时请求日期
   useEffect(() => {
-    if (open) {
-      fetchAvailableDates();
+    if (open && !hasFetchedDates) {
+      fetchAvailableDates().then(() => setHasFetchedDates(true));
     }
-  }, [open, userId, activeDates]); // Add activeDates to dependency array
+  }, [open, hasFetchedDates]);
 
   useEffect(() => {
     if (currentDate && currentDate instanceof Date && !isNaN(currentDate.getTime())) {
