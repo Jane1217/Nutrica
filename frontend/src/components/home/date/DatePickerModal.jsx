@@ -204,6 +204,17 @@ export default function DatePickerModal({ open, onClose, onDateSelect, currentDa
                 classNames={{
                   nav_button_previous: isPreviousMonthDisabled() ? styles.navButtonDisabled : '',
                   nav_button_next: isNextMonthDisabled() ? styles.navButtonDisabled : '',
+                  weekday: styles.weekdayHeader,
+                  day: styles.dayCell,
+                  day_disabled: styles.dayCellDisabled,
+                  selected: styles.dayCellSelected,
+                }}
+                formatters={{
+                  formatWeekdayName: (date) => {
+                    const map = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+                    // 让周一在最前面，周日最后
+                    return map[(date.getDay() + 6) % 7];
+                  }
                 }}
               />
             </DatePickerErrorBoundary>

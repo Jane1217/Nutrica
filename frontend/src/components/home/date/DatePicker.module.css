@@ -35,13 +35,25 @@
 
 
 .dateText {
-  align-self: stretch;
   color: var(--Neutral-Primary-Text, #22221B);
   text-align: center;
+  font-family: Kanit;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 150%; /* 24px */
+  letter-spacing: -0.32px;
+  align-self: stretch;
 }
 
 .relativeDateText {
   align-self: stretch;
   color: var(--Neutral-Secondary-Text, #6A6A61);
   text-align: center;
+  font-family: Kanit;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 150%; /* 21px */
+  letter-spacing: -0.28px;
 }

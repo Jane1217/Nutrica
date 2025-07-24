@@ -48,6 +48,41 @@ export default function NutritionCard({
     </div>
   );
 
+  // 新实现：SVG带圆角方形进度条
+  function SquareProgressBorder({ colors = [], progress = 1 }) {
+    const size = 36;
+    const strokeWidth = 2;
+    const radius = 8;
+    const length = 4 * (size - 2 * radius) + 2 * Math.PI * radius;
+    const progressLength = Math.max(0, Math.min(1, progress)) * length;
+    // 生成渐变id
+    const gradId = `legend-grad-${Math.random().toString(36).slice(2, 10)}`;
+    return (
+      <svg width={size} height={size} style={{ position: 'absolute', left: 0, top: 0, zIndex: 1, pointerEvents: 'none' }}>
+        <defs>
+          <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="0%">
+            {colors.length > 1 ? colors.map((color, idx) => (
+              <stop key={idx} offset={`${(idx / (colors.length - 1)) * 100}%`} stopColor={color} />
+            )) : <stop offset="0%" stopColor={colors[0] || '#DBE2D0'} />}
+          </linearGradient>
+        </defs>
+        <rect
+          x={strokeWidth / 2}
+          y={strokeWidth / 2}
+          width={size - strokeWidth}
+          height={size - strokeWidth}
+          rx={radius}
+          ry={radius}
+          fill="none"
+          stroke={`url(#${gradId})`}
+          strokeWidth={strokeWidth}
+          strokeDasharray={`${progressLength},${length - progressLength}`}
+          strokeLinecap="round"
+        />
+      </svg>
+    );
+  }
+
   return (
     <>
       <div className={styles.nutritionCard}>
@@ -77,7 +112,8 @@ export default function NutritionCard({
           <div className={styles.nutritionWrapper}>
             {/* Carbs Module */}
             <div className={styles.nutritionModule}>
-              <div className={styles.colorTile}>
+              <div className={styles.colorTile} style={{ position: 'relative', border: 'none' }}>
+                <SquareProgressBorder colors={carbsColors} progress={Math.max(0, Math.min(1, carbs / carbsGoal))} />
                 {renderColorSegments(carbsColors)}
               </div>
               <div className={styles.values}>
@@ -94,7 +130,8 @@ export default function NutritionCard({
             
             {/* Protein Module */}
             <div className={styles.nutritionModule}>
-              <div className={styles.colorTile}>
+              <div className={styles.colorTile} style={{ position: 'relative', border: 'none' }}>
+                <SquareProgressBorder colors={proteinColors} progress={Math.max(0, Math.min(1, protein / proteinGoal))} />
                 {renderColorSegments(proteinColors)}
               </div>
               <div className={styles.values}>
@@ -111,7 +148,8 @@ export default function NutritionCard({
             
             {/* Fats Module */}
             <div className={styles.nutritionModule}>
-              <div className={styles.colorTile}>
+              <div className={styles.colorTile} style={{ position: 'relative', border: 'none' }}>
+                <SquareProgressBorder colors={fatsColors} progress={Math.max(0, Math.min(1, fats / fatsGoal))} />
                 {renderColorSegments(fatsColors)}
               </div>
               <div className={styles.values}>

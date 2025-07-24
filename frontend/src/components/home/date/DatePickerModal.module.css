@@ -3,7 +3,7 @@
   width: 100%;
   min-width: 280px;
   max-width: 360px;
-  padding: 40px 24px 24px 24px;
+  padding: 16px 16px 16px 16px;
   flex-direction: column;
   align-items: center;
   gap: 24px;
@@ -143,4 +143,41 @@
 .retryButton:hover {
   background-color: var(--Brand-Light, #A1CE90);
   color: var(--Neutral-Primary-Text, #22221B);
+}
+
+.weekdayHeader {
+  color: var(--Neutral-Secondary-Text, #6A6A61);
+  font-family: Kanit;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 150%;
+}
+
+.dayCell {
+  color: var(--Neutral-Primary-Text, #22221B);
+  /* H4 */
+  font-family: Kanit;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 150%; /* 24px */
+}
+.dayCellDisabled {
+  opacity: 0.4;
+}
+
+.dayCellSelected {
+  display: flex;
+  width: 36px;
+  height: 36px;
+  padding: 6px 0px;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  aspect-ratio: 1/1;
+  border-radius: 999px;
+  background: var(--Neutral-Primary-Text, #22221B);
+  color: #FFF !important;
+  text-align: center;
 } 
