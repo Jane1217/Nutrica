@@ -1,5 +1,6 @@
 import React from 'react';
 import '../styles/CameraPermissionModal.css';
+import { icons } from '../../../utils';
 
 export default function CameraPermissionModal({ onClose, onOk }) {
   return (
@@ -8,7 +9,7 @@ export default function CameraPermissionModal({ onClose, onOk }) {
         <div className="camera-permission-group1">
           <span className="camera-permission-icon">
             <span className="camera-solid">
-              <img src="/assets/basil_camera-solid.svg" alt="camera" width="24" height="24" />
+              <img src={icons.camera} alt="camera" width="24" height="24" />
             </span>
           </span>
           <span className="camera-permission-title h1">Camera Permissions</span>

@@ -14,8 +14,7 @@ import NutritionPuzzlesModal from './puzzles/NutritionPuzzlesModal';
 
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import styles from './Home.module.css';
-import { calculateNutritionFromCalories, formatFoods, fetchNutritionGoals, fetchTodayNutrition } from '../../utils/nutrition';
-import { getCurrentUser, getUserMetadata, updateUserMetadata, isUserInfoComplete, hasShownUserInfoModal, setUserInfoModalShown, getDisplayCalories } from '../../utils/user';
+import { calculateNutritionFromCalories, formatFoods, fetchNutritionGoals, fetchTodayNutrition, getCurrentUser, getUserMetadata, updateUserMetadata, isUserInfoComplete, hasShownUserInfoModal, setUserInfoModalShown, getDisplayCalories } from '../../utils';
 import { puzzleCategories, colorOrders } from '../../data/puzzles';
 import { format } from 'date-fns';
 

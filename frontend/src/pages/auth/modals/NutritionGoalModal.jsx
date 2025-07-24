@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styles from "../styles/Auth.module.css";
 import nutritionGoalStyles from "../styles/NutritionGoal.module.css";
-import { calculateNutritionFromCalories } from '../../../utils/nutrition';
+import { calculateNutritionFromCalories } from '../../../utils';
 import ModalWrapper from '../../../components/common/ModalWrapper';
 
 export default function NutritionGoalModal({ open, onClose, onBack, onSave, name = '', calories = 2000 }) {

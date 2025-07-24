@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styles from './ShareLinkModal.module.css';
 import ModalWrapper from '../../components/common/ModalWrapper';
 import { getCurrentUser } from '../../utils/user';
+import { getShareLink, copyToClipboard } from '../../utils';
 
 export default function ShareLinkModal({ open, onClose, puzzleName = 'carrot', nickname }) {
   const [userId, setUserId] = useState(null);
@@ -32,22 +33,12 @@ export default function ShareLinkModal({ open, onClose, puzzleName = 'carrot', n
     `nickname=${encodeURIComponent(nickname || '')}`
   ];
   const paramStr = `?${params.join('&')}`;
-  const shareLink = userId ? `${BASE_URL}/share/${userId}/${puzzleName.toLowerCase()}${paramStr}` : '';
+  const shareLink = getShareLink({ userId, puzzleName, nickname });
 
   const handleCopy = async () => {
     if (!shareLink) return;
-    try {
-      await navigator.clipboard.writeText(shareLink);
-      setCopySuccess(true);
-      setTimeout(() => setCopySuccess(false), 3000);
-    } catch (err) {
-      console.error('Failed to copy link:', err);
-      const textArea = document.createElement('textarea');
-      textArea.value = shareLink;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
+    const ok = await copyToClipboard(shareLink);
+    if (ok) {
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 3000);
     }
