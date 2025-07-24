@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
 import styles from './SharePage.module.css';
+import { formatDateString, normalizeNutritionData, getUserNameFromQuery, capitalizePuzzleName } from '../../utils';
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -116,8 +117,10 @@ export default function SharePage() {
     );
   }
 
-  const nutrition = getNutritionData();
-  const dateStr = getDateString(firstCompletedAt);
+  const nutrition = normalizeNutritionData(nutritionData);
+  const dateStr = formatDateString(firstCompletedAt);
+  const userName = getUserNameFromQuery(query);
+  const puzzleNameCap = capitalizePuzzleName(puzzleName);
 
   return (
     <div className={styles.sharePage}>
@@ -132,7 +135,7 @@ export default function SharePage() {
       <div className={styles.container}>
         {/* Title */}
         <div className={`h2 ${styles.title}`}>
-          {getUserName()} collected a nutrition puzzle!
+          {userName} collected a nutrition puzzle!
         </div>
 
         {/* Puzzle Card */}
@@ -140,7 +143,7 @@ export default function SharePage() {
           <div className={`${styles.timestamp} h5`}>{dateStr}</div>
           <div className={styles.headingModule}>
             <div className={`${styles.collectionInfo} label`}>
-              Magic Garden・{puzzleName.charAt(0).toUpperCase() + puzzleName.slice(1)}
+              Magic Garden・{puzzleNameCap}
             </div>
             <div className={styles.heading}>
               Bright, balanced, and well-fed. That's the {puzzleName} energy we love to see.
