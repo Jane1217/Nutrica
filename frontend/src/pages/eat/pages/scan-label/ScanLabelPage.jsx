@@ -11,6 +11,7 @@ import {
 } from '../../../../utils/camera';
 import './ScanLabelPage.css';
 import CameraPermissionModal from '../../modals/CameraPermissionModal';
+import { icons } from '../../../../utils';
 
 // 组件外部，避免多次挂载重复判断
 const CAMERA_PERMISSION_KEY = 'nutrica_camera_permission_shown';
@@ -285,7 +286,7 @@ export default function ScanLabelPage({ onClose, userId }) {
         <div className="scan-tip">
           <div className="scan-tip-heading">
             <span className="scan-tip-icon">
-              <img src="/assets/Frame 79.svg" alt="scan" width="20" height="20" />
+              <img src={icons.scanFrame} alt="scan" width="20" height="20" />
             </span>
             <span className="scan-tip-text h6">Place the food label inside the frame</span>
           </div>
@@ -299,7 +300,7 @@ export default function ScanLabelPage({ onClose, userId }) {
         navigate('/?eat=1');
       }}>
         <span className="close-fill">
-          <img src="/assets/mingcute_close-fill.svg" alt="close" width="24" height="24" />
+          <img src={icons.closeFill} alt="close" width="24" height="24" />
         </span>
       </button>
       <button className="scan-shutter" onClick={handleCapture} disabled={loading}>
