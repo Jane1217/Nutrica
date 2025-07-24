@@ -98,3 +98,33 @@ export const formatFoodTimeSmart = (timeStr) => {
   const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][d.getMonth()];
   return `${month} ${d.getDate()}, ${timeStr12}`;
 }; 
+
+// 日期格式化
+export function formatDateString(date) {
+  if (!date) return '';
+  const dateObj = new Date(date);
+  return dateObj.toLocaleDateString('en-US', {
+    weekday: 'long', year: 'numeric', month: 'short', day: 'numeric'
+  });
+}
+
+// puzzleName首字母大写
+export function capitalizePuzzleName(name) {
+  if (!name) return '';
+  return name.charAt(0).toUpperCase() + name.slice(1);
+}
+
+// 营养数据标准化
+export function normalizeNutritionData(nutrition) {
+  if (!nutrition) return { carbs: 0, protein: 0, fats: 0 };
+  return {
+    carbs: nutrition.carbs || 0,
+    protein: nutrition.protein || 0,
+    fats: nutrition.fats || 0
+  };
+}
+
+// 获取昵称（优先query）
+export function getUserNameFromQuery(query, fallback = '') {
+  return query?.get('nickname') || fallback || '';
+} 

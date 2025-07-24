@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import '../styles/FoodModal.css';
 import ModalWrapper from '../../../components/common/ModalWrapper';
+import { icons } from '../../../utils';
 
 export default function DescribeModal({ open, onClose, onBack, onCloseModal, onNext }) {
   const [description, setDescription] = useState('');
@@ -17,13 +18,13 @@ export default function DescribeModal({ open, onClose, onBack, onCloseModal, onN
         <div className="eat-modal-group1 food-modal-group1">
           <div className="food-modal-title-group">
             <button className="food-modal-back-btn" onClick={onBack}>
-              <img src="/assets/arrow-left.svg" alt="Back" />
+              <img src={icons.arrowLeft} alt="Back" />
             </button>
             <span className="eat-modal-title">Describe</span>
           </div>
           <button className="eat-modal-close-btn" onClick={onCloseModal}>
             <span className="close-fill">
-              <img src="/assets/mingcute_close-fill-black.svg" alt="close" width="24" height="24" />
+              <img src={icons.closeFillBlack} alt="close" width="24" height="24" />
             </span>
           </button>
         </div>

@@ -3,8 +3,10 @@ import styles from './CollectionDetail.module.css';
 import { useNavigate, useParams } from 'react-router-dom';
 import { puzzleCategories, colorOrders } from '../../data/puzzles';
 import ShareLinkModal from './ShareLinkModal';
+import ImageShareModal from './ImageShareModal';
 import { supabase } from '../../supabaseClient';
 import { getCurrentUser } from '../../utils/user';
+import { formatDateString, capitalizePuzzleName } from '../../utils';
 
 // 默认营养素标签
 const NUTRITION_LABELS = [
@@ -43,9 +45,10 @@ export default function CollectionDetail({
   const [collectionData, setCollectionData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showImageShare, setShowImageShare] = useState(false);
   
   // 支持路由参数和props两种方式
-  const puzzleName = propPuzzleName || (params.puzzleName ? params.puzzleName.charAt(0).toUpperCase() + params.puzzleName.slice(1) : 'Carrot');
+  const puzzleName = propPuzzleName || (params.puzzleName ? capitalizePuzzleName(params.puzzleName) : 'Carrot');
 
   // 查找当前puzzle的配置
   const puzzle = useMemo(() => {
@@ -104,22 +107,23 @@ export default function CollectionDetail({
       protein: ['#3B0E09'],
       fats: ['#98E673', '#60BF32', '#0FA23A', '#1D793B']
     };
+    // 修正：根据puzzle.name动态获取colorOrder
+    const colorOrder = colorOrders[puzzle.name?.toLowerCase()];
     return {
-      carbs: getNutrientColorsByOrder(puzzle.pixelMap, 1, colorOrders['C']),
-      protein: getNutrientColorsByOrder(puzzle.pixelMap, 2, colorOrders['P']),
-      fats: getNutrientColorsByOrder(puzzle.pixelMap, 3, colorOrders['F'])
+      carbs: getNutrientColorsByOrder(puzzle.pixelMap, 1, colorOrder),
+      protein: getNutrientColorsByOrder(puzzle.pixelMap, 2, colorOrder),
+      fats: getNutrientColorsByOrder(puzzle.pixelMap, 3, colorOrder)
     };
   }, [puzzle]);
 
   // 获取日期字符串
   const dateStr = useMemo(() => {
     if (collectionData?.first_completed_at) {
-      const date = new Date(collectionData.first_completed_at);
-      return date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+      return formatDateString(collectionData.first_completed_at);
     }
     // 如果没有数据，使用props中的date或当前时间
     const fallbackDate = propDate || new Date();
-    return fallbackDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+    return formatDateString(fallbackDate);
   }, [collectionData, propDate]);
 
   // 获取营养数据
@@ -159,7 +163,7 @@ export default function CollectionDetail({
     return (
       <div className={styles.detailPage}>
         <div className={styles.header}>
-          <h1 className={`${styles.title} h1`}>{puzzleName}</h1>
+          <div className={`${styles.title} h1`}>{puzzleName}</div>
           <div className={styles.closeBtn} onClick={handleClose}>
             <img src="/assets/close (1).svg" alt="close" className={styles.closeIcon} />
           </div>
@@ -196,6 +200,44 @@ export default function CollectionDetail({
     );
   }
 
+  // puzzleCard渲染片段（与主卡片一致）
+  const puzzleCardNode = (
+    <div className={styles.puzzleCard} style={{boxShadow:'none', border:'2px solid #22221B', background:'#FFB279'}}>
+      <div className={`${styles.timestamp} h5`}>{dateStr}</div>
+      <div className={styles.headingModule}>
+        <div className={`${styles.collectionInfo} label`}>{collectionType}・{puzzleName}</div>
+        <div className={styles.heading}>{description}</div>
+      </div>
+      <img src={iconUrl} alt={puzzleName} className={styles.puzzleImg} />
+      <div className={styles.nutritionModule}>
+        {NUTRITION_LABELS.map((item) => (
+          <div className={styles.nutritionItem} key={item.key}>
+            <div className={styles.palette}>
+              {(paletteColors[item.key] || ['#EEE']).map((color, i, arr) => (
+                <div
+                  key={i}
+                  className={styles.paletteSegment}
+                  style={{
+                    background: color,
+                    height: `${24 / arr.length}px`,
+                    borderTopLeftRadius: i === 0 ? 4 : 0,
+                    borderTopRightRadius: i === 0 ? 4 : 0,
+                    borderBottomLeftRadius: i === arr.length - 1 ? 4 : 0,
+                    borderBottomRightRadius: i === arr.length - 1 ? 4 : 0,
+                  }}
+                />
+              ))}
+            </div>
+            <div className={styles.nutritionValueWrapper}>
+              <div className={`${styles.nutritionValue} h5`}>{nutritionData[item.key]}g</div>
+              <div className={`${styles.nutritionLabel} label`}>{item.label}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
     <div className={styles.detailPage}>
       {/* Header */}
@@ -208,44 +250,10 @@ export default function CollectionDetail({
       {/* Container */}
       <div className={styles.container}>
         {/* Puzzle Card */}
-        <div className={styles.puzzleCard}>
-          <div className={`${styles.timestamp} h5`}>{dateStr}</div>
-          <div className={styles.headingModule}>
-            <div className={`${styles.collectionInfo} label`}>{collectionType}・{puzzleName}</div>
-            <div className={styles.heading}>{description}</div>
-          </div>
-          <img src={iconUrl} alt={puzzleName} className={styles.puzzleImg} />
-          {/* Nutrition Module */}
-          <div className={styles.nutritionModule}>
-            {NUTRITION_LABELS.map((item) => (
-              <div className={styles.nutritionItem} key={item.key}>
-                <div className={styles.palette}>
-                  {(paletteColors[item.key] || ['#EEE']).map((color, i, arr) => (
-                    <div
-                      key={i}
-                      className={styles.paletteSegment}
-                      style={{
-                        background: color,
-                        height: `${24 / arr.length}px`,
-                        borderTopLeftRadius: i === 0 ? 4 : 0,
-                        borderTopRightRadius: i === 0 ? 4 : 0,
-                        borderBottomLeftRadius: i === arr.length - 1 ? 4 : 0,
-                        borderBottomRightRadius: i === arr.length - 1 ? 4 : 0,
-                      }}
-                    />
-                  ))}
-                </div>
-                <div className={styles.nutritionValueWrapper}>
-                  <div className={`${styles.nutritionValue} h5`}>{nutritionData[item.key]}g</div>
-                  <div className={`${styles.nutritionLabel} label`}>{item.label}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        {puzzleCardNode}
         {/* Action Module */}
         <div className={styles.actionModule}>
-          <button className={styles.ctaBtnSecondary}>
+          <button className={styles.ctaBtnSecondary} onClick={() => setShowImageShare(true)}>
             <span className="h4" style={{ color: 'var(--Neutral-Primary-Text, #22221B)' }}>Save</span>
             <img src="/assets/Download.svg" alt="Download" className={styles.ctaIcon} />
           </button>
@@ -262,6 +270,7 @@ export default function CollectionDetail({
         puzzleName={puzzleName} 
         nickname={nickname} 
       />
+      <ImageShareModal open={showImageShare} onClose={() => setShowImageShare(false)} puzzleCard={puzzleCardNode} />
     </div>
   );
 } 
