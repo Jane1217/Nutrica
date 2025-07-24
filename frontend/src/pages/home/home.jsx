@@ -445,8 +445,9 @@ export default function Home(props) {
     if (percent < 0.25) return puzzle.descriptions[0];
     if (percent < 0.5) return puzzle.descriptions[1];
     if (percent < 0.75) return puzzle.descriptions[2];
-    if (percent < 1) return puzzle.descriptions[3];
-    return puzzle.descriptions[4];
+    if (percent < 0.9) return puzzle.descriptions[3];
+    if (percent < 1) return puzzle.descriptions[4];
+    return 'Puzzle collected! Treat yourself in tomorrow’s challenge!';
   }
 
   // 选中puzzle时提取颜色（自动顺序）
@@ -455,8 +456,8 @@ export default function Home(props) {
   const proteinColors = getNutrientColorsByOrder(selectedPuzzle?.pixelMap, 2, colorOrder);
   const fatsColors = getNutrientColorsByOrder(selectedPuzzle?.pixelMap, 3, colorOrder);
 
-  console.log('selectedPuzzle', selectedPuzzle);
-console.log('carbsColors', carbsColors, 'proteinColors', proteinColors, 'fatsColors', fatsColors);
+//console.log('selectedPuzzle', selectedPuzzle);
+//console.log('carbsColors', carbsColors, 'proteinColors', proteinColors, 'fatsColors', fatsColors);
 
   // 监听 currentDate 变化，拉取快照
   useEffect(() => {

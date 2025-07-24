@@ -9,7 +9,16 @@ export default function PuzzleTextModule({ puzzleName, puzzleText, userName, has
       </span>
       <div className={styles.puzzleText}>
         {hasSelectedPuzzle 
-          ? (puzzleText || 'Carrot')
+          ? (
+            puzzleText === 'Puzzle collected! Treat yourself in tomorrow’s challenge!'
+              ? (
+                <span style={{display: 'inline-block', textAlign: 'center'}}>
+                  <img src={"/assets/icon.svg"} alt="success" style={{width: '24px', height: '24px', verticalAlign: 'middle', marginRight: '0.15em'}} />
+                  {puzzleText}
+                </span>
+              )
+              : (puzzleText || 'Carrot')
+          )
           : `Hey ${userName || 'User'}! Ready to collect today's nutrition puzzle?`
         }
       </div>
