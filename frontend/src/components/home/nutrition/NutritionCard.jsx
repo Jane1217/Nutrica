@@ -66,6 +66,19 @@ export default function NutritionCard({
             )) : <stop offset="0%" stopColor={colors[0] || '#DBE2D0'} />}
           </linearGradient>
         </defs>
+        {/* 未完成部分底色 */}
+        <rect
+          x={strokeWidth / 2}
+          y={strokeWidth / 2}
+          width={size - strokeWidth}
+          height={size - strokeWidth}
+          rx={radius}
+          ry={radius}
+          fill="none"
+          stroke="var(--Brand-Secondary-Background, #E7E7D5)"
+          strokeWidth={strokeWidth}
+        />
+        {/* 已完成部分渐变 */}
         <rect
           x={strokeWidth / 2}
           y={strokeWidth / 2}
