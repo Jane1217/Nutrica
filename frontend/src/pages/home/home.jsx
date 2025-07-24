@@ -274,7 +274,10 @@ export default function Home(props) {
         carbs_goal: nutritionGoals.carbs,
         protein_goal: nutritionGoals.protein,
         fats_goal: nutritionGoals.fats,
-        puzzle_progress: puzzleProgress
+        puzzle_progress: puzzleProgress,
+        carbs_colors: carbsColors,
+        protein_colors: proteinColors,
+        fats_colors: fatsColors
       });
     }
     // 设置午夜定时保存
@@ -541,7 +544,10 @@ export default function Home(props) {
     carbs_goal: nutritionGoals.carbs,
     protein_goal: nutritionGoals.protein,
     fats_goal: nutritionGoals.fats,
-    puzzle_progress: snapshotData ? snapshotData.puzzle_progress : getPuzzleProgress(selectedPuzzle, calculateNutritionProgress())
+    puzzle_progress: snapshotData ? snapshotData.puzzle_progress : getPuzzleProgress(selectedPuzzle, calculateNutritionProgress()),
+    carbs_colors: snapshotData ? snapshotData.carbs_colors : carbsColors,
+    protein_colors: snapshotData ? snapshotData.protein_colors : proteinColors,
+    fats_colors: snapshotData ? snapshotData.fats_colors : fatsColors
   };
 
   // PuzzleContainer的progress参数
@@ -612,9 +618,9 @@ export default function Home(props) {
             proteinGoal={renderData.protein_goal}
             fatsGoal={renderData.fats_goal}
             hasSelectedPuzzle={!!renderData.puzzle_name}
-            carbsColors={carbsColors}
-            proteinColors={proteinColors}
-            fatsColors={fatsColors}
+            carbsColors={renderData.carbs_colors || carbsColors}
+            proteinColors={renderData.protein_colors || proteinColors}
+            fatsColors={renderData.fats_colors || fatsColors}
           />
         </div>
         
