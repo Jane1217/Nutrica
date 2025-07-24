@@ -245,6 +245,7 @@ export default function Home(props) {
   useEffect(() => {
     if (userId && selectedPuzzle) {
       const today = getLocalDateString(new Date());
+      const puzzleProgress = getPuzzleProgress(selectedPuzzle, calculateNutritionProgress());
       saveDailyHomeData({
         user_id: userId,
         date: today,
@@ -261,7 +262,8 @@ export default function Home(props) {
         fats: todayNutrition.fats,
         carbs_goal: nutritionGoals.carbs,
         protein_goal: nutritionGoals.protein,
-        fats_goal: nutritionGoals.fats
+        fats_goal: nutritionGoals.fats,
+        puzzle_progress: puzzleProgress
       });
     }
     // 设置午夜定时保存
@@ -270,6 +272,7 @@ export default function Home(props) {
     const timer = setTimeout(() => {
       if (userId && selectedPuzzle) {
         const today = getLocalDateString(new Date());
+        const puzzleProgress = getPuzzleProgress(selectedPuzzle, calculateNutritionProgress());
         saveDailyHomeData({
           user_id: userId,
           date: today,
@@ -286,7 +289,8 @@ export default function Home(props) {
           fats: todayNutrition.fats,
           carbs_goal: nutritionGoals.carbs,
           protein_goal: nutritionGoals.protein,
-          fats_goal: nutritionGoals.fats
+          fats_goal: nutritionGoals.fats,
+          puzzle_progress: puzzleProgress
         });
       }
     }, msToMidnight);
@@ -525,8 +529,27 @@ export default function Home(props) {
     fats: todayNutrition.fats,
     carbs_goal: nutritionGoals.carbs,
     protein_goal: nutritionGoals.protein,
-    fats_goal: nutritionGoals.fats
+    fats_goal: nutritionGoals.fats,
+    puzzle_progress: snapshotData ? snapshotData.puzzle_progress : getPuzzleProgress(selectedPuzzle, calculateNutritionProgress())
   };
+
+  // PuzzleContainer的progress参数
+  const renderProgress = snapshotData
+    ? {
+        1: (snapshotData.carbs_goal && snapshotData.carbs ? Math.min(snapshotData.carbs / snapshotData.carbs_goal, 1) : 0),
+        2: (snapshotData.protein_goal && snapshotData.protein ? Math.min(snapshotData.protein / snapshotData.protein_goal, 1) : 0),
+        3: (snapshotData.fats_goal && snapshotData.fats ? Math.min(snapshotData.fats / snapshotData.fats_goal, 1) : 0),
+      }
+    : calculateNutritionProgress();
+
+  // PuzzleContainer的img参数（历史快照100%时也传img）
+  const renderPuzzle = snapshotData
+    ? findPuzzleById(snapshotData.puzzle_id)
+    : selectedPuzzle;
+
+  // 判断是否为历史快照（非今天）
+  const todayStr = getLocalDateString(new Date());
+  const isHistory = snapshotData && snapshotData.date && snapshotData.date !== todayStr;
 
   return (
     <>
@@ -561,17 +584,11 @@ export default function Home(props) {
           <PuzzleContainer
             hasSelectedPuzzle={!!renderData.puzzle_name}
             onChoosePuzzle={() => setShowPuzzlesModal(true)}
-            selectedPuzzle={selectedPuzzle}
-            pixelArtData={renderData.pixel_art_data} // 新增
-            progress={
-              snapshotData
-                ? {
-                    1: (snapshotData.carbs_goal && snapshotData.carbs ? Math.min(snapshotData.carbs / snapshotData.carbs_goal, 1) : 0),
-                    2: (snapshotData.protein_goal && snapshotData.protein ? Math.min(snapshotData.protein / snapshotData.protein_goal, 1) : 0),
-                    3: (snapshotData.fats_goal && snapshotData.fats ? Math.min(snapshotData.fats / snapshotData.fats_goal, 1) : 0),
-                  }
-                : calculateNutritionProgress()
-            }
+            selectedPuzzle={renderPuzzle}
+            pixelArtData={renderData.pixel_art_data}
+            progress={renderProgress}
+            forceShowSvg={renderData.puzzle_progress === 1 && renderPuzzle?.img}
+            disableChangePuzzle={isHistory}
           >
             {/* 拼图内容将在这里 */}
           </PuzzleContainer>
