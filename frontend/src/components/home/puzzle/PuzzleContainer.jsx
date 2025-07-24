@@ -4,7 +4,7 @@ import { icons } from '../../../utils/icons';
 import PixelArtGrid from './PixelArtGrid';
 import NutritionPuzzlesModal from '../../../pages/home/puzzles/NutritionPuzzlesModal';
 
-export default function PuzzleContainer({ children, hasSelectedPuzzle = false, onChoosePuzzle, selectedPuzzle, pixelArtData, progress = {} }) {
+export default function PuzzleContainer({ children, hasSelectedPuzzle = false, onChoosePuzzle, selectedPuzzle, pixelArtData, progress = {}, forceShowSvg, disableChangePuzzle }) {
   const [showMenu, setShowMenu] = useState(false);
   const [showGrid, setShowGrid] = useState(true);
   const [showUnfinishedBlocks, setShowUnfinishedBlocks] = useState(true);
@@ -12,16 +12,24 @@ export default function PuzzleContainer({ children, hasSelectedPuzzle = false, o
   // 优先用 pixelArtData（快照），否则用 selectedPuzzle?.pixelMap
   const pixelMap = pixelArtData || selectedPuzzle?.pixelMap;
 
+  // 判断是否完成100%
+  const isComplete = progress && Object.values(progress).length > 0 && Object.values(progress).every(v => v >= 1);
+  const showSvg = forceShowSvg || (isComplete && selectedPuzzle?.img);
+
   return (
-    <div className={styles.puzzleContainer} onClick={() => { if (hasSelectedPuzzle) setShowMenu(true); }}>
+    <div className={styles.puzzleContainer} onClick={() => { if (hasSelectedPuzzle && !showSvg) setShowMenu(true); }}>
       {hasSelectedPuzzle ? (
         <div className={styles.pixelGridWrapper}>
-          <PixelArtGrid 
-            pixelMap={pixelMap} 
-            progress={progress} 
-            showGrid={showGrid} 
-            showUnfinishedBlocks={showUnfinishedBlocks}
-          />
+          {showSvg ? (
+            <img src={selectedPuzzle.img} alt="puzzle complete" style={{width: '63%', height: '63%', objectFit: 'contain'}} />
+          ) : (
+            <PixelArtGrid 
+              pixelMap={pixelMap} 
+              progress={progress} 
+              showGrid={showGrid} 
+              showUnfinishedBlocks={showUnfinishedBlocks}
+            />
+          )}
         </div>
       ) : (
         <>
@@ -35,21 +43,25 @@ export default function PuzzleContainer({ children, hasSelectedPuzzle = false, o
         </>
       )}
       {/* 右下角圆形图标按钮 */}
-      <div className={styles.cornerIconWrapper}>
-        <div className={styles.cornerIconCircle}>
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 17 16" fill="none">
-            <path d="M7 9.5V13.5H3V9.5H7ZM13.999 9.5V13.5H10V9.5H13.999ZM7 2.50098V6.5H3V2.50098H7ZM13.999 2.50098V6.5H10V2.50098H13.999Z" stroke="#6A6A61"/>
-          </svg>
+      {!showSvg && (
+        <div className={styles.cornerIconWrapper}>
+          <div className={styles.cornerIconCircle}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 17 16" fill="none">
+              <path d="M7 9.5V13.5H3V9.5H7ZM13.999 9.5V13.5H10V9.5H13.999ZM7 2.50098V6.5H3V2.50098H7ZM13.999 2.50098V6.5H10V2.50098H13.999Z" stroke="#6A6A61"/>
+            </svg>
+          </div>
         </div>
-      </div>
+      )}
       {/* 弹出菜单蒙层 */}
-      {showMenu && (
+      {!showSvg && showMenu && (
         <div className={styles.menuOverlay} onClick={e => { e.stopPropagation(); }}>
           <div className={styles.menuButtons}>
-            <button className={styles.menuBtn} onClick={() => { setShowMenu(false); if (onChoosePuzzle) onChoosePuzzle(); }}>
-              <img src="/assets/switch icon.svg" alt="switch" style={{width: 24, height: 24, aspectRatio: '1/1', marginRight: 0}} />
-              <span className="h5">Change puzzle</span>
-            </button>
+            {!disableChangePuzzle && (
+              <button className={styles.menuBtn} onClick={() => { setShowMenu(false); if (onChoosePuzzle) onChoosePuzzle(); }}>
+                <img src="/assets/switch icon.svg" alt="switch" style={{width: 24, height: 24, aspectRatio: '1/1', marginRight: 0}} />
+                <span className="h5">Change puzzle</span>
+              </button>
+            )}
             <button className={styles.menuBtn} onClick={() => setShowGrid(g => !g)}>
               <img src="/assets/hide grid icon.svg" alt="hide grid" style={{width: 24, height: 24, aspectRatio: '1/1', marginRight: 0}} />
               <span className="h5">{showGrid ? 'Hide grid' : 'Show grid'}</span>
