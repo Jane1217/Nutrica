@@ -88,8 +88,9 @@
   justify-content: space-between;
   align-items: center;
   border-radius: 8px;
-  border: 1px solid var(--Brand-Outline, #DBE2D0);
   box-sizing: border-box;
+  position: relative;
+  background: transparent;
 }
 
 .palette {
@@ -160,6 +161,11 @@
   border-radius: 4px;
   background: var(--Brand-Background, #F3F3EC);
   overflow: hidden;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
 }
 
 .paletteSegment {
@@ -167,4 +173,16 @@
   min-height: 0;
   height: calc(24px / var(--segment-count, 1));
   flex: none;
+} 
+
+.progressBorder {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  z-index: 1;
+  pointer-events: none;
+  box-sizing: border-box;
 } 

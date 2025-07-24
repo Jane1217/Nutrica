@@ -157,12 +157,12 @@ export default function DatePicker(props) {
       {/* Center date module */}
       <div className={styles.dateModule} onClick={openDatePickerModal}>
         {/* Date text */}
-        <span className={`${styles.dateText} h4`}>
+        <span className={styles.dateText}>
           {formatDate(currentDate)}
         </span>
         
         {/* Relative date text */}
-        <span className={`${styles.relativeDateText} body2`}>
+        <span className={styles.relativeDateText}>
           {getRelativeDateText(currentDate)}
         </span>
       </div>
