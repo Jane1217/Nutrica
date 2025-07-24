@@ -116,7 +116,7 @@ export default function Home(props) {
     fetchUserInfo();
   }, []);
 
-  // 页面加载时，优先用本地缓存渲染selectedPuzzle
+  // 页面加载时，优先用本地缓存渲染selectedPuzzle（并校验日期，不是今天就清空）
   useEffect(() => {
     const saved = localStorage.getItem('selectedPuzzle');
     const savedDate = localStorage.getItem('selectedPuzzleDate');
@@ -125,29 +125,41 @@ export default function Home(props) {
       try {
         setSelectedPuzzle(JSON.parse(saved));
       } catch {}
+    } else {
+      localStorage.removeItem('selectedPuzzle');
+      localStorage.removeItem('selectedPuzzleDate');
+      setSelectedPuzzle(null);
     }
   }, []);
 
-  // userId变化时，后台拉取supabase数据，如有则覆盖本地和state
+  // userId变化时，只拉取supabase数据和写入缓存，不再校验本地缓存日期
   useEffect(() => {
-    if (userId) {
-      const today = getLocalDateString(new Date());
-      supabase.from('daily_home_data')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('date', today)
-        .maybeSingle()
-        .then(({ data }) => {
-          if (data && data.puzzle_id) {
-            const puzzle = findPuzzleById(data.puzzle_id);
-            if (puzzle) {
-              setSelectedPuzzle(puzzle);
-              localStorage.setItem('selectedPuzzle', JSON.stringify(puzzle));
-              localStorage.setItem('selectedPuzzleDate', today);
-            }
-          }
-        });
+    if (!userId) {
+      setSelectedPuzzle(null);
+      localStorage.removeItem('selectedPuzzle');
+      localStorage.removeItem('selectedPuzzleDate');
+      return;
     }
+    const today = getLocalDateString(new Date());
+    supabase.from('daily_home_data')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('date', today)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data && data.puzzle_id) {
+          const puzzle = findPuzzleById(data.puzzle_id);
+          if (puzzle) {
+            setSelectedPuzzle(puzzle);
+            localStorage.setItem('selectedPuzzle', JSON.stringify(puzzle));
+            localStorage.setItem('selectedPuzzleDate', today);
+          }
+        } else {
+          setSelectedPuzzle(null);
+          localStorage.removeItem('selectedPuzzle');
+          localStorage.removeItem('selectedPuzzleDate');
+        }
+      });
   }, [userId]);
 
   // 页面加载时自动恢复上次选中的puzzle

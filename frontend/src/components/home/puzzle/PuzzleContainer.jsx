@@ -23,12 +23,14 @@ export default function PuzzleContainer({ children, hasSelectedPuzzle = false, o
           {showSvg ? (
             <img src={selectedPuzzle.img} alt="puzzle complete" style={{width: '63%', height: '63%', objectFit: 'contain'}} />
           ) : (
-            <PixelArtGrid 
-              pixelMap={pixelMap} 
-              progress={progress} 
-              showGrid={showGrid} 
-              showUnfinishedBlocks={showUnfinishedBlocks}
-            />
+            //selectedPuzzle?.pixelMap ? (
+              <PixelArtGrid 
+                pixelMap={pixelMap} 
+                progress={progress} 
+                showGrid={showGrid} 
+                showUnfinishedBlocks={showUnfinishedBlocks}
+              />
+            //) : null
           )}
         </div>
       ) : (

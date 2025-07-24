@@ -1,5 +1,5 @@
 // carrot.js
-const B = { color: '#FFFFFF', nutrient: 0 };
+const B = { color: '#F3F3EC', nutrient: 0 };
 const C1 = { color: '#FF9F58', nutrient: 1 };
 const C2 = { color: '#FB6D03', nutrient: 1 };
 const C3 = { color: '#FB3503', nutrient: 1 };
