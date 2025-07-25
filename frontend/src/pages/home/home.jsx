@@ -9,6 +9,7 @@ import EatModal from '../eat/modals/EatModal';
 import UserInfoModal from '../auth/modals/UserInfoModal';
 import NutritionGoalModal from '../auth/modals/NutritionGoalModal';
 import NutritionPuzzlesModal from './puzzles/NutritionPuzzlesModal';
+import Toast from '../../components/common/Toast';
 // 删除 HomeDataTestPanel 的引入
 // import HomeDataTestPanel from './HomeDataTestPanel';
 
@@ -84,6 +85,9 @@ export default function Home(props) {
   const [foodsTotal, setFoodsTotal] = useState(0); // 总数据量
   const foodsPerPage = 5;
   const foodsAllRef = useRef([]); // 保存所有foods原始数据
+  
+  // Toast状态
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
   
   // 营养数据状态
   const [nutritionGoals, setNutritionGoals] = useState({ calories: 2000, carbs: 200, protein: 150, fats: 65 });
@@ -317,6 +321,13 @@ export default function Home(props) {
     setFoodsPage(1);
     fetchFoods(true);
     fetchTodayNutritionData(); // 刷新今日营养数据
+    
+    // 关闭EatModal并跳转到home页面
+    setShowEatModal(false);
+    navigate('/');
+    
+    // 显示成功toast
+    setShowSuccessToast(true);
   };
 
   // EatModal滚动到底部时加载更多
@@ -658,7 +669,14 @@ export default function Home(props) {
           onClose={() => setShowPuzzlesModal(false)}
           onReopen={() => setShowPuzzlesModal(true)}
           onPuzzleSelect={handlePuzzleSelect}
-          />
+        />
+        
+        <Toast
+          message="Food Logged"
+          type="success"
+          show={showSuccessToast}
+          onClose={() => setShowSuccessToast(false)}
+        />
       </div>
     </>
   );

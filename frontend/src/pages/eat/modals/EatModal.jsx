@@ -6,9 +6,10 @@ import DescribeFoodModal from './DescribeFoodModal';
 // 移除本地ScanLabelPage引用，后续用路由跳转
 import '../styles/EatModal.css';
 import { useNavigate } from 'react-router-dom';
-import { foodApi, handleApiError } from '../../../utils/api';
 import { formatFoodTime, formatFoodTimeSmart } from '../../../utils/format';
+import { parseFoodDescription } from '../../../utils';
 import ModalWrapper from '../../../components/common/ModalWrapper';
+import { icons } from '../../../utils';
 
 export default function EatModal({ onClose, foods = [], foodsLoading = false, onDescribe, onEnterValue, userId, onDataChange, onFoodsScroll, open }) {
   const [step, setStep] = useState('main'); // 'main' | 'camera-permission' | 'scan' | 'enter-value' | 'describe' | 'describe-food'
@@ -64,7 +65,7 @@ export default function EatModal({ onClose, foods = [], foodsLoading = false, on
     setLoading(true);
     setError('');
     try {
-      const response = await foodApi.parseFoodDescription(description);
+      const response = await parseFoodDescription(description);
       if (response.success) {
         setAiData(response.data);
         setStep('describe-food');
@@ -72,7 +73,7 @@ export default function EatModal({ onClose, foods = [], foodsLoading = false, on
         setError(response.error || 'AI analysis failed');
       }
     } catch (error) {
-      setError(handleApiError(error, 'AI analysis failed'));
+      setError(error.message || 'AI analysis failed');
     } finally {
       setLoading(false);
     }
@@ -83,7 +84,7 @@ export default function EatModal({ onClose, foods = [], foodsLoading = false, on
     return (
       <button className="eat-modal-close-btn" onClick={onClick}>
         <span className="close-fill">
-          <img src="/assets/mingcute_close-fill-black.svg" alt="close" width="24" height="24" />
+          <img src={icons.closeFillBlack} alt="close" width="24" height="24" />
         </span>
       </button>
     );
@@ -153,19 +154,19 @@ export default function EatModal({ onClose, foods = [], foodsLoading = false, on
             <div className="eat-modal-group3-1" style={{display:'flex',gap:8}}>
             <button className="eat-modal-ai-btn" onClick={handleDescribe}>
               <span className="eat-modal-ai-icon">
-                <img src="/assets/mynaui_message-solid.svg" alt="describe" width="24" height="24" />
+                <img src={icons.message} alt="describe" width="24" height="24" />
               </span>
                 <span className="eat-modal-ai-text h5">Describe</span>
             </button>
             <button className="eat-modal-ai-btn" onClick={handleEnterValue}>
               <span className="eat-modal-ai-icon">
-                <img src="/assets/streamline-plump_input-box-solid.svg" alt="enter value" width="24" height="24" />
+                <img src={icons.inputBox} alt="enter value" width="24" height="24" />
               </span>
                 <span className="eat-modal-ai-text h5">Enter Value</span>
             </button>
             <button className="eat-modal-ai-btn" onClick={handleScanLabel}>
               <span className="eat-modal-ai-icon">
-                <img src="/assets/ph_scan-fill.svg" alt="scan label" width="24" height="24" />
+                <img src={icons.scan} alt="scan label" width="24" height="24" />
               </span>
                 <span className="eat-modal-ai-text h5">Scan Label</span>
             </button>

@@ -14,6 +14,8 @@ export const icons = {
   close: '/assets/material-symbols_close-rounded.svg',
   closeBlack: '/assets/mingcute_close-fill-black.svg',
   closeRounded: '/assets/material-symbols_close-rounded.svg',
+  closeFill: '/assets/mingcute_close-fill.svg',
+  closeFillBlack: '/assets/mingcute_close-fill-black.svg',
   
   // 功能图标
   home: '/assets/material-symbols_home-rounded.svg',
@@ -29,8 +31,6 @@ export const icons = {
   addAlt: '/assets/add (1).svg',
   collection: '/assets/fluent_collections-empty-16-filled.svg',
   scanFrame: '/assets/Frame 79.svg',
-  closeFill: '/assets/mingcute_close-fill.svg',
-  closeFillBlack: '/assets/mingcute_close-fill-black.svg',
 };
 
 // 获取图标URL的辅助函数

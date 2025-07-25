@@ -37,11 +37,11 @@ const config = {
   // OpenAI configuration
   openai: {
     apiKey: process.env.OPENAI_API_KEY,
-    // Proxy configuration - used in local development, not in production
-    proxy: process.env.NODE_ENV === 'development' ? {
-      host: process.env.PROXY_HOST || '127.0.0.1',
-      port: process.env.PROXY_PORT || 10809,
-      protocol: process.env.PROXY_PROTOCOL || 'http'
+    // Proxy配置直接读取env，若未设置则为null
+    proxy: process.env.PROXY_HOST && process.env.PROXY_PORT && process.env.PROXY_PROTOCOL ? {
+      host: process.env.PROXY_HOST,
+      port: process.env.PROXY_PORT,
+      protocol: process.env.PROXY_PROTOCOL
     } : null
   },
   
