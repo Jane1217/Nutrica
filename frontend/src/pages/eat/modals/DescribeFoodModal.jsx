@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/FoodModal.css';
 import { validateFoodForm } from '../../../utils/validation';
-import { foodApi, handleApiError } from '../../../utils/api';
-import { supabase } from '../../../supabaseClient';
+import { validateAndSaveFood } from '../../../utils';
 import ModalWrapper from '../../../components/common/ModalWrapper';
+import { icons } from '../../../utils';
 
 export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal, aiData, userId, onDataChange }) {
   const [form, setForm] = useState({
@@ -46,40 +46,17 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
     setLoading(true);
     setError('');
     try {
-      const nutrition = {
-        calories: Number(form.calories),
-        carbs: Number(form.carbs),
-        fats: Number(form.fats),
-        protein: Number(form.protein),
-      };
+      const result = await validateAndSaveFood(form, aiData?.emoji || '🍽️', onDataChange);
       
-      // 获取访问令牌
-      const session = await supabase.auth.getSession();
-      const accessToken = session.data.session?.access_token;
-      
-      if (!accessToken) {
-        setError('Unable to get access token, please log in again');
-        setLoading(false);
-        return;
-      }
-      
-      const data = await foodApi.addFood({
-        name: form.name,
-        number_of_servings: 1, // 固定为1
-        nutrition,
-        emoji: aiData?.emoji || '🍽️'
-      }, accessToken);
-      
-      if (data.success) {
+      if (result.success) {
         setSuccess(true);
-        if (onDataChange) onDataChange();
         // 保存成功时不重置loading，让onDataChange处理跳转
       } else {
-        setError(data.error || 'Save failed');
+        setError(result.error || 'Save failed');
         setLoading(false); // 只在失败时重置loading
       }
     } catch (error) {
-      setError(handleApiError(error, 'Save failed'));
+      setError(error.message);
       setLoading(false); // 只在失败时重置loading
     }
     // 移除finally块，避免在成功时重置loading
@@ -91,13 +68,13 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
         <div className="eat-modal-group1 food-modal-group1">
           <div className="food-modal-title-group">
             <button className="food-modal-back-btn" onClick={onBack}>
-              <img src="/assets/arrow-left.svg" alt="Back" />
+              <img src={icons.arrowLeft} alt="Back" />
             </button>
             <span className="eat-modal-title">Food</span>
           </div>
           <button className="eat-modal-close-btn" onClick={onCloseModal}>
             <span className="close-fill">
-              <img src="/assets/mingcute_close-fill-black.svg" alt="close" width="24" height="24" />
+              <img src={icons.closeFillBlack} alt="close" width="24" height="24" />
             </span>
           </button>
         </div>
