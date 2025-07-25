@@ -10,3 +10,4 @@ export * from './nutrition';
 export * from './share';
 export * from './user';
 export * from './validation';
+export * from './food';
