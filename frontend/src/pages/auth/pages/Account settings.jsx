@@ -306,18 +306,25 @@ export default function AccountSettings({ userEmail }) {
           <span>{'>'}</span>
         </button>
       </div>
-             <div className={styles['account-footer-bar']}>
-         <span className="h4" onClick={() => {
-           try {
-             window.open('/privacy-notice', '_blank');
-           } catch (error) {
-             console.error('Failed to open new tab:', error);
-             window.location.href = '/privacy-notice';
-           }
-         }} style={{cursor: 'pointer', textAlign: 'left'}}>Privacy Notice</span>
-         <span className="h4">About</span>
-         <span className="h4" onClick={() => setShowDeleteAccountModal(true)} style={{cursor: 'pointer'}}>Delete Account</span>        
-       </div>
+      <div className={styles['account-footer-bar']}>
+        <span className="h4" onClick={() => {
+          try {
+            window.open('/privacy-notice', '_blank');
+          } catch (error) {
+            console.error('Failed to open new tab:', error);
+            window.location.href = '/privacy-notice';
+          }
+        }} style={{cursor: 'pointer'}}>Privacy Notice</span>
+        <span className="h4" onClick={() => {
+          try {
+            window.open('/about', '_blank');
+          } catch (error) {
+            console.error('Failed to open new tab:', error);
+            window.location.href = '/about';
+          }
+        }} style={{cursor: 'pointer'}}>About</span>
+        <span className="h4" onClick={() => setShowDeleteAccountModal(true)} style={{cursor: 'pointer'}}>Delete Account</span>        
+      </div>
         <div className={styles.accountFeedback}>
           <span className="h5" style={{color: 'var(--Neutral-Primary-Text, #22221B)', textAlign: 'center'}}>
             We&apos;d love to hear your feedback!<br />Contact us at
