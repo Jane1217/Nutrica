@@ -33,8 +33,9 @@ export default function ForgotPassword({ open, onClose, onBackToLogin }) {
     setError('');
 
     try {
+      const FRONTEND_URL = import.meta.env.VITE_FRONTEND_URL || window.location.origin;
       const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`
+        redirectTo: `${FRONTEND_URL}/reset-password`
       });
 
       if (error) {
