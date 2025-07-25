@@ -11,6 +11,7 @@ import MyCollections from './pages/my-collections/MyCollections';
 import CollectionDetail from './pages/my-collections/CollectionDetail';
 import SharePage from './pages/share/SharePage';
 import SafariCameraPermission from './pages/auth/pages/SafariCameraPermission';
+import PrivacyNotice from './pages/auth/pages/PrivacyNotice';
 import React, { useEffect, useState } from 'react';
 import { supabase } from './supabaseClient';
 
@@ -96,6 +97,7 @@ export default function App() {
         />
         <Route path="/share/:userId/:puzzleName" element={<SharePage />} />
         <Route path="/safari-camera-permission" element={<SafariCameraPermission />} />
+        <Route path="/privacy-notice" element={<PrivacyNotice />} />
       </Routes>
     </BrowserRouter>
   );
