@@ -17,6 +17,13 @@ export default function PuzzleTextModule({ puzzleName, puzzleText, userName, has
                   {puzzleText}
                 </span>
               )
+              : puzzleText === 'So close to completing this puzzle! — try again next time!'
+              ? (
+                <span style={{display: 'inline-block', textAlign: 'center'}}>
+                  <img src={"/assets/smile.svg"} alt="smile" style={{width: '24px', height: '24px', verticalAlign: 'middle', marginRight: '0.15em'}} />
+                  {puzzleText}
+                </span>
+              )
               : (puzzleText || 'Carrot')
           )
           : `Hey ${userName || 'User'}! Ready to collect today's nutrition puzzle?`
