@@ -1,33 +1,20 @@
 .container {
   min-height: 100vh;
-  background-color: #F8F8F8;
+  background: var(--Brand-Background, #F3F3EC);
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  margin: 0;
+  font-family: 'Kanit', sans-serif;
 }
 
 .header {
   display: flex;
   align-items: center;
   padding: 16px 20px;
-  background-color: white;
-  border-bottom: 1px solid #E5E5E5;
+  background: var(--Brand-Background, #F3F3EC);
+  border-bottom: 1px solid var(--Brand-Outline);
   position: sticky;
   top: 0;
   z-index: 10;
-}
-
-.backButton {
-  background: none;
-  border: none;
-  padding: 8px;
-  margin-right: 16px;
-  cursor: pointer;
-  border-radius: 8px;
-  transition: background-color 0.2s;
-}
-
-.backButton:hover {
-  background-color: #F0F0F0;
 }
 
 .logo {
@@ -36,51 +23,54 @@
 }
 
 .content {
-  padding: 24px 20px;
+  padding: 24px 0;
   max-width: 600px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #22221B;
+  color: var(--Neutral-Primary-Text);
   margin: 0 0 16px 0;
-  line-height: 1.2;
 }
 
-.description {
-  font-size: 16px;
-  line-height: 1.5;
-  color: #6A6A61;
+.introduction {
   margin-bottom: 24px;
 }
 
+.introduction p {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--Neutral-Primary-Text);
+  margin: 0;
+}
+
 .prerequisite {
-  font-size: 14px;
-  color: #8A8A7A;
-  margin-bottom: 32px;
-  padding: 12px 16px;
-  background-color: #F5F5F5;
-  border-radius: 8px;
-  border-left: 4px solid #669948;
+  margin-bottom: 16px;
+  margin-top: 16px;
+}
+
+.prerequisite p {
+  line-height: 1.5;
+  color: var(--Neutral-Primary-Text);
+  margin: 0;
 }
 
 .steps {
-  margin-bottom: 40px;
+  margin-bottom: 16px;
 }
 
 .step {
   display: flex;
   align-items: flex-start;
   margin-bottom: 16px;
-  font-size: 16px;
-  line-height: 1.5;
-  color: #22221B;
+  gap: 12px;
 }
 
 .stepNumber {
-  background-color: #669948;
+  background: var(--Brand-Dark);
   color: white;
   width: 24px;
   height: 24px;
@@ -90,83 +80,37 @@
   justify-content: center;
   font-size: 14px;
   font-weight: 600;
-  margin-right: 12px;
   flex-shrink: 0;
-  margin-top: 2px;
 }
 
 .stepText {
+  line-height: 1.5;
+  color: var(--Neutral-Primary-Text);
   flex: 1;
 }
 
-.stepText strong {
-  font-weight: 600;
-  color: #22221B;
-}
-
 .settingsExample {
-  background-color: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border: 1px solid #E5E5E5;
-}
-
-.exampleHeader {
   display: flex;
+  width: 327px;
+  max-width: 100%;
+  padding: 21px 23px 0px 24px;
+  justify-content: center;
   align-items: center;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #E5E5E5;
+  border-radius: 24px;
+  border: 1px solid var(--Brand-Outline, #DBE2D0);
+  background: var(--Brand-Off-White, #FCFCF8);
 }
 
-.exampleHeader svg {
-  margin-right: 8px;
-  color: #22221B;
-}
-
-.exampleDomain {
-  font-size: 14px;
-  color: #6A6A61;
-  font-weight: 500;
-}
-
-.permissionOptions {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.option {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  border-radius: 8px;
-  font-size: 16px;
-  color: #22221B;
-  background-color: #F8F8F8;
-  transition: background-color 0.2s;
-}
-
-.option.selected {
-  background-color: #E3F2FD;
-  color: #007AFF;
-  font-weight: 500;
-}
-
-.option.selected svg {
-  color: #007AFF;
+.settingsImage {
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
 }
 
 /* 响应式设计 */
 @media (max-width: 480px) {
   .content {
     padding: 20px 16px;
-  }
-  
-  .title {
-    font-size: 24px;
   }
   
   .settingsExample {
