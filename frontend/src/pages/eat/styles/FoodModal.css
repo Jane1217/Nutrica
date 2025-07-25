@@ -46,14 +46,10 @@
   font-weight: 500;
   margin: 8px 0 0 0;
 }
-.food-modal-row-label,
-.food-modal-input,
-.food-modal-unit {
-  font-family: Kanit;
-}
+
 .food-modal-input-group {
   display: flex;
-  width: 120px;
+  width: 80px;
   min-width: 96px;
   padding: 12px 16px;
   justify-content: space-between;
@@ -88,14 +84,15 @@
 }
 .food-modal-serving-group {
   display: flex;
-  width: 120px;
-  padding: 12px 0px;
+  width: 80px;
+  min-width: 96px;
+  padding: 12px 16px;
   justify-content: center;
   align-items: center;
+  gap: 4px;
   border-radius: 8px;
-  border: 1px solid #CDD3C4;
-  background: #F3F3EC;
-  flex-shrink: 0;
+  border: 1px solid var(--Brand-Outline, #DBE2D0);
+  background: var(--Brand-Off-White, #FCFCF8);
 }
 .food-modal-serving-group .food-modal-input {
   flex: 1 0 0;
