@@ -23,6 +23,10 @@
   white-space: nowrap;
 }
 
+.toast.success {
+  background: #204B0D;
+}
+
 .toast.show {
   top: 20px;
 }
@@ -34,6 +38,13 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+
+.toastIcon.success {
+  width: 24px;
+  height: 24px;
+  aspect-ratio: 1/1;
+  fill: var(--Alert-Success, #477E2D);
 }
 
 .toastText {

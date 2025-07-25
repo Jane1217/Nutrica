@@ -118,15 +118,16 @@ export default function FoodModal({ open, onClose, initialData, userId, onDataCh
       if (data.success) {
         setSuccess(true);
         if (onDataChange) onDataChange();
-        setTimeout(() => { onClose && onClose(); }, 1200);
+        // 保存成功时不重置loading，让onDataChange处理跳转
       } else {
         setError(data.error || 'Save failed');
+        setLoading(false); // 只在失败时重置loading
       }
     } catch (error) {
       setError(handleApiError(error, 'Save failed'));
-    } finally {
-      setLoading(false);
+      setLoading(false); // 只在失败时重置loading
     }
+    // 移除finally块，避免在成功时重置loading
   };
 
   return (
@@ -178,8 +179,9 @@ export default function FoodModal({ open, onClose, initialData, userId, onDataCh
             </div>
           </div>
         </div>
-        <button className="food-modal-confirm-btn h5" onClick={handleConfirm} disabled={loading}>{loading ? 'Saving...' : 'Confirm'}</button>
-        {success && <div className="food-modal-success">Saved!</div>}
+        <div className="food-modal-action-group">
+          <button className="food-modal-confirm-btn h5" onClick={handleConfirm} disabled={loading}>{loading ? 'Saving...' : 'Log food'}</button>
+        </div>
         {error && <div className="food-modal-error">{error}</div>}
       </div>
     </ModalWrapper>

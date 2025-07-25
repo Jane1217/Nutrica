@@ -19,8 +19,18 @@ export default function Toast({ message, type = 'error', show, onClose, duration
 
   if (!show && !isVisible) return null;
 
-  return (
-    <div className={`${styles.toast} ${styles[type]} ${isVisible ? styles.show : ''}`}>
+  const renderIcon = () => {
+    if (type === 'success') {
+      return (
+        <div className={`${styles.toastIcon} ${styles.success}`}>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="#477E2D"/>
+          </svg>
+        </div>
+      );
+    }
+    
+    return (
       <div className={styles.toastIcon}>
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
           <rect width="24" height="24" rx="12" fill="#D03535"/>
@@ -28,6 +38,12 @@ export default function Toast({ message, type = 'error', show, onClose, duration
           <path d="M12.713 12.712C12.521 12.904 12.2833 13 12 13C11.7173 13.0007 11.48 12.905 11.288 12.713C11.096 12.521 11 12.2833 11 12V8C11 7.718 11.096 7.48067 11.288 7.288C11.48 7.09534 11.7173 6.99934 12 7C12.2827 7.00067 12.52 7.09667 12.712 7.288C12.904 7.47934 13 7.71667 13 8V12C13.0007 12.2827 12.905 12.52 12.713 12.712Z" fill="white"/>
         </svg>
       </div>
+    );
+  };
+
+  return (
+    <div className={`${styles.toast} ${styles[type]} ${isVisible ? styles.show : ''}`}>
+      {renderIcon()}
       <span className={`${styles.toastText} body2`}>{message}</span>
     </div>
   );

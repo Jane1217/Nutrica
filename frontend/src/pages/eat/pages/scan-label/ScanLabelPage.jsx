@@ -11,6 +11,7 @@ import {
 } from '../../../../utils/camera';
 import './ScanLabelPage.css';
 import CameraPermissionModal from '../../modals/CameraPermissionModal';
+import Toast from '../../../../components/common/Toast';
 import { icons } from '../../../../utils';
 
 // 组件外部，避免多次挂载重复判断
@@ -18,7 +19,7 @@ const CAMERA_PERMISSION_KEY = 'nutrica_camera_permission_shown';
 const isCameraPermissionShown = () => !!localStorage.getItem(CAMERA_PERMISSION_KEY);
 const setCameraPermissionShown = () => localStorage.setItem(CAMERA_PERMISSION_KEY, '1');
 
-export default function ScanLabelPage({ onClose, userId }) {
+export default function ScanLabelPage({ onClose, userId, onDataChange }) {
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const scanFrameRef = useRef(null);
@@ -30,6 +31,7 @@ export default function ScanLabelPage({ onClose, userId }) {
   const navigate = useNavigate();
   const [showPermission, setShowPermission] = useState(!isCameraPermissionShown());
   const [cameraFeatureTip, setCameraFeatureTip] = useState('');
+  const [successToast, setSuccessToast] = useState(false);
 
   // 摄像头管理函数
   const handleStartCamera = () => {
@@ -115,6 +117,19 @@ export default function ScanLabelPage({ onClose, userId }) {
   const handleFoodModalClose = () => {
     setFoodModalOpen(false);
     setFoodResult(null);
+  };
+
+  // 处理FoodModal数据变化
+  const handleFoodModalDataChange = () => {
+    // 关闭FoodModal
+    setFoodModalOpen(false);
+    setFoodResult(null);
+    
+    // 跳转到home页面
+    navigate('/');
+    
+    // 显示成功toast
+    setSuccessToast(true);
   };
 
   // 组件挂载时启动摄像头
@@ -332,6 +347,13 @@ export default function ScanLabelPage({ onClose, userId }) {
         onClose={handleFoodModalClose}
         initialData={foodResult}
         userId={userId}
+        onDataChange={handleFoodModalDataChange}
+      />
+      <Toast
+        message="Food Logged"
+        type="success"
+        show={successToast}
+        onClose={() => setSuccessToast(false)}
       />
     </div>
   );
