@@ -16,12 +16,14 @@ export default function NavLogo({ hideEat = false, hideCtaButtons = false, hideM
       <div className={styles.navBar}>
         {/* Logo Module */}
         <div className={styles.logoModule}>
-          <img 
-            src={icons.menu} 
-            alt="Menu" 
-            className={styles.menu}
-            onClick={() => setSidebarOpen(true)}
-          />
+          {!hideMenu && (
+            <img 
+              src={icons.menu} 
+              alt="Menu" 
+              className={styles.menu}
+              onClick={() => setSidebarOpen(true)}
+            />
+          )}
           <img 
             src={icons.logo} 
             alt="Logo" 
@@ -50,7 +52,7 @@ export default function NavLogo({ hideEat = false, hideCtaButtons = false, hideM
         )}
         </div>
       </div>
-      <SidebarMenu open={sidebarOpen} onClose={() => setSidebarOpen(false)} isLoggedIn={isLoggedIn} />
+      {!hideMenu && <SidebarMenu open={sidebarOpen} onClose={() => setSidebarOpen(false)} isLoggedIn={isLoggedIn} />}
     </>
   );
 } 
