@@ -1,12 +1,13 @@
 // sushi_rice.js
 const B = { color: '#F3F3EC', nutrient: 0 };
-const C1 = { color: '#25AD2E', nutrient: 1 }; // 碳水
-const C2 = { color: '#23892A', nutrient: 1 }; // 碳水
+const C1 = { color: '#8C3C39', nutrient: 1 }; // 碳水
+const C2 = { color: '#5F1C1A', nutrient: 1 }; // 碳水
 
-const P1 = { color: '#A6EA4E', nutrient: 2 }; // 蛋白
-const P2 = { color: '#82C42C', nutrient: 2 }; // 蛋白
+const P1 = { color: '#FFF', nutrient: 2 }; // 蛋白
+const P2 = { color: '#F1EEDB', nutrient: 2 }; // 蛋白
+const P3 = { color: '#C1BAA7', nutrient: 2 }; // 蛋白
 
-const F = { color: '#102611', nutrient: 3 }; // 脂肪
+const F = { color: '#300908', nutrient: 3 }; // 脂肪
 
 const sushi_rice = {
   id: 'sushi_rice',
@@ -32,37 +33,37 @@ const sushi_rice = {
     // 4
     [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
     // 5
-    [B,B,B,B,B,B,B,B,B,B,B,B,B,B,F,F,B,B,B,B,B,B,B,B],
+    [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
     // 6
-    [B,B,B,B,B,B,B,B,B,F,F,F,B,F,C1,C1,F,B,B,B,B,B,B,B],
+    [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
     // 7
-    [B,B,B,B,B,B,B,B,F,C1,C1,C1,F,C1,C1,C1,C1,F,B,B,B,B,B,B],
+    [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
     // 8
-    [B,B,B,B,B,B,F,F,C1,F,C2,C1,C1,C2,C2,C2,C1,F,B,B,B,B,B,B],
+    [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
     // 9
-    [B,B,B,B,B,F,C1,C1,C1,C1,F,C2,C2,C2,C2,C2,C2,C2,F,B,B,B,B,B,B],
+    [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
     // 10
-    [B,B,B,B,F,C1,C2,C2,F,F,F,F,C2,C2,C1,C2,F,F,B,B,B,B,B,B],
+    [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
     // 11
-    [B,B,B,B,F,C2,C2,F,C1,C1,C1,C1,F,C1,F,F,C1,C1,F,B,B,B,B,B],
+    [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
     // 12
-    [B,B,B,B,B,F,F,C1,C1,C2,C2,C1,F,F,C1,C1,C2,C2,C1,F,B,B,B,B],
+    [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
     // 13
-    [B,B,B,B,B,B,B,F,C2,C2,C2,C2,C2,F,C1,C1,C2,C2,C2,F,B,B,B,B],
+    [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
     // 14
-    [B,B,B,B,B,B,B,F,F,C2,C2,F,F,C1,C2,C2,C2,C2,C2,F,B,B,B,B,B],
+    [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
     // 15
-    [B,B,B,B,B,B,F,P1,F,F,C2,F,F,C1,C1,F,F,F,B,B,B,B,B,B],
+    [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
     // 16
-    [B,B,B,B,B,F,P1,F,B,F,C2,F,F,F,F,C1,C2,F,B,B,B,B,B,B],
+    [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
     // 17
-    [B,B,B,B,B,F,P2,F,P1,P2,F,B,F,C1,C1,C2,F,B,B,B,B,B,B,B],
+    [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
     // 18
-    [B,B,B,B,F,P1,P2,P1,P2,F,B,B,B,F,F,F,F,B,B,B,B,B,B,B],
+    [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
     // 19
-    [B,B,B,B,F,P2,P2,P2,F,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
+    [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
     // 20
-    [B,B,B,B,B,F,P2,F,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
+    [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
     // 21
     [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
     // 22
@@ -74,5 +75,5 @@ const sushi_rice = {
   ]    
 };
 
-export const sushi_riceColorOrder = [C1.color, C2.color, P1.color, P2.color, F.color];
+export const sushi_riceColorOrder = [C1.color, C2.color, P1.color, P2.color, P3.color, F.color];
 export default sushi_rice; 
