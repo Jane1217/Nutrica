@@ -24,32 +24,66 @@ export default function NutritionCard({
     if (onHelpClick) onHelpClick();
   };
 
+  // 解析字符串数组的辅助函数
+  const parseColorsString = (colorsStr) => {
+    if (Array.isArray(colorsStr)) {
+      return colorsStr;
+    }
+    if (typeof colorsStr === 'string') {
+      try {
+        // 尝试解析JSON格式的数组字符串
+        return JSON.parse(colorsStr);
+      } catch (e) {
+        // 如果不是标准JSON，尝试解析自定义格式
+        // 格式如：["#FCDA5B","#FEBE5D"]["#3FB753","#77B73F"]
+        const matches = colorsStr.match(/\[[^\]]+\]/g);
+        if (matches && matches.length > 0) {
+          // 取第一个匹配的数组
+          try {
+            return JSON.parse(matches[0]);
+          } catch (e2) {
+            console.warn('Failed to parse colors string:', colorsStr);
+            return [];
+          }
+        }
+        return [];
+      }
+    }
+    return [];
+  };
+
   // 分段色块渲染函数
-  const renderColorSegments = (colors) => (
-    <div className={styles.paletteSegments}>
-      {colors.length === 0 ? (
-        <div className={styles.paletteSegment} style={{background: '#F0F0F0', height: 24, borderRadius: 12}} />
-      ) : (
-        colors.map((color, idx) => (
-          <div
-            key={idx}
-            className={styles.paletteSegment}
-            style={{
-              background: color,
-              '--segment-count': colors.length,
-              borderTopLeftRadius: idx === 0 ? 4 : 0,
-              borderTopRightRadius: idx === 0 ? 4 : 0,
-              borderBottomLeftRadius: idx === colors.length - 1 ? 4 : 0,
-              borderBottomRightRadius: idx === colors.length - 1 ? 4 : 0,
-            }}
-          />
-        ))
-      )}
-    </div>
-  );
+  const renderColorSegments = (colors) => {
+    // 确保colors是数组
+    const safeColors = parseColorsString(colors);
+    return (
+      <div className={styles.paletteSegments}>
+        {safeColors.length === 0 ? (
+          <div className={styles.paletteSegment} style={{background: '#F0F0F0', height: 24, borderRadius: 12}} />
+        ) : (
+          safeColors.map((color, idx) => (
+            <div
+              key={idx}
+              className={styles.paletteSegment}
+              style={{
+                background: color,
+                '--segment-count': safeColors.length,
+                borderTopLeftRadius: idx === 0 ? 4 : 0,
+                borderTopRightRadius: idx === 0 ? 4 : 0,
+                borderBottomLeftRadius: idx === safeColors.length - 1 ? 4 : 0,
+                borderBottomRightRadius: idx === safeColors.length - 1 ? 4 : 0,
+              }}
+            />
+          ))
+        )}
+      </div>
+    );
+  };
 
   // 新实现：SVG带圆角方形进度条
   function SquareProgressBorder({ colors = [], progress = 1 }) {
+    // 确保colors是数组
+    const safeColors = parseColorsString(colors);
     const size = 36;
     const strokeWidth = 2;
     const radius = 8;
@@ -61,9 +95,9 @@ export default function NutritionCard({
       <svg width={size} height={size} style={{ position: 'absolute', left: 0, top: 0, zIndex: 1, pointerEvents: 'none' }}>
         <defs>
           <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="0%">
-            {colors.length > 1 ? colors.map((color, idx) => (
-              <stop key={idx} offset={`${(idx / (colors.length - 1)) * 100}%`} stopColor={color} />
-            )) : <stop offset="0%" stopColor={colors[0] || '#DBE2D0'} />}
+            {safeColors.length > 1 ? safeColors.map((color, idx) => (
+              <stop key={idx} offset={`${(idx / (safeColors.length - 1)) * 100}%`} stopColor={color} />
+            )) : <stop offset="0%" stopColor={safeColors[0] || '#DBE2D0'} />}
           </linearGradient>
         </defs>
         {/* 未完成部分底色 */}
