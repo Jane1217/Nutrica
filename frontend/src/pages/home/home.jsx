@@ -540,8 +540,40 @@ export default function Home(props) {
     return () => { cancelled = true; clearTimeout(timeout); };
   }, [currentDate, userId]);
 
-  // 渲染时优先用 snapshotData
-  const renderData = snapshotData || {
+  // 渲染时优先用 snapshotData，只声明一次 todayStr 和 isHistory，后续复用
+  const todayStr = getLocalDateString(new Date());
+  const isHistory = snapshotData && snapshotData.date && snapshotData.date !== todayStr;
+
+  // 计算历史页面拼图完成度
+  let historyPuzzle = null;
+  let historyProgress = 0;
+  if (isHistory) {
+    historyPuzzle = findPuzzleById(snapshotData.puzzle_id);
+    historyProgress = snapshotData.puzzle_progress;
+  }
+
+  const renderData = snapshotData ? {
+    puzzle_category: snapshotData.puzzle_category,
+    puzzle_name: snapshotData.puzzle_name,
+    // 修改历史页面 description 逻辑
+    daily_text: isHistory
+      ? (historyProgress === 1
+        ? 'Puzzle collected! Treat yourself in tomorrow’s challenge!'
+        : 'So close to completing this puzzle! — try again next time!')
+      : getPuzzleDescription(selectedPuzzle, calculateNutritionProgress(), userInfo?.name),
+    pixel_art_data: snapshotData.pixel_art_data,
+    calories: snapshotData.calories,
+    carbs: snapshotData.carbs,
+    protein: snapshotData.protein,
+    fats: snapshotData.fats,
+    carbs_goal: snapshotData.carbs_goal,
+    protein_goal: snapshotData.protein_goal,
+    fats_goal: snapshotData.fats_goal,
+    puzzle_progress: snapshotData.puzzle_progress,
+    carbs_colors: snapshotData.carbs_colors,
+    protein_colors: snapshotData.protein_colors,
+    fats_colors: snapshotData.fats_colors
+  } : {
     puzzle_category: selectedPuzzle
       ? (puzzleCategories.find(cat => cat.puzzles.some(p => selectedPuzzle.id.startsWith(p.id)))?.title || '')
       : '',
@@ -576,8 +608,7 @@ export default function Home(props) {
     : selectedPuzzle;
 
   // 判断是否为历史快照（非今天）
-  const todayStr = getLocalDateString(new Date());
-  const isHistory = snapshotData && snapshotData.date && snapshotData.date !== todayStr;
+  // 已在上方声明 todayStr 和 isHistory，这里移除重复声明
 
   return (
     <>
