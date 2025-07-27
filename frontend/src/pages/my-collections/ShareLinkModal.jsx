@@ -44,9 +44,27 @@ export default function ShareLinkModal({ open, onClose, puzzleName = 'carrot', n
     }
   };
 
-  const handleShare = () => {
+  const handleShare = async () => {
     if (!shareLink) return;
-    window.open(shareLink, '_blank');
+    
+    // 检查是否支持 Web Share API
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Check out my ${puzzleName} puzzle collection!`,
+          text: `I've collected the ${puzzleName} puzzle in my nutrition collection. Take a look!`,
+          url: shareLink
+        });
+      } catch (error) {
+        // 用户取消分享或分享失败，回退到复制链接
+        console.log('Share cancelled or failed:', error);
+        await handleCopy();
+      }
+    } else {
+      // 不支持 Web Share API，回退到复制链接
+      console.log('Web Share API not supported, falling back to copy');
+      await handleCopy();
+    }
   };
 
   return (

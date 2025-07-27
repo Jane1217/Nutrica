@@ -113,6 +113,24 @@ export default function MyCollections() {
     return null;
   }
 
+  // 如果没有任何collection，显示空状态
+  if (collections.length === 0) {
+    return (
+      <div className={styles.myCollectionsPage}>
+        <NavLogo hideEat hideMenu isLoggedIn={true} />
+        <div className={styles.container}>
+          <h1 className={`${styles.title} h1`}>My Collections</h1>
+          <div className={styles.emptyContainer}>
+            <span className={`${styles.emptyHeading} h3`}>No puzzle collection yet!</span>
+            <span className={`${styles.emptyText} body2`}>
+              Choose a nutrition puzzle from homepage and reach your daily nutrition goal to collect puzzles.
+            </span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.myCollectionsPage}>
       <NavLogo hideEat hideMenu isLoggedIn={true} />
@@ -162,9 +180,7 @@ export default function MyCollections() {
               </span>
             </div>
             <div className={`${styles.collectionDescription} body1`}>
-              {collectedKinds === 0 
-                ? "Your garden is waiting to bloom. Start collecting nutrition puzzles to see it come alive!"
-                : collectedKinds === totalKinds
+              {collectedKinds === totalKinds
                 ? "Congratulations! Your Magic Garden is complete and thriving!"
                 : "Little by little, your garden is coming alive. Keep tending to it with care."
               }
