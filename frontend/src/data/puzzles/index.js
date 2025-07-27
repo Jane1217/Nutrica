@@ -18,12 +18,12 @@ export const puzzleCategories = [
   },
   // 其他分类可继续添加
   {
-    id: 'synthesis_puzzles',
-    title: 'Synthesis Puzzles',
-    desc: 'Combine different nutrition elements to create new and exciting puzzle combinations. Master the art of nutrition synthesis.',
+    id: 'salmon_nigiri_boy',
+    title: 'Salmon Nigiri Boy',
+    desc: 'Collect two puzzles to unlock Salmon Nigiri Boy! The cutest sushi sidekick with a wink and a salmon-sized heart',
     count: 2,
     type: 'synthesis',
-    bgColor: '#FBBC91', // 浅粉色背景
+    bgColor: '#FBBC91', 
     puzzles: [carrot, avocado] // 暂时使用现有的拼图，后续可以替换为合成式拼图
   },
 ];

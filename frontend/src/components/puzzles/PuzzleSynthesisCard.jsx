@@ -1,22 +1,23 @@
 import React from "react";
-import styles from "./PuzzleCollectionCard.module.css";
+import styles from "./PuzzleSynthesisCard.module.css";
 
-export default function PuzzleCollectionCard({ category }) {
+export default function PuzzleSynthesisCard({ category }) {
+  
   return (
     <div 
-      className={styles.puzzleCard}
+      className={styles.synthesisCard}
       style={{ backgroundColor: category.bgColor || '#fff' }}
     >
-      <div className={styles.puzzleHeader}>
-        <span className={`${styles.collectionLabel} h5`}>Collection</span>
+      <div className={styles.synthesisHeader}>
+        <span className={`${styles.synthesisLabel} h5`}>Synthesis</span>
         <span className={`${styles.puzzlesCount} body2`}>{category.count} Puzzles</span>
       </div>
-      <div className={`${styles.puzzleTitle} h3`}>{category.title}</div>
-      <div className={styles.puzzleDesc}>{category.desc}</div>
-      <div className={styles.puzzlePieces}>
+      <div className={`${styles.synthesisTitle} h3`}>{category.title}</div>
+      <div className={styles.synthesisDesc}>{category.desc}</div>
+      <div className={styles.synthesisPieces}>
         {category.puzzles && category.puzzles.map((puzzle, idx) => (
           <div
-            className={styles.puzzlePieceBox}
+            className={styles.synthesisPieceBox}
             key={puzzle.id || idx}
             style={{ background: puzzle.bgColor || '#fff' }}
           >

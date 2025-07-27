@@ -2,10 +2,10 @@
   color: var(--Neutral-Primary-Text, #22221B);
   text-align: right;
 }
-.collectionLabel {
+.synthesisLabel {
   color: var(--Neutral-Primary-Text, #22221B);
 }
-.puzzleCard {
+.synthesisCard {
   display: flex;
   padding: 16px;
   flex-direction: column;
@@ -18,7 +18,7 @@
   box-shadow: 0px 4px 0px 0px #22221B;
   overflow: hidden;
 }
-.puzzleHeader {
+.synthesisHeader {
   width: 100%;
   display: flex;
   justify-content: space-between;
@@ -27,11 +27,11 @@
   color: #22221B;
   margin-bottom: 8px;
 }
-.puzzleTitle {
+.synthesisTitle {
   color: var(--Neutral-Primary-Text, #22221B);
   align-self: stretch;
 }
-.puzzleDesc {
+.synthesisDesc {
   align-self: stretch;
   color: var(--Neutral-Primary-Text, #22221B);
   font-family: Kanit, sans-serif;
@@ -41,7 +41,7 @@
   line-height: 150%; /* 21px */
   margin-bottom: 0px;
 }
-.puzzlePieces {
+.synthesisPieces {
   display: flex;
   gap: 8px;
   margin-top: 8px;
@@ -52,7 +52,7 @@
   scrollbar-width: thin;
   scrollbar-color: #B0B0B0 #E0E0E0;
 }
-.puzzlePieceBox {
+.synthesisPieceBox {
   width: 64px;
   height: 64px;
   flex-shrink: 0;
