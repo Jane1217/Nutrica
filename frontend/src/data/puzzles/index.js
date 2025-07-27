@@ -4,6 +4,8 @@ import tomato, { tomatoColorOrder } from './tomato';
 import corn, { cornColorOrder } from './corn';
 import broccoli, { broccoliColorOrder } from './broccoli';
 import pumpkin, { pumpkinColorOrder } from './pumpkin';
+import salmon, { salmonColorOrder } from './salmon';
+import sushi_rice, { sushi_riceColorOrder } from './sushi_rice';
 
 export const puzzleCategories = [
   {
@@ -24,7 +26,8 @@ export const puzzleCategories = [
     count: 2,
     type: 'synthesis',
     bgColor: '#FBBC91', 
-    puzzles: [carrot, avocado] // 暂时使用现有的拼图，后续可以替换为合成式拼图
+    puzzles: [salmon, sushi_rice], // 暂时使用现有的拼图，后续可以替换为合成式拼图
+    resultImage: '/assets/puzzles/salmon_nigiri_boy.svg' // 合成后的结果图像
   },
 ];
 
@@ -35,5 +38,7 @@ export const colorOrders = {
   corn: cornColorOrder,
   broccoli: broccoliColorOrder,
   pumpkin: pumpkinColorOrder,
+  salmon: salmonColorOrder,
+  sushi_rice: sushi_riceColorOrder,
   // 其他puzzle...
 };

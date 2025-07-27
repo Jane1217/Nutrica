@@ -1,4 +1,4 @@
-// avocado.js
+// sushi_rice.js
 const B = { color: '#F3F3EC', nutrient: 0 };
 const C1 = { color: '#25AD2E', nutrient: 1 }; // 碳水
 const C2 = { color: '#23892A', nutrient: 1 }; // 碳水
@@ -8,20 +8,20 @@ const P2 = { color: '#82C42C', nutrient: 2 }; // 蛋白
 
 const F = { color: '#102611', nutrient: 3 }; // 脂肪
 
-const broccoli = {
-  id: 'broccoli',
-  name: 'Broccoli',
-  description: "All florets firing. Green power has officially peaked",
+const sushi_rice = {
+  id: 'sushi_rice',
+  name: 'Sushi Rice',
+  description: "Bound, balanced, and quietly essential. The base is finally ready.",
   descriptions: [
-    "Just a tiny floret with big green dreams. Don’t fear the crunch.",
-    "Starting to look less like a houseplant, more like dinner.",
-    "Halfway to full florets. Kinda healthy, kinda heroic.",
-    "Looking steamed, but in a good way. Almost plate-ready!",
-    "All florets firing. Green power has officially peaked!",
+    "Scattered and shy—this sushi rice hasn't found its shape yet.",
+    "The steam begins. Grains start sticking, like a quiet team forming.",
+    "Warm, soft, and halfway to harmony. A gentle structure takes form.",
+    "Sticky with purpose, steady in shape. This is sushi rice on a mission.",
+    "Bound, balanced, and quietly essential. The base is finally ready.",
   ],
-  img: '/assets/puzzles/puzzle_broccoli.svg',
+  img: '/assets/puzzles/puzzle_sushi_rice.svg',
   inCollection: false,
-  bgColor: '#C7F58C',
+  bgColor: '#FBD891',
   pixelMap: [
     // 1
     [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
@@ -74,5 +74,5 @@ const broccoli = {
   ]    
 };
 
-export const broccoliColorOrder = [C1.color, C2.color, P1.color, P2.color, F.color];
-export default broccoli; 
+export const sushi_riceColorOrder = [C1.color, C2.color, P1.color, P2.color, F.color];
+export default sushi_rice; 
