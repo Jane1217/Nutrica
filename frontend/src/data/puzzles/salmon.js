@@ -1,12 +1,15 @@
 // avocado.js
 const B = { color: '#F3F3EC', nutrient: 0 };
-const C1 = { color: '#25AD2E', nutrient: 1 }; // 碳水
-const C2 = { color: '#23892A', nutrient: 1 }; // 碳水
+const C1 = { color: '#FFF5DD', nutrient: 1 }; // 碳水
+const C2 = { color: '#FFCAAC', nutrient: 1 }; // 碳水
+const C3 = { color: '#F96D33', nutrient: 1 }; // 碳水
+const C4 = { color: '#E74B18', nutrient: 1 }; // 碳水
+const C5 = { color: '#A51903', nutrient: 1 }; // 碳水
 
-const P1 = { color: '#A6EA4E', nutrient: 2 }; // 蛋白
-const P2 = { color: '#82C42C', nutrient: 2 }; // 蛋白
+const P = { color: '#08070C', nutrient: 2 }; // 蛋白
 
-const F = { color: '#102611', nutrient: 3 }; // 脂肪
+const F1 = { color: '#AEC2BD', nutrient: 3 }; // 脂肪
+const F2 = { color: '#648C8B', nutrient: 3 }; // 脂肪
 
 const salmon = {
   id: 'salmon',
@@ -30,39 +33,39 @@ const salmon = {
     // 3
     [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
     // 4
-    [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
+    [B,B,B,B,B,B,B,B,B,B,B,B,B,P,P,P,B,B,B,B,B,B,B,B],
     // 5
-    [B,B,B,B,B,B,B,B,B,B,B,B,B,B,F,F,B,B,B,B,B,B,B,B],
+    [B,B,B,B,B,B,B,B,B,B,B,P,P,C2,C2,C4,P,B,B,B,B,B,B,B],
     // 6
-    [B,B,B,B,B,B,B,B,B,F,F,F,B,F,C1,C1,F,B,B,B,B,B,B,B],
+    [B,B,B,B,B,B,B,B,B,P,P,C2,C3,C3,C4,C2,C2,P,B,B,B,B,B,B],
     // 7
-    [B,B,B,B,B,B,B,B,F,C1,C1,C1,F,C1,C1,C1,C1,F,B,B,B,B,B,B],
+    [B,B,B,B,B,B,B,B,P,C2,C3,C3,C3,C3,C2,C3,C3,C2,P,B,B,B,B,B],
     // 8
-    [B,B,B,B,B,B,F,F,C1,F,C2,C1,C1,C2,C2,C2,C1,F,B,B,B,B,B,B],
+    [B,B,B,B,B,B,B,P,C2,C3,C3,C3,C3,C2,C3,C3,C3,C2,P,B,B,B,B,B,B],
     // 9
-    [B,B,B,B,B,F,C1,C1,C1,C1,F,C2,C2,C2,C2,C2,C2,C2,F,B,B,B,B,B,B],
+    [B,B,B,B,B,P,C2,C2,C3,C3,C3,C2,C3,C3,C3,C3,C2,P,B,B,B,B,B,B,B],
     // 10
-    [B,B,B,B,F,C1,C2,C2,F,F,F,F,C2,C2,C1,C2,F,F,B,B,B,B,B,B],
+    [B,B,B,P,C2,C4,C3,C2,C3,C1,C2,C4,C4,C3,C3,C2,P,B,B,B,B,B,B,B],
     // 11
-    [B,B,B,B,F,C2,C2,F,C1,C1,C1,C1,F,C1,F,F,C1,C1,F,B,B,B,B,B],
+    [B,B,B,P,C2,C3,C3,C3,C1,C1,C1,C3,C2,C3,C2,F2,P,B,B,B,B,B,B,B],
     // 12
-    [B,B,B,B,B,F,F,C1,C1,C2,C2,C1,F,F,C1,C1,C2,C2,C1,F,B,B,B,B],
+    [B,B,B,P,C3,C3,C3,C3,C1,C1,C3,C3,C3,C2,C2,F2,P,B,B,B,B,B,B,B],
     // 13
-    [B,B,B,B,B,B,B,F,C2,C2,C2,C2,C2,F,C1,C1,C2,C2,C2,F,B,B,B,B],
+    [B,B,P,C4,C4,C3,C2,C5,C5,C3,C2,C4,C4,C2,F2,P,B,B,B,B,B,B,B,B],
     // 14
-    [B,B,B,B,B,B,B,F,F,C2,C2,F,F,C1,C2,C2,C2,C2,C2,F,B,B,B,B,B],
+    [B,B,P,C3,C3,C2,C5,C5,C2,C3,C3,C2,C2,F2,F2,P,B,B,B,B,B,B,B,B],
     // 15
-    [B,B,B,B,B,B,F,P1,F,F,C2,F,F,C1,C1,F,F,F,B,B,B,B,B,B],
+    [B,B,P,C2,C2,C5,C5,C2,C3,C3,C2,C2,F2,F2,P,B,B,B,B,B,B,B,B,B],
     // 16
-    [B,B,B,B,B,F,P1,F,B,F,C2,F,F,F,F,C1,C2,F,B,B,B,B,B,B],
+    [B,B,P,C2,C5,C5,P,C3,C3,C2,F2,F2,F2,P,B,B,B,B,B,B,B,B,B,B],
     // 17
-    [B,B,B,B,B,F,P2,F,P1,P2,F,B,F,C1,C1,C2,F,B,B,B,B,B,B,B],
+    [B,B,P,F1,C5,P,C2,C3,C2,F2,F2,P,P,B,B,B,B,B,B,B,B,B,B,B],
     // 18
-    [B,B,B,B,F,P1,P2,P1,P2,F,B,B,B,F,F,F,F,B,B,B,B,B,B,B],
+    [B,B,P,F2,P,P,C2,C2,F1,F2,P,B,B,B,B,B,B,B,B,B,B,B,B,B],
     // 19
-    [B,B,B,B,F,P2,P2,P2,F,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
+    [B,B,B,P,P,P,F1,F1,F1,P,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
     // 20
-    [B,B,B,B,B,F,P2,F,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
+    [B,B,B,B,B,P,P,P,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
     // 21
     [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
     // 22
@@ -71,8 +74,8 @@ const salmon = {
     [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
     // 24
     [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
-  ]    
+  ]      
 };
 
-export const salmonColorOrder = [C1.color, C2.color, P1.color, P2.color, F.color];
+export const salmonColorOrder = [C1.color, C2.color, C3.color, C4.color, C5.color, P.color, F1.color, F2.color];
 export default salmon; 
