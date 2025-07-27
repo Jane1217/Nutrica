@@ -51,6 +51,7 @@
   padding-bottom: 4px;
   scrollbar-width: thin;
   scrollbar-color: #B0B0B0 #E0E0E0;
+  align-items: center;
 }
 .synthesisPieceBox {
   width: 64px;
@@ -65,4 +66,15 @@
   box-sizing: border-box;
   font-size: 2rem;
   border: 1px solid var(--Neutral-Primary-Text, #22221B);
+}
+.synthesisOperator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--Neutral-Primary-Text, #22221B);
+  flex-shrink: 0;
 }
