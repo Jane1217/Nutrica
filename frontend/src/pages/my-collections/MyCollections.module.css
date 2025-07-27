@@ -19,6 +19,25 @@
   margin: 0;
 }
 
+.emptyContainer {
+  display: flex;
+  padding: 120px 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  align-self: stretch;
+}
+
+.emptyHeading {
+  align-self: stretch;
+  color: var(--Neutral-Primary-Text, #22221B);
+}
+
+.emptyText {
+  align-self: stretch;
+  color: var(--Neutral-Primary-Text, #22221B);
+}
+
 .loadingContainer {
   display: flex;
   flex-direction: column;
