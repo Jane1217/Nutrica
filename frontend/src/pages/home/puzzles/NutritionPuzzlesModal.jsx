@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import ModalWrapper from "../../../components/common/ModalWrapper";
 import styles from "./NutritionPuzzlesModal.module.css";
-import PuzzleList from "../../../components/puzzles/PuzzleList";
+import PuzzleCollectionCard from "../../../components/puzzles/PuzzleCollectionCard";
 import PuzzleSelectModal from "./PuzzleSelectModal";
 import { puzzleCategories } from '../../../data/puzzles';
 
@@ -9,27 +9,31 @@ const puzzleList = puzzleCategories;
 
 export default function NutritionPuzzlesModal({ open, onClose, onReopen, onPuzzleSelect }) {
   const [showPuzzleSelectModal, setShowPuzzleSelectModal] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
-  const handleCardClick = () => {
+  const handleCardClick = (category) => {
+    setSelectedCategory(category);
     setShowPuzzleSelectModal(true);
     if (onClose) onClose(); // 关闭自身
   };
 
   const handleBack = () => {
     setShowPuzzleSelectModal(false);
+    setSelectedCategory(null);
     if (onReopen) onReopen(); // 重新打开自身
   };
 
   const handlePuzzleSelect = (puzzle) => {
     if (onPuzzleSelect) onPuzzleSelect(puzzle);
     setShowPuzzleSelectModal(false);
+    setSelectedCategory(null);
   };
 
   return (
     <>
     <ModalWrapper open={open} onClose={onClose}>
       <div style={{ position: 'relative', marginBottom: 0 }}>
-        <div className="h2" style={{ marginBottom: 0, textAlign: 'left', padding: '24px 0 0 24px' }}>Nutrition Puzzles</div>
+        <div className="h2" style={{ marginBottom: 0, textAlign: 'center', padding: '24px 0 0 0', width: '100%' }}>Nutrition Puzzles</div>
         <button type="button" onClick={onClose} style={{
           position: 'absolute', right: 16, top: 16, display: 'flex', width: 48, height: 48, padding: 14,
             justifyContent: 'center', alignItems: 'center', borderRadius: 999, border: '1px solid var(--Brand-Outline, #DBE2D0)', background: 'none', cursor: 'pointer'
@@ -40,16 +44,22 @@ export default function NutritionPuzzlesModal({ open, onClose, onReopen, onPuzzl
         </button>
       </div>
       <div className={styles.modalBody}>
-          <div onClick={handleCardClick} style={{cursor: 'pointer'}}>
-        <PuzzleList puzzleList={puzzleList} />
-          </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '0 0 24px 0', width: '100%', maxWidth: '400px' }}>
+          {puzzleList.map((category, index) => (
+            <PuzzleCollectionCard 
+              key={category.id} 
+              category={category} 
+              onClick={() => handleCardClick(category)}
+            />
+          ))}
+        </div>
       </div>
     </ModalWrapper>
       <PuzzleSelectModal
         open={showPuzzleSelectModal}
         onClose={() => setShowPuzzleSelectModal(false)}
         onBack={handleBack}
-        puzzleList={puzzleList[0]?.puzzles || []}
+        puzzleList={selectedCategory?.puzzles || []}
         onSelect={handlePuzzleSelect}
       />
     </>

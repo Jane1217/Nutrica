@@ -17,6 +17,32 @@
   background: #A9C971;
   box-shadow: 0px 4px 0px 0px #22221B;
   overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.puzzleCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0px 6px 0px 0px #22221B;
+}
+
+/* 合成式puzzle的特殊样式 */
+.puzzleCard[data-type="fusion"] {
+  background: linear-gradient(135deg, #FFB6C1 0%, #FFC0CB 100%);
+  border-color: #FF69B4;
+}
+
+.puzzleCard[data-type="fusion"] .puzzleHeader {
+  color: #8B4513;
+}
+
+.puzzleCard[data-type="fusion"] .puzzleTitle {
+  color: #8B4513;
+}
+
+.puzzleCard[data-type="fusion"] .puzzleDesc {
+  color: #8B4513;
 }
 .puzzleHeader {
   width: 100%;
@@ -40,13 +66,16 @@
   font-weight: 400;
   line-height: 150%; /* 21px */
   margin-bottom: 0px;
+  width: 100%;
+  word-wrap: break-word;
 }
 .puzzlePieces {
   display: flex;
   gap: 8px;
   margin-top: 8px;
   overflow-x: auto;
-  width: 100%;
+  width: fit-content;
+  max-width: 100%;
   box-sizing: border-box;
   padding-bottom: 4px;
   scrollbar-width: thin;
