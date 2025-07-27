@@ -1,11 +1,20 @@
 import React from "react";
 import styles from "./PuzzleCollectionCard.module.css";
 
-export default function PuzzleCollectionCard({ category }) {
+export default function PuzzleCollectionCard({ category, onClick }) {
+  // 根据类型确定样式和标签
+  const isFusionType = category.type === 'fusion';
+  const labelText = isFusionType ? 'Fusion' : 'Collection';
+
   return (
-    <div className={styles.puzzleCard}>
+    <div 
+      className={styles.puzzleCard} 
+      data-type={category.type}
+      onClick={onClick}
+      style={{ cursor: onClick ? 'pointer' : 'default' }}
+    >
       <div className={styles.puzzleHeader}>
-        <span className={`${styles.collectionLabel} h5`}>Collection</span>
+        <span className={`${styles.collectionLabel} h5`}>{labelText}</span>
         <span className={`${styles.puzzlesCount} body2`}>{category.count} Puzzles</span>
       </div>
       <div className={`${styles.puzzleTitle} h3`}>{category.title}</div>
