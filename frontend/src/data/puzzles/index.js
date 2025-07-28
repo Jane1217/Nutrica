@@ -3,7 +3,6 @@ import avocado, { avocadoColorOrder } from './avocado';
 import tomato, { tomatoColorOrder } from './tomato';
 import corn, { cornColorOrder } from './corn';
 import broccoli, { broccoliColorOrder } from './broccoli';
-import pumpkin, { pumpkinColorOrder } from './pumpkin';
 import salmon, { salmonColorOrder } from './salmon';
 import sushi_rice, { sushi_riceColorOrder } from './sushi_rice';
 
@@ -11,12 +10,12 @@ export const puzzleCategories = [
   {
     id: 'magic_garden',
     title: 'Magic Garden',
-    desc: 'Complete daily nutrition challenge and collect 6 nutrition puzzles in the Magic Garden. Little by little, your garden is coming alive. Keep tending to it with care.',
-    count: 6,
+    desc: 'Complete daily nutrition challenge and collect 5 nutrition puzzles in the Magic Garden. Little by little, your garden is coming alive. Keep tending to it with care.',
+    count: 5,
     type: 'collection',
     bgColor: '#A9C971', // 浅蓝色背景
     //pieces: [1, 1, 1, 0, 0, 0],
-    puzzles: [carrot, avocado, tomato, corn, broccoli, pumpkin]
+    puzzles: [carrot, avocado, tomato, corn, broccoli]
   },
   // 其他分类可继续添加
   {
@@ -37,7 +36,6 @@ export const colorOrders = {
   tomato: tomatoColorOrder,
   corn: cornColorOrder,
   broccoli: broccoliColorOrder,
-  pumpkin: pumpkinColorOrder,
   salmon: salmonColorOrder,
   sushi_rice: sushi_riceColorOrder,
   // 其他puzzle...

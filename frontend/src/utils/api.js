@@ -138,14 +138,33 @@ export const collectionApi = {
   // 获取collection_puzzles数据
   getCollectionPuzzles: () => apiGet('/api/collection/collection-puzzles'),
   
-  // 获取用户collections
-  getUserCollections: (collectionType) => {
+  // 获取用户collections（需要认证）
+  getUserCollections: (collectionType, token) => {
     const params = collectionType ? `?collection_type=${encodeURIComponent(collectionType)}` : '';
-    return apiGet(`/api/collection/user-collections${params}`);
+    return apiRequest(`/api/collection/user-collections${params}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+  },
+  
+  // 获取公开的collection数据（不需要认证）
+  getPublicCollection: (userId, puzzleName) => {
+    return apiRequest(`/api/collection/public-collection?user_id=${encodeURIComponent(userId)}&puzzle_name=${encodeURIComponent(puzzleName)}`, {
+      method: 'GET'
+    });
   },
   
   // 添加或更新用户collection
-  addUserCollection: (data) => apiPost('/api/collection/user-collections', data)
+  addUserCollection: (data, token) => apiRequest('/api/collection/user-collections', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify(data)
+  })
 };
 
 // 错误处理
