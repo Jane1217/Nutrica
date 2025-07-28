@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import NavLogo from '../../components/navbar/Nav-Logo';
 import styles from './MyCollections.module.css';
-import { supabase } from '../../supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentUser } from '../../utils/user';
 import { collectionApi } from '../../utils/api';
+import { getAuthToken } from '../../utils/user'
 
 export default function MyCollections() {
   const [collections, setCollections] = useState([]); // 用户已收集的 puzzle
@@ -17,7 +17,8 @@ export default function MyCollections() {
   // 获取puzzle图标路径
   const getPuzzleIconPath = (puzzleName) => {
     const puzzleNameLower = puzzleName.toLowerCase();
-    return `/assets/puzzles/puzzle_${puzzleNameLower}.svg`;
+    // Replace spaces with underscores for asset paths
+    return `/assets/puzzles/puzzle_${puzzleNameLower.replace(/\s+/g, '_')}.svg`;
   };
 
   // 获取当前登录用户
@@ -44,23 +45,11 @@ export default function MyCollections() {
           setCollectionPuzzles(response.data || []);
         } else {
           console.error('Failed to fetch collection puzzles:', response.error);
-          // 如果API失败，使用默认配置
-          setCollectionPuzzles([
-            { puzzle_name: 'Carrot', slot: 1 },
-            { puzzle_name: 'Avocado', slot: 2 },
-            { puzzle_name: 'Corn', slot: 3 },
-            { puzzle_name: 'Tomato', slot: 4 },
-          ]);
+          setCollectionPuzzles([]);
         }
       } catch (error) {
         console.error('Error fetching collection puzzles:', error);
-        // 使用默认配置
-        setCollectionPuzzles([
-          { puzzle_name: 'Carrot', slot: 1 },
-          { puzzle_name: 'Avocado', slot: 2 },
-          { puzzle_name: 'Corn', slot: 3 },
-          { puzzle_name: 'Tomato', slot: 4 },
-        ]);
+        setCollectionPuzzles([]);
       }
     };
 
@@ -73,15 +62,30 @@ export default function MyCollections() {
       
       setLoading(true);
       try {
-        // 使用后端API查询用户在 Magic Garden 下所有收集
-        const response = await collectionApi.getUserCollections('Magic Garden');
-        
-        if (response.success) {
-          setCollections(response.data || []);
-        } else {
-          console.error('Failed to fetch collection data:', response.error);
+        // 获取认证token
+        const token = await getAuthToken();
+        if (!token) {
+          console.error('No authentication token available');
           setCollections([]);
+          setLoading(false);
+          return;
         }
+
+        // 使用后端API查询用户在所有主题下的收集
+        const magicGardenResponse = await collectionApi.getUserCollections('Magic Garden', token);
+        const salmonNigiriResponse = await collectionApi.getUserCollections('Salmon Nigiri Boy', token);
+        
+        let allCollections = [];
+        
+        if (magicGardenResponse.success) {
+          allCollections = allCollections.concat(magicGardenResponse.data || []);
+        }
+        
+        if (salmonNigiriResponse.success) {
+          allCollections = allCollections.concat(salmonNigiriResponse.data || []);
+        }
+        
+        setCollections(allCollections);
       } catch (error) {
         console.error('Error fetching collection data:', error);
         setCollections([]);
@@ -117,18 +121,18 @@ export default function MyCollections() {
 
   // 如果正在加载，显示加载状态
   if (loading) {
-    return (
-      <div className={styles.myCollectionsPage}>
-        <NavLogo hideEat hideMenu isLoggedIn={true} />
-        <div className={styles.container}>
-          <h1 className={`${styles.title} h1`}>My Collections</h1>
-          <div className={styles.loadingContainer}>
-            <div className={styles.loadingSpinner}></div>
-            <span className="body1">Loading collections...</span>
-          </div>
+      return (
+    <div className={styles.myCollectionsPage}>
+      <NavLogo isLoggedIn={true} isAuth={false} />
+      <div className={styles.container}>
+        <h1 className={`${styles.title} h1`}>My Collections</h1>
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingSpinner}></div>
+          <span className="body1">Loading collections...</span>
         </div>
       </div>
-    );
+    </div>
+  );
   }
 
   // 如果用户未登录，不渲染内容（会跳转到登录页）
@@ -138,36 +142,48 @@ export default function MyCollections() {
 
   // 如果没有任何collection，显示空状态
   if (collections.length === 0) {
-    return (
-      <div className={styles.myCollectionsPage}>
-        <NavLogo hideEat hideMenu isLoggedIn={true} />
-        <div className={styles.container}>
-          <h1 className={`${styles.title} h1`}>My Collections</h1>
-          <div className={styles.emptyContainer}>
-            <span className={`${styles.emptyHeading} h3`}>No puzzle collection yet!</span>
-            <span className={`${styles.emptyText} body2`}>
-              Choose a nutrition puzzle from homepage and reach your daily nutrition goal to collect puzzles.
-            </span>
-          </div>
+      return (
+    <div className={styles.myCollectionsPage}>
+      <NavLogo isLoggedIn={true} isAuth={false} />
+      <div className={styles.container}>
+        <h1 className={`${styles.title} h1`}>My Collections</h1>
+        <div className={styles.emptyContainer}>
+          <span className={`${styles.emptyHeading} h3`}>No puzzle collection yet!</span>
+          <span className={`${styles.emptyText} body2`}>
+            Choose a nutrition puzzle from homepage and reach your daily nutrition goal to collect puzzles.
+          </span>
         </div>
       </div>
-    );
+    </div>
+  );
   }
+
+  // 按主题分组显示
+  const magicGardenSlots = slots.filter(slot => slot.collection_type === 'Magic Garden');
+  const salmonNigiriSlots = slots.filter(slot => slot.collection_type === 'Salmon Nigiri Boy');
+  
+  const magicGardenCompleted = magicGardenSlots.filter(slot => slot.collected).length;
+  
+  // 只显示Salmon和Sushi Rice，不显示Salmon Nigiri Boy本身
+  const salmonNigiriTopSlots = salmonNigiriSlots.filter(slot => 
+    slot.puzzle_name === 'Salmon' || slot.puzzle_name === 'Sushi Rice'
+  );
+  const salmonNigiriTopCompleted = salmonNigiriTopSlots.every(slot => slot.collected);
 
   return (
     <div className={styles.myCollectionsPage}>
-      <NavLogo hideEat hideMenu isLoggedIn={true} />
+      <NavLogo isLoggedIn={true} isAuth={false} />
       <div className={styles.container}>
         <h1 className={`${styles.title} h1`}>My Collections</h1>
-        {/* Collection 展示区 */}
-        <div className={styles.collectionList}>
-          <div className={styles.collectionScene}>
-            <div className={styles.elementWrapper}>
+        
+        {/* Magic Garden Theme */}
+        {magicGardenSlots.length > 0 && (
+          <div className={styles.collectionList}>
+            <div className={styles.collectionScene}>
               <div className={styles.puzzleGrid}>
-                {slots.map((slot, idx) => (
+                {magicGardenSlots.map((slot, idx) => (
                   <div className={styles.puzzleSlot} key={idx}>
-                    {/* puzzle 图标 */}
-                    {slot.collected && slot.icon_url && (
+                    {slot.collected && (
                       <div
                         className={styles.puzzleImgWrapper}
                         style={{ cursor: 'pointer' }}
@@ -179,34 +195,80 @@ export default function MyCollections() {
                           className={styles.puzzleImg}
                         />
                         {slot.count > 1 && (
-                          <span className={styles.puzzleCount}>×{slot.count}</span>
+                          <div className={styles.puzzleCount}>{slot.count}</div>
                         )}
                       </div>
                     )}
-                    {/* shadow 始终显示 */}
-                    <img
-                      src="/assets/shadow.svg"
-                      alt="shadow"
-                      className={styles.shadow}
-                    />
+                    <img src="/assets/shadow.svg" alt="shadow" className={styles.shadow} />
                   </div>
                 ))}
+              </div>
+            </div>
+            {/* text module */}
+            <div className={styles.textModule}>
+              <div className={styles.headingModule}>
+                <span className={`${styles.collectionName} h3`}>Magic Garden</span>
+                <span className={`${styles.collectionProgress} h3`}>
+                  {magicGardenCompleted}/{magicGardenSlots.length}
+                </span>
+              </div>
+              <div className={`${styles.collectionDescription} body1`}>
+                Complete daily nutrition challenge and collect 5 nutrition puzzles in the Magic Garden. Little by little, your garden is coming alive. Keep tending to it with care.
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Salmon Nigiri Boy Theme */}
+        <div className={styles.collectionList}>
+          <div className={styles.collectionScene}>
+            <div className={styles.topGrid}>
+              {salmonNigiriTopSlots.map((slot, idx) => (
+                <div className={styles.puzzleSlot} key={idx}>
+                  {slot.collected && (
+                    <div
+                      className={styles.puzzleImgWrapper}
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => handlePuzzleClick(slot)}
+                    >
+                      <img
+                        src={slot.icon_url}
+                        alt={slot.puzzle_name}
+                        className={styles.puzzleImg}
+                      />
+                      {slot.count > 1 && (
+                        <div className={styles.puzzleCount}>{slot.count}</div>
+                      )}
+                    </div>
+                  )}
+                  <img src="/assets/shadow (1).svg" alt="shadow" className={styles.shadow} />
+                </div>
+              ))}
+            </div>
+            <div className={styles.bottomWrapper}>
+              <div className={styles.bottomImgWrapper}>
+                <img
+                  src="/assets/puzzles/salmon_nigiri_boy.svg"
+                  alt="Salmon Nigiri Boy"
+                  className={styles.bottomImg}
+                  style={{ opacity: salmonNigiriTopCompleted ? 1 : 0.4 }}
+                />
+                <img src="/assets/shadow (2).svg" alt="shadow" className={styles.bottomShadow} />
               </div>
             </div>
           </div>
           {/* text module */}
           <div className={styles.textModule}>
             <div className={styles.headingModule}>
-              <span className={`${styles.collectionName} h3`}>Magic Garden</span>
+              <span className={`${styles.collectionName} h3`}>Salmon Nigiri Boy</span>
               <span className={`${styles.collectionProgress} h3`}>
-                {collectedKinds}/{totalKinds}
+                {salmonNigiriTopSlots.filter(slot => slot.collected).length}/{salmonNigiriTopSlots.length}
               </span>
             </div>
             <div className={`${styles.collectionDescription} body1`}>
-              {collectedKinds === totalKinds
-                ? "Congratulations! Your Magic Garden is complete and thriving!"
-                : "Little by little, your garden is coming alive. Keep tending to it with care."
-              }
+              {salmonNigiriTopCompleted
+                ? "Congratulations! Salmon Nigiri Boy is fully unlocked!"
+                : "Collect two puzzles to unlock Salmon Nigiri Boy! The cutest sushi sidekick with a wink and a salmon-sized heart!"}
             </div>
           </div>
         </div>

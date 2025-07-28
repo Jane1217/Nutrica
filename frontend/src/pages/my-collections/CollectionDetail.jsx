@@ -4,8 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { puzzleCategories, colorOrders } from '../../data/puzzles';
 import ShareLinkModal from './ShareLinkModal';
 import ImageShareModal from './ImageShareModal';
-import { supabase } from '../../supabaseClient';
-import { getCurrentUser } from '../../utils/user';
+import { getCurrentUser, getAuthToken } from '../../utils/user';
 import { formatDateString, capitalizePuzzleName } from '../../utils';
 import { collectionApi } from '../../utils/api';
 
@@ -76,8 +75,16 @@ export default function CollectionDetail({
           return;
         }
 
+        // 获取认证token
+        const token = await getAuthToken();
+        if (!token) {
+          setError('No authentication token available');
+          setLoading(false);
+          return;
+        }
+
         // 使用后端API获取collection数据
-        const response = await collectionApi.getUserCollections(collectionType);
+        const response = await collectionApi.getUserCollections(collectionType, token);
         
         if (response.success && response.data) {
           const collectionData = response.data.find(

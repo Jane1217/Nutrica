@@ -52,4 +52,14 @@ export function getDisplayCalories(userInfo, latestCalories = 2000) {
     return userInfo.calculatedCalories;
   }
   return latestCalories;
+}
+
+// 获取认证token
+export async function getAuthToken() {
+  const { data: { session }, error } = await supabase.auth.getSession();
+  if (error) {
+    console.error('Failed to get session:', error);
+    return null;
+  }
+  return session?.access_token || null;
 } 

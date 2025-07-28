@@ -199,4 +199,61 @@ router.post('/user-collections', authenticateUser, async (req, res) => {
   }
 });
 
+// 获取公开的collection数据（不需要认证）
+router.get('/public-collection', async (req, res) => {
+  try {
+    const { user_id, puzzle_name } = req.query;
+
+    if (!user_id || !puzzle_name) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Missing required parameters: user_id and puzzle_name'
+        }
+      });
+    }
+
+    const { data: collectionData, error } = await supabase
+      .from('user_collections')
+      .select('nutrition, first_completed_at')
+      .eq('user_id', user_id)
+      .eq('puzzle_name', puzzle_name)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error fetching public collection:', error);
+      return res.status(404).json({
+        success: false,
+        error: {
+          message: 'Collection not found',
+          details: error.message
+        }
+      });
+    }
+
+    if (!collectionData) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          message: 'Collection not found'
+        }
+      });
+    }
+
+    res.json({
+      success: true,
+      data: collectionData
+    });
+  } catch (error) {
+    console.error('Error in public-collection endpoint:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        message: 'Internal server error',
+        details: error.message
+      }
+    });
+  }
+});
+
 module.exports = router; 

@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
-import { supabase } from '../../supabaseClient';
 import styles from './SharePage.module.css';
 import { formatDateString, normalizeNutritionData, getUserNameFromQuery, capitalizePuzzleName } from '../../utils';
 import { collectionApi } from '../../utils/api';
+import { puzzleCategories } from '../../data/puzzles';
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -20,28 +20,31 @@ export default function SharePage() {
   // 优先从URL参数获取nickname
   const nicknameFromQuery = query.get('nickname');
 
+  // 查找当前puzzle的配置
+  const puzzle = useMemo(() => {
+    for (const cat of puzzleCategories) {
+      const found = cat.puzzles.find(p => p.name.toLowerCase() === puzzleName.toLowerCase());
+      if (found) return found;
+    }
+    return null;
+  }, [puzzleName]);
+
+  // 获取图片路径和描述
+  const iconUrl = puzzle?.img || '/assets/puzzles/puzzle_carrot.svg';
+  const description = puzzle?.description || "Bright, balanced, and well-fed. That's the carrot energy we love to see.";
+
   useEffect(() => {
     const fetchShareData = async () => {
       try {
         setLoading(true);
-        // 使用后端API获取collection数据
-        const response = await collectionApi.getUserCollections('Magic Garden');
+        // 将puzzle_name首字母大写以匹配数据库格式
+        const puzzleNameFormatted = puzzleName.charAt(0).toUpperCase() + puzzleName.slice(1).toLowerCase();
+        // 使用公开API获取collection数据
+        const response = await collectionApi.getPublicCollection(userId, puzzleNameFormatted);
         
         if (response.success && response.data) {
-          const puzzleNameFormatted = puzzleName.charAt(0).toUpperCase() + puzzleName.slice(1);
-          const collectionData = response.data.find(
-            collection => collection.puzzle_name === puzzleNameFormatted
-          );
-          
-          if (collectionData) {
-            setNutritionData(collectionData.nutrition);
-            setFirstCompletedAt(collectionData.first_completed_at);
-          } else {
-            console.error('Collection not found');
-            setError('Collection not found');
-            setLoading(false);
-            return;
-          }
+          setNutritionData(response.data.nutrition);
+          setFirstCompletedAt(response.data.first_completed_at);
         } else {
           console.error('Failed to fetch collection data:', response.error);
           setError('Collection not found');
@@ -154,11 +157,11 @@ export default function SharePage() {
               Magic Garden・{puzzleNameCap}
             </div>
             <div className={styles.heading}>
-              Bright, balanced, and well-fed. That's the {puzzleName} energy we love to see.
+              {description}
             </div>
           </div>
           <img 
-            src={`https://rejsoyzhhukatdaebgtq.supabase.co/storage/v1/object/public/puzzle-icons//${puzzleName}.svg`} 
+            src={iconUrl} 
             alt={puzzleName} 
             className={styles.puzzleImg} 
           />
