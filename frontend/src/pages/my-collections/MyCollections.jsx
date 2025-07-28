@@ -4,27 +4,21 @@ import styles from './MyCollections.module.css';
 import { supabase } from '../../supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentUser } from '../../utils/user';
-
-// Magic Garden 主题的拼图顺序和图标配置（6个坑位，均匀分布）
-const MAGIC_GARDEN_PUZZLES = [
-  {
-    puzzle_name: 'Carrot',
-    icon_url: 'https://rejsoyzhhukatdaebgtq.supabase.co/storage/v1/object/public/puzzle-icons//carrot.svg',
-    slot: 1,
-  },
-  { puzzle_name: 'Tomato', icon_url: '', slot: 2 },
-  { puzzle_name: 'Potato', icon_url: '', slot: 3 },
-  { puzzle_name: 'Eggplant', icon_url: '', slot: 4 },
-  { puzzle_name: 'Corn', icon_url: '', slot: 5 },
-  { puzzle_name: 'Cabbage', icon_url: '', slot: 6 },
-];
+import { collectionApi } from '../../utils/api';
 
 export default function MyCollections() {
   const [collections, setCollections] = useState([]); // 用户已收集的 puzzle
+  const [collectionPuzzles, setCollectionPuzzles] = useState([]); // collection_puzzles配置
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState(null);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+
+  // 获取puzzle图标路径
+  const getPuzzleIconPath = (puzzleName) => {
+    const puzzleNameLower = puzzleName.toLowerCase();
+    return `/assets/puzzles/puzzle_${puzzleNameLower}.svg`;
+  };
 
   // 获取当前登录用户
   useEffect(() => {
@@ -41,24 +35,52 @@ export default function MyCollections() {
     fetchUser();
   }, [navigate]);
 
+  // 获取collection_puzzles配置
+  useEffect(() => {
+    const fetchCollectionPuzzles = async () => {
+      try {
+        const response = await collectionApi.getCollectionPuzzles();
+        if (response.success) {
+          setCollectionPuzzles(response.data || []);
+        } else {
+          console.error('Failed to fetch collection puzzles:', response.error);
+          // 如果API失败，使用默认配置
+          setCollectionPuzzles([
+            { puzzle_name: 'Carrot', slot: 1 },
+            { puzzle_name: 'Avocado', slot: 2 },
+            { puzzle_name: 'Corn', slot: 3 },
+            { puzzle_name: 'Tomato', slot: 4 },
+          ]);
+        }
+      } catch (error) {
+        console.error('Error fetching collection puzzles:', error);
+        // 使用默认配置
+        setCollectionPuzzles([
+          { puzzle_name: 'Carrot', slot: 1 },
+          { puzzle_name: 'Avocado', slot: 2 },
+          { puzzle_name: 'Corn', slot: 3 },
+          { puzzle_name: 'Tomato', slot: 4 },
+        ]);
+      }
+    };
+
+    fetchCollectionPuzzles();
+  }, []);
+
   useEffect(() => {
     async function fetchCollections() {
       if (!userId) return;
       
       setLoading(true);
       try {
-        // 查询用户在 Magic Garden 下所有收集
-        const { data, error } = await supabase
-          .from('user_collections')
-          .select('*')
-          .eq('user_id', userId)
-          .eq('collection_type', 'Magic Garden');
+        // 使用后端API查询用户在 Magic Garden 下所有收集
+        const response = await collectionApi.getUserCollections('Magic Garden');
         
-        if (error) {
-          console.error('Failed to fetch collection data:', error);
-          setCollections([]);
+        if (response.success) {
+          setCollections(response.data || []);
         } else {
-          setCollections(data || []);
+          console.error('Failed to fetch collection data:', response.error);
+          setCollections([]);
         }
       } catch (error) {
         console.error('Error fetching collection data:', error);
@@ -71,7 +93,7 @@ export default function MyCollections() {
   }, [userId]);
 
   // 计算每个 slot 的收集情况
-  const slots = MAGIC_GARDEN_PUZZLES.map((puzzle) => {
+  const slots = collectionPuzzles.map((puzzle) => {
     const found = collections.find(
       (item) => item.puzzle_name === puzzle.puzzle_name
     );
@@ -79,12 +101,13 @@ export default function MyCollections() {
       ...puzzle,
       collected: !!found,
       count: found ? found.count : 0,
+      icon_url: getPuzzleIconPath(puzzle.puzzle_name), // 动态生成图标路径
     };
   });
 
   // 计算已收集的种类数
   const collectedKinds = slots.filter((slot) => slot.collected).length;
-  const totalKinds = MAGIC_GARDEN_PUZZLES.length;
+  const totalKinds = collectionPuzzles.length;
 
   // 点击 puzzle 跳转到详情页
   const handlePuzzleClick = (slot) => {

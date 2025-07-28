@@ -3,6 +3,7 @@ import { useParams, useLocation } from 'react-router-dom';
 import { supabase } from '../../supabaseClient';
 import styles from './SharePage.module.css';
 import { formatDateString, normalizeNutritionData, getUserNameFromQuery, capitalizePuzzleName } from '../../utils';
+import { collectionApi } from '../../utils/api';
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -23,23 +24,30 @@ export default function SharePage() {
     const fetchShareData = async () => {
       try {
         setLoading(true);
-        // 只查公开的nutrition等数据
-        const { data: collectionData, error: collectionError } = await supabase
-          .from('user_collections')
-          .select('first_completed_at, nutrition')
-          .eq('user_id', userId)
-          .eq('puzzle_name', puzzleName.charAt(0).toUpperCase() + puzzleName.slice(1))
-          .eq('collection_type', 'Magic Garden')
-          .single();
-
-        if (collectionError || !collectionData) {
-          console.error('Failed to fetch collection data:', collectionError);
+        // 使用后端API获取collection数据
+        const response = await collectionApi.getUserCollections('Magic Garden');
+        
+        if (response.success && response.data) {
+          const puzzleNameFormatted = puzzleName.charAt(0).toUpperCase() + puzzleName.slice(1);
+          const collectionData = response.data.find(
+            collection => collection.puzzle_name === puzzleNameFormatted
+          );
+          
+          if (collectionData) {
+            setNutritionData(collectionData.nutrition);
+            setFirstCompletedAt(collectionData.first_completed_at);
+          } else {
+            console.error('Collection not found');
+            setError('Collection not found');
+            setLoading(false);
+            return;
+          }
+        } else {
+          console.error('Failed to fetch collection data:', response.error);
           setError('Collection not found');
           setLoading(false);
           return;
         }
-        setNutritionData(collectionData.nutrition);
-        setFirstCompletedAt(collectionData.first_completed_at);
       } catch (err) {
         console.error('Error fetching share data:', err);
         setError('Failed to load share data');
