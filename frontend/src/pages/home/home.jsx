@@ -18,6 +18,7 @@ import styles from './Home.module.css';
 import { calculateNutritionFromCalories, formatFoods, fetchNutritionGoals, fetchTodayNutrition, getCurrentUser, getUserMetadata, updateUserMetadata, isUserInfoComplete, hasShownUserInfoModal, setUserInfoModalShown, getDisplayCalories } from '../../utils';
 import { puzzleCategories, colorOrders } from '../../data/puzzles';
 import { format } from 'date-fns';
+import { monitorPuzzleCompletion } from '../../utils/collection';
 
 // 工具函数：按顺序提取某营养素的所有颜色
 function getNutrientColorsByOrder(pixelMap, nutrientType, colorOrder) {
@@ -55,6 +56,14 @@ async function saveDailyHomeData(data) {
     ], { onConflict: ['user_id', 'date'] });
   if (error) {
     console.error('Failed to save daily home data:', error);
+  } else {
+    // 保存成功后，检查puzzle完成状态并添加到collections
+    const completionResult = await monitorPuzzleCompletion(data.user_id, data);
+    if (completionResult.success) {
+      console.log('Puzzle completion monitored successfully');
+    } else if (completionResult.error !== 'Puzzle not completed or missing puzzle name') {
+      console.error('Failed to monitor puzzle completion:', completionResult.error);
+    }
   }
 }
 
@@ -139,30 +148,30 @@ export default function Home(props) {
   useEffect(() => {
     if (!userId) {
       setSelectedPuzzle(null);
-      localStorage.removeItem('selectedPuzzle');
-      localStorage.removeItem('selectedPuzzleDate');
+    localStorage.removeItem('selectedPuzzle');
+    localStorage.removeItem('selectedPuzzleDate');
       return;
     }
-    const today = getLocalDateString(new Date());
-    supabase.from('daily_home_data')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('date', today)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data && data.puzzle_id) {
-          const puzzle = findPuzzleById(data.puzzle_id);
-          if (puzzle) {
-            setSelectedPuzzle(puzzle);
-            localStorage.setItem('selectedPuzzle', JSON.stringify(puzzle));
-            localStorage.setItem('selectedPuzzleDate', today);
-          }
+      const today = getLocalDateString(new Date());
+      supabase.from('daily_home_data')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('date', today)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data && data.puzzle_id) {
+            const puzzle = findPuzzleById(data.puzzle_id);
+            if (puzzle) {
+              setSelectedPuzzle(puzzle);
+              localStorage.setItem('selectedPuzzle', JSON.stringify(puzzle));
+              localStorage.setItem('selectedPuzzleDate', today);
+            }
         } else {
           setSelectedPuzzle(null);
           localStorage.removeItem('selectedPuzzle');
           localStorage.removeItem('selectedPuzzleDate');
-        }
-      });
+          }
+        });
   }, [userId]);
 
   // 页面加载时自动恢复上次选中的puzzle
@@ -700,14 +709,14 @@ export default function Home(props) {
           onClose={() => setShowPuzzlesModal(false)}
           onReopen={() => setShowPuzzlesModal(true)}
           onPuzzleSelect={handlePuzzleSelect}
-        />
+          />
         
         <Toast
           message="Food Logged"
           type="success"
           show={showSuccessToast}
           onClose={() => setShowSuccessToast(false)}
-        />
+          />
       </div>
     </>
   );

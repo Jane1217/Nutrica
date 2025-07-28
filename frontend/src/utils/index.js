@@ -11,3 +11,4 @@ export * from './share';
 export * from './user';
 export * from './validation';
 export * from './food';
+export * from './collection';

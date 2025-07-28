@@ -5,7 +5,7 @@
 import { supabase } from '../supabaseClient';
 
 // API基础URL
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
 
 // 获取认证头
 const getAuthHeaders = async () => {
@@ -131,6 +131,21 @@ export const userApi = {
     },
     body: JSON.stringify({ userId })
   }),
+};
+
+// Collection相关API
+export const collectionApi = {
+  // 获取collection_puzzles数据
+  getCollectionPuzzles: () => apiGet('/api/collection/collection-puzzles'),
+  
+  // 获取用户collections
+  getUserCollections: (collectionType) => {
+    const params = collectionType ? `?collection_type=${encodeURIComponent(collectionType)}` : '';
+    return apiGet(`/api/collection/user-collections${params}`);
+  },
+  
+  // 添加或更新用户collection
+  addUserCollection: (data) => apiPost('/api/collection/user-collections', data)
 };
 
 // 错误处理

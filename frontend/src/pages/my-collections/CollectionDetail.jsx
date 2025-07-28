@@ -7,6 +7,7 @@ import ImageShareModal from './ImageShareModal';
 import { supabase } from '../../supabaseClient';
 import { getCurrentUser } from '../../utils/user';
 import { formatDateString, capitalizePuzzleName } from '../../utils';
+import { collectionApi } from '../../utils/api';
 
 // 默认营养素标签
 const NUTRITION_LABELS = [
@@ -60,7 +61,7 @@ export default function CollectionDetail({
   }, [puzzleName]);
 
   const collectionType = propCollectionType || (puzzle?.category || 'Magic Garden');
-  const iconUrl = propIconUrl || puzzle?.iconUrl || 'https://rejsoyzhhukatdaebgtq.supabase.co/storage/v1/object/public/puzzle-icons//carrot.svg';
+  const iconUrl = propIconUrl || puzzle?.img || '/assets/puzzles/puzzle_carrot.svg';
   const description = propDescription || puzzle?.description || "Bright, balanced, and well-fed. That's the carrot energy we love to see.";
 
   // 从数据库获取collection数据
@@ -75,19 +76,17 @@ export default function CollectionDetail({
           return;
         }
 
-        const { data, error } = await supabase
-          .from('user_collections')
-          .select('first_completed_at, nutrition')
-          .eq('user_id', user.id)
-          .eq('collection_type', collectionType)
-          .eq('puzzle_name', puzzleName)
-          .single();
-
-        if (error) {
-          console.error('Failed to fetch collection data:', error);
-          setError('Failed to load collection data');
+        // 使用后端API获取collection数据
+        const response = await collectionApi.getUserCollections(collectionType);
+        
+        if (response.success && response.data) {
+          const collectionData = response.data.find(
+            collection => collection.puzzle_name === puzzleName
+          );
+          setCollectionData(collectionData || null);
         } else {
-          setCollectionData(data || []);
+          console.error('Failed to fetch collection data:', response.error);
+          setError('Failed to load collection data');
         }
       } catch (error) {
         console.error('Error fetching collection data:', error);
@@ -203,39 +202,39 @@ export default function CollectionDetail({
   // puzzleCard渲染片段（与主卡片一致）
   const puzzleCardNode = (
     <div className={styles.puzzleCard} style={{boxShadow:'none', border:'2px solid #22221B', background:'#FFB279'}}>
-      <div className={`${styles.timestamp} h5`}>{dateStr}</div>
-      <div className={styles.headingModule}>
-        <div className={`${styles.collectionInfo} label`}>{collectionType}・{puzzleName}</div>
-        <div className={styles.heading}>{description}</div>
-      </div>
-      <img src={iconUrl} alt={puzzleName} className={styles.puzzleImg} />
-      <div className={styles.nutritionModule}>
-        {NUTRITION_LABELS.map((item) => (
-          <div className={styles.nutritionItem} key={item.key}>
-            <div className={styles.palette}>
-              {(paletteColors[item.key] || ['#EEE']).map((color, i, arr) => (
-                <div
-                  key={i}
-                  className={styles.paletteSegment}
-                  style={{
-                    background: color,
-                    height: `${24 / arr.length}px`,
-                    borderTopLeftRadius: i === 0 ? 4 : 0,
-                    borderTopRightRadius: i === 0 ? 4 : 0,
-                    borderBottomLeftRadius: i === arr.length - 1 ? 4 : 0,
-                    borderBottomRightRadius: i === arr.length - 1 ? 4 : 0,
-                  }}
-                />
-              ))}
-            </div>
-            <div className={styles.nutritionValueWrapper}>
-              <div className={`${styles.nutritionValue} h5`}>{nutritionData[item.key]}g</div>
-              <div className={`${styles.nutritionLabel} label`}>{item.label}</div>
-            </div>
+          <div className={`${styles.timestamp} h5`}>{dateStr}</div>
+          <div className={styles.headingModule}>
+            <div className={`${styles.collectionInfo} label`}>{collectionType}・{puzzleName}</div>
+            <div className={styles.heading}>{description}</div>
           </div>
-        ))}
-      </div>
-    </div>
+          <img src={iconUrl} alt={puzzleName} className={styles.puzzleImg} />
+          <div className={styles.nutritionModule}>
+            {NUTRITION_LABELS.map((item) => (
+              <div className={styles.nutritionItem} key={item.key}>
+                <div className={styles.palette}>
+                  {(paletteColors[item.key] || ['#EEE']).map((color, i, arr) => (
+                    <div
+                      key={i}
+                      className={styles.paletteSegment}
+                      style={{
+                        background: color,
+                        height: `${24 / arr.length}px`,
+                        borderTopLeftRadius: i === 0 ? 4 : 0,
+                        borderTopRightRadius: i === 0 ? 4 : 0,
+                        borderBottomLeftRadius: i === arr.length - 1 ? 4 : 0,
+                        borderBottomRightRadius: i === arr.length - 1 ? 4 : 0,
+                      }}
+                    />
+                  ))}
+                </div>
+                <div className={styles.nutritionValueWrapper}>
+                  <div className={`${styles.nutritionValue} h5`}>{nutritionData[item.key]}g</div>
+                  <div className={`${styles.nutritionLabel} label`}>{item.label}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
   );
 
   return (

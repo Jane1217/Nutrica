@@ -39,13 +39,13 @@ export default function DescribeModal({ open, onClose, onBack, onCloseModal, onN
           />
         </div>
         <div className="food-modal-action-group">
-          <button 
-            className="food-modal-confirm-btn h5" 
-            onClick={handleNext}
-            disabled={!description.trim()}
-          >
-            Next
-          </button>
+        <button 
+          className="food-modal-confirm-btn h5" 
+          onClick={handleNext}
+          disabled={!description.trim()}
+        >
+          Next
+        </button>
         </div>
       </div>
     </ModalWrapper>
