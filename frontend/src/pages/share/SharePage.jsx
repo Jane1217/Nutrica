@@ -1,9 +1,24 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import styles from './SharePage.module.css';
-import { formatDateString, normalizeNutritionData, getUserNameFromQuery, capitalizePuzzleName } from '../../utils';
+import { formatDateString, normalizeNutritionData, getUserNameFromQuery, capitalizePuzzleName, getPuzzleCardBackground, getPageBackground } from '../../utils';
 import { collectionApi } from '../../utils/api';
-import { puzzleCategories } from '../../data/puzzles';
+import { puzzleCategories, colorOrders } from '../../data/puzzles';
+
+// 工具函数：按顺序提取某营养素的所有颜色
+function getNutrientColorsByOrder(pixelMap, nutrientType, colorOrder) {
+  if (!pixelMap) return [];
+  const colorSet = new Set();
+  for (let y = 0; y < pixelMap.length; y++) {
+    for (let x = 0; x < pixelMap[y].length; x++) {
+      const pix = pixelMap[y][x];
+      if (pix.nutrient === nutrientType) {
+        colorSet.add(pix.color);
+      }
+    }
+  }
+  return colorOrder.filter(color => colorSet.has(color));
+}
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -20,6 +35,15 @@ export default function SharePage() {
   // 优先从URL参数获取nickname
   const nicknameFromQuery = query.get('nickname');
 
+  // 根据puzzle名称确定collectionType
+  const getCollectionType = (puzzleName) => {
+    const puzzleNameLower = puzzleName.toLowerCase();
+    if (puzzleNameLower === 'salmon' || puzzleNameLower === 'sushi rice' || puzzleNameLower === 'salmon nigiri boy') {
+      return 'Salmon Nigiri Boy';
+    }
+    return 'Magic Garden';
+  };
+
   // 查找当前puzzle的配置
   const puzzle = useMemo(() => {
     for (const cat of puzzleCategories) {
@@ -29,7 +53,7 @@ export default function SharePage() {
     return null;
   }, [puzzleName]);
 
-  // 获取图片路径和描述
+  const collectionType = getCollectionType(puzzleName);
   const iconUrl = puzzle?.img || '/assets/puzzles/puzzle_carrot.svg';
   const description = puzzle?.description || "Bright, balanced, and well-fed. That's the carrot energy we love to see.";
 
@@ -100,16 +124,42 @@ export default function SharePage() {
     { key: 'fats', label: 'Fats', nutrient: 3 }
   ];
 
-  // 默认颜色配置
-  const paletteColors = {
-    carbs: ['#FF9F58', '#FB6D03', '#FB3503', '#B92F17'],
-    protein: ['#3B0E09'],
-    fats: ['#98E673', '#60BF32', '#0FA23A', '#1D793B']
-  };
+  // 动态生成palette颜色，兼容不同puzzle
+  const paletteColors = useMemo(() => {
+    if (!puzzle?.pixelMap) return {
+      carbs: ['#FF9F58', '#FB6D03', '#FB3503', '#B92F17'],
+      protein: ['#3B0E09'],
+      fats: ['#98E673', '#60BF32', '#0FA23A', '#1D793B']
+    };
+    // 根据puzzle.id动态获取colorOrder
+    const colorOrder = colorOrders[puzzle.id];
+    return {
+      carbs: getNutrientColorsByOrder(puzzle.pixelMap, 1, colorOrder),
+      protein: getNutrientColorsByOrder(puzzle.pixelMap, 2, colorOrder),
+      fats: getNutrientColorsByOrder(puzzle.pixelMap, 3, colorOrder)
+    };
+  }, [puzzle]);
+
+  // 获取营养数据，与CollectionDetail保持一致
+  const nutrition = useMemo(() => {
+    if (nutritionData) {
+      return {
+        carbs: nutritionData.carbs || 0,
+        protein: nutritionData.protein || 0,
+        fats: nutritionData.fats || 0
+      };
+    }
+    // 如果没有数据，使用默认值
+    return { carbs: 0, protein: 0, fats: 0 };
+  }, [nutritionData]);
+
+  const dateStr = formatDateString(firstCompletedAt);
+  const userName = getUserNameFromQuery(query);
+  const puzzleNameCap = capitalizePuzzleName(puzzleName);
 
   if (loading) {
     return (
-      <div className={styles.sharePage}>
+      <div className={styles.sharePage} style={{ background: getPageBackground(collectionType) }}>
         <div className={styles.loadingContainer}>
           <div className={styles.loadingSpinner}></div>
           <span className="body1">Loading shared puzzle...</span>
@@ -120,7 +170,7 @@ export default function SharePage() {
 
   if (error) {
     return (
-      <div className={styles.sharePage}>
+      <div className={styles.sharePage} style={{ background: getPageBackground(collectionType) }}>
         <div className={styles.errorContainer}>
           <span className="body1">This puzzle collection is not available</span>
         </div>
@@ -128,13 +178,8 @@ export default function SharePage() {
     );
   }
 
-  const nutrition = normalizeNutritionData(nutritionData);
-  const dateStr = formatDateString(firstCompletedAt);
-  const userName = getUserNameFromQuery(query);
-  const puzzleNameCap = capitalizePuzzleName(puzzleName);
-
   return (
-    <div className={styles.sharePage}>
+    <div className={styles.sharePage} style={{ background: getPageBackground(collectionType) }}>
       {/* Nav Bar */}
       <div className={styles.navBar}>
         <div className={styles.logoModule}>
@@ -150,11 +195,11 @@ export default function SharePage() {
         </div>
 
         {/* Puzzle Card */}
-        <div className={styles.puzzleCard}>
+        <div className={styles.puzzleCard} style={{ background: getPuzzleCardBackground(puzzleName, collectionType) }}>
           <div className={`${styles.timestamp} h5`}>{dateStr}</div>
           <div className={styles.headingModule}>
             <div className={`${styles.collectionInfo} label`}>
-              Magic Garden・{puzzleNameCap}
+              {collectionType}・{puzzleNameCap}
             </div>
             <div className={styles.heading}>
               {description}

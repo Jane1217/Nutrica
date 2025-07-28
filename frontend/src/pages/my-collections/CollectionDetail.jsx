@@ -5,7 +5,7 @@ import { puzzleCategories, colorOrders } from '../../data/puzzles';
 import ShareLinkModal from './ShareLinkModal';
 import ImageShareModal from './ImageShareModal';
 import { getCurrentUser, getAuthToken } from '../../utils/user';
-import { formatDateString, capitalizePuzzleName } from '../../utils';
+import { formatDateString, capitalizePuzzleName, getPuzzleCardBackground, getPageBackground } from '../../utils';
 import { collectionApi } from '../../utils/api';
 
 // 默认营养素标签
@@ -59,7 +59,16 @@ export default function CollectionDetail({
     return null;
   }, [puzzleName]);
 
-  const collectionType = propCollectionType || (puzzle?.category || 'Magic Garden');
+  // 根据puzzle名称确定collectionType
+  const getCollectionType = (puzzleName) => {
+    const puzzleNameLower = puzzleName.toLowerCase();
+    if (puzzleNameLower === 'salmon' || puzzleNameLower === 'sushi rice' || puzzleNameLower === 'salmon nigiri boy') {
+      return 'Salmon Nigiri Boy';
+    }
+    return 'Magic Garden';
+  };
+  
+  const collectionType = propCollectionType || getCollectionType(puzzleName);
   const iconUrl = propIconUrl || puzzle?.img || '/assets/puzzles/puzzle_carrot.svg';
   const description = propDescription || puzzle?.description || "Bright, balanced, and well-fed. That's the carrot energy we love to see.";
 
@@ -167,7 +176,7 @@ export default function CollectionDetail({
   // 如果正在加载，显示加载状态
   if (loading) {
     return (
-      <div className={styles.detailPage}>
+      <div className={styles.detailPage} style={{ background: getPageBackground(collectionType) }}>
         <div className={styles.header}>
           <div className={`${styles.title} h1`}>{puzzleName}</div>
           <div className={styles.closeBtn} onClick={handleClose}>
@@ -187,7 +196,7 @@ export default function CollectionDetail({
   // 如果有错误，显示错误状态
   if (error) {
     return (
-      <div className={styles.detailPage}>
+      <div className={styles.detailPage} style={{ background: getPageBackground(collectionType) }}>
         <div className={styles.header}>
           <h1 className={`${styles.title} h1`}>{puzzleName}</h1>
           <div className={styles.closeBtn} onClick={handleClose}>
@@ -208,7 +217,13 @@ export default function CollectionDetail({
 
   // puzzleCard渲染片段（与主卡片一致）
   const puzzleCardNode = (
-    <div className={styles.puzzleCard} style={{boxShadow:'none', border:'2px solid #22221B', background:'#FFB279'}}>
+    <div className={styles.puzzleCard} style={{
+      boxShadow:'none', 
+      border:'2px solid #22221B', 
+      background: getPuzzleCardBackground(puzzleName, collectionType)
+    }}>
+      {/* Debug info */}
+      {console.log('CollectionDetail - puzzleName:', puzzleName, 'collectionType:', collectionType, 'background:', getPuzzleCardBackground(puzzleName, collectionType))}
           <div className={`${styles.timestamp} h5`}>{dateStr}</div>
           <div className={styles.headingModule}>
             <div className={`${styles.collectionInfo} label`}>{collectionType}・{puzzleName}</div>
@@ -245,7 +260,7 @@ export default function CollectionDetail({
   );
 
   return (
-    <div className={styles.detailPage}>
+    <div className={styles.detailPage} style={{ background: getPageBackground(collectionType) }}>
       {/* Header */}
       <div className={styles.header}>
         <h1 className={`${styles.title} h1`}>{puzzleName}</h1>
@@ -276,7 +291,12 @@ export default function CollectionDetail({
         puzzleName={puzzleName} 
         nickname={nickname} 
       />
-      <ImageShareModal open={showImageShare} onClose={() => setShowImageShare(false)} puzzleCard={puzzleCardNode} />
+      <ImageShareModal 
+        open={showImageShare} 
+        onClose={() => setShowImageShare(false)} 
+        puzzleCard={puzzleCardNode} 
+        collectionType={collectionType}
+      />
     </div>
   );
 } 

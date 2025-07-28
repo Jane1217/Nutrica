@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import html2canvas from 'html2canvas';
 import styles from './ImageShareModal.module.css';
 import ImageCaptureCard from '../../components/share/ImageCaptureCard';
-import { domToImageBase64 } from '../../utils';
+import { domToImageBase64, getPageBackground } from '../../utils';
 
-export default function ImageShareModal({ open, puzzleCard, onClose }) {
+export default function ImageShareModal({ open, puzzleCard, onClose, collectionType = 'Magic Garden' }) {
   const imageRef = useRef(null);
   const [imgUrl, setImgUrl] = useState(null);
   const [imgLoading, setImgLoading] = useState(false);
@@ -74,14 +74,20 @@ export default function ImageShareModal({ open, puzzleCard, onClose }) {
           </div>
           {/* 隐藏的截图区域，仅用于生成图片，不显示 */}
           <div style={{ position: 'absolute', left: '-9999px', top: 0 }}>
-            <ImageCaptureCard ref={imageRef} puzzleCard={lastPuzzleCardRef.current} />
+            <ImageCaptureCard ref={imageRef} puzzleCard={lastPuzzleCardRef.current} collectionType={collectionType} />
           </div>
           {/* 图片加载动画或图片本身 */}
           <div style={{width: '100%', display: 'flex', justifyContent: 'center'}}>
             {imgLoading ? (
               <div className={styles.imgLoading}></div>
             ) : (
-              imgUrl && <img src={imgUrl} alt="share preview" className={styles.shareImg} draggable={false} />
+              imgUrl && <img 
+                src={imgUrl} 
+                alt="share preview" 
+                className={styles.shareImg} 
+                style={{ background: getPageBackground(collectionType) }}
+                draggable={false} 
+              />
             )}
           </div>
         </div>

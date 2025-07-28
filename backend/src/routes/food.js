@@ -11,7 +11,7 @@ const supabase = createClient(
 );
 
 // 获取collection_puzzles数据
-router.get('/collection-puzzles', authenticateUser, async (req, res) => {
+router.get('/collection-puzzles', async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('collection_puzzles')
@@ -61,6 +61,8 @@ router.get('/user-collections', authenticateUser, async (req, res) => {
     }
 
     const { data, error } = await query;
+
+    console.log('User collections query result:', { data, error, userId, collection_type });
 
     if (error) {
       console.error('Error fetching user collections:', error);
