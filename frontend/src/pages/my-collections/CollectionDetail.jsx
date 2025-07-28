@@ -106,8 +106,8 @@ export default function CollectionDetail({
       protein: ['#3B0E09'],
       fats: ['#98E673', '#60BF32', '#0FA23A', '#1D793B']
     };
-    // 修正：根据puzzle.name动态获取colorOrder
-    const colorOrder = colorOrders[puzzle.name?.toLowerCase()];
+    // 修正：根据puzzle.id动态获取colorOrder
+    const colorOrder = colorOrders[puzzle.id]
     return {
       carbs: getNutrientColorsByOrder(puzzle.pixelMap, 1, colorOrder),
       protein: getNutrientColorsByOrder(puzzle.pixelMap, 2, colorOrder),

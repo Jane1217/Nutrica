@@ -1,29 +1,27 @@
 // avocado.js
 const B = { color: '#F3F3EC', nutrient: 0 };
-const C3 = { color: '#333A18', nutrient: 1 };// 碳水
+const C1 = { color: '#AE6251', nutrient: 1 }; // 碳水
+const C2 = { color: '#6D3023', nutrient: 1 }; // 碳水
+const C3 = { color: '#333A18', nutrient: 1 };
 const C4 = { color: '#191D0C', nutrient: 1 };
-
+const C5 = { color: '#49241C', nutrient: 1 }; // 碳水
 const P = { color: '#F7F086', nutrient: 2 }; // 蛋白
-const F = { color: '#B6C63F', nutrient: 2 }; // 脂肪
+const F = { color: '#B6C63F', nutrient: 3 }; // 脂肪
 
-const C1 = { color: '#AE6251', nutrient: 3 }; 
-const C2 = { color: '#6D3023', nutrient: 3 }; 
-const C5 = { color: '#49241C', nutrient: 3 }; 
-
-const avocado = {
-  id: 'avocado',
-  name: 'Avocado',
-  description: "Peak avo achieved. Someone grab the toast!",
+const pumpkin = {
+  id: 'pumpkin',
+  name: 'Pumpkin',
+  description: "All florets firing. Green power has officially peaked",
   descriptions: [
-    "Not even guac-worthy yet. Let’s get this avocado rolling.",
-    "Slightly squishy. You’re on your way to snackable greatness.",
-    "Half an avo is still better than none. Keep mashing forward.",
-    "Almost ripe enough to ghost someone at brunch. One more bite!",
-    "Peak avo achieved. Someone grab the toast!",
+    "Just a tiny floret with big green dreams. Don’t fear the crunch.",
+    "Starting to look less like a houseplant, more like dinner.",
+    "Halfway to full florets. Kinda healthy, kinda heroic.",
+    "Looking steamed, but in a good way. Almost plate-ready!",
+    "All florets firing. Green power has officially peaked!",
   ],
-  img: '/assets/puzzles/puzzle_avocado.svg',
+  img: '/assets/puzzles/puzzle_pumpkin.svg',
   inCollection: false,
-  bgColor: '#9ED987',
+  bgColor: '#F6CD8C',
   pixelMap: [
     // 1
     [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
@@ -76,5 +74,5 @@ const avocado = {
   ]  
 };
 
-export const avocadoColorOrder = [C3.color, C4.color,  P.color, F.color, C1.color, C2.color, C5.color];
-export default avocado; 
+export const pumpkinColorOrder = [C1.color, C2.color, C3.color, C4.color, C5.color, P.color, F.color];
+export default pumpkin; 
