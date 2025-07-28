@@ -10,6 +10,7 @@ import ProfileEditModal from '../modals/ProfileEditModal';
 import ChangePasswordModal from '../modals/ChangePasswordModal';
 import DeleteAccountModal from '../modals/DeleteAccountModal';
 import ModalWrapper from '../../../components/common/ModalWrapper';
+import Toast from '../../../components/common/Toast';
 
 export default function AccountSettings({ userEmail }) {
   const navigate = useNavigate();
@@ -20,6 +21,8 @@ export default function AccountSettings({ userEmail }) {
   const [showProfileEditModal, setShowProfileEditModal] = useState(false);
   const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
   const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
   const initial = userEmail ? userEmail[0].toUpperCase() : '';
   const [userInfo, setUserInfo] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState(null);
@@ -211,8 +214,20 @@ export default function AccountSettings({ userEmail }) {
     navigate('/', { replace: true }); // 跳转到welcome页面
   };
 
+  const handlePasswordChangeSuccess = () => {
+    setToastMessage('Password successfully changed');
+    setShowToast(true);
+  };
+
   return (
     <>
+      <Toast 
+        message={toastMessage}
+        type="success"
+        show={showToast}
+        onClose={() => setShowToast(false)}
+        duration={3000}
+      />
       <NavLogo onEatClick={() => setShowEatModal(true)} isLoggedIn={true} isAuth={false} />
       <div className={styles['account-main']}>
         <div className={styles.accountHeaderRow}>
@@ -402,6 +417,7 @@ export default function AccountSettings({ userEmail }) {
       <ChangePasswordModal
         open={showChangePasswordModal}
         onClose={() => setShowChangePasswordModal(false)}
+        onPasswordChangeSuccess={handlePasswordChangeSuccess}
       />
       <DeleteAccountModal
         open={showDeleteAccountModal}

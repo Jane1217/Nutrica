@@ -2,15 +2,18 @@ import React, { useState } from 'react';
 import ModalWrapper from '../../../components/common/ModalWrapper';
 import InputField from '../../../components/auth/InputField';
 import BottomButton from '../../../components/common/BottomButton';
+import Toast from '../../../components/common/Toast';
 import { supabase } from '../../../supabaseClient';
 
-export default function ChangePasswordModal({ open, onClose }) {
+export default function ChangePasswordModal({ open, onClose, onPasswordChangeSuccess }) {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,114 +21,156 @@ export default function ChangePasswordModal({ open, onClose }) {
     setSuccess('');
     setIsLoading(true);
 
+    // 验证当前密码是否填写
+    if (!currentPassword) {
+      setToastMessage('Please enter your current password.');
+      setShowToast(true);
+      setIsLoading(false);
+      return;
+    }
+
     // 验证新密码长度
     if (newPassword.length < 8) {
-      setError('Password must have at least 8 characters.');
+      setToastMessage('Password must have at least 8 characters.');
+      setShowToast(true);
       setIsLoading(false);
       return;
     }
 
     // 验证新密码和确认密码是否匹配
     if (newPassword !== confirmPassword) {
-      setError('New passwords do not match.');
+      setToastMessage('New passwords do not match.');
+      setShowToast(true);
+      setIsLoading(false);
+      return;
+    }
+
+    // 验证新密码不能与当前密码相同
+    if (currentPassword === newPassword) {
+      setToastMessage('New password must be different from current password.');
+      setShowToast(true);
       setIsLoading(false);
       return;
     }
 
     try {
-      // 使用Supabase更新密码
+      // 获取当前用户信息
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setToastMessage('User not found. Please log in again.');
+        setShowToast(true);
+        setIsLoading(false);
+        return;
+      }
+
+      // 验证当前密码是否正确
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user.email,
+        password: currentPassword
+      });
+
+      if (signInError) {
+        setToastMessage('Current password is incorrect.');
+        setShowToast(true);
+        setIsLoading(false);
+        return;
+      }
+
+      // 当前密码验证通过，更新密码
       const { error } = await supabase.auth.updateUser({
         password: newPassword
       });
 
       if (error) {
-        setError(error.message);
+        setToastMessage(error.message);
+        setShowToast(true);
       } else {
-        setSuccess('Password changed successfully!');
         // 清空表单
         setCurrentPassword('');
         setNewPassword('');
         setConfirmPassword('');
-        // 2秒后关闭弹窗
-        setTimeout(() => {
-          onClose();
-        }, 2000);
+        // 立即关闭弹窗
+        onClose();
+        // 通知父组件密码修改成功
+        if (onPasswordChangeSuccess) {
+          onPasswordChangeSuccess();
+        }
       }
     } catch (err) {
-      setError('An unexpected error occurred. Please try again.');
+      setToastMessage('An unexpected error occurred. Please try again.');
+      setShowToast(true);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <ModalWrapper open={open} onClose={onClose} size="auth">
-      <form onSubmit={handleSubmit} style={{padding: 0, background: 'transparent', height: '100vh', overflowY: 'auto', WebkitOverflowScrolling: 'touch', width: '100%', boxSizing: 'border-box'}}>
-        <div style={{position: 'relative', marginBottom: 0}}>
-          <div className="h2" style={{ marginBottom: 0, textAlign: 'left', padding: '24px 0 0 24px' }}>Change Password</div>
-                   <button type="button" onClick={onClose} style={{position: 'absolute', right: 16, top: 16, display: 'flex', width: 48, height: 48, padding: 14, justifyContent: 'center', alignItems: 'center', borderRadius: 999, border: '1px solid var(--Brand-Outline, #DBE2D0)', background: 'none', cursor: 'pointer'}}>
-           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" style={{width: 20, height: 20, flexShrink: 0, aspectRatio: '1/1'}}>
-             <path fillRule="evenodd" clipRule="evenodd" d="M10.008 11.8844L14.7227 16.5938C14.9729 16.8437 15.3122 16.9841 15.666 16.9841C16.0198 16.9841 16.3591 16.8437 16.6093 16.5938C16.8595 16.3439 17 16.005 17 15.6516C17 15.2982 16.8595 14.9592 16.6093 14.7093L11.8928 10L16.6084 5.29067C16.7322 5.16693 16.8304 5.02005 16.8974 4.85841C16.9644 4.69676 16.9988 4.52352 16.9988 4.34858C16.9988 4.17363 16.9642 4.00041 16.8972 3.83879C16.8301 3.67718 16.7318 3.53034 16.6079 3.40667C16.4841 3.28299 16.337 3.1849 16.1752 3.11799C16.0134 3.05108 15.8399 3.01666 15.6648 3.0167C15.4896 3.01674 15.3162 3.05124 15.1544 3.11823C14.9926 3.18522 14.8456 3.28338 14.7218 3.40711L10.008 8.11644L5.29327 3.40711C5.17031 3.27983 5.0232 3.17828 4.86053 3.10839C4.69786 3.0385 4.52288 3.00168 4.34581 3.00006C4.16874 2.99844 3.99311 3.03206 3.82919 3.09896C3.66526 3.16586 3.51632 3.2647 3.39105 3.38971C3.26577 3.51472 3.16668 3.66341 3.09955 3.82708C3.03242 3.99076 2.99859 4.16615 3.00005 4.34302C3.0015 4.51989 3.03821 4.6947 3.10802 4.85725C3.17783 5.0198 3.27936 5.16684 3.40667 5.28978L8.12316 10L3.40756 14.7102C3.28025 14.8332 3.17872 14.9802 3.10891 15.1427C3.03909 15.3053 3.00239 15.4801 3.00093 15.657C2.99948 15.8339 3.0333 16.0092 3.10044 16.1729C3.16757 16.3366 3.26666 16.4853 3.39193 16.6103C3.51721 16.7353 3.66615 16.8341 3.83008 16.901C3.994 16.9679 4.16963 17.0016 4.3467 16.9999C4.52377 16.9983 4.69875 16.9615 4.86142 16.8916C5.02409 16.8217 5.1712 16.7202 5.29416 16.5929L10.008 11.8844Z" fill="#6A6A61"/>
-           </svg>
-         </button>
-        </div>
-        <div style={{padding: '0 24px', width: '100%', maxWidth: '100%', margin: '0 auto', boxSizing: 'border-box'}}>
-          <div style={{display: 'flex', flexDirection: 'column', gap: '24px', marginTop: '24px'}}>
-            {/* Current Password */}
-            <InputField
-              label="Current Password"
-              type="password"
-              value={currentPassword}
-              onChange={setCurrentPassword}
-              placeholder="Enter current password"
-            />
-            
-            <hr style={{border: 'none', height: '1px', background: '#CDD3C4', margin: '0'}} />
-            
-            {/* New Password */}
-            <InputField
-              label="New Password"
-              type="password"
-              value={newPassword}
-              onChange={setNewPassword}
-              placeholder="Enter new password"
-            />
-            
-            {/* Confirm New Password */}
-            <InputField
-              label="Confirm New Password"
-              type="password"
-              value={confirmPassword}
-              onChange={setConfirmPassword}
-              placeholder="Confirm new password"
-            />
-            
-            {/* Error/Success Messages */}
-            {error && (
-              <div style={{color: '#D03535', fontSize: '14px', textAlign: 'center', marginTop: '8px'}}>
-                {error}
+    <>
+      <Toast 
+        message={toastMessage}
+        type="error"
+        show={showToast}
+        onClose={() => setShowToast(false)}
+        duration={3000}
+      />
+      <ModalWrapper open={open} onClose={onClose} size="auth">
+        <form onSubmit={handleSubmit} style={{padding: 0, background: 'transparent', height: '100vh', overflowY: 'auto', WebkitOverflowScrolling: 'touch', width: '100%', boxSizing: 'border-box'}}>
+          <div style={{position: 'relative', marginBottom: 0}}>
+            <div className="h2" style={{ marginBottom: 0, textAlign: 'left', padding: '24px 0 0 24px' }}>Change Password</div>
+                     <button type="button" onClick={onClose} style={{position: 'absolute', right: 16, top: 16, display: 'flex', width: 48, height: 48, padding: 14, justifyContent: 'center', alignItems: 'center', borderRadius: 999, border: '1px solid var(--Brand-Outline, #DBE2D0)', background: 'none', cursor: 'pointer'}}>
+             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" style={{width: 20, height: 20, flexShrink: 0, aspectRatio: '1/1'}}>
+               <path fillRule="evenodd" clipRule="evenodd" d="M10.008 11.8844L14.7227 16.5938C14.9729 16.8437 15.3122 16.9841 15.666 16.9841C16.0198 16.9841 16.3591 16.8437 16.6093 16.5938C16.8595 16.3439 17 16.005 17 15.6516C17 15.2982 16.8595 14.9592 16.6093 14.7093L11.8928 10L16.6084 5.29067C16.7322 5.16693 16.8304 5.02005 16.8974 4.85841C16.9644 4.69676 16.9988 4.52352 16.9988 4.34858C16.9988 4.17363 16.9642 4.00041 16.8972 3.83879C16.8301 3.67718 16.7318 3.53034 16.6079 3.40667C16.4841 3.28299 16.337 3.1849 16.1752 3.11799C16.0134 3.05108 15.8399 3.01666 15.6648 3.0167C15.4896 3.01674 15.3162 3.05124 15.1544 3.11823C14.9926 3.18522 14.8456 3.28338 14.7218 3.40711L10.008 8.11644L5.29327 3.40711C5.17031 3.27983 5.0232 3.17828 4.86053 3.10839C4.69786 3.0385 4.52288 3.00168 4.34581 3.00006C4.16874 2.99844 3.99311 3.03206 3.82919 3.09896C3.66526 3.16586 3.51632 3.2647 3.39105 3.38971C3.26577 3.51472 3.16668 3.66341 3.09955 3.82708C3.03242 3.99076 2.99859 4.16615 3.00005 4.34302C3.0015 4.51989 3.03821 4.6947 3.10802 4.85725C3.17783 5.0198 3.27936 5.16684 3.40667 5.28978L8.12316 10L3.40756 14.7102C3.28025 14.8332 3.17872 14.9802 3.10891 15.1427C3.03909 15.3053 3.00239 15.4801 3.00093 15.657C2.99948 15.8339 3.0333 16.0092 3.10044 16.1729C3.16757 16.3366 3.26666 16.4853 3.39193 16.6103C3.51721 16.7353 3.66615 16.8341 3.83008 16.901C3.994 16.9679 4.16963 17.0016 4.3467 16.9999C4.52377 16.9983 4.69875 16.9615 4.86142 16.8916C5.02409 16.8217 5.1712 16.7202 5.29416 16.5929L10.008 11.8844Z" fill="#6A6A61"/>
+             </svg>
+           </button>
+          </div>
+          <div style={{padding: '0 24px', width: '100%', maxWidth: '100%', margin: '0 auto', boxSizing: 'border-box'}}>
+            <div style={{display: 'flex', flexDirection: 'column', gap: '24px', marginTop: '24px'}}>
+              {/* Current Password */}
+              <InputField
+                label="Current Password"
+                type="password"
+                value={currentPassword}
+                onChange={setCurrentPassword}
+                placeholder="Enter current password"
+              />
+              
+              <hr style={{border: 'none', height: '1px', background: '#CDD3C4', margin: '0'}} />
+              
+              {/* New Password */}
+              <InputField
+                label="New Password"
+                type="password"
+                value={newPassword}
+                onChange={setNewPassword}
+                placeholder="Enter new password"
+              />
+              
+              {/* Confirm New Password */}
+              <InputField
+                label="Confirm New Password"
+                type="password"
+                value={confirmPassword}
+                onChange={setConfirmPassword}
+                placeholder="Confirm new password"
+              />
+              
+
+              
+              {/* Password Hint */}
+              <div className="body2" style={{color: 'var(--Neutral-Primary-Text, #22221B)', textAlign: 'left', marginTop: '0px'}}>
+                Password must have at least 8 characters.
               </div>
-            )}
-            {success && (
-              <div style={{color: '#477E2D', fontSize: '14px', textAlign: 'center', marginTop: '8px'}}>
-                {success}
-              </div>
-            )}
-            
-            {/* Password Hint */}
-            <div className="body2" style={{color: 'var(--Neutral-Primary-Text, #22221B)', textAlign: 'left', marginTop: '0px'}}>
-              Password must have at least 8 characters.
             </div>
           </div>
-        </div>
-        <BottomButton 
-          type="submit"
-          isLoading={isLoading}
-          loadingText="Changing..."
-        >
-          Change password
-        </BottomButton>
-      </form>
-    </ModalWrapper>
+          <BottomButton 
+            type="submit"
+            isLoading={isLoading}
+            loadingText="Changing..."
+          >
+            Change password
+          </BottomButton>
+        </form>
+      </ModalWrapper>
+    </>
   );
 } 
