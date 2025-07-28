@@ -71,6 +71,7 @@ export const apiPost = (endpoint, data) => {
 export const apiGet = (endpoint) => {
   return apiRequest(endpoint, {
     method: 'GET',
+    headers: {} // 不添加认证头
   });
 };
 

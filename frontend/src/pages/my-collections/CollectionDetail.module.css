@@ -1,7 +1,6 @@
 .detailPage {
   min-height: 100vh;
   width: 100vw;
-  background: #A9C971;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -120,7 +119,6 @@
   align-items: center;
   gap: 16px;
   flex-shrink: 0;
-  background: #FFB279;
   border-radius: 24px;
   border: 2px solid #22221B;
   box-shadow: 0px 4px 0px 0px #22221B;

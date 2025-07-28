@@ -4,7 +4,8 @@ import styles from './MyCollections.module.css';
 import { useNavigate } from 'react-router-dom';
 import { getCurrentUser } from '../../utils/user';
 import { collectionApi } from '../../utils/api';
-import { getAuthToken } from '../../utils/user'
+import { getAuthToken } from '../../utils/user';
+import CongratulationsModal from './CongratulationsModal';
 
 export default function MyCollections() {
   const [collections, setCollections] = useState([]); // 用户已收集的 puzzle
@@ -12,6 +13,9 @@ export default function MyCollections() {
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState(null);
   const [user, setUser] = useState(null);
+  const [showCongratulations, setShowCongratulations] = useState(false);
+  const [hasShownCongratulations, setHasShownCongratulations] = useState(false);
+  const [salmonNigiriFirstCompletedAt, setSalmonNigiriFirstCompletedAt] = useState(null);
   const navigate = useNavigate();
 
   // 获取puzzle图标路径
@@ -19,6 +23,36 @@ export default function MyCollections() {
     const puzzleNameLower = puzzleName.toLowerCase();
     // Replace spaces with underscores for asset paths
     return `/assets/puzzles/puzzle_${puzzleNameLower.replace(/\s+/g, '_')}.svg`;
+  };
+
+  // 检查是否应该显示CongratulationsModal
+  const checkCongratulationsModal = (collectionsData) => {
+    if (hasShownCongratulations) return;
+    
+    // 检查是否有Salmon Nigiri Boy主题的收集
+    const salmonNigiriCollections = collectionsData.filter(
+      collection => collection.collection_type === 'Salmon Nigiri Boy'
+    );
+    
+    // 检查是否收集了Salmon和Sushi Rice
+    const salmonCollected = salmonNigiriCollections.some(
+      collection => collection.puzzle_name === 'Salmon' && collection.collected
+    );
+    const sushiRiceCollected = salmonNigiriCollections.some(
+      collection => collection.puzzle_name === 'Sushi Rice' && collection.collected
+    );
+    
+    // 检查是否有Salmon Nigiri Boy的收集记录
+    const salmonNigiriBoyCollection = salmonNigiriCollections.find(
+      collection => collection.puzzle_name === 'Salmon Nigiri Boy'
+    );
+    
+    // 如果两个都收集了且还没显示过Congratulations，则显示
+    if (salmonCollected && sushiRiceCollected && salmonNigiriBoyCollection) {
+      setShowCongratulations(true);
+      setHasShownCongratulations(true);
+      setSalmonNigiriFirstCompletedAt(salmonNigiriBoyCollection.first_completed_at);
+    }
   };
 
   // 获取当前登录用户
@@ -75,17 +109,28 @@ export default function MyCollections() {
         const magicGardenResponse = await collectionApi.getUserCollections('Magic Garden', token);
         const salmonNigiriResponse = await collectionApi.getUserCollections('Salmon Nigiri Boy', token);
         
+        console.log('Magic Garden response:', magicGardenResponse);
+        console.log('Salmon Nigiri response:', salmonNigiriResponse);
+        
         let allCollections = [];
         
         if (magicGardenResponse.success) {
           allCollections = allCollections.concat(magicGardenResponse.data || []);
+        } else {
+          console.error('Magic Garden API failed:', magicGardenResponse.error);
         }
         
         if (salmonNigiriResponse.success) {
           allCollections = allCollections.concat(salmonNigiriResponse.data || []);
+        } else {
+          console.error('Salmon Nigiri API failed:', salmonNigiriResponse.error);
         }
         
+        console.log('All collections:', allCollections);
         setCollections(allCollections);
+        
+        // 检查是否应该显示CongratulationsModal
+        checkCongratulationsModal(allCollections);
       } catch (error) {
         console.error('Error fetching collection data:', error);
         setCollections([]);
@@ -169,6 +214,9 @@ export default function MyCollections() {
     slot.puzzle_name === 'Salmon' || slot.puzzle_name === 'Sushi Rice'
   );
   const salmonNigiriTopCompleted = salmonNigiriTopSlots.every(slot => slot.collected);
+  
+  // 获取Salmon Nigiri Boy的收集数据
+  const salmonNigiriBoySlot = salmonNigiriSlots.find(slot => slot.puzzle_name === 'Salmon Nigiri Boy');
 
   return (
     <div className={styles.myCollectionsPage}>
@@ -247,12 +295,30 @@ export default function MyCollections() {
             </div>
             <div className={styles.bottomWrapper}>
               <div className={styles.bottomImgWrapper}>
-                <img
-                  src="/assets/puzzles/salmon_nigiri_boy.svg"
-                  alt="Salmon Nigiri Boy"
-                  className={styles.bottomImg}
-                  style={{ opacity: salmonNigiriTopCompleted ? 1 : 0.4 }}
-                />
+                {salmonNigiriTopCompleted && salmonNigiriBoySlot?.collected && (
+                  <div
+                    className={styles.puzzleImgWrapper}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => handlePuzzleClick(salmonNigiriBoySlot)}
+                  >
+                    <img
+                      src="/assets/puzzles/salmon_nigiri_boy.svg"
+                      alt="Salmon Nigiri Boy"
+                      className={styles.bottomImg}
+                    />
+                    {salmonNigiriBoySlot.count > 1 && (
+                      <div className={styles.puzzleCount}>{salmonNigiriBoySlot.count}</div>
+                    )}
+                  </div>
+                )}
+                {(!salmonNigiriTopCompleted || !salmonNigiriBoySlot?.collected) && (
+                  <img
+                    src="/assets/puzzles/salmon_nigiri_boy.svg"
+                    alt="Salmon Nigiri Boy"
+                    className={styles.bottomImg}
+                    style={{ opacity: 0.4 }}
+                  />
+                )}
                 <img src="/assets/shadow (2).svg" alt="shadow" className={styles.bottomShadow} />
               </div>
             </div>
@@ -273,6 +339,13 @@ export default function MyCollections() {
           </div>
         </div>
       </div>
+      
+      {/* Congratulations Modal */}
+      <CongratulationsModal 
+        open={showCongratulations} 
+        onClose={() => setShowCongratulations(false)} 
+        firstCompletedAt={salmonNigiriFirstCompletedAt}
+      />
     </div>
   );
 } 
