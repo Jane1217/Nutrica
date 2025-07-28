@@ -21,7 +21,7 @@ const sushi_rice = {
     "Bound, balanced, and quietly essential. The base is finally ready.",
   ],
   img: '/assets/puzzles/puzzle_sushi_rice.svg',
-  inCollection: false,
+
   bgColor: '#FBD891',
   pixelMap: [
     // 1

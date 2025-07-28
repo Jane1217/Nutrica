@@ -17,12 +17,11 @@ const carrot = {
   descriptions: [
     "Even a carrot starts with almost nothing. Give your day a little care.",
     "You've planted the rhythm. A little balance, like a carrot finding light.",
-    "Halfway there. Your plate’s looking more like a garden—colorful and real.",
+    "Halfway there. Your plate's looking more like a garden—colorful and real.",
     "You're almost there. The roots are strong, the colors are coming.",
-    "Bright, balanced, and well-fed. That’s the carrot energy we love to see.",
+    "Bright, balanced, and well-fed. That's the carrot energy we love to see.",
   ],
   img: '/assets/puzzles/puzzle_carrot.svg',
-  inCollection: false,
   bgColor: '#FFB279',
   pixelMap: [
     // 1

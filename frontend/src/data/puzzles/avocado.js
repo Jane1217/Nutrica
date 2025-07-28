@@ -22,7 +22,7 @@ const avocado = {
     "Peak avo achieved. Someone grab the toast!",
   ],
   img: '/assets/puzzles/puzzle_avocado.svg',
-  inCollection: false,
+
   bgColor: '#9ED987',
   pixelMap: [
     // 1

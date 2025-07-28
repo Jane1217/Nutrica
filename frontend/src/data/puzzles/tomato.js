@@ -28,7 +28,7 @@ const tomato = {
     "Brimming with lycopene and main character energy.",
   ],
   img: '/assets/puzzles/puzzle_tomato.svg',
-  inCollection: false,
+
   bgColor: '#FFCBC5',
   pixelMap: [
     // 1

@@ -1,6 +1,7 @@
 import { supabase } from '../supabaseClient';
 import { collectionApi } from './api';
 import { getAuthToken } from './user';
+import { handlePuzzleCompletion } from './selectableCardCollection';
 
 // 检查puzzle是否完成（puzzle_progress === 1）
 export const checkPuzzleCompletion = (puzzleProgress) => {
@@ -93,6 +94,9 @@ export const monitorPuzzleCompletion = async (userId, dailyHomeData) => {
     if (!checkPuzzleCompletion(puzzle_progress) || !puzzle_name) {
       return { success: false, error: 'Puzzle not completed or missing puzzle name' };
     }
+
+    // 记录 puzzle 完成状态
+    handlePuzzleCompletion(puzzle_name, puzzle_progress);
 
     // 检查是否已经存在这个puzzle的collection记录
     try {

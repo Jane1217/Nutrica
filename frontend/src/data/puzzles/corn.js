@@ -24,7 +24,7 @@ const corn = {
     "Fully golden, slightly dramatic. Basically one microwave from stardom.",
   ],
   img: '/assets/puzzles/puzzle_corn.svg',
-  inCollection: false,
+
   bgColor: '#F6E78C',
   pixelMap: [
     // 1
