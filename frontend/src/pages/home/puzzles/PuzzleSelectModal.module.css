@@ -41,6 +41,7 @@
 }
 .listArea {
   padding: 16px 16px 80px 16px;
+  overflow-x: hidden;
 }
 .listArea > * + * {
   margin-top: 24px;
@@ -90,9 +91,11 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
 .scrollArea {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding-bottom: 40px;
 }

@@ -3,7 +3,7 @@ import ModalWrapper from "../../../components/common/ModalWrapper";
 import SelectableCard from "../../../components/puzzles/SelectableCard";
 import styles from "./PuzzleSelectModal.module.css";
 
-export default function PuzzleSelectModal({ open, onClose, onBack, puzzleList, onSelect }) {
+export default function PuzzleSelectModal({ open, onClose, onBack, puzzleList, categoryTitle = 'Magic Garden', onSelect }) {
   const [selectedIdx, setSelectedIdx] = useState(null);
   const selectableList = (puzzleList.length === 1
     ? Array.from({ length: 6 }, (_, idx) => ({ ...puzzleList[0], id: `${puzzleList[0].id}_${idx}` }))
@@ -25,7 +25,7 @@ export default function PuzzleSelectModal({ open, onClose, onBack, puzzleList, o
                 <path d="M6.8334 21.8338L1 16.0004L6.8334 10.167" stroke="#22221B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
-            <span className={`h3 ${styles.headerTitle}`}>Magic Garden</span>
+            <span className={`h3 ${styles.headerTitle}`}>{categoryTitle}</span>
           </div>
           {/* 关闭按钮 */}
           <button

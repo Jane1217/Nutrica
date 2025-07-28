@@ -1,0 +1,80 @@
+.puzzlesCount {
+  color: var(--Neutral-Primary-Text, #22221B);
+  text-align: right;
+}
+.synthesisLabel {
+  color: var(--Neutral-Primary-Text, #22221B);
+}
+.synthesisCard {
+  display: flex;
+  padding: 16px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  align-self: stretch;
+  border-radius: 24px;
+  border: 1px solid var(--Neutral-Primary-Text, #22221B);
+  background: #A9C971;
+  box-shadow: 0px 4px 0px 0px #22221B;
+  overflow: hidden;
+}
+.synthesisHeader {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #22221B;
+  margin-bottom: 8px;
+}
+.synthesisTitle {
+  color: var(--Neutral-Primary-Text, #22221B);
+  align-self: stretch;
+}
+.synthesisDesc {
+  align-self: stretch;
+  color: var(--Neutral-Primary-Text, #22221B);
+  font-family: Kanit, sans-serif;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 150%; /* 21px */
+  margin-bottom: 0px;
+}
+.synthesisPieces {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  overflow-x: auto;
+  width: 100%;
+  box-sizing: border-box;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: #B0B0B0 #E0E0E0;
+  align-items: center;
+}
+.synthesisPieceBox {
+  width: 64px;
+  height: 64px;
+  flex-shrink: 0;
+  aspect-ratio: 1/1;
+  border-radius: 18px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  font-size: 2rem;
+  border: 1px solid var(--Neutral-Primary-Text, #22221B);
+}
+.synthesisOperator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--Neutral-Primary-Text, #22221B);
+  flex-shrink: 0;
+}

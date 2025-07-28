@@ -489,7 +489,7 @@ export default function Home(props) {
   }
 
   // 选中puzzle时提取颜色（自动顺序）
-  const colorOrder = selectedPuzzle ? colorOrders[selectedPuzzle.id.replace(/_.*/, '')] || [] : [];
+  const colorOrder = selectedPuzzle ? colorOrders[selectedPuzzle.id] || [] : [];
   const carbsColors = getNutrientColorsByOrder(selectedPuzzle?.pixelMap, 1, colorOrder);
   const proteinColors = getNutrientColorsByOrder(selectedPuzzle?.pixelMap, 2, colorOrder);
   const fatsColors = getNutrientColorsByOrder(selectedPuzzle?.pixelMap, 3, colorOrder);

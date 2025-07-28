@@ -9,20 +9,26 @@ const puzzleList = puzzleCategories;
 
 export default function NutritionPuzzlesModal({ open, onClose, onReopen, onPuzzleSelect }) {
   const [showPuzzleSelectModal, setShowPuzzleSelectModal] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
-  const handleCardClick = () => {
+
+
+  const handleCardClick = (category) => {
+    setSelectedCategory(category);
     setShowPuzzleSelectModal(true);
     if (onClose) onClose(); // 关闭自身
   };
 
   const handleBack = () => {
     setShowPuzzleSelectModal(false);
+    setSelectedCategory(null);
     if (onReopen) onReopen(); // 重新打开自身
   };
 
   const handlePuzzleSelect = (puzzle) => {
     if (onPuzzleSelect) onPuzzleSelect(puzzle);
     setShowPuzzleSelectModal(false);
+    setSelectedCategory(null);
   };
 
   return (
@@ -40,16 +46,18 @@ export default function NutritionPuzzlesModal({ open, onClose, onReopen, onPuzzl
         </button>
       </div>
       <div className={styles.modalBody}>
-          <div onClick={handleCardClick} style={{cursor: 'pointer'}}>
-        <PuzzleList puzzleList={puzzleList} />
-          </div>
+        <PuzzleList 
+          puzzleList={puzzleList} 
+          onCardClick={handleCardClick}
+        />
       </div>
     </ModalWrapper>
       <PuzzleSelectModal
         open={showPuzzleSelectModal}
         onClose={() => setShowPuzzleSelectModal(false)}
         onBack={handleBack}
-        puzzleList={puzzleList[0]?.puzzles || []}
+        puzzleList={selectedCategory?.puzzles || []}
+        categoryTitle={selectedCategory?.title || ''}
         onSelect={handlePuzzleSelect}
       />
     </>
