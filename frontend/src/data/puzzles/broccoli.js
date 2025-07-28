@@ -20,7 +20,6 @@ const broccoli = {
     "All florets firing. Green power has officially peaked!",
   ],
   img: '/assets/puzzles/puzzle_broccoli.svg',
-  inCollection: false,
   bgColor: '#C7F58C',
   pixelMap: [
     // 1

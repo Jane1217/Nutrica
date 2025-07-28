@@ -1,14 +1,45 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ModalWrapper from "../../../components/common/ModalWrapper";
 import SelectableCard from "../../../components/puzzles/SelectableCard";
 import styles from "./PuzzleSelectModal.module.css";
+import { getPuzzleInCollection } from "../../../utils/selectableCardCollection";
+import { getCurrentUser } from "../../../utils/user";
 
 export default function PuzzleSelectModal({ open, onClose, onBack, puzzleList, categoryTitle = 'Magic Garden', onSelect }) {
   const [selectedIdx, setSelectedIdx] = useState(null);
+  const [collectionStatus, setCollectionStatus] = useState({});
+  const [userId, setUserId] = useState(null);
+  
   const selectableList = (puzzleList.length === 1
     ? Array.from({ length: 6 }, (_, idx) => ({ ...puzzleList[0], id: `${puzzleList[0].id}_${idx}` }))
     : puzzleList
   );
+
+  // 获取用户信息和收藏状态
+  useEffect(() => {
+    const fetchUserAndCollectionStatus = async () => {
+      try {
+        const user = await getCurrentUser();
+        if (user) {
+          setUserId(user.id);
+          
+          // 获取所有 puzzle 的收藏状态
+          const status = {};
+          for (const puzzle of selectableList) {
+            status[puzzle.name] = await getPuzzleInCollection(puzzle.name, user.id);
+          }
+          setCollectionStatus(status);
+        }
+      } catch (error) {
+        console.error('Error fetching user and collection status:', error);
+      }
+    };
+
+    if (open) {
+      fetchUserAndCollectionStatus();
+    }
+  }, [open, selectableList]);
+
   return (
     <ModalWrapper open={open} onClose={onClose}>
       <div className={styles.modalContainer}>
@@ -38,6 +69,7 @@ export default function PuzzleSelectModal({ open, onClose, onBack, puzzleList, c
             </svg>
           </button>
         </div>
+        
         {/* 滚动内容区 */}
         <div className={styles.scrollArea}>
           <div className={styles.listArea}>
@@ -48,7 +80,7 @@ export default function PuzzleSelectModal({ open, onClose, onBack, puzzleList, c
                 desc={puzzle.description}
                 img={puzzle.img}
                 bgColor={puzzle.bgColor}
-                inCollection={puzzle.inCollection}
+                inCollection={collectionStatus[puzzle.name] || false}
                 onAdd={() => setSelectedIdx(idx)}
                 isSelected={selectedIdx === idx}
                 style={{ cursor: 'pointer' }}
@@ -56,6 +88,7 @@ export default function PuzzleSelectModal({ open, onClose, onBack, puzzleList, c
             ))}
           </div>
         </div>
+        
         {/* 底部按钮 */}
         <div className={styles.bottomContainer}>
           <button

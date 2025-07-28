@@ -6,7 +6,7 @@ export default function SelectableCard({
   desc,
   img,
   bgColor = "#FFB279",
-  inCollection,
+  inCollection = false,
   onAdd,
   children,
   isSelected,
@@ -48,6 +48,17 @@ export default function SelectableCard({
           </button>
         )}
       </div>
+      {/* In your collection 标识 */}
+      {inCollection && (
+                 <div className={styles.inCollection}>
+           <div className={styles.check}>
+             <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none">
+               <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="white"/>
+             </svg>
+           </div>
+           In your collection
+         </div>
+      )}
       {/* 下面的inCollection和addBtn等可按需保留 */}
       {children}
     </div>
