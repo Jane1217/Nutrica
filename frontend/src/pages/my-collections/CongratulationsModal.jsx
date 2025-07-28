@@ -32,12 +32,12 @@ export default function CongratulationsModal({ open, onClose, firstCompletedAt }
         <div className={`${styles.modalContent} ${styles.animated} ${animate ? styles.open : ''}`}>
           {/* Title */}
           <div className={styles.title}>
-            <h1>Congratulations! New Pixel Art Unlocked!</h1>
+            <h1 className="h1">Congratulations! New Pixel Art Unlocked!</h1>
           </div>
           
           {/* Puzzle Card */}
           <div className={styles.puzzleCard}>
-            <div className={styles.date}>{firstCompletedAt ? new Date(firstCompletedAt).toLocaleDateString('en-US', { 
+            <div className={`${styles.timestamp} h5`}>{firstCompletedAt ? new Date(firstCompletedAt).toLocaleDateString('en-US', { 
               weekday: 'long', 
               year: 'numeric', 
               month: 'short', 
@@ -48,9 +48,11 @@ export default function CongratulationsModal({ open, onClose, firstCompletedAt }
               month: 'short', 
               day: 'numeric' 
             })}</div>
-            <div className={styles.collectionInfo}>Salmon Nigiri Boy</div>
-            <div className={styles.heading}>
-              The cutest sushi sidekick with a wink and a salmon-sized heart!
+            <div className={styles.headingModule}>
+              <div className={`${styles.collectionInfo} label`}>Salmon Nigiri Boy</div>
+              <div className={styles.heading}>
+                The cutest sushi sidekick with a wink and a salmon-sized heart!
+              </div>
             </div>
             <img 
               src="/assets/puzzles/salmon_nigiri_boy.svg" 
@@ -61,7 +63,7 @@ export default function CongratulationsModal({ open, onClose, firstCompletedAt }
           
           {/* CTA Button */}
           <button className={styles.ctaButton} onClick={onClose}>
-            <span>Done</span>
+            <span className="h4">Done</span>
           </button>
         </div>
       </div>
