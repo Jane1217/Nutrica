@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const config = require('../../config/config');
-const openaiService = require('../../services/openaiService');
-const { validateFileType, validateFileSize } = require('../../utils/validation');
-const { successResponse, errorResponse, fileUploadErrorResponse } = require('../../utils/response');
-const { logInfo, logError } = require('../../utils/logger');
+const config = require('../config/config');
+const openaiService = require('../services/openaiService');
+const { validateFileType, validateFileSize } = require('../utils/validation');
+const { successResponse, errorResponse, fileUploadErrorResponse } = require('../utils/response');
+const { logInfo, logError } = require('../utils/logger');
 
 // Configure multer for image upload
 const upload = multer({

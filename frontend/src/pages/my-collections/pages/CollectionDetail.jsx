@@ -118,16 +118,10 @@ export default function CollectionDetail({
   if (loading) {
     return (
       <div className={styles.detailPage} style={{ background: getPageBackground(collectionType) }}>
-        <div className={styles.header}>
-          <div className={`${styles.title} h1`}>{puzzleName}</div>
-          <div className={styles.closeBtn} onClick={handleClose}>
-            <img src="/assets/close (1).svg" alt="close" className={styles.closeIcon} />
-          </div>
-        </div>
         <div className={styles.container}>
           <div className={styles.loadingContainer}>
             <div className={styles.loadingSpinner}></div>
-            <span className="body1">Loading collection details...</span>
+            <span className="body1">Loading...</span>
           </div>
         </div>
       </div>

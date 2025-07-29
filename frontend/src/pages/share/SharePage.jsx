@@ -168,7 +168,7 @@ export default function SharePage() {
       <div className={styles.sharePage} style={{ background: getPageBackground(collectionType) }}>
         <div className={styles.loadingContainer}>
           <div className={styles.loadingSpinner}></div>
-          <span className="body1">Loading shared puzzle...</span>
+          <span className="body1">Loading...</span>
         </div>
       </div>
     );

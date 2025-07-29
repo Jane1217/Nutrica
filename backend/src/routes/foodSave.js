@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const databaseService = require('../../services/databaseService');
-const { validateRequiredFields, cleanNutritionData } = require('../../utils/validation');
-const { successResponse, errorResponse, validationErrorResponse } = require('../../utils/response');
-const { logApiRequest, logApiResponse, logError } = require('../../utils/logger');
-const { authenticateUser } = require('../../middleware/auth');
+const databaseService = require('../services/databaseService');
+const { validateRequiredFields, cleanNutritionData } = require('../utils/validation');
+const { successResponse, errorResponse, validationErrorResponse } = require('../utils/response');
+const { logApiRequest, logApiResponse, logError } = require('../utils/logger');
+const { authenticateUser } = require('../middleware/auth');
 
 // Add new food record
 router.post('/', authenticateUser, async (req, res) => {
