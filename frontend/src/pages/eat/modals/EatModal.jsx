@@ -6,7 +6,7 @@ import DescribeFoodModal from './DescribeFoodModal';
 // 移除本地ScanLabelPage引用，后续用路由跳转
 import '../styles/EatModal.css';
 import { useNavigate } from 'react-router-dom';
-import { formatFoodTime, formatFoodTimeSmart } from '../../../utils/format';
+import { formatFoodTime, formatFoodTimeSmart } from '../../../utils';
 import { parseFoodDescription } from '../../../utils';
 import ModalWrapper from '../../../components/common/ModalWrapper';
 import { icons } from '../../../utils';

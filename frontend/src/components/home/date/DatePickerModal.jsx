@@ -4,7 +4,7 @@ import { format, isSameDay, startOfDay, isAfter, isBefore, startOfMonth, endOfMo
 import 'react-day-picker/style.css';
 import styles from './DatePickerModal.module.css';
 import { supabase } from '../../../supabaseClient';
-import { apiGet } from '../../../utils/api';
+import { apiGet } from '../../../utils';
 import ModalWrapper from '../../common/ModalWrapper';
 
 // Error Boundary Component

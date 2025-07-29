@@ -2,15 +2,16 @@ import React, { useEffect, useState } from 'react';
 import NavLogo from '../../../components/navbar/Nav-Logo';
 import styles from '../styles/MyCollections.module.css';
 import { useNavigate } from 'react-router-dom';
-import { getCurrentUser } from '../../../utils/user';
-import { collectionApi } from '../../../utils/api';
-import { getAuthToken } from '../../../utils/user';
+import { getCurrentUser, getAuthToken } from '../../../utils';
+import { collectionApi } from '../../../utils';
 import CongratulationsModal from '../modals/CongratulationsModal';
 import { 
   isSpecialPuzzle, 
   getSpecialPuzzleConfig, 
-  isSynthesisPuzzle
-} from '../../../utils/puzzleConfig';
+  isSynthesisPuzzle,
+  getPuzzleIconPath,
+  checkCongratulationsModal
+} from '../../../utils';
 
 export default function MyCollections() {
   const [collections, setCollections] = useState([]); // 用户已收集的 puzzle
@@ -22,118 +23,7 @@ export default function MyCollections() {
   const [salmonNigiriFirstCompletedAt, setSalmonNigiriFirstCompletedAt] = useState(null);
   const navigate = useNavigate();
 
-  // 获取puzzle图标路径
-  const getPuzzleIconPath = (puzzleName) => {
-    const puzzleNameLower = puzzleName.toLowerCase();
-    // Replace spaces with underscores for asset paths
-    return `/assets/puzzles/puzzle_${puzzleNameLower.replace(/\s+/g, '_')}.svg`;
-  };
 
-  // 检查是否应该显示CongratulationsModal并添加特殊puzzle到user_collections
-  const checkCongratulationsModal = async (collectionsData) => {
-    // 检查所有特殊puzzle的解锁条件
-    const specialPuzzles = ['salmon nigiri boy']; // 可以扩展更多特殊puzzle
-    
-    for (const puzzleName of specialPuzzles) {
-      if (!isSynthesisPuzzle(puzzleName)) continue;
-      
-      const config = getSpecialPuzzleConfig(puzzleName);
-      if (!config) continue;
-      
-      const collectionType = config.collectionType;
-      const unlockConditions = config.unlockConditions;
-      
-      // 检查是否有该主题的收集
-      const themeCollections = collectionsData.filter(
-        collection => collection.collection_type === collectionType
-      );
-      
-      // 检查是否收集了所有解锁条件
-      const allConditionsMet = unlockConditions.every(condition =>
-        themeCollections.some(
-          collection => collection.puzzle_name.toLowerCase() === condition && (collection.collected || (collection.count && collection.count > 0))
-        )
-      );
-      
-      // 检查是否已经有该特殊puzzle的收集记录
-      const puzzleAlreadyCollected = themeCollections.some(
-        collection => collection.puzzle_name.toLowerCase() === puzzleName
-      );
-      
-      // 如果所有条件都满足了
-      if (allConditionsMet) {
-        // 如果还没有该特殊puzzle的收集记录，则添加
-        if (!puzzleAlreadyCollected) {
-          try {
-            const token = await getAuthToken();
-            if (token) {
-              const response = await collectionApi.addPuzzleToCollection({
-                puzzle_name: config.name,
-                collection_type: collectionType,
-                nutrition: { carbs: 0, protein: 0, fats: 0 },
-                first_completed_at: new Date().toISOString()
-              }, token);
-              
-              if (response.success) {
-                // Puzzle added to user_collections
-              } else {
-                console.error(`Failed to add ${config.name} to user_collections:`, response.error);
-              }
-            }
-          } catch (error) {
-            console.error(`Error adding ${config.name} to user_collections:`, error);
-          }
-        }
-        
-        // 检查是否已经显示过CongratulationsModal
-        // 这里我们需要查询user_congratulations_shown表
-        let hasShownCongratulations = false;
-        try {
-          const token = await getAuthToken();
-          if (token) {
-            const response = await collectionApi.getCongratulationsShownStatus(config.name, collectionType, token);
-            if (response.success) {
-              hasShownCongratulations = response.data && response.data.length > 0;
-            }
-          }
-        } catch (error) {
-          console.error('Error checking congratulations shown status:', error);
-        }
-        
-        // 只有在第一次解锁且还没有显示过CongratulationsModal时才显示
-        if (!hasShownCongratulations) {
-          setShowCongratulations(true);
-          
-          // 标记为已显示（更新数据库）
-          try {
-            const token = await getAuthToken();
-            if (token) {
-              await collectionApi.updateCongratulationsShown(config.name, collectionType, token);
-              // CongratulationsModal shown status updated in database
-            }
-          } catch (error) {
-            console.error('Error updating congratulations shown status:', error);
-          }
-        }
-        
-        // 设置first_completed_at时间
-        if (puzzleAlreadyCollected) {
-          const existingPuzzle = themeCollections.find(
-            collection => collection.puzzle_name.toLowerCase() === puzzleName
-          );
-          if (existingPuzzle && existingPuzzle.first_completed_at) {
-            setSalmonNigiriFirstCompletedAt(existingPuzzle.first_completed_at);
-          } else {
-            setSalmonNigiriFirstCompletedAt(new Date().toISOString());
-          }
-        } else {
-          setSalmonNigiriFirstCompletedAt(new Date().toISOString());
-        }
-        
-        break; // 只处理第一个满足条件的特殊puzzle
-      }
-    }
-  };
 
   // 获取当前登录用户
   useEffect(() => {
@@ -206,7 +96,7 @@ export default function MyCollections() {
         setCollections(allCollections);
         
         // 检查是否应该显示CongratulationsModal
-        await checkCongratulationsModal(allCollections);
+        await checkCongratulationsModal(allCollections, setShowCongratulations, setSalmonNigiriFirstCompletedAt);
       } catch (error) {
         console.error('Error fetching collection data:', error);
         setCollections([]);

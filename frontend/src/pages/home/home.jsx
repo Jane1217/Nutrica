@@ -18,7 +18,7 @@ import styles from './Home.module.css';
 import { calculateNutritionFromCalories, formatFoods, fetchNutritionGoals, fetchTodayNutrition, getCurrentUser, getUserMetadata, updateUserMetadata, isUserInfoComplete, hasShownUserInfoModal, setUserInfoModalShown, getDisplayCalories } from '../../utils';
 import { puzzleCategories, colorOrders } from '../../data/puzzles';
 import { format } from 'date-fns';
-import { monitorPuzzleCompletion } from '../../utils/collection';
+import { monitorPuzzleCompletion } from '../../utils';
 
 // 工具函数：按顺序提取某营养素的所有颜色
 function getNutrientColorsByOrder(pixelMap, nutrientType, colorOrder) {

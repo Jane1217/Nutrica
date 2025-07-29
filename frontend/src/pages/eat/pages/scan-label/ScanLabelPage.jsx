@@ -1,14 +1,14 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import FoodModal from '../../modals/FoodModal';
-import { foodApi, handleApiError } from '../../../../utils/api';
+import { foodApi, handleApiError } from '../../../../utils';
 import { 
   startCamera, 
   stopCamera, 
   forceReleaseCamera, 
   captureVideoFrame,
   setupCameraEventListeners 
-} from '../../../../utils/camera';
+} from '../../../../utils';
 import './ScanLabelPage.css';
 import CameraPermissionModal from '../../modals/CameraPermissionModal';
 import Toast from '../../../../components/common/Toast';
