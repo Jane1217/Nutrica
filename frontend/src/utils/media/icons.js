@@ -25,12 +25,11 @@ export const icons = {
   message: '/assets/mynaui_message-solid.svg',
   inputBox: '/assets/streamline-plump_input-box-solid.svg',
   achievement: '/assets/fluent_collections-empty-16-filled.svg',
-  frame: '/assets/Frame 79.svg',
   help: '/assets/help.svg',
-  puzzleGrid: '/assets/puzzle grid.svg',
+  puzzleGrid: '/assets/puzzles/grid.svg',
   addAlt: '/assets/add (1).svg',
   collection: '/assets/fluent_collections-empty-16-filled.svg',
-  scanFrame: '/assets/Frame 79.svg',
+  scanFrame: '/assets/scan-icon.svg',
 };
 
 // 获取图标URL的辅助函数

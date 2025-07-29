@@ -1,10 +1,11 @@
 import React from 'react';
 import '../styles/CameraPermissionModal.css';
 import { icons } from '../../../utils';
+import ModalWrapper from '../../../components/common/ModalWrapper';
 
-export default function CameraPermissionModal({ onClose, onOk }) {
+export default function CameraPermissionModal({ onClose, onOk, open = true }) {
   return (
-    <div className="camera-permission-overlay">
+    <ModalWrapper open={open} onClose={onClose} centered={true}>
       <div className="camera-permission-modal">
         <div className="camera-permission-group1">
           <span className="camera-permission-icon">
@@ -22,6 +23,6 @@ export default function CameraPermissionModal({ onClose, onOk }) {
         </span>
         <button className="camera-permission-btn h5" onClick={onOk || onClose}>Ok</button>
       </div>
-    </div>
+    </ModalWrapper>
   );
 } 

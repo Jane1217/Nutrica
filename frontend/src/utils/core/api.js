@@ -101,6 +101,8 @@ export const uploadFile = async (endpoint, file, onProgress = null) => {
   }
 };
 
+
+
 // 食物相关API
 export const foodApi = {
   // 添加食物
@@ -132,6 +134,27 @@ export const userApi = {
     },
     body: JSON.stringify({ userId })
   }),
+  
+  // 获取用户摄像头权限状态
+  getCameraPermissionStatus: (token) => {
+    return apiRequest('/api/user/camera-permission-status', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+  },
+  
+  // 更新用户摄像头权限状态
+  updateCameraPermission: (token) => {
+    return apiRequest('/api/user/update-camera-permission', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+  }
 };
 
 // Collection相关API
