@@ -25,8 +25,8 @@ export default function MyCollections() {
     return `/assets/puzzles/puzzle_${puzzleNameLower.replace(/\s+/g, '_')}.svg`;
   };
 
-  // 检查是否应该显示CongratulationsModal
-  const checkCongratulationsModal = (collectionsData) => {
+  // 检查是否应该显示CongratulationsModal并添加Salmon Nigiri Boy到user_collections
+  const checkCongratulationsModal = async (collectionsData) => {
     if (hasShownCongratulations) return;
     
     // 检查是否有Salmon Nigiri Boy主题的收集
@@ -42,16 +42,39 @@ export default function MyCollections() {
       collection => collection.puzzle_name === 'Sushi Rice' && collection.collected
     );
     
-    // 检查是否有Salmon Nigiri Boy的收集记录
-    const salmonNigiriBoyCollection = salmonNigiriCollections.find(
+    // 检查是否已经有Salmon Nigiri Boy的收集记录
+    const salmonNigiriBoyCollected = salmonNigiriCollections.some(
       collection => collection.puzzle_name === 'Salmon Nigiri Boy'
     );
     
-    // 如果两个都收集了且还没显示过Congratulations，则显示
-    if (salmonCollected && sushiRiceCollected && salmonNigiriBoyCollection) {
+    // 如果两个都收集了且还没显示过Congratulations，则显示并添加到user_collections
+    if (salmonCollected && sushiRiceCollected) {
+      // 如果还没有Salmon Nigiri Boy的收集记录，则添加
+      if (!salmonNigiriBoyCollected) {
+        try {
+          const token = await getAuthToken();
+          if (token) {
+            const response = await collectionApi.addPuzzleToCollection({
+              puzzle_name: 'Salmon Nigiri Boy',
+              collection_type: 'Salmon Nigiri Boy',
+              nutrition: { carbs: 0, protein: 0, fats: 0 },
+              first_completed_at: new Date().toISOString()
+            }, token);
+            
+            if (response.success) {
+              console.log('Salmon Nigiri Boy added to user_collections');
+            } else {
+              console.error('Failed to add Salmon Nigiri Boy to user_collections:', response.error);
+            }
+          }
+        } catch (error) {
+          console.error('Error adding Salmon Nigiri Boy to user_collections:', error);
+        }
+      }
+      
       setShowCongratulations(true);
       setHasShownCongratulations(true);
-      setSalmonNigiriFirstCompletedAt(salmonNigiriBoyCollection.first_completed_at);
+      setSalmonNigiriFirstCompletedAt(new Date().toISOString());
     }
   };
 
@@ -130,7 +153,7 @@ export default function MyCollections() {
         setCollections(allCollections);
         
         // 检查是否应该显示CongratulationsModal
-        checkCongratulationsModal(allCollections);
+        await checkCongratulationsModal(allCollections);
       } catch (error) {
         console.error('Error fetching collection data:', error);
         setCollections([]);
@@ -160,8 +183,10 @@ export default function MyCollections() {
 
   // 点击 puzzle 跳转到详情页
   const handlePuzzleClick = (slot) => {
-    if (!slot.collected) return;
-    navigate(`/my-collections/detail/${slot.puzzle_name.toLowerCase()}`);
+    // 对于Salmon Nigiri Boy，不需要检查collected状态，因为它只是解锁显示
+    if (slot.puzzle_name === 'Salmon Nigiri Boy' || slot.collected) {
+      navigate(`/my-collections/detail/${slot.puzzle_name.toLowerCase()}`);
+    }
   };
 
   // 如果正在加载，显示加载状态
@@ -295,23 +320,26 @@ export default function MyCollections() {
             </div>
             <div className={styles.bottomWrapper}>
               <div className={styles.bottomImgWrapper}>
-                {salmonNigiriTopCompleted && salmonNigiriBoySlot?.collected && (
+                {salmonNigiriTopCompleted ? (
                   <div
                     className={styles.puzzleImgWrapper}
                     style={{ cursor: 'pointer' }}
-                    onClick={() => handlePuzzleClick(salmonNigiriBoySlot)}
+                    onClick={() => handlePuzzleClick({ 
+                      puzzle_name: 'Salmon Nigiri Boy',
+                      collection_type: 'Salmon Nigiri Boy',
+                      icon_url: '/assets/puzzles/salmon_nigiri_boy.svg'
+                    })}
                   >
                     <img
                       src="/assets/puzzles/salmon_nigiri_boy.svg"
                       alt="Salmon Nigiri Boy"
                       className={styles.bottomImg}
                     />
-                    {salmonNigiriBoySlot.count > 1 && (
+                    {salmonNigiriBoySlot?.count > 1 && (
                       <div className={styles.puzzleCount}>{salmonNigiriBoySlot.count}</div>
                     )}
                   </div>
-                )}
-                {(!salmonNigiriTopCompleted || !salmonNigiriBoySlot?.collected) && (
+                ) : (
                   <img
                     src="/assets/puzzles/salmon_nigiri_boy.svg"
                     alt="Salmon Nigiri Boy"

@@ -111,7 +111,12 @@ export function formatDateString(date) {
 // puzzleName首字母大写
 export function capitalizePuzzleName(name) {
   if (!name) return '';
-  return name.charAt(0).toUpperCase() + name.slice(1);
+  // 处理连字符和空格分隔的名称
+  // 如 "salmon-nigiri-boy" -> "Salmon Nigiri Boy"
+  // 如 "salmon nigiri boy" -> "Salmon Nigiri Boy"
+  return name.split(/[- ]/).map(word => 
+    word.charAt(0).toUpperCase() + word.slice(1)
+  ).join(' ');
 }
 
 // 营养数据标准化

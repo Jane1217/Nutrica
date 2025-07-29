@@ -46,6 +46,16 @@ export default function SharePage() {
 
   // 查找当前puzzle的配置
   const puzzle = useMemo(() => {
+    // 特殊处理Salmon Nigiri Boy
+    if (puzzleName.toLowerCase() === 'salmon nigiri boy') {
+      return {
+        name: 'Salmon Nigiri Boy',
+        img: '/assets/puzzles/salmon_nigiri_boy.svg',
+        description: 'The cutest sushi sidekick with a wink and a salmon-sized heart!'
+      };
+    }
+    
+    // 查找其他puzzle
     for (const cat of puzzleCategories) {
       const found = cat.puzzles.find(p => p.name.toLowerCase() === puzzleName.toLowerCase());
       if (found) return found;
@@ -61,8 +71,8 @@ export default function SharePage() {
     const fetchShareData = async () => {
       try {
         setLoading(true);
-        // 将puzzle_name首字母大写以匹配数据库格式
-        const puzzleNameFormatted = puzzleName.charAt(0).toUpperCase() + puzzleName.slice(1).toLowerCase();
+        // 将puzzle_name格式化以匹配数据库格式
+        const puzzleNameFormatted = capitalizePuzzleName(puzzleName);
         // 使用公开API获取collection数据
         const response = await collectionApi.getPublicCollection(userId, puzzleNameFormatted);
         
@@ -208,36 +218,39 @@ export default function SharePage() {
           <img 
             src={iconUrl} 
             alt={puzzleName} 
-            className={styles.puzzleImg} 
+            className={styles.puzzleImg}
+            style={puzzleName.toLowerCase() === 'salmon nigiri boy' ? { width: '200px', height: '200px', flexShrink: '0', aspectRatio: '1/1' } : {}}
           />
           
-          {/* Nutrition Module */}
-          <div className={styles.nutritionModule}>
-            {NUTRITION_LABELS.map((item) => (
-              <div className={styles.nutritionItem} key={item.key}>
-                <div className={styles.palette}>
-                  {(paletteColors[item.key] || ['#EEE']).map((color, i, arr) => (
-                    <div
-                      key={i}
-                      className={styles.paletteSegment}
-                      style={{
-                        background: color,
-                        height: `${24 / arr.length}px`,
-                        borderTopLeftRadius: i === 0 ? 4 : 0,
-                        borderTopRightRadius: i === 0 ? 4 : 0,
-                        borderBottomLeftRadius: i === arr.length - 1 ? 4 : 0,
-                        borderBottomRightRadius: i === arr.length - 1 ? 4 : 0,
-                      }}
-                    />
-                  ))}
+          {/* Nutrition Module - 只有非Salmon Nigiri Boy才显示 */}
+          {puzzleName.toLowerCase() !== 'salmon nigiri boy' && (
+            <div className={styles.nutritionModule}>
+              {NUTRITION_LABELS.map((item) => (
+                <div className={styles.nutritionItem} key={item.key}>
+                  <div className={styles.palette}>
+                    {(paletteColors[item.key] || ['#EEE']).map((color, i, arr) => (
+                      <div
+                        key={i}
+                        className={styles.paletteSegment}
+                        style={{
+                          background: color,
+                          height: `${24 / arr.length}px`,
+                          borderTopLeftRadius: i === 0 ? 4 : 0,
+                          borderTopRightRadius: i === 0 ? 4 : 0,
+                          borderBottomLeftRadius: i === arr.length - 1 ? 4 : 0,
+                          borderBottomRightRadius: i === arr.length - 1 ? 4 : 0,
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <div className={styles.nutritionValueWrapper}>
+                    <div className={`${styles.nutritionValue} h5`}>{nutrition[item.key]}g</div>
+                    <div className={`${styles.nutritionLabel} label`}>{item.label}</div>
+                  </div>
                 </div>
-                <div className={styles.nutritionValueWrapper}>
-                  <div className={`${styles.nutritionValue} h5`}>{nutrition[item.key]}g</div>
-                  <div className={`${styles.nutritionLabel} label`}>{item.label}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Action Module */}
