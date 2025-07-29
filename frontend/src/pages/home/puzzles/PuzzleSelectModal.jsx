@@ -9,6 +9,7 @@ export default function PuzzleSelectModal({ open, onClose, onBack, puzzleList, c
   const [selectedIdx, setSelectedIdx] = useState(null);
   const [collectionStatus, setCollectionStatus] = useState({});
   const [userId, setUserId] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   
   const selectableList = (puzzleList.length === 1
     ? Array.from({ length: 6 }, (_, idx) => ({ ...puzzleList[0], id: `${puzzleList[0].id}_${idx}` }))
@@ -19,6 +20,7 @@ export default function PuzzleSelectModal({ open, onClose, onBack, puzzleList, c
   useEffect(() => {
     const fetchUserAndCollectionStatus = async () => {
       try {
+        setIsLoading(true);
         const user = await getCurrentUser();
         if (user) {
           setUserId(user.id);
@@ -32,6 +34,8 @@ export default function PuzzleSelectModal({ open, onClose, onBack, puzzleList, c
         }
       } catch (error) {
         console.error('Error fetching user and collection status:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -93,15 +97,15 @@ export default function PuzzleSelectModal({ open, onClose, onBack, puzzleList, c
         <div className={styles.bottomContainer}>
           <button
             className={styles.selectButton}
-            disabled={selectedIdx === null}
-            style={{ opacity: selectedIdx === null ? 0.4 : 1 }}
+            disabled={selectedIdx === null || isLoading}
+            style={{ opacity: (selectedIdx === null || isLoading) ? 0.4 : 1 }}
             onClick={() => {
               if (selectedIdx !== null) {
                 onSelect(selectableList[selectedIdx]);
               }
             }}
           >
-            Select puzzle
+            {isLoading ? 'Loading...' : 'Select puzzle'}
           </button>
         </div>
       </div>

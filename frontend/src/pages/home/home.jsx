@@ -19,6 +19,7 @@ import { calculateNutritionFromCalories, formatFoods, fetchNutritionGoals, fetch
 import { puzzleCategories, colorOrders } from '../../data/puzzles';
 import { format } from 'date-fns';
 import { monitorPuzzleCompletion } from '../../utils';
+import { preloadCollectionStatus } from '../../utils';
 
 // 工具函数：按顺序提取某营养素的所有颜色
 function getNutrientColorsByOrder(pixelMap, nutrientType, colorOrder) {
@@ -134,6 +135,14 @@ export default function Home(props) {
     };
     fetchUserInfo();
   }, []);
+
+  // 当用户信息加载完成后，预加载收藏状态
+  useEffect(() => {
+    if (userId && userInfo) {
+      // 确保用户完全登录后再预加载
+      preloadCollectionStatus(userId);
+    }
+  }, [userId, userInfo]);
 
   // 页面加载时，优先用本地缓存渲染selectedPuzzle（并校验日期，不是今天就清空）
   useEffect(() => {
