@@ -85,7 +85,7 @@
 
 
 .collectionScene:has(.topGrid) {
-  background: url('/assets/collection scene.svg') no-repeat center center;
+  background: url('/assets/collection-scene.svg') no-repeat center center;
   background-size: cover;
   background-position: center;
   display: flex;
