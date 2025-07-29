@@ -13,3 +13,4 @@ export * from './validation';
 export * from './food';
 export * from './collection';
 export * from './theme';
+export * from './puzzleConfig';

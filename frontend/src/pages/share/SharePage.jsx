@@ -4,6 +4,15 @@ import styles from './SharePage.module.css';
 import { formatDateString, normalizeNutritionData, getUserNameFromQuery, capitalizePuzzleName, getPuzzleCardBackground, getPageBackground } from '../../utils';
 import { collectionApi } from '../../utils/api';
 import { puzzleCategories, colorOrders } from '../../data/puzzles';
+import { 
+  isSpecialPuzzle, 
+  getSpecialPuzzleConfig, 
+  hasNutritionModule, 
+  getPuzzleImageStyle,
+  getPuzzleCollectionType,
+  getPuzzleImageUrl,
+  getPuzzleDescription
+} from '../../utils/puzzleConfig';
 
 // 工具函数：按顺序提取某营养素的所有颜色
 function getNutrientColorsByOrder(pixelMap, nutrientType, colorOrder) {
@@ -35,24 +44,11 @@ export default function SharePage() {
   // 优先从URL参数获取nickname
   const nicknameFromQuery = query.get('nickname');
 
-  // 根据puzzle名称确定collectionType
-  const getCollectionType = (puzzleName) => {
-    const puzzleNameLower = puzzleName.toLowerCase();
-    if (puzzleNameLower === 'salmon' || puzzleNameLower === 'sushi rice' || puzzleNameLower === 'salmon nigiri boy') {
-      return 'Salmon Nigiri Boy';
-    }
-    return 'Magic Garden';
-  };
-
   // 查找当前puzzle的配置
   const puzzle = useMemo(() => {
-    // 特殊处理Salmon Nigiri Boy
-    if (puzzleName.toLowerCase() === 'salmon nigiri boy') {
-      return {
-        name: 'Salmon Nigiri Boy',
-        img: '/assets/puzzles/salmon_nigiri_boy.svg',
-        description: 'The cutest sushi sidekick with a wink and a salmon-sized heart!'
-      };
+    // 使用puzzleConfig工具查找
+    if (isSpecialPuzzle(puzzleName)) {
+      return getSpecialPuzzleConfig(puzzleName);
     }
     
     // 查找其他puzzle
@@ -63,9 +59,9 @@ export default function SharePage() {
     return null;
   }, [puzzleName]);
 
-  const collectionType = getCollectionType(puzzleName);
-  const iconUrl = puzzle?.img || '/assets/puzzles/puzzle_carrot.svg';
-  const description = puzzle?.description || "Bright, balanced, and well-fed. That's the carrot energy we love to see.";
+  const collectionType = getPuzzleCollectionType(puzzleName);
+  const iconUrl = getPuzzleImageUrl(puzzleName, puzzle);
+  const description = getPuzzleDescription(puzzleName, puzzle);
 
   useEffect(() => {
     const fetchShareData = async () => {
@@ -219,11 +215,11 @@ export default function SharePage() {
             src={iconUrl} 
             alt={puzzleName} 
             className={styles.puzzleImg}
-            style={puzzleName.toLowerCase() === 'salmon nigiri boy' ? { width: '200px', height: '200px', flexShrink: '0', aspectRatio: '1/1' } : {}}
+            style={getPuzzleImageStyle(puzzleName)}
           />
           
-          {/* Nutrition Module - 只有非Salmon Nigiri Boy才显示 */}
-          {puzzleName.toLowerCase() !== 'salmon nigiri boy' && (
+          {/* Nutrition Module - 根据puzzle配置决定是否显示 */}
+          {hasNutritionModule(puzzleName) && (
             <div className={styles.nutritionModule}>
               {NUTRITION_LABELS.map((item) => (
                 <div className={styles.nutritionItem} key={item.key}>

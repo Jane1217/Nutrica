@@ -258,4 +258,108 @@ router.get('/public-collection', async (req, res) => {
   }
 });
 
+// 更新CongratulationsModal显示状态
+router.post('/update-congratulations-shown', authenticateUser, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { puzzle_name, collection_type } = req.body;
+
+    if (!puzzle_name || !collection_type) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Missing required fields: puzzle_name and collection_type'
+        }
+      });
+    }
+
+    // 插入或更新user_congratulations_shown表
+    const { error } = await supabase
+      .from('user_congratulations_shown')
+      .upsert({
+        user_id: userId,
+        puzzle_name,
+        collection_type,
+        shown_at: new Date().toISOString()
+      }, {
+        onConflict: 'user_id,puzzle_name,collection_type'
+      });
+
+    if (error) {
+      console.error('Error updating congratulations shown status:', error);
+      return res.status(500).json({
+        success: false,
+        error: {
+          message: 'Failed to update congratulations shown status',
+          details: error.message
+        }
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Congratulations shown status updated successfully'
+    });
+  } catch (error) {
+    console.error('Error in update-congratulations-shown endpoint:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        message: 'Internal server error',
+        details: error.message
+      }
+    });
+  }
+});
+
+// 获取CongratulationsModal显示状态
+router.get('/congratulations-shown-status', authenticateUser, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { puzzle_name, collection_type } = req.query;
+
+    if (!puzzle_name || !collection_type) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          message: 'Missing required parameters: puzzle_name and collection_type'
+        }
+      });
+    }
+
+    // 查询user_congratulations_shown表
+    const { data, error } = await supabase
+      .from('user_congratulations_shown')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('puzzle_name', puzzle_name)
+      .eq('collection_type', collection_type);
+
+    if (error) {
+      console.error('Error fetching congratulations shown status:', error);
+      return res.status(500).json({
+        success: false,
+        error: {
+          message: 'Failed to fetch congratulations shown status',
+          details: error.message
+        }
+      });
+    }
+
+    res.json({
+      success: true,
+      data: data || []
+    });
+  } catch (error) {
+    console.error('Error in congratulations-shown-status endpoint:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        message: 'Internal server error',
+        details: error.message
+      }
+    });
+  }
+});
+
 module.exports = router; 

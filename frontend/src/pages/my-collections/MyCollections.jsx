@@ -6,6 +6,11 @@ import { getCurrentUser } from '../../utils/user';
 import { collectionApi } from '../../utils/api';
 import { getAuthToken } from '../../utils/user';
 import CongratulationsModal from './CongratulationsModal';
+import { 
+  isSpecialPuzzle, 
+  getSpecialPuzzleConfig, 
+  isSynthesisPuzzle
+} from '../../utils/puzzleConfig';
 
 export default function MyCollections() {
   const [collections, setCollections] = useState([]); // 用户已收集的 puzzle
@@ -14,7 +19,6 @@ export default function MyCollections() {
   const [userId, setUserId] = useState(null);
   const [user, setUser] = useState(null);
   const [showCongratulations, setShowCongratulations] = useState(false);
-  const [hasShownCongratulations, setHasShownCongratulations] = useState(false);
   const [salmonNigiriFirstCompletedAt, setSalmonNigiriFirstCompletedAt] = useState(null);
   const navigate = useNavigate();
 
@@ -25,56 +29,109 @@ export default function MyCollections() {
     return `/assets/puzzles/puzzle_${puzzleNameLower.replace(/\s+/g, '_')}.svg`;
   };
 
-  // 检查是否应该显示CongratulationsModal并添加Salmon Nigiri Boy到user_collections
+  // 检查是否应该显示CongratulationsModal并添加特殊puzzle到user_collections
   const checkCongratulationsModal = async (collectionsData) => {
-    if (hasShownCongratulations) return;
+    // 检查所有特殊puzzle的解锁条件
+    const specialPuzzles = ['salmon nigiri boy']; // 可以扩展更多特殊puzzle
     
-    // 检查是否有Salmon Nigiri Boy主题的收集
-    const salmonNigiriCollections = collectionsData.filter(
-      collection => collection.collection_type === 'Salmon Nigiri Boy'
-    );
-    
-    // 检查是否收集了Salmon和Sushi Rice
-    const salmonCollected = salmonNigiriCollections.some(
-      collection => collection.puzzle_name === 'Salmon' && collection.collected
-    );
-    const sushiRiceCollected = salmonNigiriCollections.some(
-      collection => collection.puzzle_name === 'Sushi Rice' && collection.collected
-    );
-    
-    // 检查是否已经有Salmon Nigiri Boy的收集记录
-    const salmonNigiriBoyCollected = salmonNigiriCollections.some(
-      collection => collection.puzzle_name === 'Salmon Nigiri Boy'
-    );
-    
-    // 如果两个都收集了且还没显示过Congratulations，则显示并添加到user_collections
-    if (salmonCollected && sushiRiceCollected) {
-      // 如果还没有Salmon Nigiri Boy的收集记录，则添加
-      if (!salmonNigiriBoyCollected) {
+    for (const puzzleName of specialPuzzles) {
+      if (!isSynthesisPuzzle(puzzleName)) continue;
+      
+      const config = getSpecialPuzzleConfig(puzzleName);
+      if (!config) continue;
+      
+      const collectionType = config.collectionType;
+      const unlockConditions = config.unlockConditions;
+      
+      // 检查是否有该主题的收集
+      const themeCollections = collectionsData.filter(
+        collection => collection.collection_type === collectionType
+      );
+      
+      // 检查是否收集了所有解锁条件
+      const allConditionsMet = unlockConditions.every(condition =>
+        themeCollections.some(
+          collection => collection.puzzle_name.toLowerCase() === condition && (collection.collected || (collection.count && collection.count > 0))
+        )
+      );
+      
+      // 检查是否已经有该特殊puzzle的收集记录
+      const puzzleAlreadyCollected = themeCollections.some(
+        collection => collection.puzzle_name.toLowerCase() === puzzleName
+      );
+      
+      // 如果所有条件都满足了
+      if (allConditionsMet) {
+        // 如果还没有该特殊puzzle的收集记录，则添加
+        if (!puzzleAlreadyCollected) {
+          try {
+            const token = await getAuthToken();
+            if (token) {
+              const response = await collectionApi.addPuzzleToCollection({
+                puzzle_name: config.name,
+                collection_type: collectionType,
+                nutrition: { carbs: 0, protein: 0, fats: 0 },
+                first_completed_at: new Date().toISOString()
+              }, token);
+              
+              if (response.success) {
+                console.log(`${config.name} added to user_collections`);
+              } else {
+                console.error(`Failed to add ${config.name} to user_collections:`, response.error);
+              }
+            }
+          } catch (error) {
+            console.error(`Error adding ${config.name} to user_collections:`, error);
+          }
+        }
+        
+        // 检查是否已经显示过CongratulationsModal
+        // 这里我们需要查询user_congratulations_shown表
+        let hasShownCongratulations = false;
         try {
           const token = await getAuthToken();
           if (token) {
-            const response = await collectionApi.addPuzzleToCollection({
-              puzzle_name: 'Salmon Nigiri Boy',
-              collection_type: 'Salmon Nigiri Boy',
-              nutrition: { carbs: 0, protein: 0, fats: 0 },
-              first_completed_at: new Date().toISOString()
-            }, token);
-            
+            const response = await collectionApi.getCongratulationsShownStatus(config.name, collectionType, token);
             if (response.success) {
-              console.log('Salmon Nigiri Boy added to user_collections');
-            } else {
-              console.error('Failed to add Salmon Nigiri Boy to user_collections:', response.error);
+              hasShownCongratulations = response.data && response.data.length > 0;
             }
           }
         } catch (error) {
-          console.error('Error adding Salmon Nigiri Boy to user_collections:', error);
+          console.error('Error checking congratulations shown status:', error);
         }
+        
+        // 只有在第一次解锁且还没有显示过CongratulationsModal时才显示
+        if (!hasShownCongratulations) {
+          setShowCongratulations(true);
+          
+          // 标记为已显示（更新数据库）
+          try {
+            const token = await getAuthToken();
+            if (token) {
+              await collectionApi.updateCongratulationsShown(config.name, collectionType, token);
+              console.log('CongratulationsModal shown status updated in database');
+            }
+          } catch (error) {
+            console.error('Error updating congratulations shown status:', error);
+          }
+        }
+        
+        // 设置first_completed_at时间
+        if (puzzleAlreadyCollected) {
+          const existingPuzzle = themeCollections.find(
+            collection => collection.puzzle_name.toLowerCase() === puzzleName
+          );
+          if (existingPuzzle && existingPuzzle.first_completed_at) {
+            setSalmonNigiriFirstCompletedAt(existingPuzzle.first_completed_at);
+          } else {
+            setSalmonNigiriFirstCompletedAt(new Date().toISOString());
+          }
+        } else {
+          setSalmonNigiriFirstCompletedAt(new Date().toISOString());
+        }
+        
+        break; // 只处理第一个满足条件的特殊puzzle
       }
-      
-      setShowCongratulations(true);
-      setHasShownCongratulations(true);
-      setSalmonNigiriFirstCompletedAt(new Date().toISOString());
     }
   };
 
@@ -183,8 +240,8 @@ export default function MyCollections() {
 
   // 点击 puzzle 跳转到详情页
   const handlePuzzleClick = (slot) => {
-    // 对于Salmon Nigiri Boy，不需要检查collected状态，因为它只是解锁显示
-    if (slot.puzzle_name === 'Salmon Nigiri Boy' || slot.collected) {
+    // 对于特殊puzzle，不需要检查collected状态，因为它们只是解锁显示
+    if (isSpecialPuzzle(slot.puzzle_name) || slot.collected) {
       navigate(`/my-collections/detail/${slot.puzzle_name.toLowerCase()}`);
     }
   };
@@ -230,18 +287,35 @@ export default function MyCollections() {
 
   // 按主题分组显示
   const magicGardenSlots = slots.filter(slot => slot.collection_type === 'Magic Garden');
-  const salmonNigiriSlots = slots.filter(slot => slot.collection_type === 'Salmon Nigiri Boy');
-  
   const magicGardenCompleted = magicGardenSlots.filter(slot => slot.collected).length;
   
-  // 只显示Salmon和Sushi Rice，不显示Salmon Nigiri Boy本身
-  const salmonNigiriTopSlots = salmonNigiriSlots.filter(slot => 
-    slot.puzzle_name === 'Salmon' || slot.puzzle_name === 'Sushi Rice'
-  );
-  const salmonNigiriTopCompleted = salmonNigiriTopSlots.every(slot => slot.collected);
+  // 处理特殊puzzle主题
+  const specialPuzzleThemes = ['Salmon Nigiri Boy']; // 可以扩展更多特殊主题
+  const specialThemeData = {};
   
-  // 获取Salmon Nigiri Boy的收集数据
-  const salmonNigiriBoySlot = salmonNigiriSlots.find(slot => slot.puzzle_name === 'Salmon Nigiri Boy');
+  for (const theme of specialPuzzleThemes) {
+    const themeSlots = slots.filter(slot => slot.collection_type === theme);
+    const config = getSpecialPuzzleConfig(theme.toLowerCase());
+    
+    if (config) {
+      const unlockConditions = config.unlockConditions;
+      const topSlots = themeSlots.filter(slot => 
+        unlockConditions.includes(slot.puzzle_name.toLowerCase())
+      );
+      const topCompleted = topSlots.every(slot => slot.collected);
+      const specialPuzzleSlot = themeSlots.find(slot => 
+        slot.puzzle_name.toLowerCase() === theme.toLowerCase()
+      );
+      
+      specialThemeData[theme] = {
+        slots: themeSlots,
+        topSlots,
+        topCompleted,
+        specialPuzzleSlot,
+        config
+      };
+    }
+  }
 
   return (
     <div className={styles.myCollectionsPage}>
@@ -292,87 +366,90 @@ export default function MyCollections() {
           </div>
         )}
 
-        {/* Salmon Nigiri Boy Theme */}
-        <div className={styles.collectionList}>
-          <div className={styles.collectionScene}>
-            <div className={styles.topGrid}>
-              {salmonNigiriTopSlots.map((slot, idx) => (
-                <div className={styles.puzzleSlot} key={idx}>
-                  {slot.collected && (
+        {/* 特殊Puzzle主题 */}
+        {Object.entries(specialThemeData).map(([theme, data]) => (
+          <div className={styles.collectionList} key={theme}>
+            <div className={styles.collectionScene}>
+              <div className={styles.topGrid}>
+                {data.topSlots.map((slot, idx) => (
+                  <div className={styles.puzzleSlot} key={idx}>
+                    {slot.collected && (
+                      <div
+                        className={styles.puzzleImgWrapper}
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => handlePuzzleClick(slot)}
+                      >
+                        <img
+                          src={slot.icon_url}
+                          alt={slot.puzzle_name}
+                          className={styles.puzzleImg}
+                        />
+                        {slot.count > 1 && (
+                          <div className={styles.puzzleCount}>{slot.count}</div>
+                        )}
+                      </div>
+                    )}
+                    <img src="/assets/shadow (1).svg" alt="shadow" className={styles.shadow} />
+                  </div>
+                ))}
+              </div>
+              <div className={styles.bottomWrapper}>
+                <div className={styles.bottomImgWrapper}>
+                  {data.topCompleted ? (
                     <div
                       className={styles.puzzleImgWrapper}
                       style={{ cursor: 'pointer' }}
-                      onClick={() => handlePuzzleClick(slot)}
+                      onClick={() => handlePuzzleClick({ 
+                        puzzle_name: data.config.name,
+                        collection_type: theme,
+                        icon_url: data.config.img
+                      })}
                     >
                       <img
-                        src={slot.icon_url}
-                        alt={slot.puzzle_name}
-                        className={styles.puzzleImg}
+                        src={data.config.img}
+                        alt={data.config.name}
+                        className={styles.bottomImg}
                       />
-                      {slot.count > 1 && (
-                        <div className={styles.puzzleCount}>{slot.count}</div>
+                      {data.specialPuzzleSlot?.count > 1 && (
+                        <div className={styles.puzzleCount}>{data.specialPuzzleSlot.count}</div>
                       )}
                     </div>
-                  )}
-                  <img src="/assets/shadow (1).svg" alt="shadow" className={styles.shadow} />
-                </div>
-              ))}
-            </div>
-            <div className={styles.bottomWrapper}>
-              <div className={styles.bottomImgWrapper}>
-                {salmonNigiriTopCompleted ? (
-                  <div
-                    className={styles.puzzleImgWrapper}
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => handlePuzzleClick({ 
-                      puzzle_name: 'Salmon Nigiri Boy',
-                      collection_type: 'Salmon Nigiri Boy',
-                      icon_url: '/assets/puzzles/salmon_nigiri_boy.svg'
-                    })}
-                  >
+                  ) : (
                     <img
-                      src="/assets/puzzles/salmon_nigiri_boy.svg"
-                      alt="Salmon Nigiri Boy"
+                      src={data.config.img}
+                      alt={data.config.name}
                       className={styles.bottomImg}
+                      style={{ opacity: 0.4 }}
                     />
-                    {salmonNigiriBoySlot?.count > 1 && (
-                      <div className={styles.puzzleCount}>{salmonNigiriBoySlot.count}</div>
-                    )}
-                  </div>
-                ) : (
-                  <img
-                    src="/assets/puzzles/salmon_nigiri_boy.svg"
-                    alt="Salmon Nigiri Boy"
-                    className={styles.bottomImg}
-                    style={{ opacity: 0.4 }}
-                  />
-                )}
-                <img src="/assets/shadow (2).svg" alt="shadow" className={styles.bottomShadow} />
+                  )}
+                  <img src="/assets/shadow (2).svg" alt="shadow" className={styles.bottomShadow} />
+                </div>
+              </div>
+            </div>
+            {/* text module */}
+            <div className={styles.textModule}>
+              <div className={styles.headingModule}>
+                <span className={`${styles.collectionName} h3`}>{theme}</span>
+                <span className={`${styles.collectionProgress} h3`}>
+                  {data.topSlots.filter(slot => slot.collected).length}/{data.topSlots.length}
+                </span>
+              </div>
+              <div className={`${styles.collectionDescription} body1`}>
+                {data.topCompleted
+                  ? `Congratulations! ${data.config.name} is fully unlocked!`
+                  : data.config.description}
               </div>
             </div>
           </div>
-          {/* text module */}
-          <div className={styles.textModule}>
-            <div className={styles.headingModule}>
-              <span className={`${styles.collectionName} h3`}>Salmon Nigiri Boy</span>
-              <span className={`${styles.collectionProgress} h3`}>
-                {salmonNigiriTopSlots.filter(slot => slot.collected).length}/{salmonNigiriTopSlots.length}
-              </span>
-            </div>
-            <div className={`${styles.collectionDescription} body1`}>
-              {salmonNigiriTopCompleted
-                ? "Congratulations! Salmon Nigiri Boy is fully unlocked!"
-                : "Collect two puzzles to unlock Salmon Nigiri Boy! The cutest sushi sidekick with a wink and a salmon-sized heart!"}
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
       
       {/* Congratulations Modal */}
       <CongratulationsModal 
         open={showCongratulations} 
-        onClose={() => setShowCongratulations(false)} 
+        onClose={() => setShowCongratulations(false)}
         firstCompletedAt={salmonNigiriFirstCompletedAt}
+        puzzleName="Salmon Nigiri Boy"
       />
     </div>
   );
