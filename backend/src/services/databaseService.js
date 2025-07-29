@@ -51,4 +51,9 @@ class DatabaseService {
   }
 }
 
-module.exports = new DatabaseService(); 
+const databaseService = new DatabaseService();
+
+module.exports = {
+  ...databaseService,
+  supabase: databaseService.supabase
+}; 

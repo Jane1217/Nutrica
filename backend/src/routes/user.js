@@ -1,14 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { createClient } = require('@supabase/supabase-js');
-const config = require('../config/config');
+const { supabase } = require('../services/databaseService');
 const { authenticateUser } = require('../middleware/auth');
-
-// 创建Supabase客户端（使用服务端密钥）
-const supabase = createClient(
-  config.database.supabaseUrl,
-  config.database.supabaseServiceKey // 使用服务端密钥，有管理员权限
-);
 
 // 删除用户账号
 router.delete('/account', authenticateUser, async (req, res) => {
@@ -17,7 +10,57 @@ router.delete('/account', authenticateUser, async (req, res) => {
     
     console.log(`Starting to delete user ${userId} data...`);
     
-    // 删除用户账号
+    // 1. 先删除用户相关的数据
+    const tablesToDelete = [
+      'food',
+      'user_collections', 
+      'daily_home_data',
+      'nutrition_goal'
+    ];
+    
+    for (const table of tablesToDelete) {
+      try {
+        const { error: deleteError } = await supabase
+          .from(table)
+          .delete()
+          .eq('user_id', userId);
+        
+        if (deleteError) {
+          console.error(`Failed to delete from ${table}:`, deleteError);
+        } else {
+          console.log(`Successfully deleted user data from ${table}`);
+        }
+      } catch (error) {
+        console.error(`Error deleting from ${table}:`, error);
+      }
+    }
+    
+    // 2. 删除用户头像文件
+    try {
+      // 列出用户的所有头像文件
+      const { data: files, error: listError } = await supabase.storage
+        .from('avatars')
+        .list('', {
+          search: `avatar_${userId}_`
+        });
+      
+      if (!listError && files && files.length > 0) {
+        const fileNames = files.map(file => file.name);
+        const { error: deleteError } = await supabase.storage
+          .from('avatars')
+          .remove(fileNames);
+        
+        if (deleteError) {
+          console.error('Failed to delete avatar files:', deleteError);
+        } else {
+          console.log(`Successfully deleted ${fileNames.length} avatar files`);
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting avatar files:', error);
+    }
+    
+    // 3. 删除用户账号
     const { error: deleteError } = await supabase.auth.admin.deleteUser(userId);
     
     if (deleteError) {

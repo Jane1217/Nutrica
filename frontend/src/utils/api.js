@@ -125,12 +125,11 @@ export const foodApi = {
 // 用户相关API
 export const userApi = {
   // 删除用户账号
-  deleteAccount: (userId, accessToken) => apiRequest('/api/user/delete-account', {
+  deleteAccount: (userId, accessToken) => apiRequest('/api/user/account', {
     method: 'DELETE',
     headers: {
       'Authorization': `Bearer ${accessToken}`
-    },
-    body: JSON.stringify({ userId })
+    }
   }),
 };
 
