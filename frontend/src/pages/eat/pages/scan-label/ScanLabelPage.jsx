@@ -1,23 +1,20 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import FoodModal from '../../modals/FoodModal';
-import { foodApi, handleApiError } from '../../../../utils/api';
+import { foodApi, handleApiError } from '../../../../utils';
 import { 
   startCamera, 
   stopCamera, 
   forceReleaseCamera, 
   captureVideoFrame,
   setupCameraEventListeners 
-} from '../../../../utils/camera';
+} from '../../../../utils';
 import './ScanLabelPage.css';
-import CameraPermissionModal from '../../modals/CameraPermissionModal';
+
 import Toast from '../../../../components/common/Toast';
 import { icons } from '../../../../utils';
 
-// 组件外部，避免多次挂载重复判断
-const CAMERA_PERMISSION_KEY = 'nutrica_camera_permission_shown';
-const isCameraPermissionShown = () => !!localStorage.getItem(CAMERA_PERMISSION_KEY);
-const setCameraPermissionShown = () => localStorage.setItem(CAMERA_PERMISSION_KEY, '1');
+
 
 export default function ScanLabelPage({ onClose, userId, onDataChange }) {
   const videoRef = useRef(null);
@@ -28,19 +25,36 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
   const [cameraActive, setCameraActive] = useState(false);
   const [foodModalOpen, setFoodModalOpen] = useState(false);
   const [foodResult, setFoodResult] = useState(null);
+  const [cameraPermissionDenied, setCameraPermissionDenied] = useState(false);
   const navigate = useNavigate();
-  const [showPermission, setShowPermission] = useState(!isCameraPermissionShown());
-  const [cameraFeatureTip, setCameraFeatureTip] = useState('');
+
   const [successToast, setSuccessToast] = useState(false);
+  const [errorToast, setErrorToast] = useState({ show: false, message: '' });
 
   // 摄像头管理函数
-  const handleStartCamera = () => {
-    return startCamera({
-      videoRef,
-      streamRef,
-      setCameraActive,
-      isMounted: isMountedRef.current
-    });
+  const handleStartCamera = async () => {
+    try {
+      const result = await startCamera({
+        videoRef,
+        streamRef,
+        setCameraActive,
+        isMounted: isMountedRef.current
+      });
+      
+      // 如果摄像头启动失败，检查是否是权限问题
+      if (!result) {
+        // 检查权限状态
+        const permission = await navigator.permissions.query({ name: 'camera' });
+        if (permission.state === 'denied') {
+          setCameraPermissionDenied(true);
+        }
+      }
+    } catch (error) {
+      console.error('Camera start error:', error);
+      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+        setCameraPermissionDenied(true);
+      }
+    }
   };
 
   const handleStopCamera = () => {
@@ -82,6 +96,16 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
       }
       
       try {
+        // 检查网络连接
+        if (!navigator.onLine) {
+          setErrorToast({ show: true, message: 'No Internet connection' });
+          setLoading(false);
+          if (isMountedRef.current) {
+            handleStartCamera();
+          }
+          return;
+        }
+        
         const data = await foodApi.parseFoodImage(blob);
         if (data.success) {
           // 识别成功，弹出 FoodModal
@@ -97,13 +121,22 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
           });
           setFoodModalOpen(true);
         } else {
-          alert('Image parsing failed: ' + data.error);
+          // 食物识别失败
+          setErrorToast({ show: true, message: 'Food label not recognized' });
           if (isMountedRef.current) {
             handleStartCamera();
           }
         }
       } catch (error) {
-        alert('Image parsing failed: ' + handleApiError(error, 'Image parsing failed'));
+        console.error('Image parsing error:', error);
+        
+        // 检查是否是网络错误
+        if (error.message && error.message.includes('fetch')) {
+          setErrorToast({ show: true, message: 'No Internet connection' });
+        } else {
+          setErrorToast({ show: true, message: 'Food label not recognized' });
+        }
+        
         if (isMountedRef.current) {
           handleStartCamera();
         }
@@ -132,41 +165,13 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
     setSuccessToast(true);
   };
 
+  const handleErrorToastClose = () => {
+    setErrorToast({ show: false, message: '' });
+  };
+
   // 组件挂载时启动摄像头
   useEffect(() => {
     handleStartCamera();
-    
-    // 只在首次进入时弹窗
-    if (!isCameraPermissionShown()) {
-      setShowPermission(true);
-      setCameraPermissionShown();
-    } else {
-      setShowPermission(false);
-    }
-
-    // 检查摄像头能力
-    setTimeout(() => {
-      const video = videoRef.current;
-      if (video && video.srcObject) {
-        const track = video.srcObject.getVideoTracks()[0];
-        if (track && track.getCapabilities) {
-          const caps = track.getCapabilities();
-          const supportZoom = !!caps.zoom;
-          const supportFocus = !!caps.focusMode && caps.focusMode.includes('single-shot');
-          if (!supportZoom && !supportFocus) {
-            setCameraFeatureTip('Camera zoom and focus are not supported on this device/browser.');
-          } else if (!supportZoom) {
-            setCameraFeatureTip('Camera zoom is not supported on this device/browser.');
-          } else if (!supportFocus) {
-            setCameraFeatureTip('Camera focus is not supported on this device/browser.');
-          } else {
-            setCameraFeatureTip('');
-          }
-        } else {
-          setCameraFeatureTip('Camera zoom and focus are not supported on this device/browser.');
-        }
-      }
-    }, 1200);
 
     // 监听手势缩放和点击对焦（仅支持的设备才启用）
     const video = videoRef.current;
@@ -285,23 +290,32 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
 
   return (
     <div className="scan-label-page">
-      {/* 只在首次弹出权限弹窗，复用CameraPermissionModal */}
-      {showPermission && (
-        <CameraPermissionModal 
-          onClose={() => setShowPermission(false)} 
-          onOk={() => setShowPermission(false)} 
-        />
+      
+      {/* 摄像头权限被拒绝错误弹窗 */}
+      {cameraPermissionDenied && (
+        <div className="camera-permission-denied-overlay" onClick={() => setCameraPermissionDenied(false)}>
+          <div className="camera-permission-denied-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="camera-permission-denied-heading">
+              <div className="camera-permission-denied-icon">
+                <img src="/assets/icon_nocamera.svg" alt="no camera" width="24" height="24" />
+              </div>
+              <div className="camera-permission-denied-title h2">No Camera Permission</div>
+            </div>
+            <div className="camera-permission-denied-divider"></div>
+            <div className="camera-permission-denied-text body1">
+              Please allow camera permission for <span className="nutrition-life">"Nutrition.life"</span> in your browser settings.
+            </div>
+          </div>
+        </div>
       )}
-      {cameraFeatureTip && (
-        <div style={{position:'absolute',top:0,left:0,right:0,zIndex:9999,background:'rgba(0,0,0,0.7)',color:'#fff',textAlign:'center',padding:8,fontSize:14}}>{cameraFeatureTip}</div>
-      )}
+      
       <video ref={videoRef} className="scan-video" autoPlay playsInline muted></video>
       <div className="scan-overlay"></div>
       <div className="scan-center">
         <div className="scan-tip">
           <div className="scan-tip-heading">
             <span className="scan-tip-icon">
-              <img src={icons.scanFrame} alt="scan" width="20" height="20" />
+              <img src={icons.scanFrame} alt="scan" width="16" height="16" />
             </span>
             <span className="scan-tip-text h6">Place the food label inside the frame</span>
           </div>
@@ -354,6 +368,12 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
         type="success"
         show={successToast}
         onClose={() => setSuccessToast(false)}
+      />
+      <Toast
+        message={errorToast.message}
+        type="error"
+        show={errorToast.show}
+        onClose={handleErrorToastClose}
       />
     </div>
   );
