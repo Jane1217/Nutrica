@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import '../styles/FoodModal.css';
-import { validateFoodForm } from '../../../utils/validation';
+import { validateFoodForm } from '../../../utils';
 import { validateAndSaveFoodWithEmoji } from '../../../utils';
 import ModalWrapper from '../../../components/common/ModalWrapper';
 import { icons } from '../../../utils';

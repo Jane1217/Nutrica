@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Nav-Logo.module.css';
 import SidebarMenu from './SidebarMenu';
-import { icons } from '../../utils/icons';
+import { icons } from '../../utils';
 
 // hideEat 控制是否显示Eat+按钮，向后兼容hideCtaButtons
 // hideMenu 控制是否显示侧边栏菜单按钮

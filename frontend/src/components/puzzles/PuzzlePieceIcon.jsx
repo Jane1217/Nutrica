@@ -16,7 +16,7 @@ export default function PuzzlePieceIcon({ got }) {
       }}
     >
       <img
-        src="/assets/puzzle grid.svg"
+        src="/assets/puzzles/grid.svg"
         alt="puzzle"
         style={{ width: 32, height: 32, objectFit: "contain" }}
       />

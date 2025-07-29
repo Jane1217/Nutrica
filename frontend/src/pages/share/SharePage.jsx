@@ -2,8 +2,17 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import styles from './SharePage.module.css';
 import { formatDateString, normalizeNutritionData, getUserNameFromQuery, capitalizePuzzleName, getPuzzleCardBackground, getPageBackground } from '../../utils';
-import { collectionApi } from '../../utils/api';
+import { collectionApi } from '../../utils';
 import { puzzleCategories, colorOrders } from '../../data/puzzles';
+import { 
+  isSpecialPuzzle, 
+  getSpecialPuzzleConfig, 
+  hasNutritionModule, 
+  getPuzzleImageStyle,
+  getPuzzleCollectionType,
+  getPuzzleImageUrl,
+  getPuzzleDescription
+} from '../../utils';
 
 // 工具函数：按顺序提取某营养素的所有颜色
 function getNutrientColorsByOrder(pixelMap, nutrientType, colorOrder) {
@@ -35,17 +44,14 @@ export default function SharePage() {
   // 优先从URL参数获取nickname
   const nicknameFromQuery = query.get('nickname');
 
-  // 根据puzzle名称确定collectionType
-  const getCollectionType = (puzzleName) => {
-    const puzzleNameLower = puzzleName.toLowerCase();
-    if (puzzleNameLower === 'salmon' || puzzleNameLower === 'sushi rice' || puzzleNameLower === 'salmon nigiri boy') {
-      return 'Salmon Nigiri Boy';
-    }
-    return 'Magic Garden';
-  };
-
   // 查找当前puzzle的配置
   const puzzle = useMemo(() => {
+    // 使用puzzleConfig工具查找
+    if (isSpecialPuzzle(puzzleName)) {
+      return getSpecialPuzzleConfig(puzzleName);
+    }
+    
+    // 查找其他puzzle
     for (const cat of puzzleCategories) {
       const found = cat.puzzles.find(p => p.name.toLowerCase() === puzzleName.toLowerCase());
       if (found) return found;
@@ -53,16 +59,16 @@ export default function SharePage() {
     return null;
   }, [puzzleName]);
 
-  const collectionType = getCollectionType(puzzleName);
-  const iconUrl = puzzle?.img || '/assets/puzzles/puzzle_carrot.svg';
-  const description = puzzle?.description || "Bright, balanced, and well-fed. That's the carrot energy we love to see.";
+  const collectionType = getPuzzleCollectionType(puzzleName);
+  const iconUrl = getPuzzleImageUrl(puzzleName, puzzle);
+  const description = getPuzzleDescription(puzzleName, puzzle);
 
   useEffect(() => {
     const fetchShareData = async () => {
       try {
         setLoading(true);
-        // 将puzzle_name首字母大写以匹配数据库格式
-        const puzzleNameFormatted = puzzleName.charAt(0).toUpperCase() + puzzleName.slice(1).toLowerCase();
+        // 将puzzle_name格式化以匹配数据库格式
+        const puzzleNameFormatted = capitalizePuzzleName(puzzleName);
         // 使用公开API获取collection数据
         const response = await collectionApi.getPublicCollection(userId, puzzleNameFormatted);
         
@@ -127,10 +133,10 @@ export default function SharePage() {
   // 动态生成palette颜色，兼容不同puzzle
   const paletteColors = useMemo(() => {
     if (!puzzle?.pixelMap) return {
-      carbs: ['#FF9F58', '#FB6D03', '#FB3503', '#B92F17'],
-      protein: ['#3B0E09'],
-      fats: ['#98E673', '#60BF32', '#0FA23A', '#1D793B']
-    };
+    carbs: ['#FF9F58', '#FB6D03', '#FB3503', '#B92F17'],
+    protein: ['#3B0E09'],
+    fats: ['#98E673', '#60BF32', '#0FA23A', '#1D793B']
+  };
     // 根据puzzle.id动态获取colorOrder
     const colorOrder = colorOrders[puzzle.id];
     return {
@@ -162,7 +168,7 @@ export default function SharePage() {
       <div className={styles.sharePage} style={{ background: getPageBackground(collectionType) }}>
         <div className={styles.loadingContainer}>
           <div className={styles.loadingSpinner}></div>
-          <span className="body1">Loading shared puzzle...</span>
+          <span className="body1">Loading...</span>
         </div>
       </div>
     );
@@ -209,9 +215,11 @@ export default function SharePage() {
             src={iconUrl} 
             alt={puzzleName} 
             className={styles.puzzleImg} 
+            style={getPuzzleImageStyle(puzzleName)}
           />
           
-          {/* Nutrition Module */}
+          {/* Nutrition Module - 根据puzzle配置决定是否显示 */}
+          {hasNutritionModule(puzzleName) && (
           <div className={styles.nutritionModule}>
             {NUTRITION_LABELS.map((item) => (
               <div className={styles.nutritionItem} key={item.key}>
@@ -238,6 +246,7 @@ export default function SharePage() {
               </div>
             ))}
           </div>
+          )}
         </div>
 
         {/* Action Module */}

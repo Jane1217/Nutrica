@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import ModalWrapper from '../../../components/common/ModalWrapper';
 import { supabase } from '../../../supabaseClient';
-import { userApi } from '../../../utils/api';
+import { userApi } from '../../../utils';
 import styles from '../styles/Auth.module.css';
 
 export default function DeleteAccountModal({ open, onClose, userEmail }) {
