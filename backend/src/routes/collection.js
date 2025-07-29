@@ -1,34 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const { createClient } = require('@supabase/supabase-js');
-const config = require('../config/config');
 const { authenticateUser } = require('../middleware/auth');
-
-// 创建Supabase客户端（使用服务端密钥）
-const supabase = createClient(
-  config.database.supabaseUrl,
-  config.database.supabaseServiceKey // 使用服务端密钥，有管理员权限
-);
+const databaseService = require('../services/databaseService');
 
 // 获取collection_puzzles数据
 router.get('/collection-puzzles', async (req, res) => {
   try {
-    const { data, error } = await supabase
-      .from('collection_puzzles')
-      .select('id, collection_type, puzzle_name, slot')
-      .order('slot', { ascending: true });
-
-    if (error) {
-      console.error('Error fetching collection puzzles:', error);
-      return res.status(500).json({
-        success: false,
-        error: {
-          message: 'Failed to fetch collection puzzles',
-          details: error.message
-        }
-      });
-    }
-
+    const data = await databaseService.getCollectionPuzzles();
+    
     res.json({
       success: true,
       data: data || []
@@ -51,29 +30,9 @@ router.get('/user-collections', authenticateUser, async (req, res) => {
     const userId = req.user.id;
     const { collection_type } = req.query;
 
-    let query = supabase
-      .from('user_collections')
-      .select('*')
-      .eq('user_id', userId);
+    const data = await databaseService.getUserCollections(userId, collection_type);
 
-    if (collection_type) {
-      query = query.eq('collection_type', collection_type);
-    }
-
-    const { data, error } = await query;
-
-    console.log('User collections query result:', { data, error, userId, collection_type });
-
-    if (error) {
-      console.error('Error fetching user collections:', error);
-      return res.status(500).json({
-        success: false,
-        error: {
-          message: 'Failed to fetch user collections',
-          details: error.message
-        }
-      });
-    }
+    console.log('User collections query result:', { data, userId, collection_type });
 
     res.json({
       success: true,
@@ -106,104 +65,18 @@ router.post('/user-collections', authenticateUser, async (req, res) => {
       });
     }
 
-    // 检查是否已存在该collection
-    const { data: existingCollection, error: fetchError } = await supabase
-      .from('user_collections')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('collection_type', collection_type)
-      .eq('puzzle_name', puzzle_name)
-      .single();
+    const result = await databaseService.addUserCollection(userId, {
+      collection_type,
+      puzzle_name,
+      nutrition,
+      count
+    });
 
-    if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 = no rows returned
-      console.error('Error checking existing collection:', fetchError);
-      return res.status(500).json({
-        success: false,
-        error: {
-          message: 'Failed to check existing collection',
-          details: fetchError.message
-        }
-      });
-    }
-
-    const now = new Date().toISOString();
-    const today = new Date().toISOString().split('T')[0]; // 获取今天的日期 YYYY-MM-DD
-
-    if (existingCollection) {
-      // 检查是否今天已经收集过
-      const lastCollectedDate = existingCollection.updated_at ? 
-        existingCollection.updated_at.split('T')[0] : 
-        existingCollection.created_at.split('T')[0];
-      
-      if (lastCollectedDate === today) {
-        // 今天已经收集过了，返回现有数据
-        return res.json({
-          success: true,
-          message: 'Puzzle already collected today',
-          data: { count: existingCollection.count }
-        });
-      }
-      
-      // 今天还没有收集过，增加count
-      const { error: updateError } = await supabase
-        .from('user_collections')
-        .update({
-          count: existingCollection.count + count,
-          nutrition: nutrition || existingCollection.nutrition,
-          updated_at: now
-        })
-        .eq('user_id', userId)
-        .eq('collection_type', collection_type)
-        .eq('puzzle_name', puzzle_name);
-
-      if (updateError) {
-        console.error('Error updating collection:', updateError);
-        return res.status(500).json({
-          success: false,
-          error: {
-            message: 'Failed to update collection',
-            details: updateError.message
-          }
-        });
-      }
-
-      res.json({
-        success: true,
-        message: 'Collection updated successfully',
-        data: { count: existingCollection.count + count }
-      });
-    } else {
-      // 创建新collection
-      const { error: insertError } = await supabase
-        .from('user_collections')
-        .insert({
-          user_id: userId,
-          collection_type,
-          puzzle_name,
-          nutrition: nutrition || {},
-          count,
-          first_completed_at: now,
-          created_at: now,
-          updated_at: now
-        });
-
-      if (insertError) {
-        console.error('Error creating collection:', insertError);
-        return res.status(500).json({
-          success: false,
-          error: {
-            message: 'Failed to create collection',
-            details: insertError.message
-          }
-        });
-      }
-
-      res.json({
-        success: true,
-        message: 'Collection created successfully',
-        data: { count }
-      });
-    }
+    res.json({
+      success: true,
+      message: 'Collection processed successfully',
+      data: result
+    });
   } catch (error) {
     console.error('Error in user-collections POST endpoint:', error);
     res.status(500).json({

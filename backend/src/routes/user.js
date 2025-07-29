@@ -1,14 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { createClient } = require('@supabase/supabase-js');
-const config = require('../config/config');
 const { authenticateUser } = require('../middleware/auth');
-
-// 创建Supabase客户端（使用服务端密钥）
-const supabase = createClient(
-  config.database.supabaseUrl,
-  config.database.supabaseServiceKey // 使用服务端密钥，有管理员权限
-);
+const databaseService = require('../services/databaseService');
 
 // 获取用户摄像头权限状态
 router.get('/camera-permission-status', authenticateUser, async (req, res) => {
@@ -16,7 +9,7 @@ router.get('/camera-permission-status', authenticateUser, async (req, res) => {
     const userId = req.user.id;
     
     // 查询用户摄像头权限状态
-    const { data, error } = await supabase
+    const { data, error } = await databaseService.supabase
       .from('user_camera_permission')
       .select('permission_shown')
       .eq('user_id', userId)
@@ -49,7 +42,7 @@ router.post('/update-camera-permission', authenticateUser, async (req, res) => {
     const userId = req.user.id;
     
     // 使用upsert操作，如果记录不存在则创建，存在则更新
-    const { error } = await supabase
+    const { error } = await databaseService.supabase
       .from('user_camera_permission')
       .upsert({
         user_id: userId,
@@ -84,7 +77,7 @@ router.delete('/account', authenticateUser, async (req, res) => {
     console.log(`Starting to delete user ${userId} data...`);
     
     // 删除用户账号
-    const { error: deleteError } = await supabase.auth.admin.deleteUser(userId);
+    const { error: deleteError } = await databaseService.supabase.auth.admin.deleteUser(userId);
     
     if (deleteError) {
       console.error('Failed to delete user account:', deleteError);
