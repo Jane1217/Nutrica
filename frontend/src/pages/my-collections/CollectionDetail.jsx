@@ -7,6 +7,15 @@ import ImageShareModal from './ImageShareModal';
 import { getCurrentUser, getAuthToken } from '../../utils/user';
 import { formatDateString, capitalizePuzzleName, getPuzzleCardBackground, getPageBackground } from '../../utils';
 import { collectionApi } from '../../utils/api';
+import { 
+  isSpecialPuzzle, 
+  getSpecialPuzzleConfig, 
+  hasNutritionModule, 
+  getPuzzleImageStyle,
+  getPuzzleCollectionType,
+  getPuzzleImageUrl,
+  getPuzzleDescription
+} from '../../utils/puzzleConfig';
 
 // 默认营养素标签
 const NUTRITION_LABELS = [
@@ -54,6 +63,12 @@ export default function CollectionDetail({
 
   // 查找当前puzzle的配置
   const puzzle = useMemo(() => {
+    // 使用puzzleConfig工具查找
+    if (isSpecialPuzzle(puzzleName)) {
+      return getSpecialPuzzleConfig(puzzleName);
+    }
+    
+    // 查找其他puzzle
     for (const cat of puzzleCategories) {
       const found = cat.puzzles.find(p => p.name.toLowerCase() === puzzleName.toLowerCase());
       if (found) return found;
@@ -61,18 +76,9 @@ export default function CollectionDetail({
     return null;
   }, [puzzleName]);
 
-  // 根据puzzle名称确定collectionType
-  const getCollectionType = (puzzleName) => {
-    const puzzleNameLower = puzzleName.toLowerCase();
-    if (puzzleNameLower === 'salmon' || puzzleNameLower === 'sushi rice' || puzzleNameLower === 'salmon nigiri boy') {
-      return 'Salmon Nigiri Boy';
-    }
-    return 'Magic Garden';
-  };
-  
-  const collectionType = propCollectionType || getCollectionType(puzzleName);
-  const iconUrl = propIconUrl || (puzzleName === 'Salmon Nigiri Boy' ? '/assets/puzzles/salmon_nigiri_boy.svg' : puzzle?.img || '/assets/puzzles/puzzle_carrot.svg');
-  const description = propDescription || (puzzleName === 'Salmon Nigiri Boy' ? "The cutest sushi sidekick with a wink and a salmon-sized heart!" : puzzle?.description || "Bright, balanced, and well-fed. That's the carrot energy we love to see.");
+  const collectionType = propCollectionType || getPuzzleCollectionType(puzzleName);
+  const iconUrl = propIconUrl || getPuzzleImageUrl(puzzleName, puzzle);
+  const description = propDescription || getPuzzleDescription(puzzleName, puzzle);
 
   // 从数据库获取collection数据
   useEffect(() => {
@@ -218,16 +224,8 @@ export default function CollectionDetail({
   }
 
   // puzzleCard渲染片段（与主卡片一致）
-  console.log('CollectionDetail - puzzleName:', puzzleName, 'puzzleName type:', typeof puzzleName, 'puzzleName length:', puzzleName.length);
-  console.log('CollectionDetail - isSalmonNigiriBoy:', puzzleName === 'Salmon Nigiri Boy');
-  console.log('CollectionDetail - puzzleName char codes:', Array.from(puzzleName).map(c => c.charCodeAt(0)));
-  
-  // 更明确的条件判断
-  const isSalmonNigiriBoy = puzzleName === 'Salmon Nigiri Boy' || puzzleName.toLowerCase().includes('salmon nigiri boy');
-  console.log('CollectionDetail - isSalmonNigiriBoy (enhanced):', isSalmonNigiriBoy);
-  
-  const puzzleCardNode = isSalmonNigiriBoy ? (
-    // Salmon Nigiri Boy使用与CongratulationsModal相同的结构
+  const puzzleCardNode = isSpecialPuzzle(puzzleName) ? (
+    // 特殊puzzle使用与CongratulationsModal相同的结构
     <div className={styles.puzzleCard} style={{
       boxShadow:'none', 
       border:'2px solid #22221B', 
@@ -235,16 +233,16 @@ export default function CollectionDetail({
     }}>
       <div className={`${styles.timestamp} h5`}>{dateStr}</div>
       <div className={styles.headingModule}>
-        <div className={`${styles.collectionInfo} label`}>Salmon Nigiri Boy</div>
+        <div className={`${styles.collectionInfo} label`}>{puzzleName}</div>
         <div className={styles.heading}>
-          The cutest sushi sidekick with a wink and a salmon-sized heart!
+          {description}
         </div>
       </div>
       <img 
-        src="/assets/puzzles/salmon_nigiri_boy.svg" 
-        alt="Salmon Nigiri Boy" 
+        src={iconUrl} 
+        alt={puzzleName} 
         className={styles.puzzleImg}
-        style={{ width: '200px', height: '200px', flexShrink: '0', aspectRatio: '1/1' }}
+        style={getPuzzleImageStyle(puzzleName)}
       />
     </div>
   ) : (
@@ -254,14 +252,14 @@ export default function CollectionDetail({
       border:'2px solid #22221B', 
       background: getPuzzleCardBackground(puzzleName, collectionType)
     }}>
-      {/* Debug info */}
-      {console.log('CollectionDetail - puzzleName:', puzzleName, 'collectionType:', collectionType, 'background:', getPuzzleCardBackground(puzzleName, collectionType))}
           <div className={`${styles.timestamp} h5`}>{dateStr}</div>
           <div className={styles.headingModule}>
             <div className={`${styles.collectionInfo} label`}>{collectionType}・{puzzleName}</div>
             <div className={styles.heading}>{description}</div>
           </div>
           <img src={iconUrl} alt={puzzleName} className={styles.puzzleImg} />
+          {/* Nutrition Module - 根据puzzle配置决定是否显示 */}
+          {hasNutritionModule(puzzleName) && (
           <div className={styles.nutritionModule}>
             {NUTRITION_LABELS.map((item) => (
               <div className={styles.nutritionItem} key={item.key}>
@@ -288,6 +286,7 @@ export default function CollectionDetail({
               </div>
             ))}
           </div>
+          )}
         </div>
   );
 

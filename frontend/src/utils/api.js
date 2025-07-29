@@ -165,6 +165,34 @@ export const collectionApi = {
       'Authorization': `Bearer ${token}`
     },
     body: JSON.stringify(data)
+  }),
+  
+  // 添加puzzle到collection
+  addPuzzleToCollection: (data, token) => apiRequest('/api/collection/user-collections', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify(data)
+  }),
+  
+  // 获取CongratulationsModal显示状态
+  getCongratulationsShownStatus: (puzzleName, collectionType, token) => apiRequest(`/api/collection/congratulations-shown-status?puzzle_name=${encodeURIComponent(puzzleName)}&collection_type=${encodeURIComponent(collectionType)}`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  }),
+  
+  // 更新CongratulationsModal显示状态
+  updateCongratulationsShown: (puzzleName, collectionType, token) => apiRequest('/api/collection/update-congratulations-shown', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({ puzzle_name: puzzleName, collection_type: collectionType })
   })
 };
 

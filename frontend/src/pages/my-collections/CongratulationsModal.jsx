@@ -1,7 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './CongratulationsModal.module.css';
+import { getSpecialPuzzleConfig } from '../../utils/puzzleConfig';
 
-export default function CongratulationsModal({ open, onClose, firstCompletedAt }) {
+export default function CongratulationsModal({ open, onClose, firstCompletedAt, puzzleName = 'Salmon Nigiri Boy' }) {
   const [show, setShow] = useState(open);
   const [animate, setAnimate] = useState(false);
   const timerRef = useRef(null);
@@ -35,36 +36,38 @@ export default function CongratulationsModal({ open, onClose, firstCompletedAt }
             <h1 className="h1">Congratulations! New Pixel Art Unlocked!</h1>
           </div>
           
-          {/* Puzzle Card */}
+          {/* Puzzle Card - 与CollectionDetail的Salmon Nigiri Boy完全一致 */}
           <div className={styles.puzzleCard}>
-            <div className={`${styles.timestamp} h5`}>{firstCompletedAt ? new Date(firstCompletedAt).toLocaleDateString('en-US', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'short', 
-              day: 'numeric' 
-            }) : new Date().toLocaleDateString('en-US', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'short', 
-              day: 'numeric' 
+            <div className={`${styles.timestamp} h5`}>{firstCompletedAt ? new Date(firstCompletedAt).toLocaleDateString('en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric'
+            }) : new Date().toLocaleDateString('en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric'
             })}</div>
             <div className={styles.headingModule}>
-              <div className={`${styles.collectionInfo} label`}>Salmon Nigiri Boy</div>
+              <div className={`${styles.collectionInfo} label`}>{puzzleName}</div>
               <div className={styles.heading}>
-                The cutest sushi sidekick with a wink and a salmon-sized heart!
+                {getSpecialPuzzleConfig(puzzleName)?.description || 'The cutest sushi sidekick with a wink and a salmon-sized heart!'}
               </div>
             </div>
-            <img 
-              src="/assets/puzzles/salmon_nigiri_boy.svg" 
-              alt="Salmon Nigiri Boy" 
-              className={styles.puzzleImage} 
+            <img
+              src={getSpecialPuzzleConfig(puzzleName)?.img || "/assets/puzzles/salmon_nigiri_boy.svg"}
+              alt={puzzleName}
+              className={styles.puzzleImage}
             />
           </div>
           
-          {/* CTA Button */}
-          <button className={styles.ctaButton} onClick={onClose}>
-            <span className="h4">Done</span>
-          </button>
+          {/* Action Group */}
+          <div className={styles.actionGroup}>
+            <button className={styles.ctaButton} onClick={onClose}>
+              <span className="h4">Done</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
