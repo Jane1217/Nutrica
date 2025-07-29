@@ -7,7 +7,8 @@ import {
   stopCamera, 
   forceReleaseCamera, 
   captureVideoFrame,
-  setupCameraEventListeners 
+  setupCameraEventListeners,
+  setupEnhancedCameraControls
 } from '../../../../utils';
 import './ScanLabelPage.css';
 
@@ -17,6 +18,7 @@ import { icons } from '../../../../utils';
 
 
 export default function ScanLabelPage({ onClose, userId, onDataChange }) {
+  console.log('ScanLabelPage rendered with userId:', userId);
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const scanFrameRef = useRef(null);
@@ -30,6 +32,9 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
 
   const [successToast, setSuccessToast] = useState(false);
   const [errorToast, setErrorToast] = useState({ show: false, message: '' });
+  const [showControlsTip, setShowControlsTip] = useState(true);
+  const [focusIndicator, setFocusIndicator] = useState(null);
+  const [zoomLevel, setZoomLevel] = useState(1);
 
   // 摄像头管理函数
   const handleStartCamera = async () => {
@@ -47,6 +52,23 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
         const permission = await navigator.permissions.query({ name: 'camera' });
         if (permission.state === 'denied') {
           setCameraPermissionDenied(true);
+        }
+      } else {
+        // 摄像头启动成功，检查功能支持
+        const track = result.getVideoTracks()[0];
+        if (track && track.getCapabilities) {
+          const capabilities = track.getCapabilities();
+          console.log('Camera capabilities:', capabilities);
+          
+          // 检查是否支持对焦
+          if (capabilities.focusMode && capabilities.focusMode.length > 0) {
+            console.log('Focus modes supported:', capabilities.focusMode);
+          }
+          
+          // 检查是否支持缩放
+          if (capabilities.zoom) {
+            console.log('Zoom supported:', capabilities.zoom);
+          }
         }
       }
     } catch (error) {
@@ -173,79 +195,26 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
   useEffect(() => {
     handleStartCamera();
 
-    // 监听手势缩放和点击对焦（仅支持的设备才启用）
-    const video = videoRef.current;
-    let lastDistance = null;
-    let zooming = false;
-    let track = null;
-    let maxZoom = 1;
-    let minZoom = 1;
-    let currentZoom = 1;
-    const setupZoom = () => {
-      if (!video || !video.srcObject) return;
-      track = video.srcObject.getVideoTracks()[0];
-      if (track && track.getCapabilities) {
-        const caps = track.getCapabilities();
-        if (caps.zoom) {
-          maxZoom = caps.zoom.max;
-          minZoom = caps.zoom.min;
-          currentZoom = track.getSettings().zoom || 1;
-        }
+    // 设置增强的摄像头控制（对焦和缩放）
+    const cleanupEnhancedControls = setupEnhancedCameraControls({
+      videoRef,
+      streamRef,
+      onFocus: ({ x, y }) => {
+        console.log('Focus at:', x, y);
+        // 显示对焦指示器
+        setFocusIndicator({ x, y });
+        setTimeout(() => setFocusIndicator(null), 1000);
+        // 隐藏控制提示
+        setShowControlsTip(false);
+      },
+      onZoom: (zoom) => {
+        console.log('Zoom changed to:', zoom);
+        setZoomLevel(zoom);
+        // 隐藏控制提示
+        setShowControlsTip(false);
       }
-    };
-    const onTouchStart = e => {
-      if (e.touches.length === 2) {
-        zooming = true;
-        const dx = e.touches[0].clientX - e.touches[1].clientX;
-        const dy = e.touches[0].clientY - e.touches[1].clientY;
-        lastDistance = Math.sqrt(dx * dx + dy * dy);
-        setupZoom();
-      }
-    };
-    const onTouchMove = e => {
-      if (zooming && e.touches.length === 2 && track && track.applyConstraints) {
-        const dx = e.touches[0].clientX - e.touches[1].clientX;
-        const dy = e.touches[0].clientY - e.touches[1].clientY;
-        const newDistance = Math.sqrt(dx * dx + dy * dy);
-        let delta = (newDistance - lastDistance) / 100; // 缩放灵敏度
-        let newZoom = Math.max(minZoom, Math.min(maxZoom, currentZoom + delta));
-        track.applyConstraints({ advanced: [{ zoom: newZoom }] });
-      }
-    };
-    const onTouchEnd = e => {
-      zooming = false;
-      lastDistance = null;
-    };
-    const onClick = async e => {
-      // 点击对焦
-      if (!video || !video.srcObject) return;
-      const track = video.srcObject.getVideoTracks()[0];
-      if (track && track.getCapabilities && track.applyConstraints) {
-        const caps = track.getCapabilities();
-        if (caps.focusMode && caps.focusMode.includes('single-shot')) {
-          try {
-            await track.applyConstraints({ advanced: [{ focusMode: 'single-shot' }] });
-          } catch (err) {
-            // 忽略不支持
-          }
-        }
-      }
-    };
-    // 仅支持的设备才绑定事件
-    setTimeout(() => {
-      if (video && video.srcObject) {
-        const track = video.srcObject.getVideoTracks()[0];
-        if (track && track.getCapabilities) {
-          const caps = track.getCapabilities();
-          if (caps.zoom || (caps.focusMode && caps.focusMode.includes('single-shot'))) {
-            video.addEventListener('touchstart', onTouchStart, { passive: false });
-            video.addEventListener('touchmove', onTouchMove, { passive: false });
-            video.addEventListener('touchend', onTouchEnd, { passive: false });
-            video.addEventListener('click', onClick);
-          }
-        }
-      }
-    }, 1500);
+    });
+
     // 设置事件监听器
     const cleanupListeners = setupCameraEventListeners({
       stopCamera: handleStopCamera,
@@ -256,26 +225,31 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
     // 监听路由变化
     const unlisten = navigate(handleStopCamera);
     
+    // 5秒后自动隐藏控制提示
+    const tipTimer = setTimeout(() => {
+      setShowControlsTip(false);
+    }, 5000);
+    
     // 清理函数
     return () => {
       console.log('Component unmounting, cleaning up camera...');
       isMountedRef.current = false;
       
+      // 清理增强控制
+      cleanupEnhancedControls();
+      
       // 清理事件监听器
       cleanupListeners();
       if (unlisten) unlisten();
+      
+      // 清理定时器
+      clearTimeout(tipTimer);
       
       // 停止摄像头
       handleStopCamera();
       handleForceReleaseCamera();
       
       console.log('Camera cleanup completed');
-      if (video) {
-        video.removeEventListener('touchstart', onTouchStart);
-        video.removeEventListener('touchmove', onTouchMove);
-        video.removeEventListener('touchend', onTouchEnd);
-        video.removeEventListener('click', onClick);
-      }
     };
   }, [navigate]);
 
@@ -321,6 +295,28 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
           </div>
         </div>
         <div className="scan-frame" ref={scanFrameRef}></div>
+      </div>
+      
+      {/* 摄像头控制提示 */}
+      <div className={`camera-controls-tip ${showControlsTip ? '' : 'hidden'}`}>
+        <span>Tap to focus • Pinch to zoom</span>
+      </div>
+      
+      {/* 对焦指示器 */}
+      {focusIndicator && (
+        <div 
+          className="focus-indicator"
+          style={{
+            left: `${focusIndicator.x * 100}%`,
+            top: `${focusIndicator.y * 100}%`,
+            transform: 'translate(-50%, -50%)'
+          }}
+        />
+      )}
+      
+      {/* 缩放指示器 */}
+      <div className={`zoom-indicator ${zoomLevel > 1 ? 'visible' : ''}`}>
+        <span>🔍 {zoomLevel.toFixed(1)}x</span>
       </div>
       <button className="scan-close-btn" onClick={() => {
         console.log('Close button clicked, stopping camera and navigating...');
