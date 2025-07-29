@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import styles from './CongratulationsModal.module.css';
-import { getSpecialPuzzleConfig } from '../../utils/puzzleConfig';
+import { getSpecialPuzzleConfig } from '../../../utils/puzzleConfig';
 
 export default function CongratulationsModal({ open, onClose, firstCompletedAt, puzzleName = 'Salmon Nigiri Boy' }) {
   const [show, setShow] = useState(open);

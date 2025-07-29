@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import styles from './ShareLinkModal.module.css';
-import ModalWrapper from '../../components/common/ModalWrapper';
-import { getCurrentUser } from '../../utils/user';
-import { getShareLink, copyToClipboard } from '../../utils';
+import ModalWrapper from '../../../components/common/ModalWrapper';
+import { getCurrentUser } from '../../../utils/user';
+import { getShareLink, copyToClipboard } from '../../../utils';
 
 export default function ShareLinkModal({ open, onClose, puzzleName = 'carrot', nickname }) {
   const [userId, setUserId] = useState(null);
@@ -57,12 +57,10 @@ export default function ShareLinkModal({ open, onClose, puzzleName = 'carrot', n
         });
       } catch (error) {
         // 用户取消分享或分享失败，回退到复制链接
-        console.log('Share cancelled or failed:', error);
         await handleCopy();
       }
     } else {
       // 不支持 Web Share API，回退到复制链接
-      console.log('Web Share API not supported, falling back to copy');
       await handleCopy();
     }
   };

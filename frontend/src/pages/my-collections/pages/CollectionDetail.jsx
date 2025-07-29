@@ -1,12 +1,12 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import styles from './CollectionDetail.module.css';
+import styles from '../styles/CollectionDetail.module.css';
 import { useNavigate, useParams } from 'react-router-dom';
-import { puzzleCategories, colorOrders } from '../../data/puzzles';
-import ShareLinkModal from './ShareLinkModal';
-import ImageShareModal from './ImageShareModal';
-import { getCurrentUser, getAuthToken } from '../../utils/user';
-import { formatDateString, capitalizePuzzleName, getPuzzleCardBackground, getPageBackground } from '../../utils';
-import { collectionApi } from '../../utils/api';
+import { puzzleCategories, colorOrders } from '../../../data/puzzles';
+import ShareLinkModal from '../modals/ShareLinkModal';
+import ImageShareModal from '../modals/ImageShareModal';
+import { getCurrentUser, getAuthToken } from '../../../utils/user';
+import { formatDateString, capitalizePuzzleName, getPuzzleCardBackground, getPageBackground } from '../../../utils';
+import { collectionApi } from '../../../utils/api';
 import { 
   isSpecialPuzzle, 
   getSpecialPuzzleConfig, 
@@ -15,7 +15,7 @@ import {
   getPuzzleCollectionType,
   getPuzzleImageUrl,
   getPuzzleDescription
-} from '../../utils/puzzleConfig';
+} from '../../../utils/puzzleConfig';
 
 // 默认营养素标签
 const NUTRITION_LABELS = [
@@ -58,8 +58,6 @@ export default function CollectionDetail({
   
   // 支持路由参数和props两种方式
   const puzzleName = propPuzzleName || (params.puzzleName ? capitalizePuzzleName(params.puzzleName) : 'Carrot');
-  console.log('CollectionDetail - params.puzzleName:', params.puzzleName, 'capitalized:', capitalizePuzzleName(params.puzzleName));
-  console.log('CollectionDetail - propPuzzleName:', propPuzzleName, 'final puzzleName:', puzzleName);
 
   // 查找当前puzzle的配置
   const puzzle = useMemo(() => {
@@ -295,7 +293,6 @@ export default function CollectionDetail({
       {/* Header */}
       <div className={styles.header}>
         <h1 className={`${styles.title} h1`}>{puzzleName}</h1>
-        {console.log('CollectionDetail - Header puzzleName:', puzzleName)}
         <div className={styles.closeBtn} onClick={handleClose}>
           <img src="/assets/close (1).svg" alt="close" className={styles.closeIcon} />
         </div>
