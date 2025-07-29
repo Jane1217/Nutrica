@@ -127,9 +127,24 @@ router.post('/user-collections', authenticateUser, async (req, res) => {
     }
 
     const now = new Date().toISOString();
+    const today = new Date().toISOString().split('T')[0]; // 获取今天的日期 YYYY-MM-DD
 
     if (existingCollection) {
-      // 更新现有collection
+      // 检查是否今天已经收集过
+      const lastCollectedDate = existingCollection.updated_at ? 
+        existingCollection.updated_at.split('T')[0] : 
+        existingCollection.created_at.split('T')[0];
+      
+      if (lastCollectedDate === today) {
+        // 今天已经收集过了，返回现有数据
+        return res.json({
+          success: true,
+          message: 'Puzzle already collected today',
+          data: { count: existingCollection.count }
+        });
+      }
+      
+      // 今天还没有收集过，增加count
       const { error: updateError } = await supabase
         .from('user_collections')
         .update({

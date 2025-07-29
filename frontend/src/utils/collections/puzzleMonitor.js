@@ -98,7 +98,7 @@ export const monitorPuzzleCompletion = async (userId, dailyHomeData) => {
     // 记录 puzzle 完成状态
     handlePuzzleCompletion(puzzle_name, puzzle_progress);
 
-    // 检查是否已经存在这个puzzle的collection记录
+    // 检查今天是否已经收集过这个puzzle
     try {
       const token = await getAuthToken();
       if (token) {
@@ -110,10 +110,17 @@ export const monitorPuzzleCompletion = async (userId, dailyHomeData) => {
               collection => collection.puzzle_name === puzzle_name
             );
             
-            // 如果已经存在collection记录，说明之前已经完成过，不需要重复添加
             if (existingCollection) {
-              console.log(`Puzzle ${puzzle_name} already exists in collection, skipping`);
-              return { success: true, message: 'Puzzle already collected' };
+              // 检查是否今天已经收集过
+              const today = new Date().toISOString().split('T')[0];
+              const lastCollectedDate = existingCollection.updated_at ? 
+                existingCollection.updated_at.split('T')[0] : 
+                existingCollection.created_at.split('T')[0];
+              
+              if (lastCollectedDate === today) {
+                console.log(`Puzzle ${puzzle_name} already collected today, skipping`);
+                return { success: true, message: 'Puzzle already collected today' };
+              }
             }
           }
         }
@@ -130,11 +137,11 @@ export const monitorPuzzleCompletion = async (userId, dailyHomeData) => {
       fats: fats_goal || 0
     };
 
-    // 添加到collections（只在首次完成时）
+    // 添加到collections（只在今天首次完成时）
     const result = await addPuzzleToCollection(userId, puzzle_name, nutritionData);
     
     if (result.success) {
-      console.log(`Successfully added ${puzzle_name} to collections for the first time`);
+      console.log(`Successfully added ${puzzle_name} to collections for today`);
     }
 
     return result;

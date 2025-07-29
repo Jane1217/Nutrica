@@ -46,6 +46,10 @@ function getLocalDateString(date) {
 // 保存 daily_home_data 快照到 supabase
 async function saveDailyHomeData(data) {
   if (!data.user_id || !data.date) return;
+  
+  // 检查puzzle是否完成
+  const isPuzzleCompleted = data.puzzle_progress && data.puzzle_progress >= 100;
+  
   const { error } = await supabase
     .from('daily_home_data')
     .upsert([
@@ -57,12 +61,15 @@ async function saveDailyHomeData(data) {
   if (error) {
     console.error('Failed to save daily home data:', error);
   } else {
-    // 保存成功后，检查puzzle完成状态并添加到collections
-    const completionResult = await monitorPuzzleCompletion(data.user_id, data);
-    if (completionResult.success) {
-      console.log('Puzzle completion monitored successfully');
-    } else if (completionResult.error !== 'Puzzle not completed or missing puzzle name') {
-      console.error('Failed to monitor puzzle completion:', completionResult.error);
+    // 只有在puzzle真正完成时才检查并添加到collections
+    if (isPuzzleCompleted) {
+      const completionResult = await monitorPuzzleCompletion(data.user_id, data);
+      if (completionResult.success) {
+        console.log('Puzzle completion monitored successfully');
+      } else if (completionResult.error !== 'Puzzle not completed or missing puzzle name' && 
+                 completionResult.error !== 'Puzzle already collected today') {
+        console.error('Failed to monitor puzzle completion:', completionResult.error);
+      }
     }
   }
 }
