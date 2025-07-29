@@ -96,7 +96,7 @@ export const monitorPuzzleCompletion = async (userId, dailyHomeData) => {
     }
 
     // 记录 puzzle 完成状态
-    handlePuzzleCompletion(puzzle_name, puzzle_progress);
+    handlePuzzleCompletion(puzzle_name, puzzle_progress, userId);
 
     // 检查今天是否已经收集过这个puzzle
     try {

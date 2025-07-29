@@ -1,10 +1,20 @@
 import React, { useState } from 'react';
 import styles from './PuzzleContainer.module.css';
-import { icons } from '../../../utils';
+import { icons } from '../../../utils/media/icons';
 import PixelArtGrid from './PixelArtGrid';
 import NutritionPuzzlesModal from '../../../pages/home/puzzles/NutritionPuzzlesModal';
 
-export default function PuzzleContainer({ children, hasSelectedPuzzle = false, onChoosePuzzle, selectedPuzzle, pixelArtData, progress = {}, forceShowSvg, disableChangePuzzle }) {
+export default function PuzzleContainer({ 
+  children, 
+  hasSelectedPuzzle = false, 
+  onChoosePuzzle, 
+  selectedPuzzle, 
+  pixelArtData, 
+  progress = {}, 
+  forceShowSvg, 
+  disableChangePuzzle,
+  isLoading = false 
+}) {
   const [showMenu, setShowMenu] = useState(false);
   const [showGrid, setShowGrid] = useState(true);
   const [showUnfinishedBlocks, setShowUnfinishedBlocks] = useState(true);
@@ -18,19 +28,31 @@ export default function PuzzleContainer({ children, hasSelectedPuzzle = false, o
 
   return (
     <div className={styles.puzzleContainer} onClick={() => { if (hasSelectedPuzzle && !showSvg) setShowMenu(true); }}>
-      {hasSelectedPuzzle ? (
+      {isLoading ? (
+        // Loading 状态
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingSpinner}>
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="20" cy="20" r="18" stroke="#E5E5E5" strokeWidth="4"/>
+              <circle cx="20" cy="20" r="18" stroke="#477E2D" strokeWidth="4" strokeLinecap="round" strokeDasharray="113" strokeDashoffset="113">
+                <animate attributeName="stroke-dashoffset" values="113;0;113" dur="1.5s" repeatCount="indefinite"/>
+                <animateTransform attributeName="transform" type="rotate" values="0 20 20;360 20 20" dur="1.5s" repeatCount="indefinite"/>
+              </circle>
+            </svg>
+          </div>
+          <div className={styles.loadingText}>Loading puzzle...</div>
+        </div>
+      ) : hasSelectedPuzzle ? (
         <div className={styles.pixelGridWrapper}>
           {showSvg ? (
             <img src={selectedPuzzle.img} alt="puzzle complete" style={{width: '63%', height: '63%', objectFit: 'contain'}} />
           ) : (
-            //selectedPuzzle?.pixelMap ? (
               <PixelArtGrid 
                 pixelMap={pixelMap} 
                 progress={progress} 
                 showGrid={showGrid} 
                 showUnfinishedBlocks={showUnfinishedBlocks}
               />
-            //) : null
           )}
         </div>
       ) : (
@@ -45,7 +67,7 @@ export default function PuzzleContainer({ children, hasSelectedPuzzle = false, o
         </>
       )}
       {/* 右下角圆形图标按钮 */}
-      {!showSvg && (
+      {!showSvg && !isLoading && (
         <div className={styles.cornerIconWrapper}>
           <div className={styles.cornerIconCircle}>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 17 16" fill="none">
@@ -55,7 +77,7 @@ export default function PuzzleContainer({ children, hasSelectedPuzzle = false, o
         </div>
       )}
       {/* 弹出菜单蒙层 */}
-      {!showSvg && showMenu && (
+      {!showSvg && !isLoading && showMenu && (
         <div className={styles.menuOverlay} onClick={e => { e.stopPropagation(); }}>
           <div className={styles.menuButtons}>
             {!disableChangePuzzle && (

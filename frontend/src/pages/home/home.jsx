@@ -99,6 +99,7 @@ export default function Home(props) {
   const [foods, setFoods] = useState([]);
   const [foodsPage, setFoodsPage] = useState(1); // 当前页数
   const [foodsLoading, setFoodsLoading] = useState(false);
+  const [puzzleLoading, setPuzzleLoading] = useState(false); // 新增：puzzle loading 状态
   const [foodsTotal, setFoodsTotal] = useState(0); // 总数据量
   const foodsPerPage = 5;
   const foodsAllRef = useRef([]); // 保存所有foods原始数据
@@ -146,65 +147,76 @@ export default function Home(props) {
 
   // 页面加载时，优先用本地缓存渲染selectedPuzzle（并校验日期，不是今天就清空）
   useEffect(() => {
+    // 立即设置 loading 状态
+    setPuzzleLoading(true);
+    
     const saved = localStorage.getItem('selectedPuzzle');
     const savedDate = localStorage.getItem('selectedPuzzleDate');
     const todayStr = getLocalDateString(new Date());
+    
     if (saved && savedDate === todayStr) {
       try {
-        setSelectedPuzzle(JSON.parse(saved));
-      } catch {}
+        const parsedPuzzle = JSON.parse(saved);
+        setSelectedPuzzle(parsedPuzzle);
+        // 如果有有效缓存，立即结束 loading
+        setPuzzleLoading(false);
+      } catch {
+        // 缓存解析失败，保持 loading 状态等待 userId 获取
+        setSelectedPuzzle(null);
+        localStorage.removeItem('selectedPuzzle');
+        localStorage.removeItem('selectedPuzzleDate');
+      }
     } else {
+      // 没有有效缓存，清除并保持 loading 状态
       localStorage.removeItem('selectedPuzzle');
       localStorage.removeItem('selectedPuzzleDate');
       setSelectedPuzzle(null);
     }
   }, []);
 
-  // userId变化时，只拉取supabase数据和写入缓存，不再校验本地缓存日期
+  // userId变化时，拉取supabase数据
   useEffect(() => {
     if (!userId) {
+      // 如果没有 userId，清除数据但保持 loading 状态
       setSelectedPuzzle(null);
-    localStorage.removeItem('selectedPuzzle');
-    localStorage.removeItem('selectedPuzzleDate');
+      localStorage.removeItem('selectedPuzzle');
+      localStorage.removeItem('selectedPuzzleDate');
       return;
     }
-      const today = getLocalDateString(new Date());
-      supabase.from('daily_home_data')
-        .select('*')
-        .eq('user_id', userId)
-        .eq('date', today)
-        .maybeSingle()
-        .then(({ data }) => {
-          if (data && data.puzzle_id) {
-            const puzzle = findPuzzleById(data.puzzle_id);
-            if (puzzle) {
-              setSelectedPuzzle(puzzle);
-              localStorage.setItem('selectedPuzzle', JSON.stringify(puzzle));
-              localStorage.setItem('selectedPuzzleDate', today);
-            }
+    
+    // 如果已经有选中的 puzzle，结束 loading
+    if (selectedPuzzle) {
+      setPuzzleLoading(false);
+      return;
+    }
+    
+    // 确保 loading 状态为 true
+    setPuzzleLoading(true);
+    
+    const today = getLocalDateString(new Date());
+    supabase.from('daily_home_data')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('date', today)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data && data.puzzle_id) {
+          const puzzle = findPuzzleById(data.puzzle_id);
+          if (puzzle) {
+            setSelectedPuzzle(puzzle);
+            localStorage.setItem('selectedPuzzle', JSON.stringify(puzzle));
+            localStorage.setItem('selectedPuzzleDate', today);
+          }
         } else {
           setSelectedPuzzle(null);
           localStorage.removeItem('selectedPuzzle');
           localStorage.removeItem('selectedPuzzleDate');
-          }
-        });
-  }, [userId]);
-
-  // 页面加载时自动恢复上次选中的puzzle
-  useEffect(() => {
-    const saved = localStorage.getItem('selectedPuzzle');
-    const savedDate = localStorage.getItem('selectedPuzzleDate');
-    const todayStr = getLocalDateString(new Date());
-    if (saved && savedDate === todayStr) {
-      try {
-        setSelectedPuzzle(JSON.parse(saved));
-      } catch {}
-    } else {
-      localStorage.removeItem('selectedPuzzle');
-      localStorage.removeItem('selectedPuzzleDate');
-      setSelectedPuzzle(null);
-    }
-  }, []);
+        }
+      })
+      .finally(() => {
+        setPuzzleLoading(false); // 结束加载
+      });
+  }, [userId, selectedPuzzle]);
 
   // 新增：设置定时器在下一个0点清除puzzle选择
   useEffect(() => {
@@ -673,6 +685,7 @@ export default function Home(props) {
             progress={renderProgress}
             forceShowSvg={renderData.puzzle_progress === 1 && renderPuzzle?.img}
             disableChangePuzzle={isHistory}
+            isLoading={puzzleLoading}
           >
             {/* 拼图内容将在这里 */}
           </PuzzleContainer>

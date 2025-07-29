@@ -2,25 +2,89 @@ import { puzzleCategories } from '../../data/puzzles';
 import { collectionApi } from '../core';
 import { getAuthToken } from '../core';
 
-// 缓存机制
+// 内存缓存机制
 let collectionStatusCache = null;
 let cacheTimestamp = 0;
 const CACHE_DURATION = 5 * 60 * 1000; // 5分钟缓存
 
+// 本地存储缓存键生成
+const getLocalStorageKey = (userId) => `collection_status_${userId}`;
+const getCacheTimestampKey = (userId) => `collection_timestamp_${userId}`;
+
+// 从本地存储获取缓存
+const getLocalStorageCache = (userId) => {
+  try {
+    const cacheKey = getLocalStorageKey(userId);
+    const timestampKey = getCacheTimestampKey(userId);
+    
+    const cached = localStorage.getItem(cacheKey);
+    const timestamp = localStorage.getItem(timestampKey);
+    
+    if (cached && timestamp) {
+      const now = Date.now();
+      const cacheAge = now - parseInt(timestamp);
+      
+      if (cacheAge < CACHE_DURATION) {
+        return JSON.parse(cached);
+      }
+    }
+  } catch (error) {
+    console.error('Error reading from localStorage:', error);
+  }
+  return null;
+};
+
+// 保存到本地存储
+const setLocalStorageCache = (userId, data) => {
+  try {
+    const cacheKey = getLocalStorageKey(userId);
+    const timestampKey = getCacheTimestampKey(userId);
+    
+    localStorage.setItem(cacheKey, JSON.stringify(data));
+    localStorage.setItem(timestampKey, Date.now().toString());
+  } catch (error) {
+    console.error('Error writing to localStorage:', error);
+  }
+};
+
+// 清除本地存储缓存
+const clearLocalStorageCache = (userId) => {
+  try {
+    const cacheKey = getLocalStorageKey(userId);
+    const timestampKey = getCacheTimestampKey(userId);
+    
+    localStorage.removeItem(cacheKey);
+    localStorage.removeItem(timestampKey);
+  } catch (error) {
+    console.error('Error clearing localStorage:', error);
+  }
+};
+
 // 从数据库获取用户的收藏状态
 export const getUserCollectionStatus = async (userId, forceRefresh = false) => {
+  if (!userId) return {};
+
   try {
-    const token = await getAuthToken();
-    if (!token) {
-      console.log('No authentication token available, skipping collection status fetch');
-      return {};
+    // 检查本地存储缓存
+    if (!forceRefresh) {
+      const localCache = getLocalStorageCache(userId);
+      if (localCache) {
+        // 同时更新内存缓存
+        collectionStatusCache = localCache;
+        cacheTimestamp = Date.now();
+        return localCache;
+      }
     }
 
-    // 检查缓存是否有效
+    // 检查内存缓存
     const now = Date.now();
     if (!forceRefresh && collectionStatusCache && (now - cacheTimestamp) < CACHE_DURATION) {
-      console.log('Using cached collection status');
       return collectionStatusCache;
+    }
+
+    const token = await getAuthToken();
+    if (!token) {
+      return {};
     }
 
     // 获取当前用户的收藏数据
@@ -41,15 +105,15 @@ export const getUserCollectionStatus = async (userId, forceRefresh = false) => {
       });
     }
     
-    // 更新缓存
+    // 更新内存缓存和本地存储缓存
     collectionStatusCache = collectionStatus;
     cacheTimestamp = now;
+    setLocalStorageCache(userId, collectionStatus);
     
     return collectionStatus;
   } catch (error) {
     // 如果是认证错误，静默处理
     if (error.message && error.message.includes('401')) {
-      console.log('Collection status fetch skipped: authentication required');
       return {};
     }
     console.error('Error fetching user collection status:', error);
@@ -58,9 +122,12 @@ export const getUserCollectionStatus = async (userId, forceRefresh = false) => {
 };
 
 // 清除缓存（当用户完成新的 puzzle 时调用）
-export const clearCollectionCache = () => {
+export const clearCollectionCache = (userId) => {
   collectionStatusCache = null;
   cacheTimestamp = 0;
+  if (userId) {
+    clearLocalStorageCache(userId);
+  }
 };
 
 // 预加载收藏状态（在应用启动时调用）
@@ -68,13 +135,10 @@ export const preloadCollectionStatus = async (userId) => {
   if (!userId) return;
   
   try {
-    console.log('Preloading collection status...');
     await getUserCollectionStatus(userId);
-    console.log('Collection status preloaded successfully');
   } catch (error) {
     // 如果是认证错误，静默处理（用户可能还没有完全登录）
     if (error.message && error.message.includes('401')) {
-      console.log('Collection status preload skipped: user not fully authenticated');
       return;
     }
     console.error('Error preloading collection status:', error);
@@ -113,12 +177,10 @@ export const isPuzzleCompleted = (puzzleProgress) => {
 };
 
 // 当 puzzle 完成时，处理完成逻辑
-export const handlePuzzleCompletion = (puzzleName, puzzleProgress) => {
-  console.log(`Checking puzzle completion: ${puzzleName}, progress: ${puzzleProgress}`);
+export const handlePuzzleCompletion = (puzzleName, puzzleProgress, userId) => {
   if (isPuzzleCompleted(puzzleProgress)) {
-    console.log(`Puzzle ${puzzleName} is completed!`);
     // 清除缓存，确保下次获取最新数据
-    clearCollectionCache();
+    clearCollectionCache(userId);
     // 这里应该调用 API 将完成状态保存到数据库
     return true;
   }
