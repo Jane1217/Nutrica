@@ -1,5 +1,5 @@
-import { supabase } from '../supabaseClient';
-import { foodApi, handleApiError } from './api';
+import { supabase } from '../../supabaseClient';
+import { foodApi, handleApiError } from '../core';
 import { multiplyNutrition } from './format';
 
 // 通用的食物保存逻辑

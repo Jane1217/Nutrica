@@ -1,7 +1,7 @@
-import { supabase } from '../supabaseClient';
-import { collectionApi } from './api';
-import { getAuthToken } from './user';
-import { handlePuzzleCompletion } from './selectableCardCollection';
+import { supabase } from '../../supabaseClient';
+import { collectionApi } from '../core';
+import { getAuthToken } from '../core';
+import { handlePuzzleCompletion } from './userStatus';
 
 // 检查puzzle是否完成（puzzle_progress === 1）
 export const checkPuzzleCompletion = (puzzleProgress) => {

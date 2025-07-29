@@ -4,9 +4,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { puzzleCategories, colorOrders } from '../../../data/puzzles';
 import ShareLinkModal from '../modals/ShareLinkModal';
 import ImageShareModal from '../modals/ImageShareModal';
-import { getCurrentUser, getAuthToken } from '../../../utils/user';
-import { formatDateString, capitalizePuzzleName, getPuzzleCardBackground, getPageBackground } from '../../../utils';
-import { collectionApi } from '../../../utils/api';
+import { getCurrentUser, getAuthToken } from '../../../utils';
+import { formatDateString, capitalizePuzzleName, getPuzzleCardBackground, getPageBackground, getNutrientColorsByOrder, NUTRITION_LABELS } from '../../../utils';
+import { collectionApi } from '../../../utils';
 import { 
   isSpecialPuzzle, 
   getSpecialPuzzleConfig, 
@@ -15,29 +15,11 @@ import {
   getPuzzleCollectionType,
   getPuzzleImageUrl,
   getPuzzleDescription
-} from '../../../utils/puzzleConfig';
+} from '../../../utils';
 
-// 默认营养素标签
-const NUTRITION_LABELS = [
-  { key: 'carbs', label: 'Carbs', nutrient: 1 },
-  { key: 'protein', label: 'Protein', nutrient: 2 },
-  { key: 'fats', label: 'Fats', nutrient: 3 }
-];
 
-// 工具函数：按顺序提取某营养素的所有颜色
-function getNutrientColorsByOrder(pixelMap, nutrientType, colorOrder) {
-  if (!pixelMap) return [];
-  const colorSet = new Set();
-  for (let y = 0; y < pixelMap.length; y++) {
-    for (let x = 0; x < pixelMap[y].length; x++) {
-      const pix = pixelMap[y][x];
-      if (pix.nutrient === nutrientType) {
-        colorSet.add(pix.color);
-      }
-    }
-  }
-  return colorOrder.filter(color => colorSet.has(color));
-}
+
+
 
 export default function CollectionDetail({
   puzzleName: propPuzzleName,

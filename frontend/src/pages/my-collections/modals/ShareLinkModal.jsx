@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from './ShareLinkModal.module.css';
 import ModalWrapper from '../../../components/common/ModalWrapper';
-import { getCurrentUser } from '../../../utils/user';
+import { getCurrentUser } from '../../../utils';
 import { getShareLink, copyToClipboard } from '../../../utils';
 
 export default function ShareLinkModal({ open, onClose, puzzleName = 'carrot', nickname }) {

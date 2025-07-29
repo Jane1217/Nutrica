@@ -1,4 +1,4 @@
-import { supabase } from '../supabaseClient';
+import { supabase } from '../../supabaseClient';
 
 // 获取当前用户信息
 export async function getCurrentUser() {
@@ -52,7 +52,7 @@ export function getDisplayCalories(userInfo, latestCalories = 2000) {
     return userInfo.calculatedCalories;
   }
   return latestCalories;
-}
+} 
 
 // 获取认证token
 export async function getAuthToken() {

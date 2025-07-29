@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from './PuzzleContainer.module.css';
-import { icons } from '../../../utils/icons';
+import { icons } from '../../../utils';
 import PixelArtGrid from './PixelArtGrid';
 import NutritionPuzzlesModal from '../../../pages/home/puzzles/NutritionPuzzlesModal';
 

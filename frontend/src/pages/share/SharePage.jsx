@@ -2,7 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
 import styles from './SharePage.module.css';
 import { formatDateString, normalizeNutritionData, getUserNameFromQuery, capitalizePuzzleName, getPuzzleCardBackground, getPageBackground } from '../../utils';
-import { collectionApi } from '../../utils/api';
+import { collectionApi } from '../../utils';
 import { puzzleCategories, colorOrders } from '../../data/puzzles';
 import { 
   isSpecialPuzzle, 
@@ -12,7 +12,7 @@ import {
   getPuzzleCollectionType,
   getPuzzleImageUrl,
   getPuzzleDescription
-} from '../../utils/puzzleConfig';
+} from '../../utils';
 
 // 工具函数：按顺序提取某营养素的所有颜色
 function getNutrientColorsByOrder(pixelMap, nutrientType, colorOrder) {
@@ -133,10 +133,10 @@ export default function SharePage() {
   // 动态生成palette颜色，兼容不同puzzle
   const paletteColors = useMemo(() => {
     if (!puzzle?.pixelMap) return {
-      carbs: ['#FF9F58', '#FB6D03', '#FB3503', '#B92F17'],
-      protein: ['#3B0E09'],
-      fats: ['#98E673', '#60BF32', '#0FA23A', '#1D793B']
-    };
+    carbs: ['#FF9F58', '#FB6D03', '#FB3503', '#B92F17'],
+    protein: ['#3B0E09'],
+    fats: ['#98E673', '#60BF32', '#0FA23A', '#1D793B']
+  };
     // 根据puzzle.id动态获取colorOrder
     const colorOrder = colorOrders[puzzle.id];
     return {
@@ -214,38 +214,38 @@ export default function SharePage() {
           <img 
             src={iconUrl} 
             alt={puzzleName} 
-            className={styles.puzzleImg}
+            className={styles.puzzleImg} 
             style={getPuzzleImageStyle(puzzleName)}
           />
           
           {/* Nutrition Module - 根据puzzle配置决定是否显示 */}
           {hasNutritionModule(puzzleName) && (
-            <div className={styles.nutritionModule}>
-              {NUTRITION_LABELS.map((item) => (
-                <div className={styles.nutritionItem} key={item.key}>
-                  <div className={styles.palette}>
-                    {(paletteColors[item.key] || ['#EEE']).map((color, i, arr) => (
-                      <div
-                        key={i}
-                        className={styles.paletteSegment}
-                        style={{
-                          background: color,
-                          height: `${24 / arr.length}px`,
-                          borderTopLeftRadius: i === 0 ? 4 : 0,
-                          borderTopRightRadius: i === 0 ? 4 : 0,
-                          borderBottomLeftRadius: i === arr.length - 1 ? 4 : 0,
-                          borderBottomRightRadius: i === arr.length - 1 ? 4 : 0,
-                        }}
-                      />
-                    ))}
-                  </div>
-                  <div className={styles.nutritionValueWrapper}>
-                    <div className={`${styles.nutritionValue} h5`}>{nutrition[item.key]}g</div>
-                    <div className={`${styles.nutritionLabel} label`}>{item.label}</div>
-                  </div>
+          <div className={styles.nutritionModule}>
+            {NUTRITION_LABELS.map((item) => (
+              <div className={styles.nutritionItem} key={item.key}>
+                <div className={styles.palette}>
+                  {(paletteColors[item.key] || ['#EEE']).map((color, i, arr) => (
+                    <div
+                      key={i}
+                      className={styles.paletteSegment}
+                      style={{
+                        background: color,
+                        height: `${24 / arr.length}px`,
+                        borderTopLeftRadius: i === 0 ? 4 : 0,
+                        borderTopRightRadius: i === 0 ? 4 : 0,
+                        borderBottomLeftRadius: i === arr.length - 1 ? 4 : 0,
+                        borderBottomRightRadius: i === arr.length - 1 ? 4 : 0,
+                      }}
+                    />
+                  ))}
                 </div>
-              ))}
-            </div>
+                <div className={styles.nutritionValueWrapper}>
+                  <div className={`${styles.nutritionValue} h5`}>{nutrition[item.key]}g</div>
+                  <div className={`${styles.nutritionLabel} label`}>{item.label}</div>
+                </div>
+              </div>
+            ))}
+          </div>
           )}
         </div>
 

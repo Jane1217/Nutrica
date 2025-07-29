@@ -2,7 +2,7 @@
  * 前端API工具函数
  */
 
-import { supabase } from '../supabaseClient';
+import { supabase } from '../../supabaseClient';
 
 // API基础URL
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');

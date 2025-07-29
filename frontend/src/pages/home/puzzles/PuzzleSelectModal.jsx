@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import ModalWrapper from "../../../components/common/ModalWrapper";
 import SelectableCard from "../../../components/puzzles/SelectableCard";
 import styles from "./PuzzleSelectModal.module.css";
-import { getPuzzleInCollection } from "../../../utils/selectableCardCollection";
-import { getCurrentUser } from "../../../utils/user";
+import { getPuzzleInCollection } from "../../../utils";
+import { getCurrentUser } from "../../../utils";
 
 export default function PuzzleSelectModal({ open, onClose, onBack, puzzleList, categoryTitle = 'Magic Garden', onSelect }) {
   const [selectedIdx, setSelectedIdx] = useState(null);

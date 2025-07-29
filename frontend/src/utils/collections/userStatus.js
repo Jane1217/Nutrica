@@ -1,6 +1,6 @@
-import { puzzleCategories } from '../data/puzzles';
-import { collectionApi } from './api';
-import { getAuthToken } from './user';
+import { puzzleCategories } from '../../data/puzzles';
+import { collectionApi } from '../core';
+import { getAuthToken } from '../core';
 
 // 从数据库获取用户的收藏状态
 export const getUserCollectionStatus = async (userId) => {
