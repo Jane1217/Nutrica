@@ -4,9 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { puzzleCategories, colorOrders } from '../../../data/puzzles';
 import ShareLinkModal from '../modals/ShareLinkModal';
 import ImageShareModal from '../modals/ImageShareModal';
-import { getCurrentUser, getAuthToken } from '../../../utils';
 import { formatDateString, capitalizePuzzleName, getPuzzleCardBackground, getPageBackground, getNutrientColorsByOrder, NUTRITION_LABELS } from '../../../utils';
-import { collectionApi } from '../../../utils';
 import { 
   isSpecialPuzzle, 
   getSpecialPuzzleConfig, 
@@ -16,6 +14,7 @@ import {
   getPuzzleImageUrl,
   getPuzzleDescription
 } from '../../../utils';
+import { useCollectionData, useUserData } from '../hooks';
 
 
 
@@ -33,9 +32,6 @@ export default function CollectionDetail({
   const navigate = useNavigate();
   const params = useParams();
   const [showShareModal, setShowShareModal] = useState(false);
-  const [collectionData, setCollectionData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [showImageShare, setShowImageShare] = useState(false);
   
   // 支持路由参数和props两种方式
@@ -60,48 +56,17 @@ export default function CollectionDetail({
   const iconUrl = propIconUrl || getPuzzleImageUrl(puzzleName, puzzle);
   const description = propDescription || getPuzzleDescription(puzzleName, puzzle);
 
-  // 从数据库获取collection数据
-  useEffect(() => {
-    const fetchCollectionData = async () => {
-      try {
-        setLoading(true);
-        const user = await getCurrentUser();
-        if (!user) {
-          setError('User not authenticated');
-          setLoading(false);
-          return;
-        }
+  // 使用自定义hook获取collection数据
+  const { collectionData: allCollectionData, loading, error } = useCollectionData(collectionType);
+  
+  // 从collection数据中找到当前puzzle的数据
+  const collectionData = useMemo(() => {
+    if (!allCollectionData) return null;
+    return allCollectionData.find(collection => collection.puzzle_name === puzzleName) || null;
+  }, [allCollectionData, puzzleName]);
 
-        // 获取认证token
-        const token = await getAuthToken();
-        if (!token) {
-          setError('No authentication token available');
-          setLoading(false);
-          return;
-        }
-
-        // 使用后端API获取collection数据
-        const response = await collectionApi.getUserCollections(collectionType, token);
-        
-        if (response.success && response.data) {
-          const collectionData = response.data.find(
-            collection => collection.puzzle_name === puzzleName
-          );
-          setCollectionData(collectionData || null);
-        } else {
-          console.error('Failed to fetch collection data:', response.error);
-          setError('Failed to load collection data');
-        }
-      } catch (error) {
-        console.error('Error fetching collection data:', error);
-        setError('Failed to load collection data');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCollectionData();
-  }, [puzzleName, collectionType]);
+  // 使用自定义hook获取用户数据
+  const { nickname, avatarUrl } = useUserData();
 
   // 动态生成palette颜色，兼容不同puzzle
   const paletteColors = useMemo(() => {
@@ -142,19 +107,7 @@ export default function CollectionDetail({
     return { carbs: 0, protein: 0, fats: 0 };
   }, [collectionData]);
 
-  // 获取当前用户昵称和头像（与Account页面一致）
-  const [nickname, setNickname] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState('');
-  useEffect(() => {
-    async function fetchUserMeta() {
-      const user = await getCurrentUser();
-      if (user && user.user_metadata) {
-        setNickname(user.user_metadata.name || '');
-        setAvatarUrl(user.user_metadata.avatarUrl || '');
-      }
-    }
-    fetchUserMeta();
-  }, []);
+
 
   const handleClose = () => {
     if (onClose) onClose();

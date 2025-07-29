@@ -1,0 +1,41 @@
+.emptyPage {
+  min-height: 100vh;
+  background: var(--Neutral-Background, #F3F3EC);
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.title {
+  color: var(--Neutral-Primary-Text, #22221B);
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.emptyContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+  max-width: 400px;
+}
+
+.emptyHeading {
+  color: var(--Neutral-Primary-Text, #22221B);
+  margin: 0;
+}
+
+.emptyText {
+  color: var(--Neutral-Secondary-Text, #666);
+  margin: 0;
+  line-height: 1.5;
+} 
