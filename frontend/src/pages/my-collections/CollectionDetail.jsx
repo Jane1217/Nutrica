@@ -49,6 +49,8 @@ export default function CollectionDetail({
   
   // 支持路由参数和props两种方式
   const puzzleName = propPuzzleName || (params.puzzleName ? capitalizePuzzleName(params.puzzleName) : 'Carrot');
+  console.log('CollectionDetail - params.puzzleName:', params.puzzleName, 'capitalized:', capitalizePuzzleName(params.puzzleName));
+  console.log('CollectionDetail - propPuzzleName:', propPuzzleName, 'final puzzleName:', puzzleName);
 
   // 查找当前puzzle的配置
   const puzzle = useMemo(() => {
@@ -69,8 +71,8 @@ export default function CollectionDetail({
   };
   
   const collectionType = propCollectionType || getCollectionType(puzzleName);
-  const iconUrl = propIconUrl || puzzle?.img || '/assets/puzzles/puzzle_carrot.svg';
-  const description = propDescription || puzzle?.description || "Bright, balanced, and well-fed. That's the carrot energy we love to see.";
+  const iconUrl = propIconUrl || (puzzleName === 'Salmon Nigiri Boy' ? '/assets/puzzles/salmon_nigiri_boy.svg' : puzzle?.img || '/assets/puzzles/puzzle_carrot.svg');
+  const description = propDescription || (puzzleName === 'Salmon Nigiri Boy' ? "The cutest sushi sidekick with a wink and a salmon-sized heart!" : puzzle?.description || "Bright, balanced, and well-fed. That's the carrot energy we love to see.");
 
   // 从数据库获取collection数据
   useEffect(() => {
@@ -216,7 +218,37 @@ export default function CollectionDetail({
   }
 
   // puzzleCard渲染片段（与主卡片一致）
-  const puzzleCardNode = (
+  console.log('CollectionDetail - puzzleName:', puzzleName, 'puzzleName type:', typeof puzzleName, 'puzzleName length:', puzzleName.length);
+  console.log('CollectionDetail - isSalmonNigiriBoy:', puzzleName === 'Salmon Nigiri Boy');
+  console.log('CollectionDetail - puzzleName char codes:', Array.from(puzzleName).map(c => c.charCodeAt(0)));
+  
+  // 更明确的条件判断
+  const isSalmonNigiriBoy = puzzleName === 'Salmon Nigiri Boy' || puzzleName.toLowerCase().includes('salmon nigiri boy');
+  console.log('CollectionDetail - isSalmonNigiriBoy (enhanced):', isSalmonNigiriBoy);
+  
+  const puzzleCardNode = isSalmonNigiriBoy ? (
+    // Salmon Nigiri Boy使用与CongratulationsModal相同的结构
+    <div className={styles.puzzleCard} style={{
+      boxShadow:'none', 
+      border:'2px solid #22221B', 
+      background: '#F6B384'
+    }}>
+      <div className={`${styles.timestamp} h5`}>{dateStr}</div>
+      <div className={styles.headingModule}>
+        <div className={`${styles.collectionInfo} label`}>Salmon Nigiri Boy</div>
+        <div className={styles.heading}>
+          The cutest sushi sidekick with a wink and a salmon-sized heart!
+        </div>
+      </div>
+      <img 
+        src="/assets/puzzles/salmon_nigiri_boy.svg" 
+        alt="Salmon Nigiri Boy" 
+        className={styles.puzzleImg}
+        style={{ width: '200px', height: '200px', flexShrink: '0', aspectRatio: '1/1' }}
+      />
+    </div>
+  ) : (
+    // 其他puzzle使用原有结构
     <div className={styles.puzzleCard} style={{
       boxShadow:'none', 
       border:'2px solid #22221B', 
@@ -264,6 +296,7 @@ export default function CollectionDetail({
       {/* Header */}
       <div className={styles.header}>
         <h1 className={`${styles.title} h1`}>{puzzleName}</h1>
+        {console.log('CollectionDetail - Header puzzleName:', puzzleName)}
         <div className={styles.closeBtn} onClick={handleClose}>
           <img src="/assets/close (1).svg" alt="close" className={styles.closeIcon} />
         </div>
