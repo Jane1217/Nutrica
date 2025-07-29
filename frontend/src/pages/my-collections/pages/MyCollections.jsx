@@ -2,43 +2,38 @@ import React, { useEffect, useState } from 'react';
 import NavLogo from '../../../components/navbar/Nav-Logo';
 import styles from '../styles/MyCollections.module.css';
 import { useNavigate } from 'react-router-dom';
-import { getCurrentUser, getAuthToken } from '../../../utils';
+import { getAuthToken } from '../../../utils';
 import { collectionApi } from '../../../utils';
 import CongratulationsModal from '../modals/CongratulationsModal';
 import { 
   isSpecialPuzzle, 
   getSpecialPuzzleConfig, 
-  isSynthesisPuzzle,
   getPuzzleIconPath,
   checkCongratulationsModal
 } from '../../../utils';
+import { useUserData } from '../hooks';
+import { LoadingState, EmptyState } from '../../../components/status';
 
 export default function MyCollections() {
   const [collections, setCollections] = useState([]); // 用户已收集的 puzzle
   const [collectionPuzzles, setCollectionPuzzles] = useState([]); // collection_puzzles配置
   const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState(null);
-  const [user, setUser] = useState(null);
   const [showCongratulations, setShowCongratulations] = useState(false);
   const [salmonNigiriFirstCompletedAt, setSalmonNigiriFirstCompletedAt] = useState(null);
   const navigate = useNavigate();
 
+  // 使用自定义hook获取用户数据
+  const { user, userId } = useUserData();
 
-
-  // 获取当前登录用户
+  // 检查用户登录状态
   useEffect(() => {
-    const fetchUser = async () => {
-      const currentUser = await getCurrentUser();
-      if (!currentUser) {
-        // 用户未登录，跳转到登录页
-        navigate('/log-in');
-        return;
-      }
-      setUser(currentUser);
-      setUserId(currentUser.id);
-    };
-    fetchUser();
-  }, [navigate]);
+    if (user === null) return; // 还在加载中
+    
+    if (!user) {
+      // 用户未登录，跳转到登录页
+      navigate('/log-in');
+    }
+  }, [user, navigate]);
 
   // 获取collection_puzzles配置
   useEffect(() => {
@@ -134,18 +129,12 @@ export default function MyCollections() {
 
   // 如果正在加载，显示加载状态
   if (loading) {
-      return (
-    <div className={styles.myCollectionsPage}>
-      <NavLogo isLoggedIn={true} isAuth={false} />
-      <div className={styles.container}>
-        <h1 className={`${styles.title} h1`}>My Collections</h1>
-        <div className={styles.loadingContainer}>
-          <div className={styles.loadingSpinner}></div>
-          <span className="body1">Loading collections...</span>
-        </div>
-      </div>
-    </div>
-  );
+    return (
+      <>
+        <NavLogo isLoggedIn={true} isAuth={false} />
+        <LoadingState />
+      </>
+    );
   }
 
   // 如果用户未登录，不渲染内容（会跳转到登录页）
@@ -153,22 +142,17 @@ export default function MyCollections() {
     return null;
   }
 
-  // 如果没有任何collection，显示空状态
-  if (collections.length === 0) {
-      return (
-    <div className={styles.myCollectionsPage}>
-      <NavLogo isLoggedIn={true} isAuth={false} />
-      <div className={styles.container}>
-        <h1 className={`${styles.title} h1`}>My Collections</h1>
-        <div className={styles.emptyContainer}>
-          <span className={`${styles.emptyHeading} h3`}>No puzzle collection yet!</span>
-          <span className={`${styles.emptyText} body2`}>
-            Choose a nutrition puzzle from homepage and reach your daily nutrition goal to collect puzzles.
-          </span>
-        </div>
-      </div>
-    </div>
-  );
+  // 检查是否有任何主题收集到puzzle
+  const hasAnyCollectedPuzzles = collections.some(collection => collection.count > 0);
+  
+  // 如果没有任何collection或没有任何主题收集到puzzle，显示空状态
+  if (collections.length === 0 || !hasAnyCollectedPuzzles) {
+    return (
+      <>
+        <NavLogo isLoggedIn={true} isAuth={false} />
+        <EmptyState />
+      </>
+    );
   }
 
   // 按主题分组显示
@@ -193,13 +177,18 @@ export default function MyCollections() {
         slot.puzzle_name.toLowerCase() === theme.toLowerCase()
       );
       
-      specialThemeData[theme] = {
-        slots: themeSlots,
-        topSlots,
-        topCompleted,
-        specialPuzzleSlot,
-        config
-      };
+      // 只有当主题有收集到puzzle时才添加到specialThemeData
+      const hasCollectedPuzzles = topSlots.some(slot => slot.collected) || specialPuzzleSlot?.collected;
+      
+      if (hasCollectedPuzzles) {
+        specialThemeData[theme] = {
+          slots: themeSlots,
+          topSlots,
+          topCompleted,
+          specialPuzzleSlot,
+          config
+        };
+      }
     }
   }
 
@@ -210,7 +199,7 @@ export default function MyCollections() {
         <h1 className={`${styles.title} h1`}>My Collections</h1>
         
         {/* Magic Garden Theme */}
-        {magicGardenSlots.length > 0 && (
+        {magicGardenSlots.length > 0 && magicGardenCompleted > 0 && (
           <div className={styles.collectionList}>
             <div className={styles.collectionScene}>
               <div className={styles.puzzleGrid}>
