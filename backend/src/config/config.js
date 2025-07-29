@@ -32,6 +32,26 @@ const config = {
     supabaseUrl: process.env.SUPABASE_URL,
     supabaseKey: process.env.SUPABASE_ANON_KEY,
     supabaseServiceKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+    // 性能优化配置
+    connectionPool: {
+      maxConnections: 20,
+      idleTimeout: 30000, // 30秒
+      connectionTimeout: 10000, // 10秒
+    },
+    // 查询优化
+    query: {
+      timeout: 15000, // 15秒查询超时
+      retryAttempts: 3,
+      retryDelay: 1000, // 1秒重试延迟
+    }
+  },
+  
+  // Cache configuration
+  cache: {
+    enabled: true,
+    defaultTTL: 5 * 60 * 1000, // 5分钟
+    maxSize: 1000, // 最大缓存条目数
+    cleanupInterval: 10 * 60 * 1000, // 10分钟清理间隔
   },
   
   // OpenAI configuration
@@ -58,7 +78,10 @@ const config = {
     rateLimit: {
       windowMs: 15 * 60 * 1000, // 15 minutes
       max: 100 // Limit each IP to 100 requests per 15 minutes
-    }
+    },
+    // 性能优化
+    compression: true,
+    timeout: 30000, // 30秒API超时
   }
 };
 
