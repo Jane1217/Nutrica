@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import NavLogo from '../../components/navbar/Nav-Logo';
-import styles from './MyCollections.module.css';
+import NavLogo from '../../../components/navbar/Nav-Logo';
+import styles from '../styles/MyCollections.module.css';
 import { useNavigate } from 'react-router-dom';
-import { getCurrentUser } from '../../utils/user';
-import { collectionApi } from '../../utils/api';
-import { getAuthToken } from '../../utils/user';
-import CongratulationsModal from './CongratulationsModal';
+import { getCurrentUser } from '../../../utils/user';
+import { collectionApi } from '../../../utils/api';
+import { getAuthToken } from '../../../utils/user';
+import CongratulationsModal from '../modals/CongratulationsModal';
 import { 
   isSpecialPuzzle, 
   getSpecialPuzzleConfig, 
   isSynthesisPuzzle
-} from '../../utils/puzzleConfig';
+} from '../../../utils/puzzleConfig';
 
 export default function MyCollections() {
   const [collections, setCollections] = useState([]); // 用户已收集的 puzzle
@@ -75,7 +75,7 @@ export default function MyCollections() {
               }, token);
               
               if (response.success) {
-                console.log(`${config.name} added to user_collections`);
+                // Puzzle added to user_collections
               } else {
                 console.error(`Failed to add ${config.name} to user_collections:`, response.error);
               }
@@ -109,7 +109,7 @@ export default function MyCollections() {
             const token = await getAuthToken();
             if (token) {
               await collectionApi.updateCongratulationsShown(config.name, collectionType, token);
-              console.log('CongratulationsModal shown status updated in database');
+              // CongratulationsModal shown status updated in database
             }
           } catch (error) {
             console.error('Error updating congratulations shown status:', error);
@@ -189,9 +189,6 @@ export default function MyCollections() {
         const magicGardenResponse = await collectionApi.getUserCollections('Magic Garden', token);
         const salmonNigiriResponse = await collectionApi.getUserCollections('Salmon Nigiri Boy', token);
         
-        console.log('Magic Garden response:', magicGardenResponse);
-        console.log('Salmon Nigiri response:', salmonNigiriResponse);
-        
         let allCollections = [];
         
         if (magicGardenResponse.success) {
@@ -206,7 +203,6 @@ export default function MyCollections() {
           console.error('Salmon Nigiri API failed:', salmonNigiriResponse.error);
         }
         
-        console.log('All collections:', allCollections);
         setCollections(allCollections);
         
         // 检查是否应该显示CongratulationsModal
