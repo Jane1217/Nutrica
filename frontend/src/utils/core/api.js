@@ -54,7 +54,7 @@ export const apiRequest = async (endpoint, options = {}) => {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('API request failed:', error);
+    // 静默处理所有错误，不显示在控制台
     throw error;
   }
 };
@@ -102,7 +102,7 @@ export const uploadFile = async (endpoint, file, onProgress = null) => {
     
     return data;
   } catch (error) {
-    console.error('File upload failed:', error);
+    // 静默处理所有错误，不显示在控制台
     throw error;
   }
 };

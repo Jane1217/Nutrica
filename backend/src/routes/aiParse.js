@@ -59,6 +59,11 @@ router.post('/description', async (req, res) => {
       return errorResponse(res, new Error('Failed to parse AI response'));
     }
 
+    // If AI cannot understand the description
+    if (nutritionData.error) {
+      return errorResponse(res, new Error('AI recognition failed'), 400);
+    }
+
     // 生成emoji
     let emoji = await openaiService.getFoodEmoji(nutritionData.name || description);
 
@@ -126,9 +131,9 @@ router.post('/food', upload.single('image'), async (req, res) => {
       return errorResponse(res, new Error('Failed to parse AI response'));
     }
 
-    // If AI cannot recognize
+    // If AI cannot recognize (for image analysis)
     if (nutritionData.error) {
-      return errorResponse(res, new Error(nutritionData.error), 400);
+      return errorResponse(res, new Error('AI recognition failed'), 400);
     }
 
     // 生成emoji

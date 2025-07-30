@@ -3,6 +3,7 @@ import '../styles/FoodModal.css';
 import { validateFoodForm } from '../../../utils';
 import { saveFoodWithServings, multiplyNutrition } from '../../../utils';
 import ModalWrapper from '../../../components/common/ModalWrapper';
+import Toast from '../../../components/common/Toast';
 import { icons } from '../../../utils';
 
 export default function FoodModal({ open, onClose, initialData, userId, onDataChange }) {
@@ -23,6 +24,7 @@ export default function FoodModal({ open, onClose, initialData, userId, onDataCh
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+  const [errorToast, setErrorToast] = useState({ show: false, message: '' });
 
   // 每次 initialData 变化时自动填充表单和baseNutrition
   useEffect(() => {
@@ -48,6 +50,25 @@ export default function FoodModal({ open, onClose, initialData, userId, onDataCh
   useEffect(() => {
     baseNutritionRef.current = baseNutrition;
   }, [baseNutrition]);
+
+  const validateInput = (name, value) => {
+    // 确保value是字符串类型
+    const stringValue = String(value);
+    if (!stringValue.trim()) {
+      return 'Field cannot be empty';
+    }
+    if (['calories', 'carbs', 'fats', 'protein'].includes(name)) {
+      if (isNaN(Number(value)) || Number(value) < 0) {
+        return 'Must be a valid number';
+      }
+    }
+    if (name === 'number_of_servings') {
+      if (isNaN(Number(value)) || Number(value) < 1) {
+        return 'Must be at least 1';
+      }
+    }
+    return null;
+  };
 
   const handleServingsChange = e => {
     const value = e.target.value;
@@ -80,36 +101,57 @@ export default function FoodModal({ open, onClose, initialData, userId, onDataCh
   };
 
   const handleConfirm = async () => {
-    // 校验所有输入框不能为空
-    const validation = validateFoodForm(form);
-    if (!validation.isValid) {
-      setError(validation.message);
-      return;
+    // 清除之前的错误
+    setError('');
+    setErrorToast({ show: false, message: '' });
+
+    // 验证所有字段
+    const fields = ['name', 'number_of_servings'];
+    if (String(form.number_of_servings) === '1') {
+      fields.push('calories', 'carbs', 'fats', 'protein');
     }
     
-    if (!baseNutrition.calories || !baseNutrition.carbs || !baseNutrition.fats || !baseNutrition.protein) {
-      setError('All fields are required.');
-      return;
+    for (const field of fields) {
+      const validationError = validateInput(field, form[field]);
+      if (validationError) {
+        setErrorToast({ show: true, message: validationError });
+        return;
+      }
+    }
+
+    // 验证baseNutrition（当servings为1时）
+    if (String(form.number_of_servings) === '1') {
+      const nutritionFields = ['calories', 'carbs', 'fats', 'protein'];
+      for (const field of nutritionFields) {
+        const validationError = validateInput(field, baseNutrition[field]);
+        if (validationError) {
+          setErrorToast({ show: true, message: validationError });
+          return;
+        }
+      }
     }
     
     setLoading(true);
-    setError('');
     try {
       const result = await saveFoodWithServings(form, baseNutrition, initialData?.emoji || '🍽️', onDataChange);
       
       if (result.success) {
         setSuccess(true);
-        // 保存成功时不重置loading，让onDataChange处理跳转
       } else {
         setError(result.error || 'Save failed');
-        setLoading(false); // 只在失败时重置loading
+        setLoading(false);
       }
     } catch (error) {
       setError(error.message);
-      setLoading(false); // 只在失败时重置loading
+      setLoading(false);
     }
-    // 移除finally块，避免在成功时重置loading
   };
+
+  const handleErrorToastClose = () => {
+    setErrorToast({ show: false, message: '' });
+  };
+
+  const isSingleServing = String(form.number_of_servings) === '1';
 
   return (
     <ModalWrapper open={open} onClose={onClose}>
@@ -133,31 +175,55 @@ export default function FoodModal({ open, onClose, initialData, userId, onDataCh
         <div className="food-modal-nutrition-list">
           <div className="food-modal-row">
             <span className="food-modal-row-label h3">Calories</span>
-            <div className="food-modal-input-group">
-              <input name="calories" value={form.calories} onChange={handleChange} className="food-modal-input h4" disabled={String(form.number_of_servings) !== '1'} />
-              <span className="food-modal-unit h5">kcal</span>
-            </div>
+            {isSingleServing ? (
+              <div className="food-modal-input-group">
+                <input name="calories" value={form.calories} onChange={handleChange} className="food-modal-input h4" />
+                <span className="food-modal-unit h5">kcal</span>
+              </div>
+            ) : (
+              <span className="food-modal-static-value h3">
+                {form.calories ? `${form.calories} kcal` : ''}
+              </span>
+            )}
           </div>
           <div className="food-modal-row">
             <span className="food-modal-row-label h3">Carbs</span>
-            <div className="food-modal-input-group">
-              <input name="carbs" value={form.carbs} onChange={handleChange} className="food-modal-input h4" disabled={String(form.number_of_servings) !== '1'} />
-              <span className="food-modal-unit h5">g</span>
-            </div>
+            {isSingleServing ? (
+              <div className="food-modal-input-group">
+                <input name="carbs" value={form.carbs} onChange={handleChange} className="food-modal-input h4" />
+                <span className="food-modal-unit h5">g</span>
+              </div>
+            ) : (
+              <span className="food-modal-static-value h3">
+                {form.carbs ? `${form.carbs}g` : ''}
+              </span>
+            )}
           </div>
           <div className="food-modal-row">
             <span className="food-modal-row-label h3">Fats</span>
-            <div className="food-modal-input-group">
-              <input name="fats" value={form.fats} onChange={handleChange} className="food-modal-input h4" disabled={String(form.number_of_servings) !== '1'} />
-              <span className="food-modal-unit h5">g</span>
-            </div>
+            {isSingleServing ? (
+              <div className="food-modal-input-group">
+                <input name="fats" value={form.fats} onChange={handleChange} className="food-modal-input h4" />
+                <span className="food-modal-unit h5">g</span>
+              </div>
+            ) : (
+              <span className="food-modal-static-value h3">
+                {form.fats ? `${form.fats}g` : ''}
+              </span>
+            )}
           </div>
           <div className="food-modal-row">
             <span className="food-modal-row-label h3">Protein</span>
-            <div className="food-modal-input-group">
-              <input name="protein" value={form.protein} onChange={handleChange} className="food-modal-input h4" disabled={String(form.number_of_servings) !== '1'} />
-              <span className="food-modal-unit h5">g</span>
-            </div>
+            {isSingleServing ? (
+              <div className="food-modal-input-group">
+                <input name="protein" value={form.protein} onChange={handleChange} className="food-modal-input h4" />
+                <span className="food-modal-unit h5">g</span>
+              </div>
+            ) : (
+              <span className="food-modal-static-value h3">
+                {form.protein ? `${form.protein}g` : ''}
+              </span>
+            )}
           </div>
         </div>
         <div className="food-modal-action-group">
@@ -165,6 +231,12 @@ export default function FoodModal({ open, onClose, initialData, userId, onDataCh
         </div>
         {error && <div className="food-modal-error">{error}</div>}
       </div>
+      <Toast
+        message={errorToast.message}
+        type="error"
+        show={errorToast.show}
+        onClose={handleErrorToastClose}
+      />
     </ModalWrapper>
   );
 } 

@@ -1,15 +1,44 @@
 import React, { useState } from 'react';
 import '../styles/FoodModal.css';
 import ModalWrapper from '../../../components/common/ModalWrapper';
+import Toast from '../../../components/common/Toast';
 import { icons } from '../../../utils';
+import { parseFoodDescription } from '../../../utils';
 
 export default function DescribeModal({ open, onClose, onBack, onCloseModal, onNext }) {
   const [description, setDescription] = useState('');
+  const [errorToast, setErrorToast] = useState({ show: false, message: '' });
+  const [loading, setLoading] = useState(false);
 
-  const handleNext = () => {
-    if (description.trim()) {
-      onNext(description.trim());
+  const handleNext = async () => {
+    if (!description.trim()) {
+      setErrorToast({ show: true, message: 'Input cannot be empty' });
+      return;
     }
+
+    setLoading(true);
+    setErrorToast({ show: false, message: '' });
+    
+    try {
+      const response = await parseFoodDescription(description.trim());
+      if (response.success) {
+        onNext(description.trim(), response.data);
+      } else {
+        setErrorToast({ show: true, message: 'Food description not recognized' });
+      }
+    } catch (error) {
+      let errorMessage = 'Food description not recognized';
+      if (error.message && (error.message.includes('fetch') || error.message.includes('network') || error.message.includes('connection'))) {
+        errorMessage = 'No Internet connection';
+      }
+      setErrorToast({ show: true, message: errorMessage });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleErrorToastClose = () => {
+    setErrorToast({ show: false, message: '' });
   };
 
   return (
@@ -36,18 +65,25 @@ export default function DescribeModal({ open, onClose, onBack, onCloseModal, onN
             className="describe-textarea h2"
             placeholder="Type what you ate (e.g., 2 eggs, a slice of bread, 1 avocado)"
             style={{ color: description ? '#000' : undefined }}
+            disabled={loading}
           />
         </div>
         <div className="food-modal-action-group">
         <button 
           className="food-modal-confirm-btn h5" 
           onClick={handleNext}
-          disabled={!description.trim()}
+          disabled={!description.trim() || loading}
         >
-          Next
+          {loading ? 'Analyzing...' : 'Next'}
         </button>
         </div>
       </div>
+      <Toast
+        message={errorToast.message}
+        type="error"
+        show={errorToast.show}
+        onClose={handleErrorToastClose}
+      />
     </ModalWrapper>
   );
 } 

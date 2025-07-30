@@ -72,7 +72,6 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
         }
       }
     } catch (error) {
-      console.error('Camera start error:', error);
       if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
         setCameraPermissionDenied(true);
       }
@@ -142,32 +141,11 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
         });
         setFoodModalOpen(true);
       } catch (error) {
-        console.error('Image parsing error:', error);
-        
         let errorMessage = 'Food label not recognized';
         
         // 检查是否是网络错误
         if (error.message && (error.message.includes('fetch') || error.message.includes('network') || error.message.includes('connection'))) {
           errorMessage = 'No Internet connection';
-        } else if (error.message && error.message.includes('HTTP')) {
-          // 解析HTTP错误响应
-          try {
-            // 提取JSON部分，处理可能的格式问题
-            const httpMatch = error.message.match(/HTTP \d+: (.+)/);
-            if (httpMatch && httpMatch[1]) {
-              const jsonStr = httpMatch[1].trim();
-              // 处理可能的转义字符问题
-              const cleanJsonStr = jsonStr.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
-              const errorData = JSON.parse(cleanJsonStr);
-              if (errorData.error && errorData.error.message) {
-                errorMessage = errorData.error.message;
-              }
-            }
-          } catch (parseError) {
-            // 如果解析失败，使用默认错误信息
-            console.error('Failed to parse error response:', parseError);
-            console.error('Original error message:', error.message);
-          }
         }
         
         setErrorToast({ show: true, message: errorMessage });

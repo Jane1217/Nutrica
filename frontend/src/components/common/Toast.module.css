@@ -48,7 +48,7 @@
 }
 
 .toastText {
-  color: var(--Neutral-White, #FFF);
+  color: var(--Neutral-White, #FFF) !important;
   font-family: Kanit, sans-serif;
   font-size: 14px;
   font-weight: 400;

@@ -3,6 +3,7 @@ import '../styles/FoodModal.css';
 import { validateFoodForm } from '../../../utils';
 import { validateAndSaveFood } from '../../../utils';
 import ModalWrapper from '../../../components/common/ModalWrapper';
+import Toast from '../../../components/common/Toast';
 import { icons } from '../../../utils';
 
 export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal, aiData, userId, onDataChange }) {
@@ -15,7 +16,7 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [error, setError] = useState('');
+  const [errorToast, setErrorToast] = useState({ show: false, message: '' });
 
   // 当AI数据变化时，自动填充表单
   useEffect(() => {
@@ -39,12 +40,12 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
     // 校验所有输入框不能为空
     const validation = validateFoodForm(form);
     if (!validation.isValid) {
-      setError(validation.message);
+      setErrorToast({ show: true, message: 'Food description not recognized' });
       return;
     }
     
     setLoading(true);
-    setError('');
+    setErrorToast({ show: false, message: '' });
     try {
       const result = await validateAndSaveFood(form, aiData?.emoji || '🍽️', onDataChange);
       
@@ -52,14 +53,25 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
         setSuccess(true);
         // 保存成功时不重置loading，让onDataChange处理跳转
       } else {
-        setError(result.error || 'Save failed');
+        setErrorToast({ show: true, message: 'Food description not recognized' });
         setLoading(false); // 只在失败时重置loading
       }
     } catch (error) {
-      setError(error.message);
+      let errorMessage = 'Food description not recognized';
+      
+      // 检查是否是网络错误
+      if (error.message && (error.message.includes('fetch') || error.message.includes('network') || error.message.includes('connection'))) {
+        errorMessage = 'No Internet connection';
+      }
+      
+      setErrorToast({ show: true, message: errorMessage });
       setLoading(false); // 只在失败时重置loading
     }
     // 移除finally块，避免在成功时重置loading
+  };
+
+  const handleErrorToastClose = () => {
+    setErrorToast({ show: false, message: '' });
   };
 
   return (
@@ -121,8 +133,13 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
         <div className="food-modal-action-group">
           <button className="food-modal-confirm-btn h5" onClick={handleConfirm} disabled={loading}>{loading ? 'Saving...' : 'Log food'}</button>
         </div>
-        {error && <div className="food-modal-error">{error}</div>}
       </div>
+      <Toast
+        message={errorToast.message}
+        type="error"
+        show={errorToast.show}
+        onClose={handleErrorToastClose}
+      />
     </ModalWrapper>
   );
 } 

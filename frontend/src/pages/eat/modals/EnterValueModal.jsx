@@ -3,6 +3,7 @@ import '../styles/FoodModal.css';
 import { validateFoodForm } from '../../../utils';
 import { validateAndSaveFoodWithEmoji } from '../../../utils';
 import ModalWrapper from '../../../components/common/ModalWrapper';
+import Toast from '../../../components/common/Toast';
 import { icons } from '../../../utils';
 
 export default function EnterValueModal({ open, onClose, onBack, onCloseModal, userId, onDataChange }) {
@@ -16,37 +17,58 @@ export default function EnterValueModal({ open, onClose, onBack, onCloseModal, u
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+  const [errorToast, setErrorToast] = useState({ show: false, message: '' });
 
   const handleChange = e => {
     const { name, value } = e.target;
     setForm(f => ({ ...f, [name]: value }));
   };
 
+  const validateInput = (name, value) => {
+    if (!value.trim()) {
+      return 'Field cannot be empty';
+    }
+    if (['calories', 'carbs', 'fats', 'protein'].includes(name)) {
+      if (isNaN(Number(value)) || Number(value) < 0) {
+        return 'Must be a valid number';
+      }
+    }
+    return null;
+  };
+
   const handleConfirm = async () => {
-    // 校验所有输入框不能为空
-    const validation = validateFoodForm(form);
-    if (!validation.isValid) {
-      setError(validation.message);
-      return;
+    // 清除之前的错误
+    setError('');
+    setErrorToast({ show: false, message: '' });
+
+    // 验证所有字段
+    const fields = ['name', 'calories', 'carbs', 'fats', 'protein'];
+    for (const field of fields) {
+      const validationError = validateInput(field, form[field]);
+      if (validationError) {
+        setErrorToast({ show: true, message: validationError });
+        return;
+      }
     }
     
     setLoading(true);
-    setError('');
     try {
       const result = await validateAndSaveFoodWithEmoji(form, onDataChange);
       
       if (result.success) {
         setSuccess(true);
-        // 保存成功时不重置loading，让onDataChange处理跳转
       } else {
         setError(result.error || 'Save failed');
-        setLoading(false); // 只在失败时重置loading
+        setLoading(false);
       }
     } catch (error) {
       setError(error.message);
-      setLoading(false); // 只在失败时重置loading
+      setLoading(false);
     }
-    // 移除finally块，避免在成功时重置loading
+  };
+
+  const handleErrorToastClose = () => {
+    setErrorToast({ show: false, message: '' });
   };
 
   return (
@@ -110,6 +132,12 @@ export default function EnterValueModal({ open, onClose, onBack, onCloseModal, u
         </div>
         {error && <div className="food-modal-error">{error}</div>}
       </div>
+      <Toast
+        message={errorToast.message}
+        type="error"
+        show={errorToast.show}
+        onClose={handleErrorToastClose}
+      />
     </ModalWrapper>
   );
 } 
