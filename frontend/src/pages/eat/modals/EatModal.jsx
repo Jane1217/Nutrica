@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import CameraPermissionModal from './CameraPermissionModal';
 import EnterValueModal from './EnterValueModal';
 import DescribeModal from './DescribeModal';
@@ -7,7 +7,6 @@ import DescribeFoodModal from './DescribeFoodModal';
 import '../styles/EatModal.css';
 import { useNavigate } from 'react-router-dom';
 import { formatFoodTime, formatFoodTimeSmart } from '../../../utils';
-import { parseFoodDescription } from '../../../utils';
 import ModalWrapper from '../../../components/common/ModalWrapper';
 import { icons } from '../../../utils';
 import { userApi } from '../../../utils';
@@ -97,22 +96,10 @@ export default function EatModal({ onClose, foods = [], foodsLoading = false, on
   const handleBackEnterValue = () => setStep('main');
   const handleBackDescribe = () => setStep('main');
   
-  const handleDescribeNext = async (description) => {
-    setLoading(true);
-    setError('');
-    try {
-      const response = await parseFoodDescription(description);
-      if (response.success) {
-        setAiData(response.data);
-        setStep('describe-food');
-      } else {
-        setError(response.error || 'AI analysis failed');
-      }
-    } catch (error) {
-      setError(error.message || 'AI analysis failed');
-    } finally {
-      setLoading(false);
-    }
+  const handleDescribeNext = async (description, aiData) => {
+    // AI分析已经在DescribeModal中处理，这里接收AI数据并跳转
+    setAiData(aiData);
+    setStep('describe-food');
   };
 
   // 在EatModal内部定义CloseButton
@@ -151,7 +138,7 @@ export default function EatModal({ onClose, foods = [], foodsLoading = false, on
                   <div className="eat-modal-loading-spinner"></div>
                   <span className="eat-modal-loading-text">Loading...</span>
                 </div>
-              ) : !foodsLoading && foods.length === 0 ? (
+              ) : foods.length === 0 ? (
                 <div className="eat-modal-empty">
                   <span className="eat-modal-empty-text">No food records yet</span>
                 </div>

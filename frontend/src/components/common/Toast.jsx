@@ -44,7 +44,7 @@ export default function Toast({ message, type = 'error', show, onClose, duration
   return (
     <div className={`${styles.toast} ${styles[type]} ${isVisible ? styles.show : ''}`}>
       {renderIcon()}
-      <span className={`${styles.toastText} body2`}>{message}</span>
+      <span className={styles.toastText}>{message}</span>
     </div>
   );
 } 

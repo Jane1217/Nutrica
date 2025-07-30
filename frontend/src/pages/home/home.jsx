@@ -118,8 +118,21 @@ export default function Home(props) {
   useEffect(() => {
     if (searchParams.get('eat') === '1') {
       setShowEatModal(true);
+      // 立即开始加载食物数据
+      if (userId) {
+        setFoodsPage(1);
+        fetchFoods(true);
+      }
     }
-  }, [searchParams]);
+  }, [searchParams, userId]);
+
+  // 当EatModal打开时，立即开始加载食物数据
+  useEffect(() => {
+    if (showEatModal && userId) {
+      setFoodsPage(1);
+      fetchFoods(true);
+    }
+  }, [showEatModal, userId]);
 
   // 页面加载时自动从supabase user_metadata读取用户信息
   useEffect(() => {

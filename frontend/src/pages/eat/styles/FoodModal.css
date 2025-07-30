@@ -230,4 +230,11 @@
   gap: 8px;
   align-self: stretch;
   background: var(--Brand-Background, #F3F3EC);
+}
+
+/* 静态营养值显示样式 */
+.food-modal-static-value {
+  color: var(--Neutral-Primary-Text, #22221B);
+  text-align: right;
+  font-weight: 500;
 } 
