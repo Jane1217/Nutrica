@@ -129,35 +129,48 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
         }
         
         const data = await foodApi.parseFoodImage(blob);
-        if (data.success) {
-          // 识别成功，弹出 FoodModal
-          const foodName = data.data.name;
-          setFoodResult({
-            'Food name': foodName,
-            'Number of Servings': 1, // 默认 1
-            Calories: data.data.nutrition.calories,
-            Carbs: data.data.nutrition.carbs,
-            Fats: data.data.nutrition.fats,
-            Protein: data.data.nutrition.protein,
-            emoji: data.data.emoji || '🍽️'
-          });
-          setFoodModalOpen(true);
-        } else {
-          // 食物识别失败
-          setErrorToast({ show: true, message: 'Food label not recognized' });
-          if (isMountedRef.current) {
-            handleStartCamera();
-          }
-        }
+        // 识别成功，弹出 FoodModal
+        const foodName = data.data.name;
+        setFoodResult({
+          'Food name': foodName,
+          'Number of Servings': 1, // 默认 1
+          Calories: data.data.nutrition.calories,
+          Carbs: data.data.nutrition.carbs,
+          Fats: data.data.nutrition.fats,
+          Protein: data.data.nutrition.protein,
+          emoji: data.data.emoji || '🍽️'
+        });
+        setFoodModalOpen(true);
       } catch (error) {
         console.error('Image parsing error:', error);
         
+        let errorMessage = 'Food label not recognized';
+        
         // 检查是否是网络错误
-        if (error.message && error.message.includes('fetch')) {
-          setErrorToast({ show: true, message: 'No Internet connection' });
-        } else {
-          setErrorToast({ show: true, message: 'Food label not recognized' });
+        if (error.message && (error.message.includes('fetch') || error.message.includes('network') || error.message.includes('connection'))) {
+          errorMessage = 'No Internet connection';
+        } else if (error.message && error.message.includes('HTTP')) {
+          // 解析HTTP错误响应
+          try {
+            // 提取JSON部分，处理可能的格式问题
+            const httpMatch = error.message.match(/HTTP \d+: (.+)/);
+            if (httpMatch && httpMatch[1]) {
+              const jsonStr = httpMatch[1].trim();
+              // 处理可能的转义字符问题
+              const cleanJsonStr = jsonStr.replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+              const errorData = JSON.parse(cleanJsonStr);
+              if (errorData.error && errorData.error.message) {
+                errorMessage = errorData.error.message;
+              }
+            }
+          } catch (parseError) {
+            // 如果解析失败，使用默认错误信息
+            console.error('Failed to parse error response:', parseError);
+            console.error('Original error message:', error.message);
+          }
         }
+        
+        setErrorToast({ show: true, message: errorMessage });
         
         if (isMountedRef.current) {
           handleStartCamera();
@@ -341,7 +354,7 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
           left: 0,
           right: 0,
           bottom: 0,
-          zIndex: 3000,
+          zIndex: 3500,
           background: 'rgba(0,0,0,0.3)',
           display: 'flex',
           alignItems: 'center',
