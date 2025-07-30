@@ -300,6 +300,21 @@ class DatabaseService {
       return true;
     });
   }
+
+  // 获取公开的collection数据（不需要认证）
+  async getPublicCollection(userId, puzzleName) {
+    return this.withRetry(async () => {
+      const { data, error } = await this.supabase
+        .from('user_collections')
+        .select('nutrition, first_completed_at')
+        .eq('user_id', userId)
+        .eq('puzzle_name', puzzleName)
+        .maybeSingle();
+
+      if (error) throw error;
+      return data;
+    });
+  }
 }
 
 // 导出单例实例

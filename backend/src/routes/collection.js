@@ -103,23 +103,8 @@ router.get('/public-collection', async (req, res) => {
       });
     }
 
-    const { data: collectionData, error } = await supabase
-      .from('user_collections')
-      .select('nutrition, first_completed_at')
-      .eq('user_id', user_id)
-      .eq('puzzle_name', puzzle_name)
-      .maybeSingle();
-
-    if (error) {
-      console.error('Error fetching public collection:', error);
-      return res.status(404).json({
-        success: false,
-        error: {
-          message: 'Collection not found',
-          details: error.message
-        }
-      });
-    }
+    // 使用databaseService的方法
+    const collectionData = await databaseService.getPublicCollection(user_id, puzzle_name);
 
     if (!collectionData) {
       return res.status(404).json({
@@ -162,7 +147,7 @@ router.post('/update-congratulations-shown', authenticateUser, async (req, res) 
     }
 
     // 插入或更新user_congratulations_shown表
-    const { error } = await supabase
+    const { error } = await databaseService.supabase
       .from('user_congratulations_shown')
       .upsert({
         user_id: userId,
@@ -216,7 +201,7 @@ router.get('/congratulations-shown-status', authenticateUser, async (req, res) =
     }
 
     // 查询user_congratulations_shown表
-    const { data, error } = await supabase
+    const { data, error } = await databaseService.supabase
       .from('user_congratulations_shown')
       .select('*')
       .eq('user_id', userId)
