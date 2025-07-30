@@ -94,6 +94,12 @@ export const uploadFile = async (endpoint, file, onProgress = null) => {
     }
 
     const data = await response.json();
+    
+    // 检查API响应格式，确保与其他API保持一致
+    if (data.success === false) {
+      throw new Error(data.error?.message || data.error || 'Upload failed');
+    }
+    
     return data;
   } catch (error) {
     console.error('File upload failed:', error);
@@ -247,4 +253,4 @@ export const handleApiError = (error, defaultMessage = 'API request failed') => 
     // 请求设置时发生错误
     return error.message || defaultMessage;
   }
-}; 
+};
