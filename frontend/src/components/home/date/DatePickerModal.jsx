@@ -106,20 +106,17 @@ export default function DatePickerModal({ open, onClose, onDateSelect, currentDa
     if (selectedDate) {
       // 如果选中的日期与当前显示的月份不同，则切换到选中日期所在月份
       if (currentMonth.getMonth() !== selectedDate.getMonth() || currentMonth.getFullYear() !== selectedDate.getFullYear()) {
-        console.log('Switching to selected date month:', selectedDate);
         setCurrentMonth(selectedDate);
       }
     } else if (activeDateObjs.length > 0 && firstPuzzleDate) {
       // 如果没有选中日期但有历史数据，显示第一个有数据的月份
       if (currentMonth.getMonth() !== firstPuzzleDate.getMonth() || currentMonth.getFullYear() !== firstPuzzleDate.getFullYear()) {
-        console.log('Switching to first puzzle date month:', firstPuzzleDate);
         setCurrentMonth(firstPuzzleDate);
       }
     } else {
       // 默认显示当前月份
       const now = new Date();
       if (currentMonth.getMonth() !== now.getMonth() || currentMonth.getFullYear() !== now.getFullYear()) {
-        console.log('Switching to current month:', now);
         setCurrentMonth(now);
       }
     }
@@ -169,19 +166,15 @@ export default function DatePickerModal({ open, onClose, onDateSelect, currentDa
 
   // Handle month change
   const handleMonthChange = (month) => {
-    console.log('Month change requested to:', month);
-    console.log('Current month before change:', currentMonth);
     // 允许导航到任何月份，不限制只有可选日期的月份
     setCurrentMonth(month);
     setMonthChangeCount(prev => prev + 1);
-    console.log('Month change applied, count:', monthChangeCount + 1);
     return true;
   };
 
   // Check if previous month navigation is disabled
   const isPreviousMonthDisabled = () => {
     // 允许导航到任何过去的月份
-    console.log('Previous month disabled check: false (always allowed)');
     return false;
   };
 
@@ -190,10 +183,8 @@ export default function DatePickerModal({ open, onClose, onDateSelect, currentDa
     // 禁用未来月份导航
     const nextMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1);
     const today = new Date();
-    const isDisabled = nextMonth.getMonth() > today.getMonth() || 
+    return nextMonth.getMonth() > today.getMonth() || 
            (nextMonth.getMonth() === today.getMonth() && nextMonth.getFullYear() > today.getFullYear());
-    console.log('Next month disabled check:', isDisabled, 'nextMonth:', nextMonth, 'today:', today);
-    return isDisabled;
   };
 
   return (
