@@ -61,6 +61,7 @@ export default function DatePickerModal({ open, onClose, onDateSelect, currentDa
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [availableDates, setAvailableDates] = useState([]); // 新增：可用日期
   const [hasFetchedDates, setHasFetchedDates] = useState(false); // 新增：是否已请求过
+  const [monthChangeCount, setMonthChangeCount] = useState(0); // 新增：跟踪月份变化次数
 
   // 新增：将 activeDates 转为 Date 对象数组
   const activeDateObjs = activeDates.map(dateStr => {
@@ -100,23 +101,29 @@ export default function DatePickerModal({ open, onClose, onDateSelect, currentDa
     }
   }, [currentDate]);
 
-  // Set initial month
+  // Set initial month - 根据选中的日期设置月份
   useEffect(() => {
-    if (activeDateObjs.length === 0) {
-      const now = new Date();
-      if (currentMonth.getMonth() !== now.getMonth() || currentMonth.getFullYear() !== now.getFullYear()) {
-        setCurrentMonth(now);
-      }
-    } else if (selectedDate) {
+    if (selectedDate) {
+      // 如果选中的日期与当前显示的月份不同，则切换到选中日期所在月份
       if (currentMonth.getMonth() !== selectedDate.getMonth() || currentMonth.getFullYear() !== selectedDate.getFullYear()) {
+        console.log('Switching to selected date month:', selectedDate);
         setCurrentMonth(selectedDate);
       }
-    } else if (firstPuzzleDate) {
+    } else if (activeDateObjs.length > 0 && firstPuzzleDate) {
+      // 如果没有选中日期但有历史数据，显示第一个有数据的月份
       if (currentMonth.getMonth() !== firstPuzzleDate.getMonth() || currentMonth.getFullYear() !== firstPuzzleDate.getFullYear()) {
+        console.log('Switching to first puzzle date month:', firstPuzzleDate);
         setCurrentMonth(firstPuzzleDate);
       }
+    } else {
+      // 默认显示当前月份
+      const now = new Date();
+      if (currentMonth.getMonth() !== now.getMonth() || currentMonth.getFullYear() !== now.getFullYear()) {
+        console.log('Switching to current month:', now);
+        setCurrentMonth(now);
+      }
     }
-  }, [activeDateObjs, selectedDate, firstPuzzleDate]);
+  }, [selectedDate, firstPuzzleDate]);
 
   const handleDateSelect = (date) => {
     if (date && date instanceof Date && !isNaN(date.getTime())) {
@@ -143,8 +150,10 @@ export default function DatePickerModal({ open, onClose, onDateSelect, currentDa
     const isFuture = isAfter(date, today);
     // 禁用未来日期
     if (isFuture) return true;
-    // 没有任何 active 日期时，只允许今天
-    if (activeDateObjs.length === 0) return !isToday;
+    // 今天始终可选，不管数据库中是否有数据
+    if (isToday) return false;
+    // 没有任何 active 日期时，不允许其他日期
+    if (activeDateObjs.length === 0) return true;
     // 只允许 active 日期
     return !hasDataForDate(date);
   };
@@ -160,24 +169,31 @@ export default function DatePickerModal({ open, onClose, onDateSelect, currentDa
 
   // Handle month change
   const handleMonthChange = (month) => {
-    // Only allow navigation to months with selectable dates
-    if (hasSelectableDatesInMonth(month)) {
-      setCurrentMonth(month);
-      return true;
-    }
-    return false;
+    console.log('Month change requested to:', month);
+    console.log('Current month before change:', currentMonth);
+    // 允许导航到任何月份，不限制只有可选日期的月份
+    setCurrentMonth(month);
+    setMonthChangeCount(prev => prev + 1);
+    console.log('Month change applied, count:', monthChangeCount + 1);
+    return true;
   };
 
   // Check if previous month navigation is disabled
   const isPreviousMonthDisabled = () => {
-    const previousMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
-    return !hasSelectableDatesInMonth(previousMonth);
+    // 允许导航到任何过去的月份
+    console.log('Previous month disabled check: false (always allowed)');
+    return false;
   };
 
   // Check if next month navigation is disabled
   const isNextMonthDisabled = () => {
+    // 禁用未来月份导航
     const nextMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1);
-    return !hasSelectableDatesInMonth(nextMonth);
+    const today = new Date();
+    const isDisabled = nextMonth.getMonth() > today.getMonth() || 
+           (nextMonth.getMonth() === today.getMonth() && nextMonth.getFullYear() > today.getFullYear());
+    console.log('Next month disabled check:', isDisabled, 'nextMonth:', nextMonth, 'today:', today);
+    return isDisabled;
   };
 
   return (
@@ -202,8 +218,6 @@ export default function DatePickerModal({ open, onClose, onDateSelect, currentDa
                 onMonthChange={handleMonthChange}
                 className={styles.customDayPicker}
                 classNames={{
-                  nav_button_previous: isPreviousMonthDisabled() ? styles.navButtonDisabled : '',
-                  nav_button_next: isNextMonthDisabled() ? styles.navButtonDisabled : '',
                   weekday: styles.weekdayHeader,
                   day: styles.dayCell,
                   day_disabled: styles.dayCellDisabled,
