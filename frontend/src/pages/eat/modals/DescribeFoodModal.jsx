@@ -40,7 +40,8 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
     // 校验所有输入框不能为空
     const validation = validateFoodForm(form);
     if (!validation.isValid) {
-      setErrorToast({ show: true, message: 'Food description not recognized' });
+      // 使用简洁的错误信息，而不是validateFoodForm返回的详细错误信息
+      setErrorToast({ show: true, message: 'Field cannot be empty' });
       return;
     }
     
@@ -57,7 +58,7 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
         setLoading(false); // 只在失败时重置loading
       }
     } catch (error) {
-      let errorMessage = 'Food description not recognized';
+      let errorMessage = 'Save failed';
       
       // 检查是否是网络错误
       if (error.message && (error.message.includes('fetch') || error.message.includes('network') || error.message.includes('connection'))) {
