@@ -21,6 +21,8 @@ export function getPuzzleCardBackground(puzzleName, collectionType = 'Magic Gard
         return '#F6E78C';
       case 'broccoli':
         return '#C7F58C';
+      case 'pumpkin':
+        return '#FACAB2';
       case 'carrot':
       default:
         return '#FFB279';

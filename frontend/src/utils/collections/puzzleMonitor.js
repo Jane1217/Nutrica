@@ -13,29 +13,22 @@ export const getPuzzleCollectionInfo = async (puzzleName) => {
   try {
     const response = await collectionApi.getCollectionPuzzles();
     if (response.success && response.data) {
-      return response.data.find(puzzle => puzzle.puzzle_name === puzzleName);
+      const puzzleInfo = response.data.find(puzzle => puzzle.puzzle_name === puzzleName);
+      if (puzzleInfo) {
+        console.log(`Found puzzle info for ${puzzleName}:`, puzzleInfo);
+        return puzzleInfo;
+      } else {
+        console.error(`Puzzle ${puzzleName} not found in collection_puzzles table`);
+        return null;
+      }
+    } else {
+      console.error('Failed to fetch collection puzzles:', response.error);
+      return null;
     }
   } catch (error) {
     console.error('Error fetching collection puzzles:', error);
+    return null;
   }
-  
-  // 如果API失败，使用默认配置
-  const MAGIC_GARDEN_PUZZLES = [
-    { puzzle_name: 'Carrot', slot: 1, collection_type: 'Magic Garden' },
-    { puzzle_name: 'Avocado', slot: 2, collection_type: 'Magic Garden' },
-    { puzzle_name: 'Corn', slot: 3, collection_type: 'Magic Garden' },
-    { puzzle_name: 'Tomato', slot: 4, collection_type: 'Magic Garden' },
-    { puzzle_name: 'Broccoli', slot: 5, collection_type: 'Magic Garden' },
-  ];
-
-  const SALMON_NIGIRI_PUZZLES = [
-    { puzzle_name: 'Salmon', slot: 1, collection_type: 'Salmon Nigiri Boy' },
-    { puzzle_name: 'Sushi Rice', slot: 2, collection_type: 'Salmon Nigiri Boy' },
-    { puzzle_name: 'Salmon Nigiri Boy', slot: 3, collection_type: 'Salmon Nigiri Boy' },
-  ];
-
-  const allPuzzles = [...MAGIC_GARDEN_PUZZLES, ...SALMON_NIGIRI_PUZZLES];
-  return allPuzzles.find(puzzle => puzzle.puzzle_name === puzzleName);
 };
 
 // 添加或更新puzzle到collections
@@ -46,11 +39,15 @@ export const addPuzzleToCollection = async (userId, puzzleName, nutritionData) =
       return { success: false, error: 'Missing required parameters' };
     }
 
+    console.log(`Attempting to add puzzle ${puzzleName} to collection for user ${userId}`);
+    
     const puzzleInfo = await getPuzzleCollectionInfo(puzzleName);
     if (!puzzleInfo) {
       console.error(`Puzzle ${puzzleName} not found in collection configuration`);
       return { success: false, error: 'Puzzle not found in collection' };
     }
+
+    console.log(`Found puzzle info:`, puzzleInfo);
 
     // 获取认证token
     const token = await getAuthToken();
@@ -90,10 +87,15 @@ export const monitorPuzzleCompletion = async (userId, dailyHomeData) => {
     // 修复：使用正确的字段名 - daily_home_data确实有puzzle_name字段
     const { puzzle_name, puzzle_progress, carbs_goal, protein_goal, fats_goal } = dailyHomeData;
 
+    console.log(`Monitoring puzzle completion for ${puzzle_name}, progress: ${puzzle_progress}`);
+
     // 检查puzzle是否完成
     if (!checkPuzzleCompletion(puzzle_progress) || !puzzle_name) {
+      console.log(`Puzzle ${puzzle_name} not completed or missing puzzle name`);
       return { success: false, error: 'Puzzle not completed or missing puzzle name' };
     }
+
+    console.log(`Puzzle ${puzzle_name} is completed!`);
 
     // 记录 puzzle 完成状态
     handlePuzzleCompletion(puzzle_name, puzzle_progress, userId);
@@ -137,11 +139,15 @@ export const monitorPuzzleCompletion = async (userId, dailyHomeData) => {
       fats: fats_goal || 0
     };
 
+    console.log(`Adding ${puzzle_name} to collections with nutrition data:`, nutritionData);
+
     // 添加到collections（只在今天首次完成时）
     const result = await addPuzzleToCollection(userId, puzzle_name, nutritionData);
     
     if (result.success) {
       console.log(`Successfully added ${puzzle_name} to collections for today`);
+    } else {
+      console.error(`Failed to add ${puzzle_name} to collections:`, result.error);
     }
 
     return result;

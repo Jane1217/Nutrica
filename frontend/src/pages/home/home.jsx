@@ -48,8 +48,8 @@ function getLocalDateString(date) {
 async function saveDailyHomeData(data) {
   if (!data.user_id || !data.date) return;
   
-  // 检查puzzle是否完成
-  const isPuzzleCompleted = data.puzzle_progress && data.puzzle_progress >= 100;
+  // 检查puzzle是否完成 - 修复：使用与checkPuzzleCompletion一致的条件
+  const isPuzzleCompleted = data.puzzle_progress === 1;
   
   const { error } = await supabase
     .from('daily_home_data')
@@ -64,6 +64,7 @@ async function saveDailyHomeData(data) {
   } else {
     // 只有在puzzle真正完成时才检查并添加到collections
     if (isPuzzleCompleted) {
+      console.log(`Puzzle completed, calling monitorPuzzleCompletion for ${data.puzzle_name}`);
       const completionResult = await monitorPuzzleCompletion(data.user_id, data);
       if (completionResult.success) {
         console.log('Puzzle completion monitored successfully');
