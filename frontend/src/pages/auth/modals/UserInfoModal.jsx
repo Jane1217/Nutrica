@@ -303,7 +303,7 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
             className={`${styles.skipButton} h4`}
             onClick={onClose}
           >
-            <span className='h4'>Cancel</span>
+            <span className='h4'>Skip</span>
           </button>
           <button
             type="submit"

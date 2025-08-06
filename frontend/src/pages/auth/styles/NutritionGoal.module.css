@@ -10,7 +10,7 @@
   gap: 16px;
   justify-content: center;
   align-items: center;
-  padding: 16px 24px 32px 24px;
+  padding: 16px 24px 16px 24px;
   z-index: 100;
   box-shadow: 0 -2px 8px rgba(0,0,0,0.03);
   box-sizing: border-box;
@@ -145,12 +145,12 @@
 .backBtn {
   display: flex;
   width: 120px;
-  height: 64px;
+  height: 48px;
   padding: 0px 16px;
   justify-content: center;
   align-items: center;
   gap: 10px;
-  border-radius: 36px;
+  border-radius: 24px;
   background: var(--Brand-Secondary-Background, #E7E7D5);
   color: #222;
   border: none;
@@ -161,13 +161,13 @@
 
 .saveBtn {
   display: flex;
-  height: 64px;
+  height: 48px;
   padding: 0px 16px;
   justify-content: center;
   align-items: center;
   gap: 10px;
   flex: 1 0 0;
-  border-radius: 36px;
+  border-radius: 24px;
   background: var(--Brand-Dark, #2A4E14);
   color: #fff;
   border: none;
