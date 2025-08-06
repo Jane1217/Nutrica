@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ModalWrapper from '../../../components/common/ModalWrapper';
+import Toast from '../../../components/common/Toast';
 import styles from '../styles/UserInfo.module.css';
 
 // 哈里斯-贝内迪克特公式计算BMR
@@ -45,6 +46,7 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
   const [weightGoal, setWeightGoal] = useState(initialData.weightGoal || 'maintain');
   const [calculatedCalories, setCalculatedCalories] = useState(2000);
   const [isLoading, setIsLoading] = useState(false);
+  const [showToast, setShowToast] = useState(false);
 
   // 简化的数字输入处理函数
   const handleNumberInput = (value, setter) => {
@@ -52,6 +54,39 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
     if (value === '' || /^\d+$/.test(value)) {
       setter(value);
     }
+  };
+
+  // 验证表单是否完整
+  const validateForm = () => {
+    // 检查姓名（非更新模式时需要）
+    if (!isUpdateMode && !name.trim()) {
+      return false;
+    }
+    
+    // 检查年龄
+    if (!age || age.trim() === '') {
+      return false;
+    }
+    
+    // 检查身高
+    if (unit === 'us') {
+      // 英制单位：需要填写feet或inches
+      if ((!heightFeet || heightFeet.trim() === '') && (!heightInches || heightInches.trim() === '')) {
+        return false;
+      }
+    } else {
+      // 公制单位：需要填写cm
+      if (!height || height.trim() === '') {
+        return false;
+      }
+    }
+    
+    // 检查体重
+    if (!weight || weight.trim() === '') {
+      return false;
+    }
+    
+    return true;
   };
 
   // 关键：每次initialData变化时自动同步state
@@ -90,6 +125,13 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // 验证表单
+    if (!validateForm()) {
+      setShowToast(true);
+      return;
+    }
+    
     setIsLoading(true);
     
     // 处理US单位的身高数据
@@ -104,19 +146,19 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
     // 3秒后调用onSubmit
     setTimeout(() => {
       setIsLoading(false);
-    onSubmit && onSubmit({ 
-      name, 
-      gender, 
-      age, 
-      unit, 
-      height: finalHeight,
-      heightFeet,
-      heightInches,
-      weight, 
-      activityLevel, 
-      weightGoal,
-      calculatedCalories 
-    });
+      onSubmit && onSubmit({ 
+        name, 
+        gender, 
+        age, 
+        unit, 
+        height: finalHeight,
+        heightFeet,
+        heightInches,
+        weight, 
+        activityLevel, 
+        weightGoal,
+        calculatedCalories 
+      });
     }, 3000);
   };
 
@@ -141,179 +183,186 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
   }
 
   return (
-    <ModalWrapper open={open} onClose={onClose}>
-      <div className={styles.modalContainer}>
-      <form className={styles.modalForm} onSubmit={handleSubmit}>
-        <header className={styles.modalHeader}>
-            <div className="h2">{isUpdateMode ? 'Update Nutrition Goal' : 'Welcome to Nutrica!'}</div>
-        </header>
-        <div className={styles.modalInputWrapper}>
-            {!isUpdateMode && (
-              <>
-          <label className="h5">Let us know your first name:</label>
-          <input className={`${styles.nameInput} body1`} value={name} onChange={e => setName(e.target.value)} required />
-          <hr className={styles.modalDivider} />
-              </>
-            )}
-            <div className="h4">
-            Tell us some info so that we can estimate your Basal Metabolic Rate (BMR) and Macros needed for healthy eating.
-          </div>
-          <div className={`${styles.privacyText} body2`}>
-              * <span className={styles.privacyTextHighlight}>Your data will remain private. You can update your answers anytime on the Account page.</span>
-          </div>
-          
-          {/* Gender Selection */}
-            <div className={`${styles.sectionTitle} h3`}>Gender*</div>
-          <div className={styles.genderButtons}>
-              <button type="button" className={`${styles.modalOptionBtn} h5 ${gender === 'male' ? styles.modalOptionBtnActive : ''}`} onClick={() => setGender('male')}>Male</button>
-              <button type="button" className={`${styles.modalOptionBtn} h5 ${gender === 'female' ? styles.modalOptionBtnActive : ''}`} onClick={() => setGender('female')}>Female</button>
-              <button type="button" className={`${styles.modalOptionBtn} h5 ${gender === 'other' ? styles.modalOptionBtnActive : ''}`} onClick={() => setGender('other')}>Other</button>
-          </div>
-          
-          {/* Age Input */}
-          <div className={styles.ageContainer}>
-              <div className={`${styles.ageLabel} h3`}>Age*</div>
-            <div className={styles.ageInputWrapper}>
-              <input
-                className={`${styles.ageInput} h5`}
-                type="number"
-                min="0"
-                max="120"
-                value={age}
-                onChange={e => handleNumberInput(e.target.value, setAge)}
-              />
-            </div>
-          </div>
-          
-          {/* Unit Selection */}
-          <div className={styles.unitButtons}>
-            <button
-              type="button"
-              onClick={() => setUnit('us')}
-              className={`${styles.unitButton} h5 ${unit === 'us' ? styles.unitButtonActive : styles.unitButtonInactive}`}
-            >US Units</button>
-            <button
-              type="button"
-              onClick={() => setUnit('metric')}
-              className={`${styles.unitButton} h5 ${unit === 'metric' ? styles.unitButtonActive : styles.unitButtonInactive}`}
-            >Metric Units</button>
-          </div>
-          
-          {/* Height Input */}
-          <div className={styles.measurementContainer}>
-              <div className={`${styles.measurementLabel} h3`}>Height*</div>
-            <div className={styles.measurementInputWrapper}>
-              {unit === 'us' ? (
-                <div className={styles.usHeightInputs}>
-                  <div className={styles.measurementInputContainer}>
-                    <input
-                      className={`${styles.measurementInput} h5`}
-                      type="number"
-                      min="0"
-                      max="10"
-                      value={heightFeet}
-                      onChange={e => handleNumberInput(e.target.value, setHeightFeet)}
-                      placeholder="0"
-                    />
-                    <span className={styles.measurementUnit}>ft</span>
-                  </div>
-                  <div className={styles.measurementInputContainer}>
-                    <input
-                      className={`${styles.measurementInput} h5`}
-                      type="number"
-                      min="0"
-                      max="11"
-                      value={heightInches}
-                      onChange={e => handleNumberInput(e.target.value, setHeightInches)}
-                      placeholder="0"
-                    />
-                    <span className={styles.measurementUnit}>in</span>
-                  </div>
-                </div>
-              ) : (
-                <div className={styles.measurementInputContainer}>
+    <>
+      <Toast
+        message="Please complete all required fields"
+        type="error"
+        show={showToast}
+        onClose={() => setShowToast(false)}
+        duration={3000}
+      />
+      <ModalWrapper open={open} onClose={onClose}>
+        <div className={styles.modalContainer}>
+          <form className={styles.modalForm} onSubmit={handleSubmit}>
+            <header className={styles.modalHeader}>
+              <div className="h2">{isUpdateMode ? 'Update Nutrition Goal' : 'Welcome to Nutrica!'}</div>
+            </header>
+            <div className={styles.modalInputWrapper}>
+              {!isUpdateMode && (
+                <>
+                  <label className="h5">Let us know your first name:</label>
+                  <input className={`${styles.nameInput} body1`} value={name} onChange={e => setName(e.target.value)} required />
+                  <hr className={styles.modalDivider} />
+                </>
+              )}
+              <div className="h4">
+                Tell us some info so that we can estimate your Basal Metabolic Rate (BMR) and Macros needed for healthy eating.
+              </div>
+              <div className={`${styles.privacyText} body2`}>
+                * <span className={styles.privacyTextHighlight}>Your data will remain private. You can update your answers anytime on the Account page.</span>
+              </div>
+              
+              {/* Gender Selection */}
+              <div className={`${styles.sectionTitle} h3`}>Gender*</div>
+              <div className={styles.genderButtons}>
+                <button type="button" className={`${styles.modalOptionBtn} h5 ${gender === 'male' ? styles.modalOptionBtnActive : ''}`} onClick={() => setGender('male')}>Male</button>
+                <button type="button" className={`${styles.modalOptionBtn} h5 ${gender === 'female' ? styles.modalOptionBtnActive : ''}`} onClick={() => setGender('female')}>Female</button>
+                <button type="button" className={`${styles.modalOptionBtn} h5 ${gender === 'other' ? styles.modalOptionBtnActive : ''}`} onClick={() => setGender('other')}>Other</button>
+              </div>
+              
+              {/* Age Input */}
+              <div className={styles.ageContainer}>
+                <div className={`${styles.ageLabel} h3`}>Age*</div>
+                <div className={styles.ageInputWrapper}>
                   <input
-                    className={`${styles.measurementInput} h5`}
+                    className={`${styles.ageInput} h5`}
                     type="number"
                     min="0"
-                    max="300"
-                    value={height}
-                    onChange={e => handleNumberInput(e.target.value, setHeight)}
+                    max="120"
+                    value={age}
+                    onChange={e => handleNumberInput(e.target.value, setAge)}
                   />
-                  <span className={styles.measurementUnit}>cm</span>
                 </div>
-              )}
-            </div>
-          </div>
-          
-          {/* Weight Input */}
-          <div className={styles.measurementContainer}>
-              <div className={`${styles.measurementLabel} h3`}>Weight*</div>
-            <div className={styles.measurementInputWrapper}>
-              <div className={styles.measurementInputContainer}>
-                <input
-                  className={`${styles.measurementInput} h5`}
-                  type="number"
-                  min="0"
-                  max="500"
-                  value={weight}
-                  onChange={e => handleNumberInput(e.target.value, setWeight)}
-                />
-                <span className={styles.measurementUnit}>{unit === 'us' ? 'lbs' : 'kg'}</span>
+              </div>
+              
+              {/* Unit Selection */}
+              <div className={styles.unitButtons}>
+                <button
+                  type="button"
+                  onClick={() => setUnit('us')}
+                  className={`${styles.unitButton} h5 ${unit === 'us' ? styles.unitButtonActive : styles.unitButtonInactive}`}
+                >US Units</button>
+                <button
+                  type="button"
+                  onClick={() => setUnit('metric')}
+                  className={`${styles.unitButton} h5 ${unit === 'metric' ? styles.unitButtonActive : styles.unitButtonInactive}`}
+                >Metric Units</button>
+              </div>
+              
+              {/* Height Input */}
+              <div className={styles.measurementContainer}>
+                <div className={`${styles.measurementLabel} h3`}>Height*</div>
+                <div className={styles.measurementInputWrapper}>
+                  {unit === 'us' ? (
+                    <div className={styles.usHeightInputs}>
+                      <div className={styles.measurementInputContainer}>
+                        <input
+                          className={`${styles.measurementInput} h5`}
+                          type="number"
+                          min="0"
+                          max="10"
+                          value={heightFeet}
+                          onChange={e => handleNumberInput(e.target.value, setHeightFeet)}
+                          placeholder="0"
+                        />
+                        <span className={styles.measurementUnit}>ft</span>
+                      </div>
+                      <div className={styles.measurementInputContainer}>
+                        <input
+                          className={`${styles.measurementInput} h5`}
+                          type="number"
+                          min="0"
+                          max="11"
+                          value={heightInches}
+                          onChange={e => handleNumberInput(e.target.value, setHeightInches)}
+                          placeholder="0"
+                        />
+                        <span className={styles.measurementUnit}>in</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className={styles.measurementInputContainer}>
+                      <input
+                        className={`${styles.measurementInput} h5`}
+                        type="number"
+                        min="0"
+                        max="300"
+                        value={height}
+                        onChange={e => handleNumberInput(e.target.value, setHeight)}
+                      />
+                      <span className={styles.measurementUnit}>cm</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              {/* Weight Input */}
+              <div className={styles.measurementContainer}>
+                <div className={`${styles.measurementLabel} h3`}>Weight*</div>
+                <div className={styles.measurementInputWrapper}>
+                  <div className={styles.measurementInputContainer}>
+                    <input
+                      className={`${styles.measurementInput} h5`}
+                      type="number"
+                      min="0"
+                      max="500"
+                      value={weight}
+                      onChange={e => handleNumberInput(e.target.value, setWeight)}
+                    />
+                    <span className={styles.measurementUnit}>{unit === 'us' ? 'lbs' : 'kg'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Activity Level Selection */}
+              <div className={`${styles.sectionTitle} h3`}>How many days per week are you physically active?</div>
+              <div className={styles.activityGrid}>
+                {Object.entries(ACTIVITY_FACTORS).map(([key, factor]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    className={`${styles.activityButton} ${styles.modalOptionBtn} ${activityLevel === key ? styles.modalOptionBtnActive : ''}`}
+                    onClick={() => setActivityLevel(key)}
+                  >
+                    <span className={`${styles.activityLabel} h5`}>{factor.label}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Weight Goal Selection */}
+              <div className={`${styles.sectionTitle} h3`}>I would like to:</div>
+              <div className={styles.weightGoalGrid}>
+                {Object.entries(WEIGHT_GOALS).map(([key, goal], index) => (
+                  <button
+                    key={key}
+                    type="button"
+                    className={`${styles.weightGoalButton} h5 ${weightGoal === key ? styles.weightGoalButtonActive : ''} ${index === 2 ? styles.weightGoalButtonThird : ''}`}
+                    onClick={() => setWeightGoal(key)}
+                  >
+                    {goal.label}
+                  </button>
+                ))}
               </div>
             </div>
+          </form>
+          <div className={styles.buttonContainerFixed}>
+            <button
+              type="button"
+              className={`${styles.skipButton} h4`}
+              onClick={onClose}
+            >
+              <span className='h4'>Skip</span>
+            </button>
+            <button
+              type="submit"
+              className={`${styles.nextButton} h4`}
+              onClick={handleSubmit}
+            >
+              <span className='h4'>Next</span>
+            </button>
           </div>
-
-          {/* Activity Level Selection */}
-            <div className={`${styles.sectionTitle} h3`}>How many days per week are you physically active?</div>
-          <div className={styles.activityGrid}>
-            {Object.entries(ACTIVITY_FACTORS).map(([key, factor]) => (
-              <button
-                key={key}
-                type="button"
-                className={`${styles.activityButton} ${styles.modalOptionBtn} ${activityLevel === key ? styles.modalOptionBtnActive : ''}`}
-                onClick={() => setActivityLevel(key)}
-              >
-                <span className={`${styles.activityLabel} h5`}>{factor.label}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* Weight Goal Selection */}
-            <div className={`${styles.sectionTitle} h3`}>I would like to:</div>
-          <div className={styles.weightGoalGrid}>
-            {Object.entries(WEIGHT_GOALS).map(([key, goal], index) => (
-              <button
-                key={key}
-                type="button"
-                className={`${styles.weightGoalButton} h5 ${weightGoal === key ? styles.weightGoalButtonActive : ''} ${index === 2 ? styles.weightGoalButtonThird : ''}`}
-                onClick={() => setWeightGoal(key)}
-              >
-                {goal.label}
-              </button>
-            ))}
-          </div>
-
-
         </div>
-        </form>
-        <div className={styles.buttonContainerFixed}>
-          <button
-            type="button"
-            className={`${styles.skipButton} h4`}
-            onClick={onClose}
-          >
-            <span className='h4'>Skip</span>
-          </button>
-          <button
-            type="submit"
-            className={`${styles.nextButton} h4`}
-            onClick={handleSubmit}
-          >
-            <span className='h4'>Next</span>
-          </button>
-        </div>
-      </div>
-    </ModalWrapper>
+      </ModalWrapper>
+    </>
   );
 }

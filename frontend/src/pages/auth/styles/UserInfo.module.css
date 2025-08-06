@@ -87,7 +87,7 @@ button {
   border-radius: 8px;
   border: 1px solid #CDD3C4;
   background: #FCFCF8;
-  padding: 20px 16px;
+  padding: 12px 16px;
   font-size: 16px;
   transition: border-color 0.2s ease;
 }
@@ -169,7 +169,7 @@ button {
 .ageInput {
   width: 96px;
   height: 48px;
-  line-height: 48px;
+  line-height: 24px;
   border-radius: 8px;
   border: 1px solid var(--Brand-Outline, #DBE2D0);
   background: var(--Brand-Off-White, #FCFCF8);
@@ -178,6 +178,7 @@ button {
   box-sizing: border-box;
   margin: 0;
   font-size: 16px;
+  padding: 12px 16px;
   transition: border-color 0.2s ease;
 }
 
@@ -379,10 +380,6 @@ button {
   background: var(--Brand-Secondary-Dark, #26361B);
   color: var(--Neutral-White, #FFF);
   border: 1px solid var(--Brand-Secondary-Dark, #26361B);
-}
-
-.weightGoalButtonThird {
-  /* 第三个按钮的特殊样式，如果需要的话可以在这里添加 */
 }
 
 .skipButton {
