@@ -746,6 +746,7 @@ export default function Home(props) {
             onSave={handleSaveCalories}
             name={userInfo?.name || ''}
             calories={getDisplayCaloriesValue()}
+            isUpdateMode={false}
           />
         <NutritionPuzzlesModal
           open={showPuzzlesModal}
