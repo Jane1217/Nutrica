@@ -150,7 +150,7 @@
   justify-content: center;
   align-items: center;
   gap: 10px;
-  border-radius: 24px;
+  border-radius: 36px;
   background: var(--Brand-Secondary-Background, #E7E7D5);
   color: #222;
   border: none;
@@ -167,7 +167,7 @@
   align-items: center;
   gap: 10px;
   flex: 1 0 0;
-  border-radius: 24px;
+  border-radius: 36px;
   background: var(--Brand-Dark, #2A4E14);
   color: #fff;
   border: none;
