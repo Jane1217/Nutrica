@@ -87,11 +87,18 @@
   box-sizing: border-box;
   margin: 0;
   font-weight: 500;
+  font-size: 16px;
   padding: 12px 16px;
   padding-right: 38px;
   border-radius: 8px;
   border: 1px solid var(--Brand-Outline, #DBE2D0);
   background: var(--Brand-Off-White, #FCFCF8);
+  transition: border-color 0.2s ease;
+}
+
+.caloriesInput:focus {
+  outline: none;
+  border: 2px solid var(--Brand-Dark, #2A4E14);
 }
 
 .kcalUnit {
