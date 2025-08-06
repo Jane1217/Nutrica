@@ -1,5 +1,11 @@
 /* UserInfoModal Styles */
 
+/* 重置按钮的默认样式，防止移动浏览器显示蓝色链接 */
+button {
+  color: inherit;
+  text-decoration: none;
+}
+
 .modalContainer {
   position: relative;
   width: 100%;
@@ -69,18 +75,26 @@
 
 .modalOptionBtnActive {
   background: #26361B;
-  color: #FFF;
+  color: var(--Neutral-White, #FFF);
   border-color: #26361B;
 }
 
 .nameInput {
   margin-bottom: 8px;
   width: 100%;
+  height: 48px;
   box-sizing: border-box;
   border-radius: 8px;
   border: 1px solid #CDD3C4;
   background: #FCFCF8;
   padding: 20px 16px;
+  font-size: 16px;
+  transition: border-color 0.2s ease;
+}
+
+.nameInput:focus {
+  outline: none;
+  border: 2px solid var(--Brand-Dark, #2A4E14);
 }
 
 .privacyText {
@@ -119,10 +133,12 @@
   border-radius: 999px;
   border: 1px solid var(--Brand-Outline, #DBE2D0);
   background: var(--Brand-Off-White, #FCFCF8);
+  color: var(--Neutral-Primary-Text, #22221B);
 }
 
 .genderButtons .modalOptionBtnActive {
   background: var(--Brand-Secondary-Dark, #26361B);
+  color: var(--Neutral-White, #FFF);
 }
 
 .ageContainer {
@@ -161,6 +177,13 @@
   display: block;
   box-sizing: border-box;
   margin: 0;
+  font-size: 16px;
+  transition: border-color 0.2s ease;
+}
+
+.ageInput:focus {
+  outline: none;
+  border: 2px solid var(--Brand-Dark, #2A4E14);
 }
 
 .unitButtons {
@@ -188,7 +211,7 @@
 
 .unitButtonActive {
   background: #26361B;
-  color: #FFF;
+  color: var(--Neutral-White, #FFF);
   border: none;
 }
 
@@ -247,11 +270,18 @@
   box-sizing: border-box;
   margin: 0;
   font-weight: 500;
+  font-size: 16px;
   padding: 12px 16px;
   padding-right: 38px;
   justify-content: center;
   align-items: center;
   gap: 4px;
+  transition: border-color 0.2s ease;
+}
+
+.measurementInput:focus {
+  outline: none;
+  border: 2px solid var(--Brand-Dark, #2A4E14);
 }
 
 .measurementUnit {
@@ -300,10 +330,12 @@
   border-radius: 999px;
   border: 1px solid var(--Brand-Outline, #DBE2D0);
   background: var(--Brand-Off-White, #FCFCF8);
+  color: var(--Neutral-Primary-Text, #22221B);
 }
 
 .activityGrid .modalOptionBtnActive {
   background: var(--Brand-Secondary-Dark, #26361B);
+  color: var(--Neutral-White, #FFF);
 }
 
 .activityLabel {
@@ -334,6 +366,7 @@
   border-radius: 999px;
   border: 1px solid var(--Brand-Outline, #DBE2D0);
   background: var(--Brand-Off-White, #FCFCF8);
+  color: var(--Neutral-Primary-Text, #22221B);
   width: 100%;
   text-align: center;
   height: auto;
@@ -344,7 +377,7 @@
 
 .weightGoalButtonActive {
   background: var(--Brand-Secondary-Dark, #26361B);
-  color: #FFF;
+  color: var(--Neutral-White, #FFF);
   border: 1px solid var(--Brand-Secondary-Dark, #26361B);
 }
 

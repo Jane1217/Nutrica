@@ -478,6 +478,12 @@
   padding: 20px 16px;
   font-family: inherit;
   font-size: 16px;
+  transition: border-color 0.2s ease;
+}
+
+.modalInput:focus {
+  outline: none;
+  border: 2px solid var(--Brand-Dark, #2A4E14);
 }
 
 .modalDivider {

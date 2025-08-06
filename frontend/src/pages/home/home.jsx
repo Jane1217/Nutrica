@@ -517,7 +517,7 @@ export default function Home(props) {
 
   // 获取当前puzzle的描述
   function getPuzzleDescription(puzzle, progress, userName) {
-    if (!puzzle) return `Hey ${userName || 'User'}! Ready to collect today’s nutrition puzzle?`;
+    if (!puzzle) return `Hey ${userName || 'there'}! Ready to collect today’s nutrition puzzle?`;
     const percent = getPuzzleProgress(puzzle, progress);
     if (!puzzle.descriptions || puzzle.descriptions.length === 0) return puzzle.description;
     if (percent === 0) return puzzle.descriptions[0];
@@ -687,7 +687,7 @@ export default function Home(props) {
             puzzleName={renderData.puzzle_name}
             categoryName={renderData.puzzle_category}
             puzzleText={renderData.daily_text}
-            userName={userInfo?.name || 'User'}
+            userName={userInfo?.name || 'there'}
             hasSelectedPuzzle={!!renderData.puzzle_name}
           />
           <PuzzleContainer

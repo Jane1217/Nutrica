@@ -46,6 +46,14 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
   const [calculatedCalories, setCalculatedCalories] = useState(2000);
   const [isLoading, setIsLoading] = useState(false);
 
+  // 简化的数字输入处理函数
+  const handleNumberInput = (value, setter) => {
+    // 只允许数字、空字符串和退格键
+    if (value === '' || /^\d+$/.test(value)) {
+      setter(value);
+    }
+  };
+
   // 关键：每次initialData变化时自动同步state
   useEffect(() => {
     setName(initialData.name || '');
@@ -170,8 +178,9 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
                 className={`${styles.ageInput} h5`}
                 type="number"
                 min="0"
+                max="120"
                 value={age}
-                onChange={e => setAge(e.target.value)}
+                onChange={e => handleNumberInput(e.target.value, setAge)}
               />
             </div>
           </div>
@@ -201,8 +210,9 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
                       className={`${styles.measurementInput} h5`}
                       type="number"
                       min="0"
+                      max="10"
                       value={heightFeet}
-                      onChange={e => setHeightFeet(e.target.value)}
+                      onChange={e => handleNumberInput(e.target.value, setHeightFeet)}
                       placeholder="0"
                     />
                     <span className={styles.measurementUnit}>ft</span>
@@ -214,7 +224,7 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
                       min="0"
                       max="11"
                       value={heightInches}
-                      onChange={e => setHeightInches(e.target.value)}
+                      onChange={e => handleNumberInput(e.target.value, setHeightInches)}
                       placeholder="0"
                     />
                     <span className={styles.measurementUnit}>in</span>
@@ -226,8 +236,9 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
                     className={`${styles.measurementInput} h5`}
                     type="number"
                     min="0"
+                    max="300"
                     value={height}
-                    onChange={e => setHeight(e.target.value)}
+                    onChange={e => handleNumberInput(e.target.value, setHeight)}
                   />
                   <span className={styles.measurementUnit}>cm</span>
                 </div>
@@ -244,8 +255,9 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
                   className={`${styles.measurementInput} h5`}
                   type="number"
                   min="0"
+                  max="500"
                   value={weight}
-                  onChange={e => setWeight(e.target.value)}
+                  onChange={e => handleNumberInput(e.target.value, setWeight)}
                 />
                 <span className={styles.measurementUnit}>{unit === 'us' ? 'lbs' : 'kg'}</span>
               </div>

@@ -18,18 +18,52 @@ import { supabase } from './supabaseClient';
 
 export default function App() {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setUser(data?.user || null));
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+    // 初始化时获取用户状态
+    const initializeAuth = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        setUser(user);
+      } catch (error) {
+        console.error('Error getting user:', error);
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializeAuth();
+
+    // 监听认证状态变化
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user || null);
+      setLoading(false);
     });
-    return () => { listener?.subscription.unsubscribe(); };
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const handleAuth = () => {
     supabase.auth.getUser().then(({ data }) => setUser(data?.user || null));
   };
+
+  // 如果正在加载，显示加载状态
+  if (loading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '100vh',
+        fontSize: '16px',
+        color: '#666'
+      }}>
+        Loading...
+      </div>
+    );
+  }
 
   return (
     <BrowserRouter>
