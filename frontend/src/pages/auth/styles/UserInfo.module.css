@@ -20,7 +20,7 @@ button {
   justify-content: center;
   align-items: center;
   flex: 1;
-  padding: 24px;
+  padding: 28px 24px 24px 24px;
 }
 
 .modalForm {
@@ -29,8 +29,7 @@ button {
   max-width: 768px;
   width: 100%;
   margin: 0 auto;
-  padding: 24px;
-  padding-bottom: 120px;
+  padding: 8px 24px 120px 24px;
   background: var(--Brand-Background, #F3F3EC);
   box-sizing: border-box;
   flex: 1;
@@ -38,7 +37,44 @@ button {
 }
 
 .modalHeader {
-  margin-bottom: 28px;
+  margin: 0;
+  padding: 16px 24px 8px 24px;
+  background: var(--Brand-Background, #F3F3EC);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+.closeButton {
+  display: flex;
+  width: 48px;
+  height: 48px;
+  padding: 14px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--Brand-Outline, #DBE2D0);
+  background: var(--Brand-Background, #F3F3EC);
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  margin-left: auto;
+  margin-right: 0;
+  margin-top: -4px;
+}
+
+.closeButton:hover {
+  background-color: #f5f5f5;
+  border-color: #ccc;
 }
 
 .modalInputWrapper {

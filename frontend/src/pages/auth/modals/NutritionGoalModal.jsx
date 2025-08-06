@@ -4,7 +4,7 @@ import nutritionGoalStyles from "../styles/NutritionGoal.module.css";
 import { calculateNutritionFromCalories } from '../../../utils';
 import ModalWrapper from '../../../components/common/ModalWrapper';
 
-export default function NutritionGoalModal({ open, onClose, onBack, onSave, name = '', calories = 0 }) {
+export default function NutritionGoalModal({ open, onClose, onBack, onSave, name = '', calories = 0, isUpdateMode = false }) {
   const [userInput, setUserInput] = useState('');
   const [isUserEditing, setIsUserEditing] = useState(false);
   
@@ -50,10 +50,17 @@ export default function NutritionGoalModal({ open, onClose, onBack, onSave, name
       onClose={onClose}
     >
       <div className={nutritionGoalStyles.modalContainer}>
+        <h1 className={nutritionGoalStyles.title}>
+          <div className={nutritionGoalStyles.headerRow}>
+            <div className="h2">{isUpdateMode ? 'Update Nutrition Goal' : `Thanks for the info${name ? `, ${name}` : ''}!`}</div>
+            <button className={nutritionGoalStyles.closeButton} onClick={onClose}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </h1>
         <div className={nutritionGoalStyles.scrollArea}>
-          <h1 className={nutritionGoalStyles.title}>
-            Thanks for the info{name ? `, ${name}` : ''}!
-          </h1>
           <div className={`h5 ${nutritionGoalStyles.subtitle}`}>
           Here's our estimate of the macros you need to stay healthy and energized. 
           </div>

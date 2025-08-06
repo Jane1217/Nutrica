@@ -310,15 +310,18 @@ export default function AccountSettings({ userEmail }) {
       <div className={styles['account-card-list']}>
         <button className={`${styles['account-card-btn']} body1`} onClick={() => setShowUserInfoModal(true)}>
           Update Nutrition Goal
-          <span>{'>'}</span>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8.58984 16.59L13.1698 12L8.58984 7.41L9.99984 6L15.9998 12L9.99984 18L8.58984 16.59Z" fill="#6A6A61"/>
+          </svg>
         </button>
         <button className={`${styles['account-card-btn']} body1`} onClick={() => setShowChangePasswordModal(true)}>
           Change Password
-          <span>{'>'}</span>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8.58984 16.59L13.1698 12L8.58984 7.41L9.99984 6L15.9998 12L9.99984 18L8.58984 16.59Z" fill="#6A6A61"/>
+          </svg>
         </button>
         <button className={`${styles['account-card-btn']} body1`} onClick={handleSignOut}>
           Sign Out
-          <span>{'>'}</span>
         </button>
       </div>
       <div className={styles['account-footer-bar']}>
@@ -370,6 +373,7 @@ export default function AccountSettings({ userEmail }) {
         onSave={handleSaveCalories}
         name={userInfo?.name || ''}
         calories={userInfo?.calculatedCalories || latestCalories || 0}
+        isUpdateMode={true}
       />
       <ProfileEditModal 
         open={showProfileEditModal} 

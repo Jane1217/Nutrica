@@ -167,10 +167,17 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
     return (
       <ModalWrapper open={open} onClose={onClose}>
         <div className={styles.modalContainer}>
-          <div className={styles.modalForm}>
-            <header className={styles.modalHeader}>
+          <header className={styles.modalHeader}>
+            <div className={styles.headerRow}>
               <div className="h2">{isUpdateMode ? 'Update Nutrition Goal' : 'Welcome to Nutrica!'}</div>
-            </header>
+              <button className={styles.closeButton} onClick={onClose}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          </header>
+          <div className={styles.modalForm}>
             <div className={styles.loadingContent}>
               <div className="body1" style={{textAlign: 'center', marginBottom: '24px'}}>
                 Estimating your daily macronutrient intake based on your input...
@@ -193,10 +200,17 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
       />
       <ModalWrapper open={open} onClose={onClose}>
         <div className={styles.modalContainer}>
-          <form className={styles.modalForm} onSubmit={handleSubmit}>
-            <header className={styles.modalHeader}>
+          <header className={styles.modalHeader}>
+            <div className={styles.headerRow}>
               <div className="h2">{isUpdateMode ? 'Update Nutrition Goal' : 'Welcome to Nutrica!'}</div>
-            </header>
+              <button className={styles.closeButton} onClick={onClose}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          </header>
+          <form className={styles.modalForm} onSubmit={handleSubmit}>
             <div className={styles.modalInputWrapper}>
               {!isUpdateMode && (
                 <>
