@@ -94,7 +94,7 @@ export default function Home(props) {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState(null);
-  const [latestCalories, setLatestCalories] = useState(2000);
+  const [latestCalories, setLatestCalories] = useState(0);
   const [userId, setUserId] = useState(null);
   const [foods, setFoods] = useState([]);
   const [foodsPage, setFoodsPage] = useState(1); // 当前页数
@@ -469,7 +469,8 @@ export default function Home(props) {
 
   // 获取要显示的卡路里值：优先使用计算值，其次使用数据库值
   const getDisplayCaloriesValue = () => {
-    return getDisplayCalories(userInfo, latestCalories);
+    const value = getDisplayCalories(userInfo, latestCalories);
+    return value && value > 0 ? value : 0;
   };
 
   // 新增：处理puzzle选择

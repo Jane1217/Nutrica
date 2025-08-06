@@ -27,7 +27,7 @@ export default function AccountSettings({ userEmail }) {
   const [userInfo, setUserInfo] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState(null);
   const nickname = userInfo?.name || 'Your Name';
-  const [latestCalories, setLatestCalories] = useState(2000);
+  const [latestCalories, setLatestCalories] = useState(0);
 
   // 初始化时立即加载缓存数据
   React.useEffect(() => {
@@ -114,7 +114,7 @@ export default function AccountSettings({ userEmail }) {
   // 查询数据库中当前用户最近一次提交的calories
   const fetchLatestGoal = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return 2000;
+    if (!user) return 0;
     const { data, error } = await supabase
       .from('nutrition_goal')
       .select('calories')
@@ -122,9 +122,9 @@ export default function AccountSettings({ userEmail }) {
       .order('created_at', { ascending: false })
       .limit(1);
     if (error || !data || data.length === 0) {
-      return 2000;
+      return 0;
     }
-    return data[0].calories || 2000;
+    return data[0].calories || 0;
   };
 
   // 打开营养目标弹窗前，先查数据库
@@ -200,10 +200,10 @@ export default function AccountSettings({ userEmail }) {
 
   // 获取要显示的卡路里值：优先使用计算值，其次使用数据库值
   const getDisplayCalories = () => {
-    if (userInfo?.calculatedCalories) {
+    if (userInfo?.calculatedCalories && userInfo.calculatedCalories > 0) {
       return userInfo.calculatedCalories;
     }
-    return latestCalories;
+    return latestCalories && latestCalories > 0 ? latestCalories : 0;
   };
 
   const handleSignOut = async () => {
@@ -369,7 +369,7 @@ export default function AccountSettings({ userEmail }) {
         }}
         onSave={handleSaveCalories}
         name={userInfo?.name || ''}
-        calories={userInfo?.calculatedCalories || latestCalories || 2000}
+        calories={userInfo?.calculatedCalories || latestCalories || 0}
       />
       <ProfileEditModal 
         open={showProfileEditModal} 

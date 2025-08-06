@@ -47,11 +47,11 @@ export function clearUserInfoModalShown() {
 }
 
 // 获取显示用的卡路里值
-export function getDisplayCalories(userInfo, latestCalories = 2000) {
-  if (userInfo?.calculatedCalories) {
+export function getDisplayCalories(userInfo, latestCalories = 0) {
+  if (userInfo?.calculatedCalories && userInfo.calculatedCalories > 0) {
     return userInfo.calculatedCalories;
   }
-  return latestCalories;
+  return latestCalories && latestCalories > 0 ? latestCalories : 0;
 } 
 
 // 获取认证token
