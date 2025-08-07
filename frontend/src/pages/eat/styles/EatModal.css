@@ -33,7 +33,7 @@
   flex-shrink: 0; /* 防止压缩 */
 }
 .eat-modal-title {
-  color: #000;
+  color: var(--Neutral-Primary-Text, #22221B);
 }
 .eat-modal-close {
   display: flex;
@@ -141,11 +141,11 @@
   align-items: center;
   border-radius: 999px;
   background: #E9EDE4;
-  color: #000;
+  color: var(--Neutral-Primary-Text, #22221B);
   font-size: 16px;
 }
 .eat-modal-food-name {
-  color: #000;
+  color: var(--Neutral-Primary-Text, #22221B);
   flex: 1 0 0;
 }
 .eat-modal-food-time {
@@ -175,7 +175,7 @@
 }
 .eat-modal-nutrition-value {
   align-self: stretch;
-  color: #000;
+  color: var(--Neutral-Primary-Text, #22221B);
   text-align: center;
   font-size: 0.75rem;
 }
