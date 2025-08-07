@@ -5,7 +5,6 @@
   opacity: 0.6;
   background: var(--Neutral-Primary-Text, #22221B);
   z-index: 999;
-  /* 不加height/width/padding，确保全屏覆盖刘海 */
 }
 .food-modal {
   position: fixed;
@@ -32,13 +31,8 @@
   justify-content: space-between;
 }
 .eat-modal-title, .food-modal-title {
+  flex: 1 0 0;
   color: var(--Neutral-Primary-Text, #22221B);
-  font-family: Inter;
-  font-size: 36px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 150%; /* 54px */
-  letter-spacing: -0.72px;
 }
 .food-modal-label {
   color: rgba(34, 34, 27, 0.60);
@@ -115,7 +109,7 @@
   font-size: 20px;
   font-style: normal;
   font-weight: 700;
-  line-height: 150%; /* 30px */
+  line-height: 150%;
   letter-spacing: -0.48px;
   background: transparent;
   border: none;
@@ -131,7 +125,7 @@
   font-size: 20px;
   font-style: normal;
   font-weight: 700;
-  line-height: 150%; /* 30px */
+  line-height: 150%;
   opacity: 0.4;
   letter-spacing: -0.48px;
 }
@@ -168,7 +162,6 @@
   margin-top: 16px;
 }
 
-/* Describe Modal 样式 */
 .describe-input-container {
   flex: 1;
   display: flex;
@@ -195,11 +188,7 @@
   font-family: Kanit;
   font-size: 18px;
 }
-.describe-textarea.h2 {
-  /* 只需加.h2类即可 */
-}
 
-/* 返回按钮样式 */
 .food-modal-back-btn {
   display: flex;
   width: 36px;
@@ -214,7 +203,6 @@
   top: 0;
 }
 
-/* 带返回按钮的标题组 */
 .food-modal-title-group {
   display: flex;
   align-items: center;
@@ -232,7 +220,6 @@
   background: var(--Brand-Background, #F3F3EC);
 }
 
-/* 静态营养值显示样式 */
 .food-modal-static-value {
   color: var(--Neutral-Primary-Text, #22221B);
   text-align: right;

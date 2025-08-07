@@ -157,7 +157,7 @@ export default function FoodModal({ open, onClose, initialData, userId, onDataCh
     <ModalWrapper open={open} onClose={onClose}>
       <div className="eat-modal food-modal">
         <div className="eat-modal-group1 food-modal-group1">
-          <span className="eat-modal-title">Food</span>
+          <span className="eat-modal-title h2">Food</span>
           <button className="eat-modal-close-btn" onClick={onClose}>
             <img src={icons.closeFillBlack} alt="close" width="24" height="24" />
           </button>

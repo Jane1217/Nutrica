@@ -79,7 +79,7 @@ export default function EnterValueModal({ open, onClose, onBack, onCloseModal, u
             <button className="food-modal-back-btn" onClick={onBack}>
               <img src={icons.arrowLeft} alt="Back" />
             </button>
-            <span className="eat-modal-title">Enter Value</span>
+            <span className="eat-modal-title h2">Enter Value</span>
           </div>
           <button className="eat-modal-close-btn" onClick={onCloseModal}>
             <span className="close-fill">

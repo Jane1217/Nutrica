@@ -49,7 +49,7 @@ export default function DescribeModal({ open, onClose, onBack, onCloseModal, onN
             <button className="food-modal-back-btn" onClick={onBack}>
               <img src={icons.arrowLeft} alt="Back" />
             </button>
-            <span className="eat-modal-title">Describe</span>
+            <span className="eat-modal-title h2">Describe</span>
           </div>
           <button className="eat-modal-close-btn" onClick={onCloseModal}>
             <span className="close-fill">
