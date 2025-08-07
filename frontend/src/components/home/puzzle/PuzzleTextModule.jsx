@@ -26,7 +26,7 @@ export default function PuzzleTextModule({ puzzleName, puzzleText, userName, has
               )
               : (puzzleText || 'Carrot')
           )
-          : `Hey ${userName || 'User'}! Ready to collect today's nutrition puzzle?`
+          : `Hey ${userName || 'there'}! Ready to collect today's nutrition puzzle?`
         }
       </div>
     </div>

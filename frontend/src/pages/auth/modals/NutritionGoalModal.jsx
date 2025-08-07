@@ -4,16 +4,16 @@ import nutritionGoalStyles from "../styles/NutritionGoal.module.css";
 import { calculateNutritionFromCalories } from '../../../utils';
 import ModalWrapper from '../../../components/common/ModalWrapper';
 
-export default function NutritionGoalModal({ open, onClose, onBack, onSave, name = '', calories = 2000 }) {
+export default function NutritionGoalModal({ open, onClose, onBack, onSave, name = '', calories = 0, isUpdateMode = false }) {
   const [userInput, setUserInput] = useState('');
   const [isUserEditing, setIsUserEditing] = useState(false);
   
   // 获取当前应该使用的卡路里值
   const getCurrentCalories = () => {
     if (isUserEditing && userInput) {
-      return Number(userInput) || calories;
+      return Number(userInput) || 0;
     }
-    return calories;
+    return calories && calories > 0 ? calories : 0;
   };
   
   // 动态计算宏量营养素克数 - 使用utils函数和当前卡路里值
@@ -21,7 +21,7 @@ export default function NutritionGoalModal({ open, onClose, onBack, onSave, name
   const { carbs, fats, protein } = calculateNutritionFromCalories(currentCalories);
   
   const handleSave = () => {
-    const finalValue = isUserEditing ? Number(userInput) : calories;
+    const finalValue = isUserEditing ? Number(userInput) : (calories && calories > 0 ? calories : 0);
     if (onSave) onSave(finalValue);
     if (onClose) onClose();
   };
@@ -35,14 +35,14 @@ export default function NutritionGoalModal({ open, onClose, onBack, onSave, name
   
   // 处理输入框失去焦点
   const handleBlur = () => {
-    if (!userInput || userInput === calories.toString()) {
+    if (!userInput || userInput === (calories || 0).toString()) {
       setIsUserEditing(false);
       setUserInput('');
     }
   };
   
-  // 显示的值：如果用户正在编辑则显示用户输入，否则显示props值
-  const displayValue = isUserEditing ? userInput : calories;
+  // 显示的值：如果用户正在编辑则显示用户输入，否则显示props值（如果calories为0或空则显示空字符串）
+  const displayValue = isUserEditing ? userInput : (calories && calories > 0 ? calories : '');
   
   return (
     <ModalWrapper
@@ -50,10 +50,17 @@ export default function NutritionGoalModal({ open, onClose, onBack, onSave, name
       onClose={onClose}
     >
       <div className={nutritionGoalStyles.modalContainer}>
+        <h1 className={nutritionGoalStyles.title}>
+          <div className={nutritionGoalStyles.headerRow}>
+            <div className="h2">{isUpdateMode ? 'Update Nutrition Goal' : `Thanks for the info${name ? `, ${name}` : ''}!`}</div>
+            <button className={nutritionGoalStyles.closeButton} onClick={onClose}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </h1>
         <div className={nutritionGoalStyles.scrollArea}>
-          <h1 className={nutritionGoalStyles.title}>
-            Thanks for the info{name ? `, ${name}` : ''}!
-          </h1>
           <div className={`h5 ${nutritionGoalStyles.subtitle}`}>
           Here's our estimate of the macros you need to stay healthy and energized. 
           </div>

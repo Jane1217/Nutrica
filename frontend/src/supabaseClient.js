@@ -5,8 +5,8 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    autoRefreshToken: false, // 禁用自动刷新token，避免在公开页面报错
-    persistSession: false,   // 不持久化session，避免token相关错误
-    detectSessionInUrl: false // 不在URL中检测session
+    autoRefreshToken: true,  // 启用自动刷新token
+    persistSession: true,    // 持久化session，保持登录状态
+    detectSessionInUrl: true // 在URL中检测session
   }
 });

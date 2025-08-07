@@ -1,5 +1,11 @@
 /* UserInfoModal Styles */
 
+/* 重置按钮的默认样式，防止移动浏览器显示蓝色链接 */
+button {
+  color: inherit;
+  text-decoration: none;
+}
+
 .modalContainer {
   position: relative;
   width: 100%;
@@ -14,7 +20,7 @@
   justify-content: center;
   align-items: center;
   flex: 1;
-  padding: 24px;
+  padding: 28px 24px 24px 24px;
 }
 
 .modalForm {
@@ -23,8 +29,7 @@
   max-width: 768px;
   width: 100%;
   margin: 0 auto;
-  padding: 24px;
-  padding-bottom: 120px;
+  padding: 8px 24px 120px 24px;
   background: var(--Brand-Background, #F3F3EC);
   box-sizing: border-box;
   flex: 1;
@@ -32,7 +37,44 @@
 }
 
 .modalHeader {
-  margin-bottom: 28px;
+  margin: 0;
+  padding: 16px 24px 8px 24px;
+  background: var(--Brand-Background, #F3F3EC);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+.closeButton {
+  display: flex;
+  width: 48px;
+  height: 48px;
+  padding: 14px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--Brand-Outline, #DBE2D0);
+  background: var(--Brand-Background, #F3F3EC);
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  margin-left: auto;
+  margin-right: 0;
+  margin-top: -4px;
+}
+
+.closeButton:hover {
+  background-color: #f5f5f5;
+  border-color: #ccc;
 }
 
 .modalInputWrapper {
@@ -69,18 +111,26 @@
 
 .modalOptionBtnActive {
   background: #26361B;
-  color: #FFF;
+  color: var(--Neutral-White, #FFF);
   border-color: #26361B;
 }
 
 .nameInput {
   margin-bottom: 8px;
   width: 100%;
+  height: 48px;
   box-sizing: border-box;
   border-radius: 8px;
   border: 1px solid #CDD3C4;
   background: #FCFCF8;
-  padding: 20px 16px;
+  padding: 12px 16px;
+  font-size: 16px;
+  transition: border-color 0.2s ease;
+}
+
+.nameInput:focus {
+  outline: none;
+  border: 2px solid var(--Brand-Dark, #2A4E14);
 }
 
 .privacyText {
@@ -119,10 +169,12 @@
   border-radius: 999px;
   border: 1px solid var(--Brand-Outline, #DBE2D0);
   background: var(--Brand-Off-White, #FCFCF8);
+  color: var(--Neutral-Primary-Text, #22221B);
 }
 
 .genderButtons .modalOptionBtnActive {
   background: var(--Brand-Secondary-Dark, #26361B);
+  color: var(--Neutral-White, #FFF);
 }
 
 .ageContainer {
@@ -153,7 +205,7 @@
 .ageInput {
   width: 96px;
   height: 48px;
-  line-height: 48px;
+  line-height: 24px;
   border-radius: 8px;
   border: 1px solid var(--Brand-Outline, #DBE2D0);
   background: var(--Brand-Off-White, #FCFCF8);
@@ -161,6 +213,14 @@
   display: block;
   box-sizing: border-box;
   margin: 0;
+  font-size: 16px;
+  padding: 12px 16px;
+  transition: border-color 0.2s ease;
+}
+
+.ageInput:focus {
+  outline: none;
+  border: 2px solid var(--Brand-Dark, #2A4E14);
 }
 
 .unitButtons {
@@ -188,7 +248,7 @@
 
 .unitButtonActive {
   background: #26361B;
-  color: #FFF;
+  color: var(--Neutral-White, #FFF);
   border: none;
 }
 
@@ -247,11 +307,18 @@
   box-sizing: border-box;
   margin: 0;
   font-weight: 500;
+  font-size: 16px;
   padding: 12px 16px;
   padding-right: 38px;
   justify-content: center;
   align-items: center;
   gap: 4px;
+  transition: border-color 0.2s ease;
+}
+
+.measurementInput:focus {
+  outline: none;
+  border: 2px solid var(--Brand-Dark, #2A4E14);
 }
 
 .measurementUnit {
@@ -300,10 +367,12 @@
   border-radius: 999px;
   border: 1px solid var(--Brand-Outline, #DBE2D0);
   background: var(--Brand-Off-White, #FCFCF8);
+  color: var(--Neutral-Primary-Text, #22221B);
 }
 
 .activityGrid .modalOptionBtnActive {
   background: var(--Brand-Secondary-Dark, #26361B);
+  color: var(--Neutral-White, #FFF);
 }
 
 .activityLabel {
@@ -334,6 +403,7 @@
   border-radius: 999px;
   border: 1px solid var(--Brand-Outline, #DBE2D0);
   background: var(--Brand-Off-White, #FCFCF8);
+  color: var(--Neutral-Primary-Text, #22221B);
   width: 100%;
   text-align: center;
   height: auto;
@@ -344,18 +414,14 @@
 
 .weightGoalButtonActive {
   background: var(--Brand-Secondary-Dark, #26361B);
-  color: #FFF;
+  color: var(--Neutral-White, #FFF);
   border: 1px solid var(--Brand-Secondary-Dark, #26361B);
-}
-
-.weightGoalButtonThird {
-  /* 第三个按钮的特殊样式，如果需要的话可以在这里添加 */
 }
 
 .skipButton {
   display: flex;
   width: 120px;
-  height: 64px;
+  height: 48px;
   padding: 0px 16px;
   justify-content: center;
   align-items: center;
@@ -371,7 +437,7 @@
 
 .nextButton {
   display: flex;
-  height: 64px;
+  height: 48px;
   padding: 0px 16px;
   justify-content: center;
   align-items: center;
@@ -398,7 +464,7 @@
   gap: 16px;
   justify-content: center;
   align-items: center;
-  padding: 16px 24px 32px 24px;
+  padding: 16px 24px 16px 24px;
   z-index: 100;
   box-shadow: 0 -2px 8px rgba(0,0,0,0.03);
   box-sizing: border-box;
