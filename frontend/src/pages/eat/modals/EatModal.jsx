@@ -119,7 +119,7 @@ export default function EatModal({ onClose, foods = [], foodsLoading = false, on
       <ModalWrapper open={open && step === 'main'} onClose={onClose}>
         <div className="eat-modal">
           <div className="eat-modal-group1">
-            <span className="eat-modal-title">Eat</span>
+            <span className="eat-modal-title h2">Eat</span>
             <CloseButton onClick={onClose} />
           </div>
           {/* group2: 最近食物 */}
