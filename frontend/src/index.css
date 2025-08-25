@@ -19,6 +19,15 @@
 
 body, #root, .app-root {
   background: #F3F3EC !important;
+  margin: 0;
+  padding: 0;
+}
+
+/* 全局重置所有元素的默认margin和padding */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 /* Typography */
