@@ -30,6 +30,18 @@ export const icons = {
   addAlt: '/assets/add (1).svg',
   collection: '/assets/fluent_collections-empty-16-filled.svg',
   scanFrame: '/assets/scan-icon.svg',
+  heroFrame: '/assets/Frame 268.svg',
+  collectionsIcon: '/assets/fluent_collections-20-filled.svg',
+  card1: '/assets/card.svg',
+  card2: '/assets/card (1).svg',
+  cameraIcon: '/assets/basil_camera-solid (1).svg',
+  bottomSheet: '/assets/Bottom Sheet 1.svg',
+  scannerCamera: '/assets/Scanner Camera 1.svg',
+  imagePixel: '/assets/fluent-mdl2_image-pixel.svg',
+  frame265: '/assets/Frame 265.svg',
+  trophy: '/assets/material-symbols_trophy-rounded.svg',
+  group170: '/assets/Group 170.svg',
+  vector6: '/assets/Vector 6.png',
 };
 
 // 获取图标URL的辅助函数
