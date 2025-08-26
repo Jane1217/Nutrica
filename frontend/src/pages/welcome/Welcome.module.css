@@ -138,8 +138,7 @@
   align-items: flex-start;
   gap: 16px;
   background: #2A4E14;
-  position: relative;
-  margin-bottom: 160px;
+  margin-bottom: 0;
 }
 
 .frame193Icon {
@@ -163,11 +162,9 @@
   gap: 24px;
   border-radius: 36px;
   background: var(--Brand-Background, #F3F3EC);
-  position: absolute;
-  bottom: -100px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1;
+  margin: -120px auto 0 auto;
+  z-index: 2;
+  position: relative;
 }
 
 
