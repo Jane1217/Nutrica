@@ -4,6 +4,7 @@ import { supabase } from '../../../supabaseClient';
 import InputField from '../../../components/auth/InputField';
 import BottomButton from '../../../components/common/BottomButton';
 import ModalWrapper from '../../../components/common/ModalWrapper';
+import { validateEmail, validatePassword } from '../../../utils/core/validation';
 import styles from '../styles/Auth.module.css';
 import '../../../index.css';
 
@@ -16,9 +17,6 @@ export default function SignUp({ open, onClose, onAuth, onSwitchToLogin }) {
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
-  // 使用现有的验证工具函数
-  const { validateEmail, validatePassword } = await import('../../../utils/core/validation');
-
   const handleSignup = async (e) => {
     e.preventDefault();
     setError('');
@@ -27,14 +25,16 @@ export default function SignUp({ open, onClose, onAuth, onSwitchToLogin }) {
     setSuccess('');
     
     // 验证邮箱格式
-    if (!validateEmail(email)) {
-      setEmailError('Not a valid email address format.');
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.isValid) {
+      setEmailError(emailValidation.message);
       return;
     }
 
     // 验证密码长度
-    if (!validatePassword(password)) {
-      setPasswordError("Password doesn't meet requirements.");
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.isValid) {
+      setPasswordError(passwordValidation.message);
       return;
     }
     
