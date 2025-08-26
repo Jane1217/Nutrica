@@ -7,12 +7,17 @@ import { puzzleCategories } from '../../data/puzzles';
 
 export default function PuzzleList({ puzzleList = puzzleCategories, onCardClick }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ 
+      display: 'flex', 
+      flexDirection: 'column', 
+      gap: '24px',
+      width: '100%' // 只保留宽度设置
+    }}>
       {puzzleList.map((category, idx) => {
         // 根据type属性决定渲染哪个组件
         if (category.type === 'synthesis') {
           return (
-            <div key={category.id || idx} onClick={() => onCardClick && onCardClick(category)} style={{ cursor: 'pointer' }}>
+            <div key={category.id || idx} onClick={() => onCardClick && onCardClick(category)} style={{ cursor: 'pointer', width: '100%' }}>
               <PuzzleSynthesisCard
                 category={category}
               />
@@ -21,7 +26,7 @@ export default function PuzzleList({ puzzleList = puzzleCategories, onCardClick 
         } else {
           // 默认使用collection类型
           return (
-            <div key={category.id || idx} onClick={() => onCardClick && onCardClick(category)} style={{ cursor: 'pointer' }}>
+            <div key={category.id || idx} onClick={() => onCardClick && onCardClick(category)} style={{ cursor: 'pointer', width: '100%' }}>
               <PuzzleCollectionCard
                 category={category}
               />

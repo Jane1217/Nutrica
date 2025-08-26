@@ -98,4 +98,6 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding-bottom: 40px;
+  padding-top: 24px; /* 增加顶部边距，避免与header重叠 */
+  margin-top: 8px; /* 额外的顶部边距 */
 }
