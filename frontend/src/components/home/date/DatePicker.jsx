@@ -46,19 +46,28 @@ export default function DatePicker(props) {
     
     // 检查是否有更早的日期可以导航
     let canGoBackward = false;
-    if (activeDates.length > 0) {
+    const currentDateStr = getLocalDateString(currentDate);
+    const todayStr = getLocalDateString(today);
+    
+    // 如果当前日期是今天，允许导航到昨天
+    if (currentDateStr === todayStr) {
+      canGoBackward = true;
+    } else if (activeDates.length > 0) {
+      // 如果当前日期不是今天，检查是否有更早的有数据的日期
       const sortedDates = activeDates.slice().sort();
-      const currentDateStr = getLocalDateString(currentDate);
       canGoBackward = currentDateStr > sortedDates[0];
     }
     
-    // 检查是否有更晚的日期可以导航（但不能超过今天）
+    // 检查是否有更晚的日期可以导航
     let canGoForward = false;
-    if (activeDates.length > 0) {
+    
+    // 如果当前日期是昨天或更早，允许导航到今天
+    if (currentDateStr < todayStr) {
+      canGoForward = true;
+    } else if (activeDates.length > 0) {
+      // 如果当前日期是今天，检查是否有更晚的有数据的日期
       const sortedDates = activeDates.slice().sort();
-      const currentDateStr = getLocalDateString(currentDate);
-      const todayStr = getLocalDateString(today);
-      canGoForward = currentDateStr < sortedDates[sortedDates.length - 1] && currentDateStr < todayStr;
+      canGoForward = currentDateStr < sortedDates[sortedDates.length - 1];
     }
     
     setCanGoBack(canGoBackward);
@@ -69,21 +78,27 @@ export default function DatePicker(props) {
   const goToPreviousDay = async () => {
     if (!canGoBack) return;
     
-    // 直接查找前一个有数据的日期
     const currentDateStr = getLocalDateString(currentDate);
+    const today = new Date();
+    const todayStr = getLocalDateString(today);
     
-    // 找到当前日期在activeDates中的索引
-    const currentIndex = activeDates.indexOf(currentDateStr);
+    // 如果当前日期是今天，直接导航到昨天
+    if (currentDateStr === todayStr) {
+      const yesterday = new Date(today);
+      yesterday.setDate(yesterday.getDate() - 1);
+      setCurrentDate(yesterday);
+      return;
+    }
     
-    if (currentIndex > 0) {
-      // 如果当前日期不是第一个，取前一个日期
-      const prevDateStr = activeDates[currentIndex - 1];
-      
-      // 将字符串转换为Date对象
-      const [year, month, day] = prevDateStr.split('-');
-      const prevDate = new Date(Number(year), Number(month) - 1, Number(day));
-      
-      setCurrentDate(prevDate);
+    // 否则查找前一个有数据的日期
+    if (activeDates.length > 0) {
+      const currentIndex = activeDates.indexOf(currentDateStr);
+      if (currentIndex > 0) {
+        const prevDateStr = activeDates[currentIndex - 1];
+        const [year, month, day] = prevDateStr.split('-');
+        const prevDate = new Date(Number(year), Number(month) - 1, Number(day));
+        setCurrentDate(prevDate);
+      }
     }
   };
 
@@ -91,21 +106,31 @@ export default function DatePicker(props) {
   const goToNextDay = async () => {
     if (!canGoForward) return;
     
-    // 直接查找后一个有数据的日期
     const currentDateStr = getLocalDateString(currentDate);
+    const today = new Date();
+    const todayStr = getLocalDateString(today);
     
-    // 找到当前日期在activeDates中的索引
-    const currentIndex = activeDates.indexOf(currentDateStr);
+    // 如果当前日期是昨天，直接导航到今天
+    if (currentDateStr === getLocalDateString(new Date(today.getTime() - 24 * 60 * 60 * 1000))) {
+      setCurrentDate(today);
+      return;
+    }
     
-    if (currentIndex >= 0 && currentIndex < activeDates.length - 1) {
-      // 如果当前日期不是最后一个，取后一个日期
-      const nextDateStr = activeDates[currentIndex + 1];
-      
-      // 将字符串转换为Date对象
-      const [year, month, day] = nextDateStr.split('-');
-      const nextDate = new Date(Number(year), Number(month) - 1, Number(day));
-      
-      setCurrentDate(nextDate);
+    // 否则优先查找后一个有数据的日期
+    if (activeDates.length > 0) {
+      const currentIndex = activeDates.indexOf(currentDateStr);
+      if (currentIndex >= 0 && currentIndex < activeDates.length - 1) {
+        const nextDateStr = activeDates[currentIndex + 1];
+        const [year, month, day] = nextDateStr.split('-');
+        const nextDate = new Date(Number(year), Number(month) - 1, Number(day));
+        setCurrentDate(nextDate);
+        return;
+      }
+    }
+    
+    // 如果没有找到有数据的日期，且当前日期小于今天，则导航到今天
+    if (currentDateStr < todayStr) {
+      setCurrentDate(today);
     }
   };
 
