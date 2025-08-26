@@ -25,4 +25,49 @@ export const validateFoodForm = (form) => {
   }
   
   return { isValid: true, message: '' };
+};
+
+// 验证邮箱格式
+export const validateEmail = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email) {
+    return { isValid: false, message: 'Email is required' };
+  }
+  if (!emailRegex.test(email)) {
+    return { isValid: false, message: 'Not a valid email address format' };
+  }
+  return { isValid: true, message: '' };
+};
+
+// 验证密码强度
+export const validatePassword = (password) => {
+  if (!password) {
+    return { isValid: false, message: 'Password is required' };
+  }
+  if (password.length < 8) {
+    return { isValid: false, message: "Password doesn't meet requirements" };
+  }
+  return { isValid: true, message: '' };
+};
+
+// 通用表单验证
+export const validateForm = (form, validationRules) => {
+  const errors = {};
+  
+  Object.keys(validationRules).forEach(field => {
+    const rule = validationRules[field];
+    const value = form[field];
+    
+    if (rule.required && !value) {
+      errors[field] = rule.message || `${field} is required`;
+    } else if (rule.validator && value) {
+      const validationResult = rule.validator(value);
+      if (!validationResult.isValid) {
+        errors[field] = validationResult.message;
+      }
+    }
+  });
+  
+  const isValid = Object.keys(errors).length === 0;
+  return { isValid, errors };
 }; 

@@ -16,16 +16,8 @@ export default function SignUp({ open, onClose, onAuth, onSwitchToLogin }) {
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
-  // 邮箱格式验证函数
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  // 密码长度验证函数
-  const validatePassword = (password) => {
-    return password.length >= 8;
-  };
+  // 使用现有的验证工具函数
+  const { validateEmail, validatePassword } = await import('../../../utils/core/validation');
 
   const handleSignup = async (e) => {
     e.preventDefault();

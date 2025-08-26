@@ -6,6 +6,8 @@ import SignUp from '../auth/pages/Sign up';
 import ForgotPassword from '../auth/pages/ForgotPassword';
 import Footer from '../../components/common/Footer';
 import { icons } from '../../utils/media/icons';
+import { mergeStyles, conditionalStyle } from '../../utils/helpers';
+import { getModalHandlers, createModalState } from '../../utils/collections/uiHelpers';
 import styles from './Welcome.module.css';
 
 export default function Welcome() {
