@@ -170,47 +170,7 @@
   z-index: 1;
 }
 
-.vector {
-  height: 0;
-  flex-shrink: 0;
-  stroke-width: 1px;
-  stroke: #CDD3C4;
-  width: calc(100% - 40px);
-  border-top: 1px solid #CDD3C4;
-  position: absolute;
-  bottom: -104px;
-  left: 20px;
-  z-index: 1;
-}
 
-.footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 24px;
-  width: 100%;
-  position: absolute;
-  bottom: -140px;
-  left: 0;
-  right: 0;
-  z-index: 1;
-}
-
-
-
-.footerLeft {
-  color: rgba(34, 34, 27, 0.60);
-}
-
-.footerCenter {
-  color: rgba(34, 34, 27, 0.60);
-  text-align: center;
-}
-
-.footerRight {
-  color: #22221B;
-  text-align: right;
-}
 
 .backgroundSection {
   background: var(--Brand-Background, #F3F3EC);

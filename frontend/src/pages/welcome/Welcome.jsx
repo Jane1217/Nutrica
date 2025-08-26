@@ -4,6 +4,7 @@ import NavLogo from '../../components/navbar/Nav-Logo';
 import LogIn from '../auth/pages/Log In';
 import SignUp from '../auth/pages/Sign up';
 import ForgotPassword from '../auth/pages/ForgotPassword';
+import Footer from '../../components/common/Footer';
 import { icons } from '../../utils/media/icons';
 import styles from './Welcome.module.css';
 
@@ -181,14 +182,8 @@ export default function Welcome() {
           <span className={styles.label}>Get Started</span>
         </button>
       </div>
-      {/* Vector */}
-      <div className={styles.vector}></div>
-      {/* Footer */}
-      <div className={styles.footer}>
-        <div className={`h4 ${styles.footerLeft}`}>Privacy Notice</div>
-        <div className={`h4 ${styles.footerCenter}`}>About</div>
-        <div className={`h4 ${styles.footerRight}`}>© 2025 Nutrica</div>
-      </div>
+      {/* Footer Component */}
+      <Footer />
       {/* 登录弹窗 */}
       <LogIn
         open={showLoginModal}
