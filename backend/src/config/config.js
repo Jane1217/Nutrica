@@ -56,13 +56,7 @@ const config = {
   
   // OpenAI configuration
   openai: {
-    apiKey: process.env.OPENAI_API_KEY,
-    // Proxy配置直接读取env，若未设置则为null
-    proxy: process.env.PROXY_HOST && process.env.PROXY_PORT && process.env.PROXY_PROTOCOL ? {
-      host: process.env.PROXY_HOST,
-      port: process.env.PROXY_PORT,
-      protocol: process.env.PROXY_PROTOCOL
-    } : null
+    apiKey: process.env.OPENAI_API_KEY
   },
   
   // File upload configuration

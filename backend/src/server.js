@@ -10,8 +10,7 @@ const { performanceMonitor } = require('./middleware/performance');
 
 const app = express();
 
-// Trust proxy for Vercel deployment
-app.set('trust proxy', 1);
+
 
 // Security middleware
 app.use(helmet());
