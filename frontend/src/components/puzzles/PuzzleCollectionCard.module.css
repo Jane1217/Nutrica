@@ -17,7 +17,8 @@
   border: 1px solid var(--Neutral-Primary-Text, #22221B);
   background: #A9C971;
   box-shadow: 0px 4px 0px 0px #22221B;
-  overflow: hidden;
+  /* 修改：允许内容延伸到卡片边缘，但保持圆角效果 */
+  overflow: visible;
 }
 .puzzleHeader {
   width: 100%;
@@ -47,11 +48,16 @@
   gap: 8px;
   margin-top: 8px;
   overflow-x: auto;
-  width: 100%;
+  width: calc(100% + 32px); /* 增加宽度以容纳延伸到边缘的图标 */
   box-sizing: border-box;
   padding-bottom: 4px;
   scrollbar-width: thin;
   scrollbar-color: #B0B0B0 #E0E0E0;
+  /* 让图标延伸到卡片边缘 */
+  margin-left: -16px;
+  margin-right: -16px;
+  padding-left: 16px;
+  padding-right: 16px;
 }
 .puzzlePieceBox {
   width: 64px;
