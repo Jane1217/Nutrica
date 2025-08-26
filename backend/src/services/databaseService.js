@@ -8,22 +8,7 @@ class DatabaseService {
     this.cacheTimeout = config.cache.defaultTTL;
     this.maxCacheSize = config.cache.maxSize;
 
-    // Use proxy in development environment
-    if (config.openai.proxy) {
-      const { HttpsProxyAgent } = require('https-proxy-agent');
-      const proxyUrl = `${config.openai.proxy.protocol}://${config.openai.proxy.host}:${config.openai.proxy.port}`;
-      this.supabaseConfig.global = {
-        fetch: (url, options = {}) => {
-          const agent = new HttpsProxyAgent(proxyUrl);
-          return fetch(url, {
-            ...options,
-            agent,
-            timeout: config.database.query.timeout
-          });
-        }
-      };
-      console.log(`Supabase using proxy: ${proxyUrl}`);
-    }
+
 
     // 创建Supabase客户端实例
     this.supabase = createClient(

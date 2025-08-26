@@ -7,13 +7,7 @@ class OpenAIService {
       apiKey: config.openai.apiKey
     };
 
-    // Use proxy in development environment
-    if (config.openai.proxy) {
-      const { HttpsProxyAgent } = require('https-proxy-agent');
-      const proxyUrl = `${config.openai.proxy.protocol}://${config.openai.proxy.host}:${config.openai.proxy.port}`;
-      openaiConfig.httpAgent = new HttpsProxyAgent(proxyUrl);
-      console.log(`Using proxy: ${proxyUrl}`);
-    }
+
 
     this.openai = new OpenAI(openaiConfig);
   }
