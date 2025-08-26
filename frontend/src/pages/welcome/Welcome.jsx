@@ -113,8 +113,12 @@ export default function Welcome() {
           Record your nutrition intake by entering value, describing, or just simply taking a picture of the nutrition label.
         </div>
         <div className={styles.frame266}>
-          <img src={icons.bottomSheet} alt="Bottom Sheet" className={styles.frame266Image} />
-          <img src={icons.scannerCamera} alt="Scanner Camera" className={styles.frame266Image} />
+          <img 
+            src={icons.bottomSheet} 
+            alt="Bottom Sheet" 
+            className={styles.frame266Image}
+          />
+                      <img src={icons.scannerCamera} alt="Scanner Camera" className={styles.frame266Image} />
         </div>
       </div>
       {/* Frame 192 */}
@@ -138,7 +142,11 @@ export default function Welcome() {
         >
           The pixel art puzzle completes itself as your body is collecting important nutritions that keep you healthy.
         </div>
-        <img src={icons.frame265} alt="Frame 265" className={styles.cardImage} />
+        <img 
+          src={icons.frame265} 
+          alt="Frame 265" 
+          className={styles.cardImage}
+        />
       </div>
       {/* Frame 193 */}
       <div className={styles.frame193}>
@@ -161,7 +169,11 @@ export default function Welcome() {
         >
           After you meet your daily nutrition goal, the puzzle will be added to your collection to cheer your achievement, and available to share with others to celebrate and inspire healthy habits and mindful eating.
         </div>
-        <img src={icons.group170} alt="Group 170" className={styles.cardImage} />
+        <img 
+          src={icons.group170} 
+          alt="Group 170" 
+          className={styles.cardImage}
+        />
       </div>
       {/* Frame 194 */}
       <div className={styles.frame194}>

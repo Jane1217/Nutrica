@@ -30,21 +30,23 @@ export const icons = {
   addAlt: '/assets/add (1).svg',
   collection: '/assets/fluent_collections-empty-16-filled.svg',
   scanFrame: '/assets/scan-icon.svg',
-  heroFrame: '/assets/Frame 268.svg',
+  heroFrame: '/assets/Frame 268.png',
   collectionsIcon: '/assets/fluent_collections-20-filled.svg',
-  card1: '/assets/card.svg',
-  card2: '/assets/card (1).svg',
+  card1: '/assets/card.png',
+  card2: '/assets/card (1).png',
   cameraIcon: '/assets/basil_camera-solid (1).svg',
-  bottomSheet: '/assets/Bottom Sheet 1.svg',
-  scannerCamera: '/assets/Scanner Camera 1.svg',
+  bottomSheet: '/assets/Bottom Sheet 1.png',
+  scannerCamera: '/assets/Scanner Camera 1.png',
   imagePixel: '/assets/fluent-mdl2_image-pixel.svg',
-  frame265: '/assets/Frame 265.svg',
+  frame265: '/assets/Frame 265.png',
   trophy: '/assets/material-symbols_trophy-rounded.svg',
-  group170: '/assets/Group 170.svg',
+  group170: '/assets/Group 170.png',
   vector6: '/assets/Vector 6.png',
 };
 
 // 获取图标URL的辅助函数
 export const getIconUrl = (iconName) => {
   return icons[iconName] || '';
-}; 
+};
+
+ 
