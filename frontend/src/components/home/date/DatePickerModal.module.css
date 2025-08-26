@@ -18,6 +18,16 @@
   justify-content: center;
 }
 
+/* 自定义月份标题样式 - 使用H3样式 */
+.datePickerContainer :global(.rdp-caption) {
+  font-family: Kanit !important;
+  font-size: 18px !important;
+  font-style: normal !important;
+  font-weight: 500 !important;
+  line-height: 150% !important; /* 27px */
+  color: var(--Neutral-Primary-Text, #22221B) !important;
+}
+
 /* DayPicker CSS变量自定义 - 按照官方文档示例 */
 .customDayPicker {
   --rdp-accent-color: var(--Brand-Dark, #2A4E14);

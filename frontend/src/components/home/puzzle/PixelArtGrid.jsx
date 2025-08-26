@@ -43,8 +43,8 @@ export default function PixelArtGrid({ pixelMap, progress = {}, showGrid = true,
         display: "grid",
         gridTemplateColumns: "repeat(24, 1fr)",
         gridTemplateRows: "repeat(24, 1fr)",
-        width: 384, // 16px*24
-        height: 384,
+        width: 264, // 修改：从384px改为264px，适配容器大小
+        height: 264, // 修改：从384px改为264px，适配容器大小
         border: showGrid ? "1px solid #ccc" : "none",
         background: "#fff"
       }}
