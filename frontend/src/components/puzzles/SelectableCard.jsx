@@ -31,7 +31,7 @@ export default function SelectableCard({
           )}
         </div>
       </div>
-      {/* 右下角添加按钮 */}
+      {/* 右下角状态指示器 - 不再是独立按钮 */}
       <div className={styles.addBtnAbsolute}>
         {isSelected ? (
           <div className={styles.selectedCircleBtn}>
@@ -40,12 +40,12 @@ export default function SelectableCard({
             </svg>
           </div>
         ) : (
-          <button className={styles.addBtn} type="button">
+          <div className={styles.addIconDisplay}>
             <svg className={styles.addIcon} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 5V19" stroke="#22221B" strokeWidth="2" strokeLinecap="round"/>
               <path d="M5 12H19" stroke="#22221B" strokeWidth="2" strokeLinecap="round"/>
             </svg>
-          </button>
+          </div>
         )}
       </div>
       {/* In your collection 标识 */}
