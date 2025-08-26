@@ -3,4 +3,19 @@
   padding: 32px 24px 24px 24px;
   min-width: 340px;
   max-width: 90vw;
+  display: flex;
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
+}
+
+.modalContentContainer {
+  padding: 32px 24px 24px 24px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.modalContentWrapper {
+  max-width: 500px;
+  width: 100%;
 } 

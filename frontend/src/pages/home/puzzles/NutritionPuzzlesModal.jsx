@@ -45,11 +45,13 @@ export default function NutritionPuzzlesModal({ open, onClose, onReopen, onPuzzl
           </svg>
         </button>
       </div>
-      <div className={styles.modalBody}>
-        <PuzzleList 
-          puzzleList={puzzleList} 
-          onCardClick={handleCardClick}
-        />
+      <div className={styles.modalContentContainer}>
+        <div className={styles.modalContentWrapper}>
+          <PuzzleList 
+            puzzleList={puzzleList} 
+            onCardClick={handleCardClick}
+          />
+        </div>
       </div>
     </ModalWrapper>
       <PuzzleSelectModal
