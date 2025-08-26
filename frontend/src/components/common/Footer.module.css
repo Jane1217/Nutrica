@@ -31,3 +31,16 @@
   color: #22221B;
   text-align: right;
 }
+
+.clickable {
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.clickable:hover {
+  color: var(--Brand-Dark, #2A4E14);
+}
+
+.clickable:active {
+  opacity: 0.8;
+}

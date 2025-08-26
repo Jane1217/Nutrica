@@ -43,27 +43,27 @@ const sushi_rice = {
     // 9
     [B,B,B,B,F,C1,C2,C2,C2,P1,C2,P1,C2,C2,C2,P1,C2,C2,C1,F,B,B,B,B],
     // 10
-    [B,B,B,B,F,C1,C2,C2,P2,C2,P1,P1,C2,P1,C2,C2,C2,C2,C1,F,B,B,B,B,B],
+    [B,B,B,B,F,C1,C2,C2,P2,C2,P1,P1,C2,P1,C2,C2,C2,C2,C1,F,B,B,B,B],
     // 11
-    [B,B,B,F,C1,C2,C2,C2,P2,P1,P1,P1,P1,P1,P2,C2,P1,C1,F,B,B,B,B,B,B],
+    [B,B,B,B,F,C1,C2,C2,C2,P2,P1,P1,P1,P1,P1,P2,C2,P1,C1,F,B,B,B,B],
     // 12
-    [B,B,F,C1,C2,P1,P1,P1,P2,P1,P2,P1,P1,P2,P1,C2,C1,F,B,B,B,B,B,B,B],
+    [B,B,B,B,F,C1,C2,P1,P1,P1,P2,P1,P2,P1,P1,P2,P1,C2,C1,F,B,B,B,B],
     // 13
-    [B,F,C1,P2,P1,P1,P1,P2,P2,P1,P2,P1,P1,P1,P2,C1,F,B,B,B,B,B,B,B],
+    [B,B,B,B,F,C1,P2,P1,P1,P1,P2,P2,P1,P2,P1,P1,P1,P2,C1,F,B,B,B,B],
     // 14
-    [B,F,C2,C1,P2,P1,P1,P1,P1,P1,P1,P2,P1,P2,C1,C1,F,B,B,B,B,B,B,B],
+    [B,B,B,B,F,C2,C1,P2,P1,P1,P1,P1,P1,P1,P2,P1,P2,C1,C1,F,B,B,B,B],
     // 15
-    [B,F,C2,C2,C1,P3,P3,P1,P1,P1,P2,P2,P3,C1,C2,C2,F,B,B,B,B,B,B,B],
+    [B,B,B,B,F,C2,C2,C1,P3,P3,P1,P1,P1,P2,P2,P3,C1,C2,C2,F,B,B,B,B],
     // 16
-    [B,F,C2,C2,C2,C1,C1,C1,C1,C1,C1,C1,C1,C2,C2,C2,F,B,B,B,B,B,B,B],
+    [B,B,B,B,F,C2,C2,C2,C1,C1,C1,C1,C1,C1,C1,C1,C2,C2,C2,F,B,B,B,B],
     // 17
-    [B,F,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,F,B,B,B,B,B,B,B],
+    [B,B,B,B,F,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,F,B,B,B,B],
     // 18
-    [B,B,F,F,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,F,F,B,B,B,B,B,B,B,B],
+    [B,B,B,B,B,F,F,C2,C2,C2,C2,C2,C2,C2,C2,C2,C2,F,F,B,B,B,B,B],
     // 19
-    [B,B,B,B,F,F,C2,C2,C2,C2,C2,C2,F,F,B,B,B,B,B,B,B,B,B,B],
+    [B,B,B,B,B,B,B,F,F,C2,C2,C2,C2,C2,C2,F,F,B,B,B,B,B,B,B],
     // 20
-    [B,B,B,B,B,B,F,F,F,F,F,F,B,B,B,B,B,B,B,B,B,B,B,B],
+    [B,B,B,B,B,B,B,B,B,F,F,F,F,F,F,B,B,B,B,B,B,B,B,B],
     // 21
     [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
     // 22
@@ -72,7 +72,7 @@ const sushi_rice = {
     [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
     // 24
     [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
-  ]    
+  ]     
 };
 
 export const sushi_riceColorOrder = [C1.color, C2.color, P1.color, P2.color, P3.color, F.color];
