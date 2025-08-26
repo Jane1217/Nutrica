@@ -477,8 +477,14 @@
   background: #FCFCF8;
   padding: 20px 16px;
   font-family: inherit;
-  font-size: 16px;
+  font-size: 16px !important;
   transition: border-color 0.2s ease;
+  /* 防止移动端自动缩放 */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  transform: scale(1);
+  transform-origin: left top;
 }
 
 .modalInput:focus {
