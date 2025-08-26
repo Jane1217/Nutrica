@@ -93,21 +93,12 @@
   background: var(--Brand-Light, #A1CE90);
 }
 
-.iconContainer img {
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
-  image-rendering: pixelated;
-  shape-rendering: crispEdges;
-}
+
 
 .cardImage {
   width: 100%;
   max-width: 100%;
   height: auto;
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
-  image-rendering: pixelated;
-  shape-rendering: crispEdges;
 }
 
 .frame190 {
@@ -130,10 +121,6 @@
   width: auto;
   height: auto;
   object-fit: contain;
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
-  image-rendering: pixelated;
-  shape-rendering: crispEdges;
 }
 
 /* 为特定图片设置精确尺寸 */
@@ -201,128 +188,7 @@
   margin-top: 12px;
 }
 
-/* SVG图片清晰度优化 - 强力版本 */
-svg, img[src*=".svg"] {
-  image-rendering: -webkit-optimize-contrast !important;
-  image-rendering: -moz-crisp-edges !important;
-  image-rendering: crisp-edges !important;
-  image-rendering: pixelated !important;
-  shape-rendering: crispEdges !important;
-  text-rendering: optimizeLegibility !important;
-  -webkit-font-smoothing: none !important;
-  -moz-osx-font-smoothing: unset !important;
-  font-smoothing: none !important;
-  transform: translateZ(0) !important;
-  backface-visibility: hidden !important;
-  perspective: 1000px !important;
-  will-change: transform !important;
-  /* 移动端特殊优化 */
-  -webkit-transform: translateZ(0) !important;
-  -webkit-backface-visibility: hidden !important;
-  -webkit-perspective: 1000px !important;
-  /* 强制硬件加速 */
-  transform-style: preserve-3d !important;
-  -webkit-transform-style: preserve-3d !important;
-}
 
-/* 移动端SVG优化 - 超强力版本 */
-@media screen and (max-width: 768px) {
-  svg, img[src*=".svg"] {
-    image-rendering: -webkit-optimize-contrast !important;
-    image-rendering: -moz-crisp-edges !important;
-    image-rendering: crisp-edges !important;
-    image-rendering: pixelated !important;
-    shape-rendering: crispEdges !important;
-    text-rendering: optimizeLegibility !important;
-    -webkit-font-smoothing: none !important;
-    -moz-osx-font-smoothing: unset !important;
-    font-smoothing: none !important;
-    transform: translateZ(0) !important;
-    backface-visibility: hidden !important;
-    perspective: 1000px !important;
-    will-change: transform !important;
-    filter: none !important;
-    -webkit-filter: none !important;
-    /* 移动端特殊优化 */
-    -webkit-transform: translateZ(0) !important;
-    -webkit-backface-visibility: hidden !important;
-    -webkit-perspective: 1000px !important;
-    transform-style: preserve-3d !important;
-    -webkit-transform-style: preserve-3d !important;
-    /* 移动端像素完美渲染 */
-    image-rendering: -webkit-crisp-edges !important;
-    image-rendering: -moz-crisp-edges !important;
-    image-rendering: crisp-edges !important;
-    image-rendering: pixelated !important;
-    /* 禁用抗锯齿 */
-    -webkit-font-smoothing: none !important;
-    -moz-osx-font-smoothing: unset !important;
-    font-smoothing: none !important;
-  }
-  
-  /* 移动端图片容器优化 */
-  .cardImage, .frame266Image, .iconContainer img {
-    transform: translateZ(0) !important;
-    backface-visibility: hidden !important;
-    perspective: 1000px !important;
-    will-change: transform !important;
-    filter: none !important;
-    -webkit-filter: none !important;
-    image-rendering: -webkit-optimize-contrast !important;
-    image-rendering: crisp-edges !important;
-    image-rendering: pixelated !important;
-    /* 移动端特殊优化 */
-    -webkit-transform: translateZ(0) !important;
-    -webkit-backface-visibility: hidden !important;
-    -webkit-perspective: 1000px !important;
-    transform-style: preserve-3d !important;
-    -webkit-transform-style: preserve-3d !important;
-  }
-}
-
-/* 高DPI设备优化 */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-  svg, img[src*=".svg"] {
-    image-rendering: -webkit-optimize-contrast !important;
-    image-rendering: crisp-edges !important;
-    image-rendering: pixelated !important;
-    shape-rendering: geometricPrecision !important;
-    text-rendering: optimizeLegibility !important;
-    transform: translateZ(0) !important;
-  }
-}
-
-/* 触摸设备优化 */
-@media (hover: none) and (pointer: coarse) {
-  svg, img[src*=".svg"] {
-    image-rendering: -webkit-optimize-contrast !important;
-    image-rendering: crisp-edges !important;
-    image-rendering: pixelated !important;
-    shape-rendering: crispEdges !important;
-    text-rendering: optimizeLegibility !important;
-    touch-action: manipulation !important;
-    -webkit-tap-highlight-color: transparent !important;
-    transform: translateZ(0) !important;
-    backface-visibility: hidden !important;
-    perspective: 1000px !important;
-    will-change: transform !important;
-    filter: none !important;
-    -webkit-filter: none !important;
-  }
-  
-  .cardImage, .frame266Image, .iconContainer img {
-    transform: translateZ(0) !important;
-    backface-visibility: hidden !important;
-    perspective: 1000px !important;
-    will-change: transform !important;
-    touch-action: manipulation !important;
-    filter: none !important;
-    -webkit-filter: none !important;
-    image-rendering: -webkit-optimize-contrast !important;
-    image-rendering: crisp-edges !important;
-    image-rendering: pixelated !important;
-  }
-}
 .loginBtn {
   display: flex;
   width: 80px;
