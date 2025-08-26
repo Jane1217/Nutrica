@@ -123,13 +123,19 @@
   box-sizing: border-box;
   margin: 0;
   font-weight: 500;
-  font-size: 16px;
+  font-size: 16px !important;
   padding: 12px 16px;
   padding-right: 38px;
   border-radius: 8px;
   border: 1px solid var(--Brand-Outline, #DBE2D0);
   background: var(--Brand-Off-White, #FCFCF8);
   transition: border-color 0.2s ease;
+  /* 防止移动端自动缩放 */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  transform: scale(1);
+  transform-origin: left top;
 }
 
 .caloriesInput:focus {
