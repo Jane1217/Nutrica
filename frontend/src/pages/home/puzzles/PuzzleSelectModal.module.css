@@ -71,6 +71,13 @@
   box-shadow: 0 -2px 8px rgba(0,0,0,0.03);
   box-sizing: border-box;
 }
+
+/* 覆盖BottomButton组件的默认样式 */
+.bottomContainer > div {
+  margin-top: 8px !important;
+  padding-bottom: 0px !important;
+}
+
 .selectButton {
   width: 320px;
   height: 64px;

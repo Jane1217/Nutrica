@@ -7,10 +7,12 @@ export default function BottomButton({
   type = 'button', 
   disabled = false, 
   isLoading = false,
-  loadingText = 'Loading...'
+  loadingText = 'Loading...',
+  className = '',
+  style = {}
 }) {
   return (
-    <div className={styles.bottomButtonContainer}>
+    <div className={`${styles.bottomButtonContainer} ${className}`} style={style}>
       <button 
         type={type} 
         className={`h4 ${styles.bottomButton}`}
