@@ -40,7 +40,7 @@
 
 .actionArea {
   display: flex;
-  width: 300px;
+  width: 330px;
   padding: 16px;
   flex-direction: column;
   justify-content: center;
@@ -86,7 +86,7 @@
 .shareImg {
   display: block;
   max-width: 85vw;
-  max-height: 70vh;
+  max-height: 60vh;
   box-shadow: 0 4px 24px 0 rgba(34,34,27,0.10);
 }
 
