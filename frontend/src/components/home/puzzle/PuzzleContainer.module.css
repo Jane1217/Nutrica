@@ -10,6 +10,7 @@
   box-shadow: 0px 4px 0px 0px #000;
   position: relative;
   padding: 8px;
+  z-index: 5; /* 添加：确保边框在网格之上 */
 }
 
 .puzzleGrid {
@@ -66,7 +67,7 @@
   align-items: center;
   margin: 0 auto;
   position: relative;
-  z-index: 1;
+  z-index: 1; /* 保持较低层级，确保不覆盖边框 */
 }
 
 .cornerIconWrapper {
