@@ -1,14 +1,15 @@
 .modalHeader {
   display: flex;
   align-items: center;
-  padding: 12px 24px 0 24px;
+  padding: 12px 24px 16px 24px;
   position: relative;
   min-height: 56px;
 }
 .headerLeft {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   flex: 1;
+  padding-top: 8px;
 }
 .backButton {
   margin-right: 4px;
@@ -106,6 +107,6 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding-bottom: 40px;
-  padding-top: 24px; /* 增加顶部边距，避免与header重叠 */
-  margin-top: 8px; /* 额外的顶部边距 */
+  padding-top: 0px;
+  margin-top: 0px;
 }
