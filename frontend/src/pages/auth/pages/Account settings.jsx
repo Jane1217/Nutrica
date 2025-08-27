@@ -347,7 +347,7 @@ export default function AccountSettings({ userEmail }) {
           <span className="h5" style={{color: 'var(--Neutral-Primary-Text, #22221B)', textAlign: 'center'}}>
             We&apos;d love to hear your feedback!<br />Contact us at
           </span>
-          <div className={`${styles.accountEmailContact} h5`}>Nutrica.life.app@gmail.com</div>
+          <div className={`${styles.accountEmailContact} h5`}>xangtu@gmail.com</div>
       </div>
       <EatModal
         open={showEatModal}
