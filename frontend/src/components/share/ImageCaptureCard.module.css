@@ -12,43 +12,10 @@
   width: 48px;
   height: 16px;
   aspect-ratio: 3 / 1;
-  /* 移动端SVG渲染优化 */
+  /* PNG图片优化 */
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
-  image-rendering: pixelated;
-  shape-rendering: crispEdges;
-  text-rendering: optimizeLegibility;
-  /* 确保在高DPI设备上清晰显示 */
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* 移动端特定优化 */
-@media screen and (max-width: 768px) {
-  .logo {
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-    image-rendering: pixelated;
-    shape-rendering: crispEdges;
-    text-rendering: optimizeLegibility;
-    /* 移动端额外优化 */
-    will-change: transform;
-    -webkit-transform: translateZ(0);
-    transform: translateZ(0);
-  }
-}
-
-/* 高DPI设备优化 */
-@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-  .logo {
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-    image-rendering: pixelated;
-    shape-rendering: crispEdges;
-    text-rendering: optimizeLegibility;
-  }
+  object-fit: contain;
 }
 
 .puzzleWrapper {

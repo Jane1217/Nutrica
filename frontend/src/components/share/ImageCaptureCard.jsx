@@ -1,6 +1,6 @@
 import React, { forwardRef } from 'react';
 import styles from './ImageCaptureCard.module.css';
-import logo from '/assets/logo.svg';
+import logo from '/assets/logo.png';
 import { getPageBackground } from '../../utils';
 
 const ImageCaptureCard = forwardRef(function ImageCaptureCard({ puzzleCard, collectionType = 'Magic Garden' }, ref) {
