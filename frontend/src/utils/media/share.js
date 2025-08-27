@@ -5,7 +5,7 @@ export function getShareLink({ userId, puzzleName, nickname }) {
     if (window.location.hostname === 'localhost') {
       BASE_URL = 'https://localhost:3000';
     } else {
-      BASE_URL = 'https://my-nutrition-demo-openai-frontend.vercel.app';
+      BASE_URL = 'https://nutrica.app';
     }
   }
   const params = [`nickname=${encodeURIComponent(nickname || '')}`];

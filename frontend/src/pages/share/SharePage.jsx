@@ -255,7 +255,7 @@ export default function SharePage() {
             Collect your nutrition puzzles on
           </div>
           <a 
-            href="https://my-nutrition-demo-openai-frontend.vercel.app/" 
+                            href="https://nutrica.app/" 
             className={styles.ctaButton}
             target="_blank"
             rel="noopener noreferrer"

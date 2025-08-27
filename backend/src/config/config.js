@@ -10,8 +10,8 @@ const config = {
   // CORS configuration
   cors: {
     origin: process.env.CORS_ORIGIN || (process.env.NODE_ENV === 'production' 
-      ? 'https://my-nutrition-demo-openai-frontend.vercel.app'
-      : 'https://localhost:3000'),
+      ? ['https://nutrica.app', 'https://my-nutrition-demo-openai-frontend.vercel.app']
+      : ['https://localhost:3000', 'http://localhost:3000']),
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: [
       'Content-Type',
