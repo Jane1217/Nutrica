@@ -13,7 +13,9 @@ export const validateFoodForm = (form) => {
   
   // 检查营养数据
   const nutritionFields = ['calories', 'carbs', 'fats', 'protein'];
-  const missingNutrition = nutritionFields.filter(field => !form[field]);
+  const missingNutrition = nutritionFields.filter(field => 
+    form[field] === '' || form[field] === null || form[field] === undefined
+  );
   
   if (missingNutrition.length > 0) {
     return { isValid: false, message: `Missing nutrition data: ${missingNutrition.join(', ')}` };
