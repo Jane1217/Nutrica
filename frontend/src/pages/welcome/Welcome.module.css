@@ -4,12 +4,67 @@
   background: var(--Brand-Background, #F3F3EC);
   min-width: 100vw;
 }
+
+/* Tablet/Desktop Layout (>=768px) */
+@media screen and (min-width: 768px) {
+  .welcomeRoot {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0; /* 移除welcomeRoot的padding，让各个部分自己加padding */
+  }
+  
+  /* 超大屏幕优化 */
+  @media screen and (min-width: 1400px) {
+    .welcomeRoot {
+      max-width: 1400px;
+      padding: 0; /* 移除welcomeRoot的padding，让各个部分自己加padding */
+    }
+    
+    .heroContent {
+      gap: 80px; /* 在大屏幕上增加间距 */
+    }
+    
+    .heroText,
+    .heroImageContainer {
+      max-width: 40%; /* 在超大屏幕上进一步减少宽度，增加间距 */
+    }
+    
+      .heroImage {
+    max-width: 160px; /* 超大屏幕上图片更小 */
+  }
+  
+  /* 超大屏幕上，只给frame191和frame192添加白色背景，不影响frame190 */
+  .frame191,
+  .frame192 {
+    background: #FCFCF8;
+    /* 移除负margin，现在使用正常的padding */
+  }
+  }
+}
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 16px;
   flex-shrink: 0;
+  width: 100%;
+}
+
+/* Tablet/Desktop Layout (>=768px) */
+@media screen and (min-width: 768px) {
+  .header {
+    padding: 0 32px;
+    margin-bottom: 32px;
+    justify-content: space-between;
+    width: 100%;
+  }
+  
+  .ctaButton {
+    width: 240px;
+    height: 56px;
+    font-size: 18px;
+    border-radius: 40px;
+  }
 }
 .heroText {
   display: flex;
@@ -17,6 +72,58 @@
   align-items: center;
   gap: 24px;
   margin: 24px 24px 36px 24px;
+}
+
+/* Hero Section - Tablet/Desktop Layout */
+.heroSection {
+  margin: 24px 0 48px 0;
+}
+
+.heroContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 36px;
+}
+
+.heroImageContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Tablet/Desktop Layout (>=768px) */
+@media screen and (min-width: 768px) {
+  .heroContent {
+    flex-direction: row;
+    align-items: center; /* 改为center，让左右两边高度对齐 */
+    gap: 64px;
+  }
+  
+  .heroText {
+    flex: 1;
+    align-items: flex-start;
+    margin: 0;
+    text-align: left;
+    max-width: 45%; /* 稍微减少文字区域宽度 */
+    min-width: 280px; /* 调整最小宽度 */
+  }
+  
+  .heroImageContainer {
+    flex: 1;
+    justify-content: center; /* 改为center，让图片居中 */
+    align-items: center; /* 改为center */
+    max-width: 45%; /* 稍微减少图片区域宽度 */
+    min-width: 200px;
+    flex-shrink: 0;
+  }
+  
+  .heroImage {
+    max-width: 180px; /* 进一步减小图片最大宽度 */
+    width: auto; /* 改为auto，让图片保持原始比例 */
+    height: auto;
+    object-fit: contain;
+  }
 }
 
 .value {
@@ -30,6 +137,19 @@
   letter-spacing: -0.72px;
 }
 
+/* Tablet/Desktop Layout (>=768px) */
+@media screen and (min-width: 768px) {
+  .value {
+    text-align: left;
+  }
+  
+  .text {
+    text-align: left;
+  }
+}
+
+
+
 .text {
   color: var(--Neutral-Primary-Text, #22221B);
   text-align: center;
@@ -38,6 +158,13 @@
   font-style: normal;
   font-weight: 400;
   line-height: 150%; /* 24px */
+}
+
+/* Tablet/Desktop Layout (>=768px) */
+@media screen and (min-width: 768px) {
+  .text {
+    text-align: left;
+  }
 }
 
 .ctaButton {
@@ -52,6 +179,14 @@
   background: var(--Brand-Dark, #2A4E14);
   border: none;
   cursor: pointer;
+}
+
+/* Tablet/Desktop Layout (>=768px) */
+@media screen and (min-width: 768px) {
+  .ctaButton {
+    align-self: flex-start;
+    justify-content: center; /* 保持按钮文字居中 */
+  }
 }
 
 .label {
@@ -78,7 +213,85 @@
   gap: 16px;
   flex-shrink: 0;
   display: flex;
-  background: #FCFCF8;
+  background: #FCFCF8; /* 移动端保持白色背景 */
+}
+
+/* How it works Section - Tablet/Desktop Layout */
+.howItWorksSection {
+  margin: 48px 0 0 0; /* 只保留上面的margin，去掉下面的margin */
+}
+
+/* Tablet/Desktop Layout (>=768px) */
+@media screen and (min-width: 768px) {
+  .howItWorksSection {
+    padding: 0 24px; /* 添加左右padding，替代welcomeRoot的padding */
+  }
+  
+  /* 超大屏幕优化 */
+  @media screen and (min-width: 1400px) {
+    .howItWorksSection {
+      padding: 0 48px; /* 超大屏幕下增加padding */
+    }
+  }
+}
+
+.howItWorksGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.cardImagesContainer {
+  display: flex;
+  flex-direction: column; /* 改为上下排列 */
+  gap: 16px;
+  justify-content: center;
+}
+
+/* Tablet/Desktop Layout (>=768px) */
+@media screen and (min-width: 768px) {
+  .howItWorksGrid {
+    display: flex; /* 改为flex，保持垂直排列 */
+    flex-direction: column;
+    gap: 48px; /* 增加frame之间的间距 */
+  }
+  
+  .frame191,
+  .frame190,
+  .frame192 {
+    padding: 32px;
+    display: flex !important; /* 强制添加flex布局 */
+    flex-direction: row !important; /* 强制横向排列 */
+    align-items: flex-start; /* 改为顶部对齐，让icon和文字能正确排列 */
+    gap: 32px; /* frame内部元素间距 */
+    width: 100%; /* 确保宽度拉满 */
+  }
+  
+  /* 在768-1400px下，只给frame191和frame192添加白色背景，不影响frame190 */
+  .frame191,
+  .frame192 {
+    background: #FCFCF8;
+    /* 移除负margin，现在使用正常的padding */
+  }
+  
+  /* 第一个frame：文字在左，图片在右 */
+  .frame191 {
+    flex-direction: row !important;
+  }
+  
+  /* 第二个frame：图片在左，文字在右 */
+  .frame190 {
+    flex-direction: row-reverse !important;
+  }
+  
+  /* 第三个frame：图片在左，文字在右 */
+  .frame192 {
+    flex-direction: row !important; /* 改为row，让图片在左边 */
+  }
+  
+  .cardImagesContainer {
+    justify-content: flex-start;
+  }
 }
 
 .iconContainer {
@@ -93,12 +306,97 @@
   background: var(--Brand-Light, #A1CE90);
 }
 
+/* Tablet/Desktop Layout - frame内部元素样式 */
+@media screen and (min-width: 768px) {
+  .frame191 .iconContainer,
+  .frame190 .iconContainer,
+  .frame192 .iconContainer {
+    flex-shrink: 0 !important; /* 强制防止图标被压缩 */
+  }
+  
+  /* 新增leftContent容器样式 */
+  .frame191 .leftContent,
+  .frame190 .leftContent,
+  .frame192 .leftContent {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px;
+    flex: 1 !important; /* 强制文字区域占剩余空间 */
+    max-width: 50% !important; /* 强制确保文字区域最多占50%宽度 */
+    min-width: 0; /* 允许收缩 */
+  }
+  
+  .frame191 .textContent,
+  .frame190 .textContent,
+  .frame192 .textContent {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px;
+    width: 100%; /* 确保文字内容填满leftContent容器 */
+  }
+  
+  /* 确保icon和文字在同一个容器内，icon在上，文字在下 */
+  .frame191 .iconContainer,
+  .frame190 .iconContainer,
+  .frame192 .iconContainer {
+    margin-bottom: 0; /* 移除底部间距 */
+    flex-shrink: 0 !important; /* 强制防止图标被压缩 */
+  }
+  
+  .frame191 .cardImagesContainer,
+  .frame190 .frame266,
+  .frame192 .cardImagesContainer {
+    flex-shrink: 0 !important; /* 强制防止图片被压缩 */
+    max-width: 50% !important; /* 强制确保图片区域最多占50%宽度 */
+    min-width: 300px; /* 设置最小宽度，防止图片区域过小 */
+    flex: 1; /* 让图片容器能够自适应缩放 */
+  }
+  
+  /* 第一个frame的card容器特殊处理 */
+  .frame191 .cardImagesContainer {
+    width: 100%; /* 填满容器宽度 */
+  }
+  
+  .frame191 .cardImage {
+    width: 100%; /* 填满容器宽度 */
+    height: auto; /* 保持比例 */
+    flex: 1; /* 让图片能够自适应缩放 */
+    min-width: 0; /* 允许收缩 */
+  }
+  
+  /* 第二个frame的图片容器特殊处理 */
+  .frame190 .frame266 {
+    width: 100%; /* 填满容器宽度 */
+    display: flex; /* 确保是flex布局 */
+    flex-direction: row; /* 横向排列 */
+    gap: 24px; /* 增加图片间距 */
+    flex: 1; /* 让图片容器能够自适应缩放 */
+  }
+  
+  .frame190 .frame266Image {
+    width: 100%; /* 填满容器宽度 */
+    height: auto; /* 保持比例 */
+    max-width: none; /* 移除最大宽度限制，让图片能够完全自适应 */
+    flex: 1; /* 让图片能够自适应缩放 */
+    min-width: 0; /* 允许收缩 */
+    object-fit: contain; /* 确保图片内容完整显示 */
+  }
+  
+  /* 第三个frame的图片容器特殊处理 */
+  .frame192 .cardImage {
+    width: 100%; /* 填满容器宽度 */
+    height: auto; /* 保持比例 */
+    flex: 1; /* 让图片能够自适应缩放 */
+    min-width: 0; /* 允许收缩 */
+  }
+}
+
 
 
 .cardImage {
   width: 100%;
-  max-width: 100%;
   height: auto;
+  object-fit: contain;
 }
 
 .frame190 {
@@ -118,20 +416,21 @@
 }
 
 .frame266Image {
-  width: auto;
-  height: auto;
-  object-fit: contain;
+  width: 100%; /* 让图片填满容器宽度 */
+  height: auto; /* 保持比例 */
+  object-fit: contain; /* 确保图片内容完整显示 */
+  flex: 1; /* 让图片能够自适应缩放 */
+  min-width: 0; /* 允许收缩 */
 }
 
-/* 为特定图片设置精确尺寸 */
-.frame266Image[alt="Bottom Sheet"] {
-  width: 182px;
-  height: 145px;
-}
-
+/* 移除固定尺寸，让图片能够自动缩放 */
+.frame266Image[alt="Bottom Sheet"],
 .frame266Image[alt="Scanner Camera"] {
-  width: 129px;
-  height: 279px;
+  width: 100%; /* 让图片填满容器宽度 */
+  height: auto; /* 保持比例 */
+  flex: 1; /* 让图片能够自适应缩放 */
+  min-width: 0; /* 允许收缩 */
+  object-fit: contain; /* 确保图片内容完整显示 */
 }
 
 .frame192 {
