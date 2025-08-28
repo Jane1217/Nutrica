@@ -368,10 +368,11 @@ export default function Home(props) {
 
 
   // EatModal 新增/修改后自动刷新foods和营养数据
-  const handleEatModalDataChange = () => {
+  const handleEatModalDataChange = async () => {
+    // 先刷新数据
     setFoodsPage(1);
-    fetchFoods(true);
-    fetchTodayNutritionData(); // 刷新今日营养数据
+    await fetchFoods(true);
+    await fetchTodayNutritionData(); // 刷新今日营养数据
     
     // 关闭EatModal并跳转到home页面
     setShowEatModal(false);
