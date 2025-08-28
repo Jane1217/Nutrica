@@ -177,49 +177,57 @@ export default function Welcome() {
       </div>
       {/* Frame 193 */}
       <div className={styles.frame193}>
-        <div className={styles.frame193Icon}>
-          <img src={icons.trophy} alt="Trophy icon" />
+        <div className={styles.leftContent}>
+          <div className={styles.frame193Icon}>
+            <img src={icons.trophy} alt="Trophy icon" />
+          </div>
+          <div className={styles.textContent}>
+            <div 
+              className="h2"
+              style={{
+                color: '#F3F3EC'
+              }}
+            >
+              Celebrate and share your nutrition achievement
+            </div>
+            <div 
+              className="body1"
+              style={{
+                color: '#F3F3EC'
+              }}
+            >
+              After you meet your daily nutrition goal, the puzzle will be added to your collection to cheer your achievement, and available to share with others to celebrate and inspire healthy habits and mindful eating.
+            </div>
+          </div>
         </div>
-        <div 
-          className="h2"
-          style={{
-            color: '#F3F3EC'
-          }}
-        >
-          Celebrate and share your nutrition achievement
+        <div className={styles.frame193ImageContainer}>
+          <img 
+            src={icons.group170} 
+            alt="Group 170" 
+            className={styles.frame193Image}
+          />
         </div>
-        <div 
-          className="body1"
-          style={{
-            color: '#F3F3EC'
-          }}
-        >
-          After you meet your daily nutrition goal, the puzzle will be added to your collection to cheer your achievement, and available to share with others to celebrate and inspire healthy habits and mindful eating.
-        </div>
-        <img 
-          src={icons.group170} 
-          alt="Group 170" 
-          className={styles.cardImage}
-        />
       </div>
       {/* Frame 194 */}
       <div className={styles.frame194}>
-        <div 
-          className="h2"
-          style={{
-            alignSelf: 'stretch',
-            color: 'var(--Neutral-Primary-Text, #22221B)',
-            textAlign: 'center'
-          }}
-        >
-          Celebrate your healthy and mindful eating moments.
+        <div className={styles.frame194Content}>
+          <div 
+            className="h2"
+            style={{
+              alignSelf: 'stretch',
+              color: 'var(--Neutral-Primary-Text, #22221B)',
+              textAlign: 'center'
+            }}
+          >
+            Celebrate your healthy and mindful eating moments.
+          </div>
+          <button
+            className={styles.ctaButton}
+            onClick={() => setShowSignUpModal(true)}
+          >
+            <span className={styles.label}>Get Started</span>
+          </button>
         </div>
-        <button
-          className={styles.ctaButton}
-          onClick={() => setShowSignUpModal(true)}
-        >
-          <span className={styles.label}>Get Started</span>
-        </button>
       </div>
       {/* Footer Component */}
       <Footer />

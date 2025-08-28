@@ -13,11 +13,19 @@
     padding: 0; /* 移除welcomeRoot的padding，让各个部分自己加padding */
   }
   
+  .heroSection {
+    padding: 0 24px; /* 给heroSection添加左右padding */
+  }
+  
   /* 超大屏幕优化 */
   @media screen and (min-width: 1400px) {
     .welcomeRoot {
       max-width: 1400px;
       padding: 0; /* 移除welcomeRoot的padding，让各个部分自己加padding */
+    }
+    
+    .heroSection {
+      padding: 0 48px; /* 超大屏幕下增加padding */
     }
     
     .heroContent {
@@ -33,13 +41,21 @@
     max-width: 160px; /* 超大屏幕上图片更小 */
   }
   
-  /* 超大屏幕上，只给frame191和frame192添加白色背景，不影响frame190 */
+    /* 超大屏幕上，只给frame191和frame192添加白色背景，不影响frame190 */
   .frame191,
   .frame192 {
     background: #FCFCF8;
-    /* 移除负margin，现在使用正常的padding */
+    padding: 0 48px; /* 超大屏幕下增加padding，这样padding区域也是白色的 */
   }
+  
+  /* 超大屏幕下frame194的padding */
+  .frame194 {
+    padding: 24px 48px; /* 超大屏幕下增加padding */
+    width: 60% !important; /* 保持60%宽度 */
+    max-width: 800px !important; /* 保持最大宽度限制 */
+    min-width: 480px !important; /* 保持最小宽度限制 */
   }
+}
 }
 .header {
   display: flex;
@@ -179,6 +195,7 @@
   background: var(--Brand-Dark, #2A4E14);
   border: none;
   cursor: pointer;
+  text-align: center; /* 确保按钮内文字居中 */
 }
 
 /* Tablet/Desktop Layout (>=768px) */
@@ -221,20 +238,6 @@
   margin: 48px 0 0 0; /* 只保留上面的margin，去掉下面的margin */
 }
 
-/* Tablet/Desktop Layout (>=768px) */
-@media screen and (min-width: 768px) {
-  .howItWorksSection {
-    padding: 0 24px; /* 添加左右padding，替代welcomeRoot的padding */
-  }
-  
-  /* 超大屏幕优化 */
-  @media screen and (min-width: 1400px) {
-    .howItWorksSection {
-      padding: 0 48px; /* 超大屏幕下增加padding */
-    }
-  }
-}
-
 .howItWorksGrid {
   display: flex;
   flex-direction: column;
@@ -265,13 +268,15 @@
     align-items: flex-start; /* 改为顶部对齐，让icon和文字能正确排列 */
     gap: 32px; /* frame内部元素间距 */
     width: 100%; /* 确保宽度拉满 */
+    min-height: 200px; /* 确保三个frame有相同的最小高度 */
+    box-sizing: border-box; /* 确保padding不会影响总尺寸计算 */
   }
   
   /* 在768-1400px下，只给frame191和frame192添加白色背景，不影响frame190 */
   .frame191,
   .frame192 {
     background: #FCFCF8;
-    /* 移除负margin，现在使用正常的padding */
+    padding: 24px; /* 添加左右padding，这样padding区域也是白色的 */
   }
   
   /* 第一个frame：文字在左，图片在右 */
@@ -287,6 +292,15 @@
   /* 第三个frame：图片在左，文字在右 */
   .frame192 {
     flex-direction: row !important; /* 改为row，让图片在左边 */
+  }
+  
+  /* frame193：图片在左，文字在右 */
+  .frame193 {
+    flex-direction: row !important; /* 强制横向排列 */
+    align-items: flex-start; /* 顶部对齐 */
+    gap: 32px; /* frame内部元素间距 */
+    min-height: 200px; /* 确保frame有相同的最小高度 */
+    box-sizing: border-box; /* 确保padding不会影响总尺寸计算 */
   }
   
   .cardImagesContainer {
@@ -317,7 +331,8 @@
   /* 新增leftContent容器样式 */
   .frame191 .leftContent,
   .frame190 .leftContent,
-  .frame192 .leftContent {
+  .frame192 .leftContent,
+  .frame193 .leftContent {
     display: flex !important;
     flex-direction: column !important;
     gap: 16px;
@@ -328,7 +343,8 @@
   
   .frame191 .textContent,
   .frame190 .textContent,
-  .frame192 .textContent {
+  .frame192 .textContent,
+  .frame193 .textContent {
     display: flex !important;
     flex-direction: column !important;
     gap: 16px;
@@ -338,18 +354,23 @@
   /* 确保icon和文字在同一个容器内，icon在上，文字在下 */
   .frame191 .iconContainer,
   .frame190 .iconContainer,
-  .frame192 .iconContainer {
+  .frame192 .iconContainer,
+  .frame193 .frame193Icon {
     margin-bottom: 0; /* 移除底部间距 */
     flex-shrink: 0 !important; /* 强制防止图标被压缩 */
   }
   
   .frame191 .cardImagesContainer,
   .frame190 .frame266,
-  .frame192 .cardImagesContainer {
+  .frame192 .cardImagesContainer,
+  .frame193 .frame193ImageContainer {
     flex-shrink: 0 !important; /* 强制防止图片被压缩 */
     max-width: 50% !important; /* 强制确保图片区域最多占50%宽度 */
     min-width: 300px; /* 设置最小宽度，防止图片区域过小 */
+    min-height: 136px; /* 设置最小高度，确保三个frame的图片区域高度一致 */
     flex: 1; /* 让图片容器能够自适应缩放 */
+    display: flex; /* 确保是flex布局 */
+    align-items: center; /* 垂直居中图片 */
   }
   
   /* 第一个frame的card容器特殊处理 */
@@ -360,8 +381,10 @@
   .frame191 .cardImage {
     width: 100%; /* 填满容器宽度 */
     height: auto; /* 保持比例 */
+    min-height: 136px; /* 设置最小高度，确保图片区域高度一致 */
     flex: 1; /* 让图片能够自适应缩放 */
     min-width: 0; /* 允许收缩 */
+    object-fit: contain; /* 确保图片内容完整显示 */
   }
   
   /* 第二个frame的图片容器特殊处理 */
@@ -376,6 +399,7 @@
   .frame190 .frame266Image {
     width: 100%; /* 填满容器宽度 */
     height: auto; /* 保持比例 */
+    min-height: 136px; /* 设置最小高度，确保图片区域高度一致 */
     max-width: none; /* 移除最大宽度限制，让图片能够完全自适应 */
     flex: 1; /* 让图片能够自适应缩放 */
     min-width: 0; /* 允许收缩 */
@@ -386,8 +410,42 @@
   .frame192 .cardImage {
     width: 100%; /* 填满容器宽度 */
     height: auto; /* 保持比例 */
+    min-height: 136px; /* 设置最小高度，确保图片区域高度一致 */
     flex: 1; /* 让图片能够自适应缩放 */
     min-width: 0; /* 允许收缩 */
+    object-fit: contain; /* 确保图片内容完整显示 */
+  }
+  
+  .frame193 .frame193Image {
+    width: 100%; /* 填满容器宽度 */
+    height: auto; /* 保持比例 */
+    min-height: 136px; /* 设置最小高度，确保图片区域高度一致 */
+    flex: 1; /* 让图片能够自适应缩放 */
+    min-width: 0; /* 允许收缩 */
+    object-fit: contain; /* 确保图片内容完整显示 */
+  }
+  
+  /* frame194：等比例缩放 */
+  .frame194 {
+    width: 60% !important; /* 在电脑和ipad上宽度为整个屏幕的60% */
+    max-width: 800px !important; /* 设置最大宽度，防止在大屏幕上过宽 */
+    min-width: 480px !important; /* 设置最小宽度，保持最小可用性 */
+    padding: 24px 32px; /* 增加左右padding */
+  }
+  
+  .frame194 .frame194Content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    width: 100%;
+    text-align: center; /* 确保文字居中 */
+  }
+  
+  /* 确保ctaButton在frame194中居中 */
+  .frame194 .ctaButton {
+    align-self: center; /* 在frame194中居中显示 */
+    margin: 0 auto; /* 水平居中 */
   }
 }
 
@@ -466,6 +524,12 @@
   background: rgba(255, 255, 255, 0.20);
 }
 
+.frame193Image {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
 .frame194 {
   display: flex;
   width: 343px;
@@ -478,6 +542,15 @@
   margin: -120px auto 0 auto;
   z-index: 2;
   position: relative;
+}
+
+/* Tablet/Desktop Layout (>=768px) */
+@media screen and (min-width: 768px) {
+  .frame194 {
+    width: 60%; /* 在电脑和ipad上宽度为整个屏幕的60% */
+    max-width: 800px; /* 设置最大宽度，防止在大屏幕上过宽 */
+    min-width: 480px; /* 设置最小宽度，保持最小可用性 */
+  }
 }
 
 
