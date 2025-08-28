@@ -23,10 +23,10 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
     if (aiData) {
       setForm({
         name: aiData.name || '',
-        calories: aiData.calories || '',
-        carbs: aiData.carbs || '',
-        fats: aiData.fats || '',
-        protein: aiData.protein || '',
+        calories: aiData.calories ?? '',
+        carbs: aiData.carbs ?? '',
+        fats: aiData.fats ?? '',
+        protein: aiData.protein ?? '',
       });
     }
   }, [aiData]);
@@ -102,28 +102,28 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
         <div className="food-modal-divider" style={{marginBottom: 15}} />
         <div className="food-modal-nutrition-list">
           <div className="food-modal-row">
-            <span className="food-modal-row-label h2">Calories</span>
+            <span className="food-modal-row-label h3">Calories</span>
             <div className="food-modal-input-group">
               <input name="calories" value={form.calories} onChange={handleChange} className="food-modal-input h4" />
               <span className="food-modal-unit h4">kcal</span>
             </div>
           </div>
           <div className="food-modal-row">
-            <span className="food-modal-row-label h2">Carbs</span>
+            <span className="food-modal-row-label h3">Carbs</span>
             <div className="food-modal-input-group">
               <input name="carbs" value={form.carbs} onChange={handleChange} className="food-modal-input h4" />
               <span className="food-modal-unit h4">g</span>
             </div>
           </div>
           <div className="food-modal-row">
-            <span className="food-modal-row-label h2">Fats</span>
+            <span className="food-modal-row-label h3">Fats</span>
             <div className="food-modal-input-group">
               <input name="fats" value={form.fats} onChange={handleChange} className="food-modal-input h4" />
               <span className="food-modal-unit h4">g</span>
             </div>
           </div>
           <div className="food-modal-row">
-            <span className="food-modal-row-label h2">Protein</span>
+            <span className="food-modal-row-label h3">Protein</span>
             <div className="food-modal-input-group">
               <input name="protein" value={form.protein} onChange={handleChange} className="food-modal-input h4" />
               <span className="food-modal-unit h4">g</span>
