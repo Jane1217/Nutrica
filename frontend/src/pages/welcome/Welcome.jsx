@@ -6,7 +6,6 @@ import SignUp from '../auth/pages/Sign up';
 import ForgotPassword from '../auth/pages/ForgotPassword';
 import Footer from '../../components/common/Footer';
 import { icons } from '../../utils/media/icons';
-import { mergeStyles, conditionalStyle } from '../../utils/helpers';
 import { getModalHandlers, createModalState } from '../../utils/collections/uiHelpers';
 import styles from './Welcome.module.css';
 
@@ -102,8 +101,8 @@ export default function Welcome() {
               </div>
             </div>
             <div className={styles.cardImagesContainer}>
-              <img src={icons.card1} alt="Card 1" className={styles.cardImage} />
-              <img src={icons.card2} alt="Card 2" className={styles.cardImage} />
+              <img src={icons.card1} alt="Card 1" className={styles.frame266Image} />
+              <img src={icons.card2} alt="Card 2" className={styles.frame266Image} />
             </div>
           </div>
           
@@ -167,11 +166,13 @@ export default function Welcome() {
                 </div>
               </div>
             </div>
-            <img 
-              src={icons.frame265} 
-              alt="Frame 265" 
-              className={styles.cardImage}
-            />
+            <div className={styles.frame266}>
+              <img 
+                src={icons.frame265} 
+                alt="Frame 265" 
+                className={styles.frame266Image}
+              />
+            </div>
           </div>
         </div>
       </div>
