@@ -26,6 +26,7 @@ export default function EatModal({ onClose, foods = [], foodsLoading = false, on
     if (!open) {
       setStep('main');
       setShowCameraPermission(false);
+      setAiData(null); // 重置AI数据
     }
   }, [open]);
 

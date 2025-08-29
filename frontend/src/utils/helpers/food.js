@@ -45,6 +45,7 @@ export const validateAndSaveFood = async (form, emoji = '🍽️', onDataChange)
     const result = await saveFoodRecord(foodData);
     
     if (result.success && onDataChange) {
+      // 直接调用onDataChange，让调用方处理状态
       onDataChange();
     }
     
@@ -98,6 +99,7 @@ export const saveFoodWithServings = async (form, baseNutrition, emoji = '🍽️
     const result = await saveFoodRecord(foodData);
     
     if (result.success && onDataChange) {
+      // 直接调用onDataChange，让调用方处理状态
       onDataChange();
     }
     
