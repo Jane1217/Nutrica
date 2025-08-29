@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/FoodModal.css';
 import ModalWrapper from '../../../components/common/ModalWrapper';
 import Toast from '../../../components/common/Toast';
@@ -9,6 +9,20 @@ export default function DescribeModal({ open, onClose, onBack, onCloseModal, onN
   const [description, setDescription] = useState('');
   const [errorToast, setErrorToast] = useState({ show: false, message: '' });
   const [loading, setLoading] = useState(false);
+
+  // 当modal打开时，重置所有状态
+  useEffect(() => {
+    if (open) {
+      setDescription('');
+      setLoading(false);
+      setErrorToast({ show: false, message: '' });
+    } else {
+      // 当modal关闭时，也重置所有状态
+      setDescription('');
+      setLoading(false);
+      setErrorToast({ show: false, message: '' });
+    }
+  }, [open]);
 
   const handleNext = async () => {
     if (!description.trim()) {

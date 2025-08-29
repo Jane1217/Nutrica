@@ -31,6 +31,30 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
     }
   }, [aiData]);
 
+  // 当modal打开时，重置所有状态
+  useEffect(() => {
+    if (open) {
+      setLoading(false);
+      setSuccess(false);
+      setErrorToast({ show: false, message: '' });
+      // 如果没有AI数据，重置表单
+      if (!aiData) {
+        setForm({
+          name: '',
+          calories: '',
+          carbs: '',
+          fats: '',
+          protein: '',
+        });
+      }
+    } else {
+      // 当modal关闭时，也重置所有状态
+      setLoading(false);
+      setSuccess(false);
+      setErrorToast({ show: false, message: '' });
+    }
+  }, [open, aiData]);
+
   const handleChange = e => {
     const { name, value } = e.target;
     setForm(f => ({ ...f, [name]: value }));
@@ -46,16 +70,37 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
     }
     
     setLoading(true);
+    // 立即清除任何之前的错误提示
     setErrorToast({ show: false, message: '' });
+    
     try {
       const result = await validateAndSaveFood(form, aiData?.emoji || '🍽️', onDataChange);
       
       if (result.success) {
+        // 保存成功后，立即清除所有状态，然后跳转
         setSuccess(true);
-        // 保存成功时不重置loading，让onDataChange处理跳转
+        setLoading(false);
+        setErrorToast({ show: false, message: '' });
+        
+        // 重置表单和AI数据
+        setForm({
+          name: '',
+          calories: '',
+          carbs: '',
+          fats: '',
+          protein: '',
+        });
+        setAiData(null);
+        
+        // 延迟跳转，确保状态更新完成
+        setTimeout(() => {
+          if (onDataChange) {
+            onDataChange();
+          }
+        }, 100);
       } else {
         setErrorToast({ show: true, message: 'Food description not recognized' });
-        setLoading(false); // 只在失败时重置loading
+        setLoading(false);
       }
     } catch (error) {
       let errorMessage = 'Save failed';
@@ -66,9 +111,8 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
       }
       
       setErrorToast({ show: true, message: errorMessage });
-      setLoading(false); // 只在失败时重置loading
+      setLoading(false);
     }
-    // 移除finally块，避免在成功时重置loading
   };
 
   const handleErrorToastClose = () => {
@@ -135,12 +179,15 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
           <button className="food-modal-confirm-btn h5" onClick={handleConfirm} disabled={loading}>{loading ? 'Saving...' : 'Log food'}</button>
         </div>
       </div>
-      <Toast
-        message={errorToast.message}
-        type="error"
-        show={errorToast.show}
-        onClose={handleErrorToastClose}
-      />
+      {/* 只在有错误且不是成功状态时显示错误Toast */}
+      {errorToast.show && !success && (
+        <Toast
+          message={errorToast.message}
+          type="error"
+          show={errorToast.show}
+          onClose={handleErrorToastClose}
+        />
+      )}
     </ModalWrapper>
   );
 } 
