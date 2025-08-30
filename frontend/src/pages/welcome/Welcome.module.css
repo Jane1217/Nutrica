@@ -89,8 +89,8 @@
 .heroImage {
   margin: 0 16px;
   width: calc(100% - 32px);
-  max-width: 100%;
   height: auto;
+  object-fit: contain;
 }
 
 .value {
@@ -311,7 +311,7 @@
   
   .heroImageContainer {
     flex: 1;
-    justify-content: center;
+    justify-content: flex-end;
     align-items: center;
     max-width: 45%;
     min-width: 200px;
@@ -319,9 +319,10 @@
   }
   
   .heroImage {
-    max-width: 180px;
-    width: auto;
+    width: 100%;
     height: auto;
+    min-height: 136px;
+    max-width: none;
     object-fit: contain;
   }
   
@@ -379,7 +380,6 @@
   .frame191,
   .frame192 {
     background: #FCFCF8;
-    padding: 24px;
   }
   
   /* 图标容器 */
@@ -495,13 +495,21 @@
     max-width: 40%;
   }
   
+  .heroImageContainer {
+    justify-content: flex-end;
+  }
+  
   .heroImage {
-    max-width: 160px;
+    width: 100%;
+    height: auto;
+    min-height: 136px;
+    max-width: none;
+    object-fit: contain;
   }
   
   .frame191,
   .frame192 {
-    padding: 0 48px;
+    padding: 32px;
   }
   
   .frame194 {
