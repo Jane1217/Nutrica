@@ -2,9 +2,9 @@
 .food-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(35, 38, 31, 0.60);
+  opacity: 0.6;
+  background: var(--Neutral-Primary-Text, #22221B);
   z-index: 999;
-  /* 不加height/width/padding，确保全屏覆盖刘海 */
 }
 .food-modal {
   position: fixed;
@@ -15,7 +15,7 @@
   background: #F3F3EC;
   display: flex;
   flex-direction: column;
-  padding: 16px 16px 16px 16px;
+  padding: 16px;
   z-index: 1000;
   box-sizing: border-box;
   border-radius: 36px 36px 0px 0px;
@@ -31,13 +31,8 @@
   justify-content: space-between;
 }
 .eat-modal-title, .food-modal-title {
-  color: #000;
-  font-family: Inter;
-  font-size: 36px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 150%; /* 54px */
-  letter-spacing: -0.72px;
+  flex: 1 0 0;
+  color: var(--Neutral-Primary-Text, #22221B);
 }
 .food-modal-label {
   color: rgba(34, 34, 27, 0.60);
@@ -45,63 +40,75 @@
   font-weight: 500;
   margin: 8px 0 0 0;
 }
-.food-modal-row-label,
-.food-modal-input,
-.food-modal-unit {
-  font-family: Kanit;
-}
+
 .food-modal-input-group {
   display: flex;
+  width: 80px;
+  min-width: 96px;
   padding: 12px 16px;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 30px;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4px;
   border-radius: 8px;
-  border: 1px solid #CDD3C4;
-  background: #F3F3EC;
+  border: 1px solid var(--Brand-Outline, #DBE2D0);
+  background: var(--Brand-Off-White, #FCFCF8);
 }
 .food-modal-input {
-  color: #000;
-  font-size: 16px;
+  flex: 0 0 1;
+  color: var(--Neutral-Primary-Text, #22221B);
   border: none;
   background: transparent;
   outline: none;
-  width: 40px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  padding: 0;
+  margin: 0;
+  box-shadow: none;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  min-width: 0;
+  width: auto;
+  max-width: 40px;
 }
 .food-modal-unit {
-  color: rgba(0, 0, 0, 0.60);
+  flex: 0 0 auto;
+  color: var(--Neutral-Secondary-Text, #6A6A61);
   text-align: right;
-}
-.food-modal-unit.h5 {
-  /* 只需加.h5类即可 */
 }
 .food-modal-serving-group {
   display: flex;
-  width: 120px;
-  padding: 12px 0px;
+  width: 80px;
+  min-width: 96px;
+  padding: 12px 16px;
   justify-content: center;
   align-items: center;
+  gap: 4px;
   border-radius: 8px;
-  border: 1px solid #CDD3C4;
-  background: #F3F3EC;
-  flex-shrink: 0;
+  border: 1px solid var(--Brand-Outline, #DBE2D0);
+  background: var(--Brand-Off-White, #FCFCF8);
 }
 .food-modal-serving-group .food-modal-input {
-  width: 100%;
+  flex: 1 0 0;
+  color: var(--Neutral-Primary-Text, #22221B);
+  border: none;
+  background: transparent;
+  outline: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  padding: 0;
+  margin: 0;
   text-align: center;
   font-size: 16px;
   font-family: Kanit;
-  color: #000;
-  background: transparent;
-  border: none;
-  outline: none;
 }
 .food-modal-name-strong {
-  color: #000;
+  color: var(--Neutral-Primary-Text, #22221B);
   font-family: Kanit;
-  font-size: 24px;
+  font-size: 20px;
   font-style: normal;
-  font-weight: 500;
+  font-weight: 700;
   line-height: 150%;
   letter-spacing: -0.48px;
   background: transparent;
@@ -113,12 +120,13 @@
 }
 
 .food-modal-name-strong::placeholder {
-  color: rgba(0, 0, 0, 0.40);
-  font-family: Inter;
-  font-size: 24px;
+  color: var(--Neutral-Primary-Text, #22221B);
+  font-family: Kanit;
+  font-size: 20px;
   font-style: normal;
-  font-weight: 500;
+  font-weight: 700;
   line-height: 150%;
+  opacity: 0.4;
   letter-spacing: -0.48px;
 }
 .food-modal-divider {
@@ -135,19 +143,15 @@
 }
 .food-modal-confirm-btn {
   display: flex;
-  width: 200px;
-  height: 81px;
-  padding: 12px 16px;
+  height: 48px;
+  padding: 0px 16px;
   justify-content: center;
   align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
+  gap: 16px;
+  flex: 1 0 0;
   border-radius: 36px;
-  background: #2A4E14;
+  background: var(--Brand-Dark, #2A4E14);
   color: var(--Brand-Background, #F3F3EC);
-  font-weight: 500;
-  border: none;
-  margin: auto auto 0 auto;
 }
 .food-modal-success {
   color: green;
@@ -158,7 +162,6 @@
   margin-top: 16px;
 }
 
-/* Describe Modal 样式 */
 .describe-input-container {
   flex: 1;
   display: flex;
@@ -185,11 +188,7 @@
   font-family: Kanit;
   font-size: 18px;
 }
-.describe-textarea.h2 {
-  /* 只需加.h2类即可 */
-}
 
-/* 返回按钮样式 */
 .food-modal-back-btn {
   display: flex;
   width: 36px;
@@ -204,10 +203,25 @@
   top: 0;
 }
 
-/* 带返回按钮的标题组 */
 .food-modal-title-group {
   display: flex;
   align-items: center;
   gap: 8px;
   margin-bottom: 8px;
+}
+
+.food-modal-action-group {
+  display: flex;
+  padding: 16px 24px;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 8px;
+  align-self: stretch;
+  background: var(--Brand-Background, #F3F3EC);
+}
+
+.food-modal-static-value {
+  color: var(--Neutral-Primary-Text, #22221B);
+  text-align: right;
+  font-weight: 500;
 } 

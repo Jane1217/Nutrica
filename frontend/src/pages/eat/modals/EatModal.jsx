@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import CameraPermissionModal from './CameraPermissionModal';
 import EnterValueModal from './EnterValueModal';
 import DescribeModal from './DescribeModal';
@@ -6,27 +6,27 @@ import DescribeFoodModal from './DescribeFoodModal';
 // 移除本地ScanLabelPage引用，后续用路由跳转
 import '../styles/EatModal.css';
 import { useNavigate } from 'react-router-dom';
-import { foodApi, handleApiError } from '../../../utils/api';
-import { formatFoodTime, formatFoodTimeSmart } from '../../../utils/format';
+import { formatFoodTime, formatFoodTimeSmart } from '../../../utils';
 import ModalWrapper from '../../../components/common/ModalWrapper';
+import { icons } from '../../../utils';
+import { userApi } from '../../../utils';
+import { getCurrentUser } from '../../../utils';
+import { getAuthToken } from '../../../utils';
 
 export default function EatModal({ onClose, foods = [], foodsLoading = false, onDescribe, onEnterValue, userId, onDataChange, onFoodsScroll, open }) {
   const [step, setStep] = useState('main'); // 'main' | 'camera-permission' | 'scan' | 'enter-value' | 'describe' | 'describe-food'
-  const [aiData, setAiData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [foodsState, setFoodsState] = useState(foods);
+  const [aiData, setAiData] = useState(null);
+  const [showCameraPermission, setShowCameraPermission] = useState(false);
   const navigate = useNavigate();
-
-  // foods数据变化时自动刷新
-  useEffect(() => {
-    setFoodsState(foods);
-  }, [foods]);
 
   // 当EatModal关闭时重置step状态
   useEffect(() => {
     if (!open) {
       setStep('main');
+      setShowCameraPermission(false);
+      setAiData(null); // 重置AI数据
     }
   }, [open]);
 
@@ -45,10 +45,47 @@ export default function EatModal({ onClose, foods = [], foodsLoading = false, on
     if (onDataChange) onDataChange();
   };
 
-  const handleScanLabel = () => setStep('camera-permission');
-  const handleCameraPermissionOk = () => {
-    // 跳转到 scan label 页面
-    navigate('/eat/scan-label');
+  const handleScanLabel = async () => {
+    try {
+      const token = await getAuthToken();
+      if (!token) {
+        console.error('No authentication token available');
+        // 如果没有token，直接跳转
+        navigate('/eat/scan-label');
+        return;
+      }
+      
+      const response = await userApi.getCameraPermissionStatus(token);
+      if (response.success && !response.data.permissionShown) {
+        // 如果用户还没有看到过权限提示，则显示
+        setShowCameraPermission(true);
+      } else {
+        // 如果已经显示过权限提示，直接跳转
+        navigate('/eat/scan-label');
+      }
+    } catch (error) {
+      console.error('Error checking camera permission status:', error);
+      // 如果API调用失败，直接跳转
+      navigate('/eat/scan-label');
+    }
+  };
+  
+  const handleCameraPermissionOk = async () => {
+    try {
+      const token = await getAuthToken();
+      if (token) {
+        // 更新数据库中的权限状态
+        await userApi.updateCameraPermission(token);
+      }
+      setShowCameraPermission(false);
+      // 跳转到 scan label 页面
+      navigate('/eat/scan-label');
+    } catch (error) {
+      console.error('Error updating camera permission status:', error);
+      // 即使更新失败，也继续跳转
+      setShowCameraPermission(false);
+      navigate('/eat/scan-label');
+    }
   };
   const handleCloseScan = () => setStep('main');
   const handleEnterValue = () => setStep('enter-value');
@@ -60,22 +97,10 @@ export default function EatModal({ onClose, foods = [], foodsLoading = false, on
   const handleBackEnterValue = () => setStep('main');
   const handleBackDescribe = () => setStep('main');
   
-  const handleDescribeNext = async (description) => {
-    setLoading(true);
-    setError('');
-    try {
-      const response = await foodApi.parseFoodDescription(description);
-      if (response.success) {
-        setAiData(response.data);
-        setStep('describe-food');
-      } else {
-        setError(response.error || 'AI analysis failed');
-      }
-    } catch (error) {
-      setError(handleApiError(error, 'AI analysis failed'));
-    } finally {
-      setLoading(false);
-    }
+  const handleDescribeNext = async (description, aiData) => {
+    // AI分析已经在DescribeModal中处理，这里接收AI数据并跳转
+    setAiData(aiData);
+    setStep('describe-food');
   };
 
   // 在EatModal内部定义CloseButton
@@ -83,7 +108,7 @@ export default function EatModal({ onClose, foods = [], foodsLoading = false, on
     return (
       <button className="eat-modal-close-btn" onClick={onClick}>
         <span className="close-fill">
-          <img src="/assets/mingcute_close-fill-black.svg" alt="close" width="24" height="24" />
+          <img src={icons.closeFillBlack} alt="close" width="24" height="24" />
         </span>
       </button>
     );
@@ -95,7 +120,7 @@ export default function EatModal({ onClose, foods = [], foodsLoading = false, on
       <ModalWrapper open={open && step === 'main'} onClose={onClose}>
         <div className="eat-modal">
           <div className="eat-modal-group1">
-            <span className="eat-modal-title">Eat</span>
+            <span className="eat-modal-title h2">Eat</span>
             <CloseButton onClick={onClose} />
           </div>
           {/* group2: 最近食物 */}
@@ -109,17 +134,17 @@ export default function EatModal({ onClose, foods = [], foodsLoading = false, on
               </span>
             </div>
             <div className="eat-modal-group2-2" ref={group2Ref}>
-              {foodsLoading && foodsState.length === 0 ? (
+              {foodsLoading && foods.length === 0 ? (
                 <div className="eat-modal-loading">
                   <div className="eat-modal-loading-spinner"></div>
                   <span className="eat-modal-loading-text">Loading...</span>
                 </div>
-              ) : !foodsLoading && foodsState.length === 0 ? (
+              ) : foods.length === 0 ? (
                 <div className="eat-modal-empty">
                   <span className="eat-modal-empty-text">No food records yet</span>
                 </div>
               ) : (
-                foodsState.map((food, idx) => (
+                foods.map((food, idx) => (
                 <div className="eat-modal-food-card" key={idx}>
                   <div className="eat-modal-food-wrapper">
                     <div className="eat-modal-food-heading">
@@ -139,7 +164,7 @@ export default function EatModal({ onClose, foods = [], foodsLoading = false, on
                   </div>
                 ))
               )}
-              {foodsLoading && foodsState.length > 0 && (
+              {foodsLoading && foods.length > 0 && (
                 <div className="eat-modal-loading-more">
                   <div className="eat-modal-loading-spinner"></div>
                   <span className="eat-modal-loading-text">Loading more...</span>
@@ -153,19 +178,19 @@ export default function EatModal({ onClose, foods = [], foodsLoading = false, on
             <div className="eat-modal-group3-1" style={{display:'flex',gap:8}}>
             <button className="eat-modal-ai-btn" onClick={handleDescribe}>
               <span className="eat-modal-ai-icon">
-                <img src="/assets/mynaui_message-solid.svg" alt="describe" width="24" height="24" />
+                <img src={icons.message} alt="describe" width="24" height="24" />
               </span>
                 <span className="eat-modal-ai-text h5">Describe</span>
             </button>
             <button className="eat-modal-ai-btn" onClick={handleEnterValue}>
               <span className="eat-modal-ai-icon">
-                <img src="/assets/streamline-plump_input-box-solid.svg" alt="enter value" width="24" height="24" />
+                <img src={icons.inputBox} alt="enter value" width="24" height="24" />
               </span>
                 <span className="eat-modal-ai-text h5">Enter Value</span>
             </button>
             <button className="eat-modal-ai-btn" onClick={handleScanLabel}>
               <span className="eat-modal-ai-icon">
-                <img src="/assets/ph_scan-fill.svg" alt="scan label" width="24" height="24" />
+                <img src={icons.scan} alt="scan label" width="24" height="24" />
               </span>
                 <span className="eat-modal-ai-text h5">Scan Label</span>
             </button>
@@ -174,10 +199,12 @@ export default function EatModal({ onClose, foods = [], foodsLoading = false, on
         </div>
       </ModalWrapper>
       
-      {/* 子模态框 */}
-      {step === 'camera-permission' && (
-        <CameraPermissionModal onClose={() => setStep('main')} onOk={handleCameraPermissionOk} />
-      )}
+      {/* 摄像头权限提示模态框 */}
+      <CameraPermissionModal 
+        open={showCameraPermission} 
+        onClose={() => setShowCameraPermission(false)} 
+        onOk={handleCameraPermissionOk} 
+      />
       <EnterValueModal 
         open={open && step === 'enter-value'} 
         onClose={handleCloseEnterValue}

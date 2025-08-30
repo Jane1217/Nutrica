@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import '../styles/FoodModal.css';
-import { validateFoodForm } from '../../../utils/validation';
-import { calculateNutritionTotal, multiplyNutrition } from '../../../utils/format';
-import { foodApi, handleApiError } from '../../../utils/api';
+import { validateFoodForm } from '../../../utils';
+import { saveFoodWithServings, multiplyNutrition } from '../../../utils';
 import ModalWrapper from '../../../components/common/ModalWrapper';
+import Toast from '../../../components/common/Toast';
+import { icons } from '../../../utils';
 
 export default function FoodModal({ open, onClose, initialData, userId, onDataChange }) {
   const [form, setForm] = useState({
@@ -23,6 +24,7 @@ export default function FoodModal({ open, onClose, initialData, userId, onDataCh
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+  const [errorToast, setErrorToast] = useState({ show: false, message: '' });
 
   // 每次 initialData 变化时自动填充表单和baseNutrition
   useEffect(() => {
@@ -30,16 +32,16 @@ export default function FoodModal({ open, onClose, initialData, userId, onDataCh
       setForm({
         name: initialData['Food name'] || '',
         number_of_servings: initialData['Number of Servings'] || 1,
-        calories: initialData.Calories || '',
-        carbs: initialData.Carbs || '',
-        fats: initialData.Fats || '',
-        protein: initialData.Protein || '',
+        calories: initialData.Calories ?? '',
+        carbs: initialData.Carbs ?? '',
+        fats: initialData.Fats ?? '',
+        protein: initialData.Protein ?? '',
       });
       setBaseNutrition({
-        calories: initialData.Calories || '',
-        carbs: initialData.Carbs || '',
-        fats: initialData.Fats || '',
-        protein: initialData.Protein || '',
+        calories: initialData.Calories ?? '',
+        carbs: initialData.Carbs ?? '',
+        fats: initialData.Fats ?? '',
+        protein: initialData.Protein ?? '',
       });
     }
   }, [initialData]);
@@ -48,6 +50,37 @@ export default function FoodModal({ open, onClose, initialData, userId, onDataCh
   useEffect(() => {
     baseNutritionRef.current = baseNutrition;
   }, [baseNutrition]);
+
+  const validateInput = (name, value) => {
+    // 对于营养字段，允许 0 值
+    if (['calories', 'carbs', 'fats', 'protein'].includes(name)) {
+      if (value === '' || value === null || value === undefined) {
+        return 'Field cannot be empty';
+      }
+      if (isNaN(Number(value)) || Number(value) < 0) {
+        return 'Must be a valid number';
+      }
+      return null;
+    }
+    
+    // 对于其他字段，确保不是空字符串
+    if (name === 'number_of_servings') {
+      if (isNaN(Number(value)) || Number(value) < 1) {
+        return 'Must be at least 1';
+      }
+      return null;
+    }
+    
+    // 对于 name 字段，确保不是空字符串
+    if (name === 'name') {
+      if (!String(value).trim()) {
+        return 'Field cannot be empty';
+      }
+      return null;
+    }
+    
+    return null;
+  };
 
   const handleServingsChange = e => {
     const value = e.target.value;
@@ -60,10 +93,14 @@ export default function FoodModal({ open, onClose, initialData, userId, onDataCh
     let value = e.target.value;
     if (!value || isNaN(Number(value)) || Number(value) < 1) value = '1';
     value = String(parseInt(value));
+    const multipliedNutrition = multiplyNutrition(baseNutritionRef.current, value);
     setForm(f => ({
       ...f,
       number_of_servings: value,
-      ...multiplyNutrition(baseNutritionRef.current, value)
+      calories: multipliedNutrition.calories ?? '',
+      carbs: multipliedNutrition.carbs ?? '',
+      fats: multipliedNutrition.fats ?? '',
+      protein: multipliedNutrition.protein ?? '',
     }));
   };
 
@@ -80,59 +117,72 @@ export default function FoodModal({ open, onClose, initialData, userId, onDataCh
   };
 
   const handleConfirm = async () => {
-    // 校验所有输入框不能为空
-    const validation = validateFoodForm(form);
-    if (!validation.isValid) {
-      setError(validation.message);
-      return;
+    // 清除之前的错误
+    setError('');
+    setErrorToast({ show: false, message: '' });
+
+    // 验证所有字段
+    const fields = ['name', 'number_of_servings'];
+    if (String(form.number_of_servings) === '1') {
+      fields.push('calories', 'carbs', 'fats', 'protein');
     }
     
-    if (!baseNutrition.calories || !baseNutrition.carbs || !baseNutrition.fats || !baseNutrition.protein) {
-      setError('All fields are required.');
-      return;
+    for (const field of fields) {
+      const validationError = validateInput(field, form[field]);
+      if (validationError) {
+        setErrorToast({ show: true, message: validationError });
+        return;
+      }
+    }
+
+    // 验证baseNutrition（当servings为1时）
+    if (String(form.number_of_servings) === '1') {
+      const nutritionFields = ['calories', 'carbs', 'fats', 'protein'];
+      for (const field of nutritionFields) {
+        const validationError = validateInput(field, baseNutrition[field]);
+        if (validationError) {
+          setErrorToast({ show: true, message: validationError });
+          return;
+        }
+      }
     }
     
     setLoading(true);
-    setError('');
     try {
-      const nutrition = multiplyNutrition(baseNutrition, form.number_of_servings);
+      const result = await saveFoodWithServings(form, baseNutrition, initialData?.emoji || '🍽️', onDataChange);
       
-      const data = await foodApi.addFood({
-        user_id: userId,
-        name: form.name,
-        number_of_servings: Number(form.number_of_servings),
-        nutrition,
-        emoji: initialData?.emoji || '🍽️'
-      });
-      
-      if (data.success) {
+      if (result.success) {
         setSuccess(true);
-        if (onDataChange) onDataChange();
-        setTimeout(() => { onClose && onClose(); }, 1200);
       } else {
-        setError(data.error || 'Save failed');
+        setError(result.error || 'Save failed');
+        setLoading(false);
       }
     } catch (error) {
-      setError(handleApiError(error, 'Save failed'));
-    } finally {
+      setError(error.message);
       setLoading(false);
     }
   };
+
+  const handleErrorToastClose = () => {
+    setErrorToast({ show: false, message: '' });
+  };
+
+  const isSingleServing = String(form.number_of_servings) === '1';
 
   return (
     <ModalWrapper open={open} onClose={onClose}>
       <div className="eat-modal food-modal">
         <div className="eat-modal-group1 food-modal-group1">
-          <span className="eat-modal-title">Food</span>
+          <span className="eat-modal-title h2">Food</span>
           <button className="eat-modal-close-btn" onClick={onClose}>
-            <img src="/assets/mingcute_close-fill-black.svg" alt="close" width="24" height="24" />
+            <img src={icons.closeFillBlack} alt="close" width="24" height="24" />
           </button>
         </div>
         <div className="food-modal-label h5">Food name</div>
         <input name="name" value={form.name} onChange={handleChange} className="food-modal-name-strong" style={{marginLeft: 0}} />
         <div className="food-modal-divider" style={{marginBottom: 15}} />
         <div className="food-modal-row">
-          <span className="food-modal-row-label h2">Number of Servings</span>
+          <span className="food-modal-row-label h3">Number of Servings</span>
           <div className="food-modal-serving-group">
             <input name="number_of_servings" type="number" min="1" step="1" value={form.number_of_servings} onChange={handleServingsChange} onBlur={handleServingsBlur} className="food-modal-input" />
           </div>
@@ -140,38 +190,69 @@ export default function FoodModal({ open, onClose, initialData, userId, onDataCh
         <div className="food-modal-divider" />
         <div className="food-modal-nutrition-list">
           <div className="food-modal-row">
-            <span className="food-modal-row-label h2">Calories</span>
-            <div className="food-modal-input-group">
-              <input name="calories" value={form.calories} onChange={handleChange} className="food-modal-input" disabled={String(form.number_of_servings) !== '1'} />
-              <span className="food-modal-unit h5">kcal</span>
-            </div>
+            <span className="food-modal-row-label h3">Calories</span>
+            {isSingleServing ? (
+              <div className="food-modal-input-group">
+                <input name="calories" value={form.calories} onChange={handleChange} className="food-modal-input h4" />
+                <span className="food-modal-unit h5">kcal</span>
+              </div>
+            ) : (
+              <span className="food-modal-static-value h3">
+                {form.calories ? `${form.calories} kcal` : ''}
+              </span>
+            )}
           </div>
           <div className="food-modal-row">
-            <span className="food-modal-row-label h2">Carbs</span>
-            <div className="food-modal-input-group">
-              <input name="carbs" value={form.carbs} onChange={handleChange} className="food-modal-input" disabled={String(form.number_of_servings) !== '1'} />
-              <span className="food-modal-unit h5">g</span>
-            </div>
+            <span className="food-modal-row-label h3">Carbs</span>
+            {isSingleServing ? (
+              <div className="food-modal-input-group">
+                <input name="carbs" value={form.carbs} onChange={handleChange} className="food-modal-input h4" />
+                <span className="food-modal-unit h5">g</span>
+              </div>
+            ) : (
+              <span className="food-modal-static-value h3">
+                {form.carbs ? `${form.carbs}g` : ''}
+              </span>
+            )}
           </div>
           <div className="food-modal-row">
-            <span className="food-modal-row-label h2">Fats</span>
-            <div className="food-modal-input-group">
-              <input name="fats" value={form.fats} onChange={handleChange} className="food-modal-input" disabled={String(form.number_of_servings) !== '1'} />
-              <span className="food-modal-unit h5">g</span>
-            </div>
+            <span className="food-modal-row-label h3">Fats</span>
+            {isSingleServing ? (
+              <div className="food-modal-input-group">
+                <input name="fats" value={form.fats} onChange={handleChange} className="food-modal-input h4" />
+                <span className="food-modal-unit h5">g</span>
+              </div>
+            ) : (
+              <span className="food-modal-static-value h3">
+                {form.fats ? `${form.fats}g` : ''}
+              </span>
+            )}
           </div>
           <div className="food-modal-row">
-            <span className="food-modal-row-label h2">Protein</span>
-            <div className="food-modal-input-group">
-              <input name="protein" value={form.protein} onChange={handleChange} className="food-modal-input" disabled={String(form.number_of_servings) !== '1'} />
-              <span className="food-modal-unit h5">g</span>
-            </div>
+            <span className="food-modal-row-label h3">Protein</span>
+            {isSingleServing ? (
+              <div className="food-modal-input-group">
+                <input name="protein" value={form.protein} onChange={handleChange} className="food-modal-input h4" />
+                <span className="food-modal-unit h5">g</span>
+              </div>
+            ) : (
+              <span className="food-modal-static-value h3">
+                {form.protein ? `${form.protein}g` : ''}
+              </span>
+            )}
           </div>
         </div>
-        <button className="food-modal-confirm-btn h5" onClick={handleConfirm} disabled={loading}>{loading ? 'Saving...' : 'Confirm'}</button>
-        {success && <div className="food-modal-success">Saved!</div>}
+        <div className="food-modal-action-group">
+          <button className="food-modal-confirm-btn h5" onClick={handleConfirm} disabled={loading}>{loading ? 'Saving...' : 'Log food'}</button>
+        </div>
         {error && <div className="food-modal-error">{error}</div>}
       </div>
+      <Toast
+        message={errorToast.message}
+        type="error"
+        show={errorToast.show}
+        onClose={handleErrorToastClose}
+      />
     </ModalWrapper>
   );
 } 

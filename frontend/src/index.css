@@ -1,55 +1,50 @@
 /* Brand colors */
 :root {
   --Brand-Dark: #2A4E14;
-  --Brand-Light: #C6D9C6;
-  --Brand-Background: #EEF0EB;
-  --Neutral-Black: #000;
-  --neutral-black-60: rgba(0, 0, 0, 0.60);
-  --neutral-black-40: rgba(0, 0, 0, 0.40);
-  --neutral-black-10: rgba(0, 0, 0, 0.10);
+  --Brand-Mild: #669948;
+  --Brand-Light: #A1CE90;
+  --Brand-Outline: #DBE2D0;
+  --Brand-Background: #F3F3EC;
+  --Brand-Off-White: #FCFCF8;
+  --Neutral-Primary-Text: #22221B;
+  --Neutral-Secondary-Text: #6A6A61;
   --Accent-1: #F4E5BA;
   --Accent-2: #D8E8E7;
   --Accent-3: #D7E8D5;
   --Accent-4: #E8D8E6;
-  --Alert-Success: #6FB977;
+  --Alert-Success:#477E2D;
   --Alert-Warning: #EEB85B;
-  --Alert-Error: #E16A60;
+  --Alert-Error: #D03535;
 }
 
-html, body {
+body, #root, .app-root {
+  background: #F3F3EC !important;
   margin: 0;
   padding: 0;
-  width: 100%;
-  height: 100%;
-  background: #F3F3EC;
-  position: fixed;
-  inset: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
 }
 
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: #F3F3EC;
-  z-index: -1;
+/* 全局重置所有元素的默认margin和padding */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 /* Typography */
 .h1 {
+  /* H1 */
+  font-family: Kanit;
+  font-size: 28px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 120%; /* 33.6px */
+}
+.h2 {
   font-family: Kanit;
   font-size: 24px;
   font-style: normal;
   font-weight: 700;
   line-height: 150%; /* 36px */
-}
-.h2 {
-  font-family: Kanit;
-  font-size: 18px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 150%; /* 27px */
 }
 .h3 {
   font-family: Kanit;
@@ -62,15 +57,16 @@ body::before {
   font-family: Kanit;
   font-size: 16px;
   font-style: normal;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 150%; /* 24px */
 }
 .h5 {
+  /* H5 */
   font-family: Kanit;
-  font-size: 16px;
+  font-size: 14px;
   font-style: normal;
   font-weight: 500;
-  line-height: 150%; /* 24px */
+  line-height: 150%; /* 21px */
 }
 .h6 {
   font-family: Kanit;
@@ -87,7 +83,6 @@ body::before {
   line-height: 150%; /* 24px */
 }
 .body2 {
-  /* Body 2 */
   font-family: Kanit;
   font-size: 14px;
   font-style: normal;
@@ -101,6 +96,13 @@ body::before {
   font-weight: 500;
   line-height: 150%; /* 18px */
 }
+.labelSmall{
+  font-family: Kanit;
+font-size: 10px;
+font-style: normal;
+font-weight: 500;
+line-height: 150%; /* 15px */
+} 
 
 /* 只保留全局基础样式，业务样式写在各自的 module.css 文件中 */
 

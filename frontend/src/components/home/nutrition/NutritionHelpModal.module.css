@@ -1,0 +1,109 @@
+.modal {
+  display: flex;
+  width: 343px;
+  height: auto;
+  padding: 24px;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  border-radius: 36px;
+  background: var(--Brand-Background, #F3F3EC);
+  position: relative;
+}
+
+.closeButton {
+  display: flex;
+  width: 48px;
+  height: 48px;
+  padding: 14px;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  border-radius: 999px;
+  border: 1px solid var(--Brand-Outline, #DBE2D0);
+  background: transparent;
+  cursor: pointer;
+}
+
+.closeButton img {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  aspect-ratio: 1/1;
+}
+
+.heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.iconContainer {
+  display: flex;
+  width: 48px;
+  height: 48px;
+  padding: 12px 11.5px 12px 12.5px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 999px;
+  background: var(--Brand-Light, #A1CE90);
+}
+
+.iconContainer img {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  aspect-ratio: 1/1;
+}
+
+.heading h2 {
+  align-self: stretch;
+  color: var(--Neutral-Primary-Text, #22221B);
+  text-align: center;
+  margin: 0;
+}
+
+.divider {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.divider img {
+  width: 64px;
+  height: 4px;
+  stroke-width: 4px;
+  stroke: var(--Brand-Outline, #DBE2D0);
+}
+
+.modal p {
+  align-self: stretch;
+  color: var(--Neutral-Primary-Text, #22221B);
+  margin: 0;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.ctaButton {
+  display: flex;
+  height: 48px;
+  padding: 0px 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  align-self: stretch;
+  border-radius: 36px;
+  background: var(--Brand-Dark, #2A4E14);
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.ctaButton span {
+  color: var(--Neutral-White, #FFF);
+  margin: 0;
+} 

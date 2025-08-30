@@ -1,0 +1,59 @@
+.datePicker {
+  display: flex;
+  width: 180px;
+  height: 56px;
+  padding: 5px 12px;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 16px;
+  border: 1px solid var(--Brand-Outline, #DBE2D0);
+  background-color: var(--Brand-Background, #F3F3EC);
+}
+
+.arrow {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.arrowDisabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.dateModule {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+
+.dateText {
+  color: var(--Neutral-Primary-Text, #22221B);
+  text-align: center;
+  font-family: Kanit;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 150%; /* 24px */
+  letter-spacing: -0.32px;
+  align-self: stretch;
+}
+
+.relativeDateText {
+  align-self: stretch;
+  color: var(--Neutral-Secondary-Text, #6A6A61);
+  text-align: center;
+  font-family: Kanit;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 150%; /* 21px */
+  letter-spacing: -0.28px;
+}

@@ -1,0 +1,471 @@
+/* UserInfoModal Styles */
+
+/* 重置按钮的默认样式，防止移动浏览器显示蓝色链接 */
+button {
+  color: inherit;
+  text-decoration: none;
+}
+
+.modalContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.loadingContent {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  padding: 28px 24px 24px 24px;
+}
+
+.modalForm {
+  display: flex;
+  flex-direction: column;
+  max-width: 768px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 8px 24px 120px 24px;
+  background: var(--Brand-Background, #F3F3EC);
+  box-sizing: border-box;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.modalHeader {
+  margin: 0;
+  padding: 16px 24px 8px 24px;
+  background: var(--Brand-Background, #F3F3EC);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+.closeButton {
+  display: flex;
+  width: 48px;
+  height: 48px;
+  padding: 14px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--Brand-Outline, #DBE2D0);
+  background: var(--Brand-Background, #F3F3EC);
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  margin-left: auto;
+  margin-right: 0;
+  margin-top: -4px;
+}
+
+.closeButton:hover {
+  background-color: #f5f5f5;
+  border-color: #ccc;
+}
+
+.modalInputWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+
+
+.modalDivider {
+  border: none;
+  height: 1px;
+  background: #CDD3C4;
+  margin: 24px 0;
+}
+
+.modalOptionBtn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1.5px solid #CDD3C4;
+  background: #F3F3EC;
+  color: #26361B;
+  font-family: Inter;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 48px;
+}
+
+.modalOptionBtnActive {
+  background: #26361B;
+  color: var(--Neutral-White, #FFF);
+  border-color: #26361B;
+}
+
+.nameInput {
+  margin-bottom: 8px;
+  width: 100%;
+  height: 48px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid #CDD3C4;
+  background: #FCFCF8;
+  padding: 12px 16px;
+  font-size: 16px;
+  transition: border-color 0.2s ease;
+}
+
+.nameInput:focus {
+  outline: none;
+  border: 2px solid var(--Brand-Dark, #2A4E14);
+}
+
+.privacyText {
+  font-size: 14px;
+  color: #22221B;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.privacyTextHighlight {
+  color: #22221B;
+}
+
+
+
+.sectionTitle {
+  font-weight: 700;
+  margin-top: 8px;
+  margin-bottom: 6px;
+  text-align: left;
+}
+
+.genderButtons {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.genderButtons .modalOptionBtn {
+  display: flex;
+  min-width: 80px;
+  padding: 12px 24px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 999px;
+  border: 1px solid var(--Brand-Outline, #DBE2D0);
+  background: var(--Brand-Off-White, #FCFCF8);
+  color: var(--Neutral-Primary-Text, #22221B);
+}
+
+.genderButtons .modalOptionBtnActive {
+  background: var(--Brand-Secondary-Dark, #26361B);
+  color: var(--Neutral-White, #FFF);
+}
+
+.ageContainer {
+  display: flex;
+  align-items: center;
+  margin: 20px 0 24px 0;
+  width: 100%;
+  height: 48px;
+}
+
+.ageLabel {
+  font-weight: 700;
+  text-align: left;
+  min-width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+.ageInputWrapper {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 48px;
+}
+
+.ageInput {
+  width: 96px;
+  height: 48px;
+  line-height: 24px;
+  border-radius: 8px;
+  border: 1px solid var(--Brand-Outline, #DBE2D0);
+  background: var(--Brand-Off-White, #FCFCF8);
+  text-align: center;
+  display: block;
+  box-sizing: border-box;
+  margin: 0;
+  font-size: 16px;
+  padding: 12px 16px;
+  transition: border-color 0.2s ease;
+}
+
+.ageInput:focus {
+  outline: none;
+  border: 2px solid var(--Brand-Dark, #2A4E14);
+}
+
+.unitButtons {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 0px;
+  justify-content: flex-start;
+}
+
+.unitButton {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 48px;
+  border-radius: 999px;
+  border: 1px solid #CDD3C4;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+  padding: 0 24px;
+  width: auto;
+  min-width: 80px;
+}
+
+.unitButtonActive {
+  background: #26361B;
+  color: var(--Neutral-White, #FFF);
+  border: none;
+}
+
+.unitButtonInactive {
+  border: 1px solid var(--Brand-Outline, #DBE2D0);
+  background: var(--Brand-Off-White, #FCFCF8);
+  color: #26361B;
+}
+
+.measurementContainer {
+  display: flex;
+  align-items: center;
+  margin: 0 0;
+  width: 100%;
+  height: 48px;
+}
+
+.measurementLabel {
+  font-weight: 700;
+  text-align: left;
+  min-width: 90px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+}
+
+.measurementInputWrapper {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 48px;
+}
+
+.measurementInputContainer {
+  position: relative;
+  width: 96px;
+  height: 48px;
+}
+
+.usHeightInputs {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.measurementInput {
+  width: 96px;
+  height: 48px;
+  line-height: 24px;
+  border-radius: 8px;
+  border: 1px solid var(--Brand-Outline, #DBE2D0);
+  background: var(--Brand-Off-White, #FCFCF8);
+  text-align: left;
+  display: flex;
+  box-sizing: border-box;
+  margin: 0;
+  font-weight: 500;
+  font-size: 16px;
+  padding: 12px 16px;
+  padding-right: 38px;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  transition: border-color 0.2s ease;
+}
+
+.measurementInput:focus {
+  outline: none;
+  border: 2px solid var(--Brand-Dark, #2A4E14);
+}
+
+.measurementUnit {
+  position: absolute;
+  right: 16px;
+  top: 0;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  color: rgba(0,0,0,0.60);
+  font-family: Kanit;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 24px;
+  text-align: right;
+  pointer-events: none;
+}
+
+.activityGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.activityButton {
+  width: 100%;
+  justify-content: center;
+  text-align: center;
+  padding: 12px 16px;
+  height: auto;
+  min-height: 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.activityGrid .modalOptionBtn {
+  display: flex;
+  min-width: 80px;
+  padding: 12px 0px;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+  border-radius: 999px;
+  border: 1px solid var(--Brand-Outline, #DBE2D0);
+  background: var(--Brand-Off-White, #FCFCF8);
+  color: var(--Neutral-Primary-Text, #22221B);
+}
+
+.activityGrid .modalOptionBtnActive {
+  background: var(--Brand-Secondary-Dark, #26361B);
+  color: var(--Neutral-White, #FFF);
+}
+
+.activityLabel {
+  text-align: center;
+  font-family: Inter;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 150%;
+  letter-spacing: 0;
+}
+
+.weightGoalGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(157px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+  justify-items: start;
+}
+
+.weightGoalButton {
+  display: flex;
+  min-width: 80px;
+  padding: 12px 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 999px;
+  border: 1px solid var(--Brand-Outline, #DBE2D0);
+  background: var(--Brand-Off-White, #FCFCF8);
+  color: var(--Neutral-Primary-Text, #22221B);
+  width: 100%;
+  text-align: center;
+  height: auto;
+  min-height: 48px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+}
+
+.weightGoalButtonActive {
+  background: var(--Brand-Secondary-Dark, #26361B);
+  color: var(--Neutral-White, #FFF);
+  border: 1px solid var(--Brand-Secondary-Dark, #26361B);
+}
+
+.skipButton {
+  display: flex;
+  width: 120px;
+  height: 48px;
+  padding: 0px 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  border-radius: 36px;
+  background: var(--Brand-Secondary-Background, #E7E7D5);
+  color: #222;
+  border: none;
+  font-size: 20px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.nextButton {
+  display: flex;
+  height: 48px;
+  padding: 0px 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex: 1 0 0;
+  border-radius: 36px;
+  background: var(--Brand-Dark, #2A4E14);
+  color: #fff;
+  border: none;
+  font-size: 22px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.buttonContainerFixed {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 768px;
+  background: var(--Brand-Background, #F3F3EC);
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+  padding: 16px 24px 16px 24px;
+  z-index: 100;
+  box-shadow: 0 -2px 8px rgba(0,0,0,0.03);
+  box-sizing: border-box;
+}

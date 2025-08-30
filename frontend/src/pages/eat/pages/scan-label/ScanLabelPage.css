@@ -40,20 +40,18 @@
   flex-direction: column;
   align-items: center;
   margin-top: -5vh;
+  gap: 8px;
 }
 .scan-tip {
-  margin: 6px;
-  display: inline-flex;
+  display: flex;
   padding: 8px 12px 8px 8px;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 16px;
+  align-items: center;
+  gap: 8px;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.10);
   background: rgba(255, 255, 255, 0.10);
   backdrop-filter: blur(8px);
-  position: relative;
-  z-index: 10;
+  z-index: 3000;
 }
 .scan-tip-heading {
   display: flex;
@@ -63,11 +61,12 @@
 }
 .scan-tip-icon {
   display: flex;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   padding: 8px;
   justify-content: center;
   align-items: center;
+  flex-shrink: 0;
   aspect-ratio: 1/1;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.10);
@@ -97,7 +96,7 @@
   background: none;
   border: none;
   cursor: pointer;
-  z-index: 3;
+  z-index: 3000;
 }
 .scan-close-btn {
   display: flex;
@@ -115,7 +114,7 @@
   position: absolute;
   top: 16px;
   left: 16px;
-  z-index: 4;
+  z-index: 3000;
 }
 .close-fill {
   width: 24px;
@@ -125,4 +124,161 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* 摄像头权限被拒绝错误弹窗样式 */
+.camera-permission-denied-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.camera-permission-denied-modal {
+  display: flex;
+  width: 343px;
+  padding: 24px;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  border-radius: 36px;
+  background: var(--Brand-Background, #F3F3EC);
+}
+
+.camera-permission-denied-heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  align-self: stretch;
+}
+
+.camera-permission-denied-icon {
+  display: flex;
+  width: 48px;
+  height: 48px;
+  padding: 12px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 999px;
+  background: rgba(208, 53, 53, 0.20);
+}
+
+.camera-permission-denied-icon img {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  aspect-ratio: 1/1;
+}
+
+.camera-permission-denied-title {
+  align-self: stretch;
+  color: var(--Neutral-Primary-Text, #22221B);
+  text-align: center;
+}
+
+.camera-permission-denied-divider {
+  width: 64px;
+  flex-shrink: 0;
+  stroke-width: 4px;
+  stroke: #CDD3C4;
+  height: 1px;
+  background: #CDD3C4;
+}
+
+.camera-permission-denied-text {
+  align-self: stretch;
+  color: var(--Neutral-Primary-Text, #22221B);
+  text-align: center;
+}
+
+.camera-permission-denied-text .nutrition-life {
+  color: var(--Neutral-Primary-Text, #22221B);
+} 
+
+/* 摄像头控制提示 */
+.camera-controls-tip {
+  position: absolute;
+  bottom: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  padding: 8px 12px;
+  align-items: center;
+  gap: 8px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  background: rgba(0, 0, 0, 0.60);
+  backdrop-filter: blur(8px);
+  z-index: 3000;
+  color: #FFF;
+  font-size: 12px;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+}
+
+.camera-controls-tip:hover {
+  opacity: 1;
+}
+
+.camera-controls-tip.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* 对焦指示器 */
+.focus-indicator {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border: 2px solid #FFF;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 3000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  animation: focusPulse 1s ease-out;
+}
+
+@keyframes focusPulse {
+  0% {
+    opacity: 1;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+/* 缩放指示器 */
+.zoom-indicator {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  padding: 8px 12px;
+  align-items: center;
+  gap: 8px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  background: rgba(0, 0, 0, 0.60);
+  backdrop-filter: blur(8px);
+  z-index: 3000;
+  color: #FFF;
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.zoom-indicator.visible {
+  opacity: 1;
 } 

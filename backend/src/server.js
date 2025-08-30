@@ -2,24 +2,33 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const compression = require('compression');
 const config = require('./config/config');
 const errorHandler = require('./middleware/errorHandler');
 const logger = require('./middleware/logger');
+const { performanceMonitor } = require('./middleware/performance');
 
 const app = express();
 
-// Trust proxy for Vercel deployment
-app.set('trust proxy', 1);
+
 
 // Security middleware
 app.use(helmet());
 
+// Compression middleware (gzip)
+if (config.api.compression) {
+  app.use(compression());
+}
+
 // CORS middleware
 app.use(cors(config.cors));
 
+// Performance monitoring middleware
+app.use(performanceMonitor);
+
 // Request body parsing middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Logging middleware
 app.use(logger);

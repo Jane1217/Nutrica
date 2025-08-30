@@ -1,23 +1,24 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import FoodModal from '../../modals/FoodModal';
-import { foodApi, handleApiError } from '../../../../utils/api';
+import { foodApi, handleApiError } from '../../../../utils';
 import { 
   startCamera, 
   stopCamera, 
   forceReleaseCamera, 
   captureVideoFrame,
-  setupCameraEventListeners 
-} from '../../../../utils/camera';
+  setupCameraEventListeners,
+  setupEnhancedCameraControls
+} from '../../../../utils';
 import './ScanLabelPage.css';
-import CameraPermissionModal from '../../modals/CameraPermissionModal';
 
-// 组件外部，避免多次挂载重复判断
-const CAMERA_PERMISSION_KEY = 'nutrica_camera_permission_shown';
-const isCameraPermissionShown = () => !!localStorage.getItem(CAMERA_PERMISSION_KEY);
-const setCameraPermissionShown = () => localStorage.setItem(CAMERA_PERMISSION_KEY, '1');
+import Toast from '../../../../components/common/Toast';
+import { icons } from '../../../../utils';
 
-export default function ScanLabelPage({ onClose, userId }) {
+
+
+export default function ScanLabelPage({ onClose, userId, onDataChange }) {
+  console.log('ScanLabelPage rendered with userId:', userId);
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const scanFrameRef = useRef(null);
@@ -26,18 +27,55 @@ export default function ScanLabelPage({ onClose, userId }) {
   const [cameraActive, setCameraActive] = useState(false);
   const [foodModalOpen, setFoodModalOpen] = useState(false);
   const [foodResult, setFoodResult] = useState(null);
+  const [cameraPermissionDenied, setCameraPermissionDenied] = useState(false);
   const navigate = useNavigate();
-  const [showPermission, setShowPermission] = useState(!isCameraPermissionShown());
-  const [cameraFeatureTip, setCameraFeatureTip] = useState('');
+
+  const [successToast, setSuccessToast] = useState(false);
+  const [errorToast, setErrorToast] = useState({ show: false, message: '' });
+  const [showControlsTip, setShowControlsTip] = useState(true);
+  const [focusIndicator, setFocusIndicator] = useState(null);
+  const [zoomLevel, setZoomLevel] = useState(1);
 
   // 摄像头管理函数
-  const handleStartCamera = () => {
-    return startCamera({
-      videoRef,
-      streamRef,
-      setCameraActive,
-      isMounted: isMountedRef.current
-    });
+  const handleStartCamera = async () => {
+    try {
+      const result = await startCamera({
+        videoRef,
+        streamRef,
+        setCameraActive,
+        isMounted: isMountedRef.current
+      });
+      
+      // 如果摄像头启动失败，检查是否是权限问题
+      if (!result) {
+        // 检查权限状态
+        const permission = await navigator.permissions.query({ name: 'camera' });
+        if (permission.state === 'denied') {
+          setCameraPermissionDenied(true);
+        }
+      } else {
+        // 摄像头启动成功，检查功能支持
+        const track = result.getVideoTracks()[0];
+        if (track && track.getCapabilities) {
+          const capabilities = track.getCapabilities();
+          console.log('Camera capabilities:', capabilities);
+          
+          // 检查是否支持对焦
+          if (capabilities.focusMode && capabilities.focusMode.length > 0) {
+            console.log('Focus modes supported:', capabilities.focusMode);
+          }
+          
+          // 检查是否支持缩放
+          if (capabilities.zoom) {
+            console.log('Zoom supported:', capabilities.zoom);
+          }
+        }
+      }
+    } catch (error) {
+      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+        setCameraPermissionDenied(true);
+      }
+    }
   };
 
   const handleStopCamera = () => {
@@ -79,28 +117,39 @@ export default function ScanLabelPage({ onClose, userId }) {
       }
       
       try {
-        const data = await foodApi.parseFoodImage(blob);
-        if (data.success) {
-          // 识别成功，弹出 FoodModal
-          const foodName = data.data.name;
-          setFoodResult({
-            'Food name': foodName,
-            'Number of Servings': 1, // 默认 1
-            Calories: data.data.nutrition.calories,
-            Carbs: data.data.nutrition.carbs,
-            Fats: data.data.nutrition.fats,
-            Protein: data.data.nutrition.protein,
-            emoji: data.data.emoji || '🍽️'
-          });
-          setFoodModalOpen(true);
-        } else {
-          alert('Image parsing failed: ' + data.error);
+        // 检查网络连接
+        if (!navigator.onLine) {
+          setErrorToast({ show: true, message: 'No Internet connection' });
+          setLoading(false);
           if (isMountedRef.current) {
             handleStartCamera();
           }
+          return;
         }
+        
+        const data = await foodApi.parseFoodImage(blob);
+        // 识别成功，弹出 FoodModal
+        const foodName = data.data.name;
+        setFoodResult({
+          'Food name': foodName,
+          'Number of Servings': 1, // 默认 1
+          Calories: data.data.nutrition.calories,
+          Carbs: data.data.nutrition.carbs,
+          Fats: data.data.nutrition.fats,
+          Protein: data.data.nutrition.protein,
+          emoji: data.data.emoji || '🍽️'
+        });
+        setFoodModalOpen(true);
       } catch (error) {
-        alert('Image parsing failed: ' + handleApiError(error, 'Image parsing failed'));
+        let errorMessage = 'Food label not recognized';
+        
+        // 检查是否是网络错误
+        if (error.message && (error.message.includes('fetch') || error.message.includes('network') || error.message.includes('connection'))) {
+          errorMessage = 'No Internet connection';
+        }
+        
+        setErrorToast({ show: true, message: errorMessage });
+        
         if (isMountedRef.current) {
           handleStartCamera();
         }
@@ -116,115 +165,47 @@ export default function ScanLabelPage({ onClose, userId }) {
     setFoodResult(null);
   };
 
+  // 处理FoodModal数据变化
+  const handleFoodModalDataChange = () => {
+    // 关闭FoodModal
+    setFoodModalOpen(false);
+    setFoodResult(null);
+    
+    // 跳转到home页面
+    navigate('/');
+    
+    // 显示成功toast
+    setSuccessToast(true);
+  };
+
+  const handleErrorToastClose = () => {
+    setErrorToast({ show: false, message: '' });
+  };
+
   // 组件挂载时启动摄像头
   useEffect(() => {
     handleStartCamera();
-    
-    // 只在首次进入时弹窗
-    if (!isCameraPermissionShown()) {
-      setShowPermission(true);
-      setCameraPermissionShown();
-    } else {
-      setShowPermission(false);
-    }
 
-    // 检查摄像头能力
-    setTimeout(() => {
-      const video = videoRef.current;
-      if (video && video.srcObject) {
-        const track = video.srcObject.getVideoTracks()[0];
-        if (track && track.getCapabilities) {
-          const caps = track.getCapabilities();
-          const supportZoom = !!caps.zoom;
-          const supportFocus = !!caps.focusMode && caps.focusMode.includes('single-shot');
-          if (!supportZoom && !supportFocus) {
-            setCameraFeatureTip('Camera zoom and focus are not supported on this device/browser.');
-          } else if (!supportZoom) {
-            setCameraFeatureTip('Camera zoom is not supported on this device/browser.');
-          } else if (!supportFocus) {
-            setCameraFeatureTip('Camera focus is not supported on this device/browser.');
-          } else {
-            setCameraFeatureTip('');
-          }
-        } else {
-          setCameraFeatureTip('Camera zoom and focus are not supported on this device/browser.');
-        }
+    // 设置增强的摄像头控制（对焦和缩放）
+    const cleanupEnhancedControls = setupEnhancedCameraControls({
+      videoRef,
+      streamRef,
+      onFocus: ({ x, y }) => {
+        console.log('Focus at:', x, y);
+        // 显示对焦指示器
+        setFocusIndicator({ x, y });
+        setTimeout(() => setFocusIndicator(null), 1000);
+        // 隐藏控制提示
+        setShowControlsTip(false);
+      },
+      onZoom: (zoom) => {
+        console.log('Zoom changed to:', zoom);
+        setZoomLevel(zoom);
+        // 隐藏控制提示
+        setShowControlsTip(false);
       }
-    }, 1200);
+    });
 
-    // 监听手势缩放和点击对焦（仅支持的设备才启用）
-    const video = videoRef.current;
-    let lastDistance = null;
-    let zooming = false;
-    let track = null;
-    let maxZoom = 1;
-    let minZoom = 1;
-    let currentZoom = 1;
-    const setupZoom = () => {
-      if (!video || !video.srcObject) return;
-      track = video.srcObject.getVideoTracks()[0];
-      if (track && track.getCapabilities) {
-        const caps = track.getCapabilities();
-        if (caps.zoom) {
-          maxZoom = caps.zoom.max;
-          minZoom = caps.zoom.min;
-          currentZoom = track.getSettings().zoom || 1;
-        }
-      }
-    };
-    const onTouchStart = e => {
-      if (e.touches.length === 2) {
-        zooming = true;
-        const dx = e.touches[0].clientX - e.touches[1].clientX;
-        const dy = e.touches[0].clientY - e.touches[1].clientY;
-        lastDistance = Math.sqrt(dx * dx + dy * dy);
-        setupZoom();
-      }
-    };
-    const onTouchMove = e => {
-      if (zooming && e.touches.length === 2 && track && track.applyConstraints) {
-        const dx = e.touches[0].clientX - e.touches[1].clientX;
-        const dy = e.touches[0].clientY - e.touches[1].clientY;
-        const newDistance = Math.sqrt(dx * dx + dy * dy);
-        let delta = (newDistance - lastDistance) / 100; // 缩放灵敏度
-        let newZoom = Math.max(minZoom, Math.min(maxZoom, currentZoom + delta));
-        track.applyConstraints({ advanced: [{ zoom: newZoom }] });
-      }
-    };
-    const onTouchEnd = e => {
-      zooming = false;
-      lastDistance = null;
-    };
-    const onClick = async e => {
-      // 点击对焦
-      if (!video || !video.srcObject) return;
-      const track = video.srcObject.getVideoTracks()[0];
-      if (track && track.getCapabilities && track.applyConstraints) {
-        const caps = track.getCapabilities();
-        if (caps.focusMode && caps.focusMode.includes('single-shot')) {
-          try {
-            await track.applyConstraints({ advanced: [{ focusMode: 'single-shot' }] });
-          } catch (err) {
-            // 忽略不支持
-          }
-        }
-      }
-    };
-    // 仅支持的设备才绑定事件
-    setTimeout(() => {
-      if (video && video.srcObject) {
-        const track = video.srcObject.getVideoTracks()[0];
-        if (track && track.getCapabilities) {
-          const caps = track.getCapabilities();
-          if (caps.zoom || (caps.focusMode && caps.focusMode.includes('single-shot'))) {
-            video.addEventListener('touchstart', onTouchStart, { passive: false });
-            video.addEventListener('touchmove', onTouchMove, { passive: false });
-            video.addEventListener('touchend', onTouchEnd, { passive: false });
-            video.addEventListener('click', onClick);
-          }
-        }
-      }
-    }, 1500);
     // 设置事件监听器
     const cleanupListeners = setupCameraEventListeners({
       stopCamera: handleStopCamera,
@@ -235,26 +216,31 @@ export default function ScanLabelPage({ onClose, userId }) {
     // 监听路由变化
     const unlisten = navigate(handleStopCamera);
     
+    // 5秒后自动隐藏控制提示
+    const tipTimer = setTimeout(() => {
+      setShowControlsTip(false);
+    }, 5000);
+    
     // 清理函数
     return () => {
       console.log('Component unmounting, cleaning up camera...');
       isMountedRef.current = false;
       
+      // 清理增强控制
+      cleanupEnhancedControls();
+      
       // 清理事件监听器
       cleanupListeners();
       if (unlisten) unlisten();
+      
+      // 清理定时器
+      clearTimeout(tipTimer);
       
       // 停止摄像头
       handleStopCamera();
       handleForceReleaseCamera();
       
       console.log('Camera cleanup completed');
-      if (video) {
-        video.removeEventListener('touchstart', onTouchStart);
-        video.removeEventListener('touchmove', onTouchMove);
-        video.removeEventListener('touchend', onTouchEnd);
-        video.removeEventListener('click', onClick);
-      }
     };
   }, [navigate]);
 
@@ -269,28 +255,59 @@ export default function ScanLabelPage({ onClose, userId }) {
 
   return (
     <div className="scan-label-page">
-      {/* 只在首次弹出权限弹窗，复用CameraPermissionModal */}
-      {showPermission && (
-        <CameraPermissionModal 
-          onClose={() => setShowPermission(false)} 
-          onOk={() => setShowPermission(false)} 
-        />
+      
+      {/* 摄像头权限被拒绝错误弹窗 */}
+      {cameraPermissionDenied && (
+        <div className="camera-permission-denied-overlay" onClick={() => setCameraPermissionDenied(false)}>
+          <div className="camera-permission-denied-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="camera-permission-denied-heading">
+              <div className="camera-permission-denied-icon">
+                <img src="/assets/icon_nocamera.svg" alt="no camera" width="24" height="24" />
+              </div>
+              <div className="camera-permission-denied-title h2">No Camera Permission</div>
+            </div>
+            <div className="camera-permission-denied-divider"></div>
+            <div className="camera-permission-denied-text body1">
+              Please allow camera permission for <span className="nutrition-life">"Nutrition.life"</span> in your browser settings.
+            </div>
+          </div>
+        </div>
       )}
-      {cameraFeatureTip && (
-        <div style={{position:'absolute',top:0,left:0,right:0,zIndex:9999,background:'rgba(0,0,0,0.7)',color:'#fff',textAlign:'center',padding:8,fontSize:14}}>{cameraFeatureTip}</div>
-      )}
+      
       <video ref={videoRef} className="scan-video" autoPlay playsInline muted></video>
       <div className="scan-overlay"></div>
       <div className="scan-center">
         <div className="scan-tip">
           <div className="scan-tip-heading">
             <span className="scan-tip-icon">
-              <img src="/assets/Frame 79.svg" alt="scan" width="20" height="20" />
+              <img src={icons.scanFrame} alt="scan" width="16" height="16" />
             </span>
             <span className="scan-tip-text h6">Place the food label inside the frame</span>
           </div>
         </div>
         <div className="scan-frame" ref={scanFrameRef}></div>
+      </div>
+      
+      {/* 摄像头控制提示 */}
+      <div className={`camera-controls-tip ${showControlsTip ? '' : 'hidden'}`}>
+        <span>Tap to focus • Pinch to zoom</span>
+      </div>
+      
+      {/* 对焦指示器 */}
+      {focusIndicator && (
+        <div 
+          className="focus-indicator"
+          style={{
+            left: `${focusIndicator.x * 100}%`,
+            top: `${focusIndicator.y * 100}%`,
+            transform: 'translate(-50%, -50%)'
+          }}
+        />
+      )}
+      
+      {/* 缩放指示器 */}
+      <div className={`zoom-indicator ${zoomLevel > 1 ? 'visible' : ''}`}>
+        <span>🔍 {zoomLevel.toFixed(1)}x</span>
       </div>
       <button className="scan-close-btn" onClick={() => {
         console.log('Close button clicked, stopping camera and navigating...');
@@ -299,7 +316,7 @@ export default function ScanLabelPage({ onClose, userId }) {
         navigate('/?eat=1');
       }}>
         <span className="close-fill">
-          <img src="/assets/mingcute_close-fill.svg" alt="close" width="24" height="24" />
+          <img src={icons.closeFill} alt="close" width="24" height="24" />
         </span>
       </button>
       <button className="scan-shutter" onClick={handleCapture} disabled={loading}>
@@ -315,7 +332,7 @@ export default function ScanLabelPage({ onClose, userId }) {
           left: 0,
           right: 0,
           bottom: 0,
-          zIndex: 3000,
+          zIndex: 3500,
           background: 'rgba(0,0,0,0.3)',
           display: 'flex',
           alignItems: 'center',
@@ -331,6 +348,19 @@ export default function ScanLabelPage({ onClose, userId }) {
         onClose={handleFoodModalClose}
         initialData={foodResult}
         userId={userId}
+        onDataChange={handleFoodModalDataChange}
+      />
+      <Toast
+        message="Food Logged"
+        type="success"
+        show={successToast}
+        onClose={() => setSuccessToast(false)}
+      />
+      <Toast
+        message={errorToast.message}
+        type="error"
+        show={errorToast.show}
+        onClose={handleErrorToastClose}
       />
     </div>
   );

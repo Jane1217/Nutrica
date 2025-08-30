@@ -4,7 +4,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 1000;
+  z-index: 4000;
 }
 
 .modal-mask {
@@ -13,27 +13,31 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0,0,0,0.4);
-  z-index: 1001;
+  background: var(--Neutral-Primary-Text, #22221B);
+  z-index: 4001;
   opacity: 0;
-  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  backdrop-filter: blur(0px);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), backdrop-filter 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .modal-mask.open {
-  opacity: 1;
+  opacity: 0.6;
+  backdrop-filter: blur(4px);
 }
 
 .modal-content {
   position: fixed;
-  left: 0;
-  right: 0;
+  left: 50%;
+  right: auto;
   bottom: 0;
+  transform: translateX(-50%) translateY(100%);
+  width: 100%;
+  max-width: 768px;
   height: calc(74vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-  background: #f6f6f0;
+  background: var(--Brand-Background, #F3F3EC);
   border-radius: 36px 36px 0px 0px;
-  z-index: 1002;
+  z-index: 4002;
   box-shadow: 0 -2px 16px rgba(0,0,0,0.1);
-  transform: translateY(100%);
   transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
   box-sizing: border-box;
   overflow-y: auto;
@@ -41,5 +45,186 @@
 }
 
 .modal-content.open {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* 响应式断点 */
+@media (max-width: 768px) {
+  .modal-content {
+    left: 0;
+    right: 0;
+    transform: translateY(100%);
+    max-width: 100%;
+}
+
+.modal-content.open {
   transform: translateY(0);
+  }
+}
+
+/* 768px及以上：Centered Modal */
+@media (min-width: 768px) {
+  .modal-content {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    bottom: auto;
+    transform: translate(-50%, -50%) scale(0.8);
+    width: 640px;
+    height: 720px;
+    max-width: 640px;
+    max-height: 720px;
+    border-radius: 24px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    overflow: hidden;
+    opacity: 0;
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  
+  .modal-content.open {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  
+  .modal-mask {
+    background: var(--Neutral-Primary-Text, #22221B);
+    backdrop-filter: blur(0px);
+    transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), backdrop-filter 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  
+  .modal-mask.open {
+    opacity: 0.6;
+    backdrop-filter: blur(4px);
+  }
+  
+  /* Auth弹窗（login和sign up）使用640x640尺寸 */
+  .modal-content-auth {
+    width: 640px;
+    height: 640px;
+    max-width: 640px;
+    max-height: 640px;
+  }
+}
+
+/* 居中模态框样式 */
+.modal-content-centered {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  bottom: auto;
+  transform: translate(-50%, -50%) scale(0.8);
+  width: fit-content;
+  height: fit-content;
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 36px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  overflow: visible;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  z-index: 4002;
+}
+
+.modal-content-centered.open {
+  transform: translate(-50%, -50%) scale(1);
+  opacity: 1;
+}
+
+/* NutritionHelpModal 特定样式 */
+.modal-content-centered .nutritionHelpModal {
+  width: 343px;
+  height: auto;
+}
+
+/* 弹窗字体样式 */
+.modal-content h1 {
+  font-family: Kanit;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 150%; /* 36px */
+  color: var(--Neutral-Primary-Text, #22221B);
+}
+
+.modal-content h2 {
+  font-family: Kanit;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 150%; /* 27px */
+  color: var(--Neutral-Primary-Text, #22221B);
+  margin: 0;
+}
+
+.modal-content h3 {
+  font-family: Kanit;
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 150%; /* 27px */
+  color: var(--Neutral-Primary-Text, #22221B);
+  margin: 0;
+}
+
+.modal-content h4 {
+  font-family: Kanit;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 150%; /* 24px */
+  color: var(--Neutral-Primary-Text, #22221B);
+  margin: 0;
+}
+
+.modal-content h5 {
+  font-family: Kanit;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 150%; /* 24px */
+  color: var(--Neutral-Primary-Text, #22221B);
+  margin: 0;
+}
+
+.modal-content h6 {
+  font-family: Kanit;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 150%; /* 21px */
+  color: var(--Neutral-Primary-Text, #22221B);
+  margin: 0;
+}
+
+.modal-content .body1 {
+  font-family: Kanit;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 150%; /* 24px */
+  color: var(--Neutral-Primary-Text, #22221B);
+  margin: 0;
+}
+
+.modal-content .body2 {
+  font-family: Kanit;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 150%; /* 21px */
+  color: var(--Neutral-Primary-Text, #22221B);
+  margin: 0;
+}
+
+.modal-content .label {
+  font-family: Kanit;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 150%; /* 18px */
+  color: var(--Neutral-Primary-Text, #22221B);
+  margin: 0;
 } 

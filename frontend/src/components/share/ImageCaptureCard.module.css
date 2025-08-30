@@ -1,0 +1,26 @@
+.imageArea {
+  display: inline-flex;
+  padding: 52px 60px 80px 60px;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  overflow: visible;
+  position: relative;
+}
+
+.logo {
+  width: 48px;
+  height: 16px;
+  aspect-ratio: 3 / 1;
+  /* PNG图片优化 */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  object-fit: contain;
+}
+
+.puzzleWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+} 

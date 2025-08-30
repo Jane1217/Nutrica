@@ -19,7 +19,7 @@ const getHttpsConfig = () => {
       };
     }
   } catch (error) {
-    console.log('SSL证书文件不存在，将使用HTTP模式');
+    console.log('SSL certificate files not found, will use HTTP mode');
   }
   return false;
 };
@@ -27,19 +27,14 @@ const getHttpsConfig = () => {
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  base: '/',
   server: {
     port: 3000,
     open: true,
     host: '0.0.0.0', // 允许局域网访问
     ...(isLocal && getHttpsConfig() && {
       https: getHttpsConfig()
-    }),
-    proxy: {
-      '/api': {
-        target: 'http://localhost:3001',
-        changeOrigin: true
-      }
-    }
+    })
   },
   build: {
     outDir: 'dist',

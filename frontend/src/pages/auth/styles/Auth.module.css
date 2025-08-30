@@ -1,85 +1,10 @@
-.auth-main {
-  max-width: 375px;
-  margin: 0 auto;
-  padding: 32px 0 0 0;
-}
-.auth-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  background: #fff;
-  border-radius: 8px;
-  padding: 24px;
-  border: 1.5px solid #000;
-}
-.auth-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: #000;
-  margin-bottom: 16px;
-  text-align: center;
-}
-.auth-input {
-  width: 100%;
-  padding: 16px;
-  border: 1.5px solid #000;
-  border-radius: 4px;
-  font-size: 18px;
-  font-family: 'Inter', Arial, sans-serif;
-  margin-bottom: 0;
-  box-sizing: border-box;
-}
-.auth-btn {
-  width: 100%;
-  padding: 14px;
-  background: #000;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  font-size: 18px;
-  font-weight: bold;
-  cursor: pointer;
-  margin-top: 8px;
-}
-.auth-error {
-  color: #e00;
-  font-size: 14px;
-  margin-bottom: 8px;
-  text-align: center;
-}
-.auth-success {
-  color: #008800;
-  font-size: 15px;
-  margin-bottom: 8px;
-  text-align: center;
-}
-.auth-bottom {
-  margin-top: 40px;
-  text-align: center;
-  font-size: 16px;
-  color: #000;
-  font-family: 'Inter', Arial, sans-serif;
-}
-.auth-link {
-  font-weight: bold;
-  text-decoration: underline;
-  cursor: pointer;
-  color: #000;
-}
-.auth-terms {
-  margin-top: 48px;
-  font-size: 14px;
-  color: #000;
-  text-align: left;
-  font-family: 'Inter', Arial, sans-serif;
-  max-width: 320px;
-}
+
 .account-main {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
-  max-width: 100vw;
+  max-width: 640px;
   margin: 0 auto;
   padding: 16px 16px 0 16px;
   min-height: calc(100vh - 40px);
@@ -90,31 +15,29 @@
   overflow-x: hidden;
   /* 确保内容可以滚动到底部 */
   padding-bottom: 100px;
-  /* 防止水平滚动 */
-  max-width: 100%;
 }
 
 .account-avatar {
   width: 72px;
   height: 72px;
   border-radius: 50%;
-  background: #767676;
+  background: #905021;
   color: #fff;
   font-size: 32px;
   font-weight: bold;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 12px;
+  margin-top: 16px;
+  margin-bottom: 16px;
 }
 .account-nickname {
-  font-size: 22px;
+  font-size: 24px;
   font-weight: bold;
   margin-bottom: 4px;
 }
 .account-email {
   color: #888;
-  font-size: 15px;
   margin-bottom: 24px;
 }
 .account-card-list {
@@ -129,7 +52,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin-bottom: 32px;
+  margin-bottom: 16px;
   margin-left: 0;
   margin-right: 0;
   align-self: stretch;
@@ -137,24 +60,24 @@
   font-size: 16px;
   font-style: normal;
   font-weight: 500;
-  padding-bottom: 80px;
+  padding-bottom: 24px;
 }
 .account-card-btn {
   display: flex;
-  padding: 20px 16px 20px 16px;
+  padding: 20px 16px;
   justify-content: space-between;
   align-items: center;
   align-self: stretch;
   border-radius: 16px;
-  border: 1px solid var(--neutral-black-10, rgba(0, 0, 0, 0.10));
-  color: #22221B;
+  border: 1px solid var(--Brand-Outline, #DBE2D0);
+  background: var(--Brand-Off-White, #FCFCF8);
+  color: var(--Neutral-Primary-Text, #22221B);
   font-family: Inter;
   font-size: 16px;
   font-style: normal;
   font-weight: 500;
   line-height: 150%; /* 24px */
   letter-spacing: -0.32px;
-  background: #F3F3EC;
   box-sizing: border-box;
   width: 100%;
 }
@@ -174,7 +97,7 @@
   max-width: 368px;
   display: flex;
   justify-content: space-around;
-  color: rgba(34, 34, 27, 0.60);
+  color: var(--Neutral-Secondary-Text, #6A6A61);
   /* H5 */
   font-family: Kanit;
   font-size: 16px;
@@ -184,8 +107,11 @@
   padding-bottom: 24px;
   background: #F3F3EC;
 }
+.account-footer-bar span {
+  color: var(--Neutral-Secondary-Text, #6A6A61);
+}
 .tutorial-main {
-  max-width: 375px;
+  max-width: 768px;
   margin: 0 auto;
   padding: 24px 0 0 0;
 }
@@ -205,7 +131,7 @@
   font-family: 'Inter', Arial, sans-serif;
   font-size: 18px;
   font-weight: 500;
-  color: #000;
+  color: var(--Neutral-Primary-Text, #22221B);
   cursor: pointer;
   padding-bottom: 8px;
 }
@@ -247,14 +173,14 @@
 .signupMainContent {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 36px;
-  max-width: 300px;
+  align-items: flex-start;
+  gap: 0px;
+  max-width: 768px;
   width: 100%;
-  margin: 24px auto;
-  padding: 48px 32px;
+  margin: 0 auto;
+  padding: 0;
   box-sizing: border-box;
-  background: #F3F3EC;
+  background: var(--Brand-Background, #F3F3EC);
 }
 @media (max-width: 500px) {
   .signupMainContent {
@@ -265,14 +191,14 @@
 .loginMainContent {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 36px;
-  max-width: 300px;
+  align-items: flex-start;
+  gap: 0px;
+  max-width: 768px;
   width: 100%;
-  margin: 24px auto;
-  padding: 48px 32px;
+  margin: 0 auto;
+  padding: 32px 32px;
   box-sizing: border-box;
-  background: #F3F3EC;
+  background: var(--Brand-Background, #F3F3EC);
 }
 @media (max-width: 500px) {
   .loginMainContent {
@@ -282,37 +208,101 @@
 }
 .signupHeader {
   display: flex;
-  width: 233px;
+  width: 100%;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
+  padding: 0 0 8px 0;
+  margin-top: 0;
+  margin-bottom: 24px;
+  background: var(--Brand-Background, #F3F3EC);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  gap: 16px;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+
+.loginCloseButton {
+  display: flex;
+  width: 48px;
+  height: 48px;
+  padding: 14px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--Brand-Outline, #DBE2D0);
+  background: var(--Brand-Background, #F3F3EC);
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  margin-left: auto;
+  margin-right: 0;
+  margin-top: -4px;
+}
+
+.loginCloseButton:hover {
+  background-color: #f5f5f5;
+  border-color: #ccc;
+}
+
+.signupCloseButton {
+  display: flex;
+  width: 48px;
+  height: 48px;
+  padding: 14px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--Brand-Outline, #DBE2D0);
+  background: var(--Brand-Background, #F3F3EC);
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  margin-left: auto;
+  margin-right: 0;
+  margin-top: -4px;
+}
+
+.signupCloseButton:hover {
+  background-color: #f5f5f5;
+  border-color: #ccc;
 }
 .loginHeader {
   display: flex;
-  width: 233px;
+  width: 100%;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
+  padding: 0 0 8px 0;
+  margin-top: 0;
+  margin-bottom: 24px;
+  background: var(--Brand-Background, #F3F3EC);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
-.signupOverline1 {
-  align-self: stretch;
-  color: #000;
-  text-align: center;
-}
-.loginOverline1 {
-  align-self: stretch;
-  color: #000;
-  text-align: center;
-}
+
 .signupOverline2 {
   align-self: stretch;
-  color: #000;
-  text-align: center;
+  color: var(--Neutral-Primary-Text, #22221B);
+  text-align: left;
 }
 .loginOverline2 {
   align-self: stretch;
-  color: #000;
-  text-align: center;
+  color: var(--Neutral-Primary-Text, #22221B);
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .inputWrapper {
   display: flex;
@@ -325,64 +315,75 @@
   padding: 0 16px;
 }
 .signupHintText {
-  color: var(--Neutral-Black, #000);
+  color: var(--Neutral-Primary-Text, #22221B);
   margin-top: 4px;
 }
 .actionGroup {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 24px;
   width: 100%;
+  align-self: center;
+  box-sizing: border-box;
 }
-.signupBtn {
+
+.signupActionGroup {
+  gap: 16px;
+}
+
+
+.forgotPasswordBtn {
   display: flex;
-  width: 200px;
-  height: 64px;
-  padding: 13px 21px;
   justify-content: center;
   align-items: center;
-  gap: 10px;
-  border-radius: 8px;
-  background: var(--Brand-Dark, #2A4E14);
-  color: #FFF;
+  background: transparent;
+  color: var(--Brand-Dark, #2A4E14);
   border: none;
   cursor: pointer;
+  margin-top: -16px;
+  margin-bottom: 8px;
+  padding: 0;
+  font-weight: 700;
 }
-.loginBtn {
-  display: flex;
-  width: 200px;
-  height: 64px;
-  padding: 13px 21px;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  border-radius: 8px;
-  background: var(--Brand-Dark, #2A4E14);
-  color: #FFF;
-  border: none;
-  cursor: pointer;
-}
+
+
 .signupTerms {
-  width: 240px;
-  color: #000;
+  width: 241px;
+  color: var(--Neutral-Primary-Text, #22221B);
   text-align: center;
-  margin-top: 8px;
+  margin-top: 0;
 }
 .termsBold {
-  color: #000;
+  color: var(--Neutral-Primary-Text, #22221B);
+  font-family: Kanit;
+  font-size: 14px;
+  font-style: normal;
   font-weight: 700;
+  line-height: 150%;
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-skip-ink: auto;
+  text-decoration-thickness: auto;
+  text-underline-offset: auto;
+  text-underline-position: from-font;
 }
 .actionModule {
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
   gap: 8px;
   width: 100%;
+  align-self: center;
+  margin-top: 24px;
+  padding: 0 32px 32px 32px;
+  box-sizing: border-box;
 }
 .actionModuleText {
-  color: #000;
+  color: var(--Neutral-Primary-Text, #22221B);
   text-align: center;
+  margin-top: 24px;
 }
 .actionModuleBtn {
   color: var(--Brand-Dark, #2A4E14);
@@ -391,32 +392,10 @@
   border: none;
   cursor: pointer;
   padding: 0;
+  font-weight: 700;
 }
-.account-container {
-  max-width: 400px;
-  margin: 0 auto;
-  padding: 16px;
-  background: #f9f9f9;
-  min-height: 100vh;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-@media (max-width: 500px) {
-  .account-container {
-    max-width: 100vw;
-    padding: 8px;
-  }
-}
-.account-header {
-  text-align: center;
-  margin: 24px 0 16px 0;
-}
-.account-username {
-  font-weight: bold;
-  font-size: 24px;
-}
+
+
 .account-email {
   color: #888;
   font-size: 18px;
@@ -436,23 +415,7 @@
   box-sizing: border-box;
   margin: 16px 0 16px 0;
 }
-.account-btn-group {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  width: 100%;
-  margin: 16px 0;
-}
-.account-btn {
-  width: 100%;
-  padding: 16px;
-  border-radius: 12px;
-  border: none;
-  background: #fff;
-  font-size: 16px;
-  text-align: left;
-  box-sizing: border-box;
-}
+
 .account-footer-bar {
   margin-top: 32px;
   border-top: 1px solid #ddd;
@@ -464,21 +427,9 @@
   width: 100%;
 }
 .account-title {
-  /*
-  font-size: 2rem;
-  font-weight: bold;
-  margin: 32px 0 16px 0;
-  width: 100%;
-  text-align: left;
-  */
-  color: #22221B;
-  font-family: Inter;
-  font-size: 36px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 150%; /* 54px */
+  color: var(--Neutral-Primary-Text, #22221B);
   letter-spacing: -0.72px;
-  margin: 32px 0 16px 16px;
+  margin: 0 0 16px 8px;
   width: 100%;
   text-align: left;
   align-self: flex-start;
@@ -519,13 +470,26 @@
 }
 
 .modalInput {
-  font-size: 20px;
-  padding: 16px;
-  border-radius: 8px;
-  margin-bottom: 24px;
   width: 100%;
-  border: 1px solid #e0e0d9;
-  background: #fff;
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid #CDD3C4;
+  background: #FCFCF8;
+  padding: 20px 16px;
+  font-family: inherit;
+  font-size: 16px !important;
+  transition: border-color 0.2s ease;
+  /* 防止移动端自动缩放 */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  transform: scale(1);
+  transform-origin: left top;
+}
+
+.modalInput:focus {
+  outline: none;
+  border: 2px solid var(--Brand-Dark, #2A4E14);
 }
 
 .modalDivider {
@@ -591,4 +555,360 @@
   background: #26361B;
   color: #FFF;
   border: 1px solid #26361B;
+}
+
+
+.forgotPasswordBackBtn {
+  font-family: Kanit;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 150%;
+  color: var(--Brand-Dark, #2A4E14);
+  text-align: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: block;
+  width: 100%;
+}
+.accountHeaderRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  width: 100%;
+}
+.accountEditBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: #767676;
+  cursor: pointer;
+  margin-right: 0;
+  margin-bottom: 16px;
+  padding-bottom: 6px;
+  font-size: 16px;
+}
+.accountEditIcon {
+  margin-right: 2px;
+}
+.accountAvatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  image-rendering: high-quality;
+}
+.accountInfoBoxHeader {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: space-between;
+}
+.accountInfoBoxTitle {
+  font-weight: 700;
+  display: flex;
+  flex: 1 0 0;
+  align-items: center;
+  gap: 8px;
+  color: var(--Neutral-Primary-Text, #22221B);
+}
+.accountInfoBoxIcon {
+  width: 24px;
+  height: 24px;
+  fill: #FFF;
+}
+.accountInfoBoxClose {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.accountInfoBoxDesc {
+  font-size: 15px;
+  color: #666;
+  line-height: 1.4;
+}
+.accountFeedback {
+  align-self: stretch;
+  color: var(--Neutral-Primary-Text, #22221B);
+  text-align: center;
+  font-family: Kanit;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 150%; /* 24px */
+  margin-top: 0px;
+}
+.accountEmailContact {
+  height: 24px;
+  align-self: stretch;
+  color: var(--Brand-Dark, #2A4E14);
+  text-align: center;
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-skip-ink: auto;
+  text-decoration-thickness: auto;
+  text-underline-offset: auto;
+  text-underline-position: from-font;
+  margin-top: 2px;
+}
+
+/* 删除账号模态框样式 */
+.modalContent {
+  background: #f6f6f0;
+  border-radius: 24px;
+  max-width: 400px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+  max-height: 100%;
+  min-height: 100%;
+  overflow-y: auto;
+  padding: 24px 24px;
+}
+
+.modalSubtitle {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.inputGroup {
+  margin-bottom: 24px;
+}
+
+.inputLabel {
+  font-weight: 600;
+  margin-bottom: 8px;
+  text-align: left;
+  display: block;
+  color: #22221B;
+}
+
+.errorMessage {
+  background: #ffebee;
+  color: #c62828;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  border: 1px solid #ffcdd2;
+}
+
+.modalActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.secondaryButton {
+  background: #f3f3e8;
+  color: #3a5527;
+  font-weight: 700;
+  font-size: 16px;
+  border: none;
+  border-radius: 32px;
+  padding: 16px 24px;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex: 1;
+}
+
+.secondaryButton:hover {
+  background: #e8e8d8;
+}
+
+.secondaryButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.dangerButton {
+  background: #dc3545;
+  color: #fff;
+  font-weight: 700;
+  font-size: 16px;
+  border: none;
+  border-radius: 32px;
+  padding: 16px 24px;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex: 1;
+}
+
+.dangerButton:hover {
+  background: #c82333;
+}
+
+.dangerButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 删除账号模态框新样式 */
+.deleteAccountModal {
+  display: flex !important;
+  width: 343px !important;
+  height: auto !important;
+  padding: 24px !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 20px !important;
+  border-radius: 36px !important;
+  background: var(--Brand-Background, #F3F3EC) !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+}
+
+.deleteAccountHeader {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+}
+
+.closeButton {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #F3F3EC;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6A6A61;
+  transition: background 0.2s;
+}
+
+.closeButton:hover {
+  background: #E8E8D8;
+}
+
+.deleteAccountContent {
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.deleteAccountIcon {
+  display: flex !important;
+  width: 24px !important;
+  height: 24px !important;
+  padding: 12px !important;
+  justify-content: center !important;
+  align-items: center !important;
+  border-radius: 999px !important;
+  background: rgba(208, 53, 53, 0.20) !important;
+  flex-shrink: 0 !important;
+}
+
+.deleteAccountIcon svg {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  aspect-ratio: 1/1;
+}
+
+.deleteAccountTitle {
+  align-self: stretch;
+  color: var(--Neutral-Primary-Text, #22221B);
+  text-align: center;
+  flex-shrink: 0;
+  margin-bottom: -8px !important;
+}
+
+.deleteAccountDivider {
+  width: 64px;
+  height: 0px;
+  stroke-width: 4px;
+  stroke: var(--Brand-Outline, #DBE2D0);
+  flex-shrink: 0;
+}
+
+.deleteAccountText {
+  text-align: center;
+  width: 100%;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.deleteAccountText p {
+  margin: 0 0 24px 0 !important;
+}
+
+.deleteAccountText p:last-child {
+  margin-bottom: 0 !important;
+}
+
+.deleteAccountText strong {
+  color: #22221B;
+  font-weight: 600;
+}
+
+.deleteAccountActions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.cancelButton {
+  display: flex;
+  height: 48px;
+  padding: 12px 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex: 1 0 0;
+  border-radius: 36px;
+  background: var(--Brand-Secondary-Background, #E7E7D5);
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.cancelButton:hover {
+  background: #E8E8D8;
+}
+
+.cancelButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.deleteButton {
+  display: flex;
+  height: 48px;
+  padding: 12px 16px;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex: 1 0 0;
+  border-radius: 36px;
+  background: var(--Alert-Error, #D03535);
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.deleteButton:hover {
+  background: #C82333;
+}
+
+.deleteButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

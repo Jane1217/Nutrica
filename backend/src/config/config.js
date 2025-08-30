@@ -10,8 +10,8 @@ const config = {
   // CORS configuration
   cors: {
     origin: process.env.CORS_ORIGIN || (process.env.NODE_ENV === 'production' 
-      ? 'https://my-nutrition-demo-openai-frontend.vercel.app'
-      : 'http://localhost:3000'),
+      ? ['https://nutrica.app', 'https://my-nutrition-demo-openai-frontend.vercel.app']
+      : ['https://localhost:3000', 'http://localhost:3000']),
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: [
       'Content-Type',
@@ -31,17 +31,32 @@ const config = {
   database: {
     supabaseUrl: process.env.SUPABASE_URL,
     supabaseKey: process.env.SUPABASE_ANON_KEY,
+    supabaseServiceKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+    // 性能优化配置
+    connectionPool: {
+      maxConnections: 20,
+      idleTimeout: 30000, // 30秒
+      connectionTimeout: 10000, // 10秒
+    },
+    // 查询优化
+    query: {
+      timeout: 15000, // 15秒查询超时
+      retryAttempts: 3,
+      retryDelay: 1000, // 1秒重试延迟
+    }
+  },
+  
+  // Cache configuration
+  cache: {
+    enabled: true,
+    defaultTTL: 5 * 60 * 1000, // 5分钟
+    maxSize: 1000, // 最大缓存条目数
+    cleanupInterval: 10 * 60 * 1000, // 10分钟清理间隔
   },
   
   // OpenAI configuration
   openai: {
-    apiKey: process.env.OPENAI_API_KEY,
-    // Proxy configuration - used in local development, not in production
-    proxy: process.env.NODE_ENV === 'development' ? {
-      host: process.env.PROXY_HOST || '127.0.0.1',
-      port: process.env.PROXY_PORT || 10809,
-      protocol: process.env.PROXY_PROTOCOL || 'http'
-    } : null
+    apiKey: process.env.OPENAI_API_KEY
   },
   
   // File upload configuration
@@ -57,7 +72,10 @@ const config = {
     rateLimit: {
       windowMs: 15 * 60 * 1000, // 15 minutes
       max: 100 // Limit each IP to 100 requests per 15 minutes
-    }
+    },
+    // 性能优化
+    compression: true,
+    timeout: 30000, // 30秒API超时
   }
 };
 
@@ -65,6 +83,7 @@ const config = {
 const requiredEnvVars = [
   'SUPABASE_URL',
   'SUPABASE_ANON_KEY',
+  'SUPABASE_SERVICE_ROLE_KEY',
   'OPENAI_API_KEY'
 ];
 

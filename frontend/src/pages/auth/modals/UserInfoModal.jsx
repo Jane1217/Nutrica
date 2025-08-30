@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ModalWrapper from '../../../components/common/ModalWrapper';
-import styles from '../styles/Auth.module.css';
+import Toast from '../../../components/common/Toast';
+import styles from '../styles/UserInfo.module.css';
 
 // 哈里斯-贝内迪克特公式计算BMR
 const calculateBMR = (gender, age, height, weight, unit) => {
@@ -18,30 +19,75 @@ const calculateBMR = (gender, age, height, weight, unit) => {
 
 // 运动系数
 const ACTIVITY_FACTORS = {
-  sedentary: { value: 1.2, label: '0', description: 'Sedentary (Office work)' },
-  lightlyActive: { value: 1.375, label: '1-3 Days', description: 'Light Exercise' },
-  moderatelyActive: { value: 1.55, label: '3-5 Days', description: 'Moderate Exercise' },
-  veryActive: { value: 1.725, label: '6-7 Days', description: 'Hard Exercise' },
-  extremelyActive: { value: 1.9, label: 'Very Hard', description: ' Exercise/Physical Job' }
+  sedentary: { value: 1.2, label: '0 Day' },
+  lightlyActive: { value: 1.375, label: '1-2 Days'},
+  moderatelyActive: { value: 1.55, label: '3-5 Days'},
+  veryActive: { value: 1.725, label: '6-7 Days' },
+  extremelyActive: { value: 1.9, label: 'Physical Job' }
 };
 
 // 调整目标
 const WEIGHT_GOALS = {
-  maintain: { value: 0, label: 'Maintain Weight' },
-  lose: { value: -500, label: 'Lose Weight' },
-  gain: { value: 500, label: 'Gain Weight' }
+  maintain: { value: 0, label: 'maintain weight' },
+  lose: { value: -500, label: 'lose weight' },
+  gain: { value: 500, label: 'gain weight' }
 };
 
-export default function UserInfoModal({ open, onClose, onSubmit, initialData = {} }) {
+export default function UserInfoModal({ open, onClose, onSubmit, initialData = {}, isUpdateMode = false }) {
   const [name, setName] = useState(initialData.name || '');
   const [gender, setGender] = useState(initialData.gender || 'male');
   const [age, setAge] = useState(initialData.age || '');
   const [unit, setUnit] = useState(initialData.unit || 'us');
   const [height, setHeight] = useState(initialData.height || '');
+  const [heightFeet, setHeightFeet] = useState(initialData.heightFeet || '');
+  const [heightInches, setHeightInches] = useState(initialData.heightInches || '');
   const [weight, setWeight] = useState(initialData.weight || '');
   const [activityLevel, setActivityLevel] = useState(initialData.activityLevel || 'sedentary');
   const [weightGoal, setWeightGoal] = useState(initialData.weightGoal || 'maintain');
   const [calculatedCalories, setCalculatedCalories] = useState(2000);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+
+  // 简化的数字输入处理函数
+  const handleNumberInput = (value, setter) => {
+    // 只允许数字、空字符串和退格键
+    if (value === '' || /^\d+$/.test(value)) {
+      setter(value);
+    }
+  };
+
+  // 验证表单是否完整
+  const validateForm = () => {
+    // 检查姓名（非更新模式时需要）
+    if (!isUpdateMode && !name.trim()) {
+      return false;
+    }
+    
+    // 检查年龄
+    if (!age || age.trim() === '') {
+      return false;
+    }
+    
+    // 检查身高
+    if (unit === 'us') {
+      // 英制单位：需要填写feet或inches
+      if ((!heightFeet || heightFeet.trim() === '') && (!heightInches || heightInches.trim() === '')) {
+        return false;
+      }
+    } else {
+      // 公制单位：需要填写cm
+      if (!height || height.trim() === '') {
+        return false;
+      }
+    }
+    
+    // 检查体重
+    if (!weight || weight.trim() === '') {
+      return false;
+    }
+    
+    return true;
+  };
 
   // 关键：每次initialData变化时自动同步state
   useEffect(() => {
@@ -50,6 +96,8 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
     setAge(initialData.age || '');
     setUnit(initialData.unit || 'us');
     setHeight(initialData.height || '');
+    setHeightFeet(initialData.heightFeet || '');
+    setHeightInches(initialData.heightInches || '');
     setWeight(initialData.weight || '');
     setActivityLevel(initialData.activityLevel || 'sedentary');
     setWeightGoal(initialData.weightGoal || 'maintain');
@@ -57,346 +105,278 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
 
   // 计算推荐卡路里
   useEffect(() => {
-    if (age && height && weight) {
-      const bmr = calculateBMR(gender, age, height, weight, unit);
+    let currentHeight = height;
+    let currentWeight = weight;
+    
+    // 处理US单位的身高数据
+    if (unit === 'us' && (heightFeet || heightInches)) {
+      const feet = parseInt(heightFeet) || 0;
+      const inches = parseInt(heightInches) || 0;
+      currentHeight = feet * 12 + inches; // 转换为英寸
+    }
+    
+    if (age && currentHeight && currentWeight) {
+      const bmr = calculateBMR(gender, age, currentHeight, currentWeight, unit);
       const tdee = bmr * ACTIVITY_FACTORS[activityLevel].value;
       const adjustedCalories = tdee + WEIGHT_GOALS[weightGoal].value;
       setCalculatedCalories(Math.round(adjustedCalories));
     }
-  }, [gender, age, height, weight, unit, activityLevel, weightGoal]);
+  }, [gender, age, height, heightFeet, heightInches, weight, unit, activityLevel, weightGoal]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit && onSubmit({ 
-      name, 
-      gender, 
-      age, 
-      unit, 
-      height, 
-      weight, 
-      activityLevel, 
-      weightGoal,
-      calculatedCalories 
-    });
+    
+    // 验证表单
+    if (!validateForm()) {
+      setShowToast(true);
+      return;
+    }
+    
+    setIsLoading(true);
+    
+    // 处理US单位的身高数据
+    let finalHeight = height;
+    if (unit === 'us' && (heightFeet || heightInches)) {
+      // 将英尺和英寸转换为英寸总数
+      const feet = parseInt(heightFeet) || 0;
+      const inches = parseInt(heightInches) || 0;
+      finalHeight = feet * 12 + inches;
+    }
+    
+    // 3秒后调用onSubmit
+    setTimeout(() => {
+      setIsLoading(false);
+      onSubmit && onSubmit({ 
+        name, 
+        gender, 
+        age, 
+        unit, 
+        height: finalHeight,
+        heightFeet,
+        heightInches,
+        weight, 
+        activityLevel, 
+        weightGoal,
+        calculatedCalories 
+      });
+    }, 3000);
   };
 
+  // 如果正在加载，显示加载界面
+  if (isLoading) {
+    return (
+      <ModalWrapper open={open} onClose={onClose}>
+        <div className={styles.modalContainer}>
+          <header className={styles.modalHeader}>
+            <div className={styles.headerRow}>
+              <div className="h2">{isUpdateMode ? 'Update Nutrition Goal' : 'Welcome to Nutrica!'}</div>
+              <button className={styles.closeButton} onClick={onClose}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          </header>
+          <div className={styles.modalForm}>
+            <div className={styles.loadingContent}>
+              <div className="body1" style={{textAlign: 'center', marginBottom: '24px'}}>
+                Estimating your daily macronutrient intake based on your input...
+              </div>
+            </div>
+          </div>
+        </div>
+      </ModalWrapper>
+    );
+  }
+
   return (
-    <ModalWrapper open={open} onClose={onClose}>
-      <form className={styles.modalForm} onSubmit={handleSubmit}>
-        <header className={styles.modalHeader}>
-          <div className="h1" style={{ marginBottom: 16 }}>Welcome to Nutrica!</div>
-        </header>
-        <div className={styles.modalInputWrapper}>
-          <label className="h5" style={{ marginBottom: 16, display: 'block' }}>Let us know your first name:</label>
-          <input className={`${styles.modalInput} body1`} value={name} onChange={e => setName(e.target.value)} required style={{ marginBottom: 24, width: '100%', boxSizing: 'border-box', borderRadius: 8, border: '1px solid #CDD3C4', background: '#FCFCF8', padding: '20px 16px' }} />
-          <hr className={styles.modalDivider} />
-          <div className="h5" style={{ marginBottom: 16, textAlign: 'left' }}>
-            Tell us some info so that we can estimate your Basal Metabolic Rate (BMR) and Macros needed for healthy eating.
-          </div>
-          <div className="body2" style={{ fontSize: 14, color: '#22221B', marginBottom: 16, textAlign: 'left' }}>
-            * <span className="body2" style={{ color: '#22221B'}}>Your data will remain private.</span> <span className="body2" style={{ color: 'rgba(34, 34, 27, 0.60)'}}>
-              You may skip this section now and we will estimate based on the <a href="https://www.nal.usda.gov/human-nutrition-and-food-safety/usda-nutrition-recommendations" target="_blank" rel="noopener noreferrer" style={{ color: '#888', textDecoration: 'underline' }}>USDA recommendation</a>. Come back anytime from the account page.
-            </span>
-          </div>
-          
-          {/* Gender Selection */}
-          <div className="h2" style={{ fontWeight: 700, marginTop: 24, marginBottom: 8, textAlign: 'left' }}>Gender</div>
-          <div style={{ display: 'flex', gap: 12, marginBottom: 16}}>
-            <button type="button" className={`${styles.modalOptionBtn} ${gender === 'male' ? styles.modalOptionBtnActive : ''}`} onClick={() => setGender('male')}>Male</button>
-            <button type="button" className={`${styles.modalOptionBtn} ${gender === 'female' ? styles.modalOptionBtnActive : ''}`} onClick={() => setGender('female')}>Female</button>
-            <button type="button" className={`${styles.modalOptionBtn} ${gender === 'other' ? styles.modalOptionBtnActive : ''}`} onClick={() => setGender('other')}>Other</button>
-          </div>
-          
-          {/* Age Input */}
-          <div style={{ display: 'flex', alignItems: 'center', margin: '47px 0 46px 0', width: '100%', height: 48 }}>
-            <div className="h2" style={{ fontWeight: 700, textAlign: 'left', minWidth: 48, height: 48, display: 'flex', alignItems: 'center' }}>Age</div>
-            <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', height: 48 }}>
-              <input
-                className={`${styles.modalInput} h5`}
-                type="number"
-                min="0"
-                value={age}
-                onChange={e => setAge(e.target.value)}
-                style={{
-                  width: 96,
-                  height: 48,
-                  lineHeight: '48px',
-                  borderRadius: 12,
-                  border: '1.5px solid #CDD3C4',
-                  background: '#F3F3EC',
-                  textAlign: 'center',
-                  display: 'block',
-                  boxSizing: 'border-box',
-                  margin: 0
-                }}
-              />
+    <>
+      <Toast
+        message="Please complete all required fields"
+        type="error"
+        show={showToast}
+        onClose={() => setShowToast(false)}
+        duration={3000}
+      />
+      <ModalWrapper open={open} onClose={onClose}>
+        <div className={styles.modalContainer}>
+          <header className={styles.modalHeader}>
+            <div className={styles.headerRow}>
+              <div className="h2">{isUpdateMode ? 'Update Nutrition Goal' : 'Welcome to Nutrica!'}</div>
+              <button className={styles.closeButton} onClick={onClose}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                  <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
             </div>
-          </div>
-          
-          {/* Unit Selection */}
-          <div style={{ display: 'flex', gap: 16, marginBottom: 27 }}>
+          </header>
+          <form className={styles.modalForm} onSubmit={handleSubmit}>
+            <div className={styles.modalInputWrapper}>
+              {!isUpdateMode && (
+                <>
+                  <label className="h5">Let us know your first name:</label>
+                  <input className={`${styles.nameInput} body1`} value={name} onChange={e => setName(e.target.value)} required />
+                  <hr className={styles.modalDivider} />
+                </>
+              )}
+              <div className="h4">
+                Tell us some info so that we can estimate your Basal Metabolic Rate (BMR) and Macros needed for healthy eating.
+              </div>
+              <div className={`${styles.privacyText} body2`}>
+                * <span className={styles.privacyTextHighlight}>Your data will remain private. You can update your answers anytime on the Account page.</span>
+              </div>
+              
+              {/* Gender Selection */}
+              <div className={`${styles.sectionTitle} h3`}>Gender*</div>
+              <div className={styles.genderButtons}>
+                <button type="button" className={`${styles.modalOptionBtn} h5 ${gender === 'male' ? styles.modalOptionBtnActive : ''}`} onClick={() => setGender('male')}>Male</button>
+                <button type="button" className={`${styles.modalOptionBtn} h5 ${gender === 'female' ? styles.modalOptionBtnActive : ''}`} onClick={() => setGender('female')}>Female</button>
+                <button type="button" className={`${styles.modalOptionBtn} h5 ${gender === 'other' ? styles.modalOptionBtnActive : ''}`} onClick={() => setGender('other')}>Other</button>
+              </div>
+              
+              {/* Age Input */}
+              <div className={styles.ageContainer}>
+                <div className={`${styles.ageLabel} h3`}>Age*</div>
+                <div className={styles.ageInputWrapper}>
+                  <input
+                    className={`${styles.ageInput} h5`}
+                    type="number"
+                    min="0"
+                    max="120"
+                    value={age}
+                    onChange={e => handleNumberInput(e.target.value, setAge)}
+                  />
+                </div>
+              </div>
+              
+              {/* Unit Selection */}
+              <div className={styles.unitButtons}>
+                <button
+                  type="button"
+                  onClick={() => setUnit('us')}
+                  className={`${styles.unitButton} h5 ${unit === 'us' ? styles.unitButtonActive : styles.unitButtonInactive}`}
+                >US Units</button>
+                <button
+                  type="button"
+                  onClick={() => setUnit('metric')}
+                  className={`${styles.unitButton} h5 ${unit === 'metric' ? styles.unitButtonActive : styles.unitButtonInactive}`}
+                >Metric Units</button>
+              </div>
+              
+              {/* Height Input */}
+              <div className={styles.measurementContainer}>
+                <div className={`${styles.measurementLabel} h3`}>Height*</div>
+                <div className={styles.measurementInputWrapper}>
+                  {unit === 'us' ? (
+                    <div className={styles.usHeightInputs}>
+                      <div className={styles.measurementInputContainer}>
+                        <input
+                          className={`${styles.measurementInput} h5`}
+                          type="number"
+                          min="0"
+                          max="10"
+                          value={heightFeet}
+                          onChange={e => handleNumberInput(e.target.value, setHeightFeet)}
+                          placeholder="0"
+                        />
+                        <span className={styles.measurementUnit}>ft</span>
+                      </div>
+                      <div className={styles.measurementInputContainer}>
+                        <input
+                          className={`${styles.measurementInput} h5`}
+                          type="number"
+                          min="0"
+                          max="11"
+                          value={heightInches}
+                          onChange={e => handleNumberInput(e.target.value, setHeightInches)}
+                          placeholder="0"
+                        />
+                        <span className={styles.measurementUnit}>in</span>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className={styles.measurementInputContainer}>
+                      <input
+                        className={`${styles.measurementInput} h5`}
+                        type="number"
+                        min="0"
+                        max="300"
+                        value={height}
+                        onChange={e => handleNumberInput(e.target.value, setHeight)}
+                      />
+                      <span className={styles.measurementUnit}>cm</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              {/* Weight Input */}
+              <div className={styles.measurementContainer}>
+                <div className={`${styles.measurementLabel} h3`}>Weight*</div>
+                <div className={styles.measurementInputWrapper}>
+                  <div className={styles.measurementInputContainer}>
+                    <input
+                      className={`${styles.measurementInput} h5`}
+                      type="number"
+                      min="0"
+                      max="500"
+                      value={weight}
+                      onChange={e => handleNumberInput(e.target.value, setWeight)}
+                    />
+                    <span className={styles.measurementUnit}>{unit === 'us' ? 'lbs' : 'kg'}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Activity Level Selection */}
+              <div className={`${styles.sectionTitle} h3`}>How many days per week are you physically active?</div>
+              <div className={styles.activityGrid}>
+                {Object.entries(ACTIVITY_FACTORS).map(([key, factor]) => (
+                  <button
+                    key={key}
+                    type="button"
+                    className={`${styles.activityButton} ${styles.modalOptionBtn} ${activityLevel === key ? styles.modalOptionBtnActive : ''}`}
+                    onClick={() => setActivityLevel(key)}
+                  >
+                    <span className={`${styles.activityLabel} h5`}>{factor.label}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Weight Goal Selection */}
+              <div className={`${styles.sectionTitle} h3`}>I would like to:</div>
+              <div className={styles.weightGoalGrid}>
+                {Object.entries(WEIGHT_GOALS).map(([key, goal], index) => (
+                  <button
+                    key={key}
+                    type="button"
+                    className={`${styles.weightGoalButton} h5 ${weightGoal === key ? styles.weightGoalButtonActive : ''} ${index === 2 ? styles.weightGoalButtonThird : ''}`}
+                    onClick={() => setWeightGoal(key)}
+                  >
+                    {goal.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </form>
+          <div className={styles.buttonContainerFixed}>
             <button
               type="button"
-              onClick={() => setUnit('us')}
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                width: '100%',
-                height: 48,
-                borderRadius: '999px',
-                background: unit === 'us' ? '#26361B' : '#F3F3EC',
-                color: unit === 'us' ? '#FFF' : '#26361B',
-                border: unit === 'us' ? 'none' : '1px solid #CDD3C4',
-                fontWeight: 500,
-                fontSize: 16,
-                cursor: 'pointer',
-                transition: 'background 0.2s, color 0.2s, border 0.2s'
-              }}
-            >US Units</button>
+              className={`${styles.skipButton} h4`}
+              onClick={onClose}
+            >
+              <span className='h4'>Skip</span>
+            </button>
             <button
-              type="button"
-              onClick={() => setUnit('metric')}
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                width: '100%',
-                height: 48,
-                borderRadius: '999px',
-                background: unit === 'metric' ? '#26361B' : '#F3F3EC',
-                color: unit === 'metric' ? '#FFF' : '#26361B',
-                border: unit === 'metric' ? 'none' : '1px solid #CDD3C4',
-                fontWeight: 500,
-                fontSize: 16,
-                cursor: 'pointer',
-                transition: 'background 0.2s, color 0.2s, border 0.2s'
-              }}
-            >Metric Units</button>
+              type="submit"
+              className={`${styles.nextButton} h4`}
+              onClick={handleSubmit}
+            >
+              <span className='h4'>Next</span>
+            </button>
           </div>
-          
-          {/* Height Input */}
-          <div style={{ display: 'flex', alignItems: 'center', margin: '37px 0', width: '100%', height: 48 }}>
-            <div className="h2" style={{ fontWeight: 700, textAlign: 'left', minWidth: 90, height: 48, display: 'flex', alignItems: 'center' }}>Height</div>
-            <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', height: 48 }}>
-              <div style={{ position: 'relative', width: 96, height: 48 }}>
-                <input
-                  className={`${styles.modalInput} h5`}
-                  type="number"
-                  min="0"
-                  value={height}
-                  onChange={e => setHeight(e.target.value)}
-                  style={{
-                    width: 96,
-                    height: 48,
-                    lineHeight: '24px',
-                    borderRadius: 12,
-                    border: '1.5px solid #CDD3C4',
-                    background: '#F3F3EC',
-                    textAlign: 'left',
-                    display: 'block',
-                    boxSizing: 'border-box',
-                    margin: 0,
-                    fontWeight: 500,
-                    padding: '12px 16px',
-                    paddingRight: 38
-                  }}
-                />
-                <span style={{
-                  position: 'absolute',
-                  right: 16,
-                  top: 0,
-                  height: 48,
-                  display: 'flex',
-                  alignItems: 'center',
-                  color: 'rgba(0,0,0,0.60)',
-                  fontFamily: 'Kanit',
-                  fontSize: 16,
-                  fontStyle: 'normal',
-                  fontWeight: 500,
-                  lineHeight: '24px',
-                  textAlign: 'right',
-                  pointerEvents: 'none'
-                }}>{unit === 'us' ? 'in' : 'cm'}</span>
-              </div>
-            </div>
-          </div>
-          
-          {/* Weight Input */}
-          <div style={{ display: 'flex', alignItems: 'center', margin: '37px 0 37px 0', width: '100%', height: 48 }}>
-            <div className="h2" style={{ fontWeight: 700, textAlign: 'left', minWidth: 90, height: 48, display: 'flex', alignItems: 'center' }}>Weight</div>
-            <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', height: 48 }}>
-              <div style={{ position: 'relative', width: 96, height: 48 }}>
-                <input
-                  className={`${styles.modalInput} h5`}
-                  type="number"
-                  min="0"
-                  value={weight}
-                  onChange={e => setWeight(e.target.value)}
-                  style={{
-                    width: 96,
-                    height: 48,
-                    lineHeight: '24px',
-                    borderRadius: 12,
-                    border: '1.5px solid #CDD3C4',
-                    background: '#F3F3EC',
-                    textAlign: 'left',
-                    display: 'block',
-                    boxSizing: 'border-box',
-                    margin: 0,
-                    fontWeight: 500,
-                    padding: '12px 16px',
-                    paddingRight: 38
-                  }}
-                />
-                <span style={{
-                  position: 'absolute',
-                  right: 16,
-                  top: 0,
-                  height: 48,
-                  display: 'flex',
-                  alignItems: 'center',
-                  color: 'rgba(0,0,0,0.60)',
-                  fontFamily: 'Kanit',
-                  fontSize: 16,
-                  fontStyle: 'normal',
-                  fontWeight: 500,
-                  lineHeight: '24px',
-                  textAlign: 'right',
-                  pointerEvents: 'none'
-                }}>{unit === 'us' ? 'lb' : 'kg'}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Activity Level Selection */}
-          <div className="h2" style={{ fontWeight: 700, marginTop: 36, marginBottom: 16, textAlign: 'left' }}>How many days per week are you physically active?</div>
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(2, 1fr)', 
-            gap: 12, 
-            marginBottom: 24 
-          }}>
-            {Object.entries(ACTIVITY_FACTORS).map(([key, factor]) => (
-              <button
-                key={key}
-                type="button"
-                className={`${styles.modalOptionBtn} ${activityLevel === key ? styles.modalOptionBtnActive : ''}`}
-                onClick={() => setActivityLevel(key)}
-                style={{
-                  width: '100%',
-                  justifyContent: 'center',
-                  textAlign: 'center',
-                  padding: '12px 16px',
-                  height: 'auto',
-                  minHeight: 48,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 4
-                }}
-              >
-                <span style={{ 
-                  textAlign: 'center',
-                  fontFamily: 'Inter',
-                  fontSize: 16,
-                  fontStyle: 'normal',
-                  fontWeight: 500,
-                  lineHeight: '150%',
-                  letterSpacing: '-0.32px'
-                }}>{factor.label}</span>
-                <span className="body1" style={{ fontSize: 12, opacity: 0.8 }}>{factor.description}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* Weight Goal Selection */}
-          <div className="h2" style={{ fontWeight: 700, marginTop: 24, marginBottom: 16, textAlign: 'left' }}>I would like to:</div>
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(2, 1fr)', 
-            gap: 12, 
-            marginBottom: 24 
-          }}>
-            {Object.entries(WEIGHT_GOALS).map(([key, goal], index) => (
-              <button
-                key={key}
-                type="button"
-                className={`${styles.modalOptionBtn} ${weightGoal === key ? styles.modalOptionBtnActive : ''}`}
-                onClick={() => setWeightGoal(key)}
-                style={{
-                  width: '100%',
-                  justifyContent: 'center',
-                  textAlign: 'center',
-                  padding: '12px 16px',
-                  height: 'auto',
-                  minHeight: 48,
-                  gridColumn: index === 2 ? '1 / 2' : 'auto' // 第三个选项占第一列
-                }}
-              >
-                {goal.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Calculated Calories Display */}
-          {age && height && weight && (
-            <div style={{ 
-              background: '#E7E7D5', 
-              borderRadius: 12, 
-              padding: 16, 
-              marginBottom: 24,
-              border: '1px solid #CDD3C4'
-            }}>
-              <div className="h5" style={{ marginBottom: 8, color: '#26361B' }}>
-                Recommended Daily Calories:
-              </div>
-              <div className="h2" style={{ fontWeight: 700, color: '#2A4E14' }}>
-                {calculatedCalories} kcal
-              </div>
-            </div>
-          )}
         </div>
-        <div style={{ display: 'flex', gap: 16, marginTop: 32, justifyContent: 'center', marginBottom: 24 }}>
-          <button
-            type="button"
-            className="h5"
-            onClick={onClose}
-            style={{
-              display: 'flex',
-              width: 119,
-              height: 80,
-              padding: '12px 24px',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: 10,
-              flexShrink: 0,
-              borderRadius: 36,
-              background: '#E7E7D5',
-              border: 'none',
-              cursor: 'pointer'
-            }}
-          >Skip</button>
-          <button
-            type="submit"
-            className="h5"
-            style={{
-              display: 'flex',
-              width: 200,
-              height: 80,
-              padding: '13px 21px',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: 10,
-              flexShrink: 0,
-              borderRadius: 36,
-              background: 'var(--Brand-Dark, #2A4E14)',
-              color: '#FFF',
-              border: 'none',
-              cursor: 'pointer'
-            }}
-          >Next</button>
-        </div>
-      </form>
-    </ModalWrapper>
+      </ModalWrapper>
+    </>
   );
 }
