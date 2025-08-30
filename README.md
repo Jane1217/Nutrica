@@ -35,6 +35,56 @@ Nutrica is a full-stack web application that helps users track their daily nutri
 
 ## 4. Details for Running Your Project
 
-**Live Project**: [https://nutrica.app](https://nutrica.app)
+### Prerequisites
+- Node.js (v16 or higher)
+- npm or yarn
+- Supabase account
+- OpenAI API key
 
-The project is fully deployed and ready to use. Simply visit the website to start tracking your nutrition!
+### Local Development Setup
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Jane1217/Nutrica.git
+   cd my-nutrition-demo-openai
+   ```
+
+2. **Frontend Setup**
+   ```bash
+   cd frontend
+   npm install
+   cp .env.example .env.local
+   # Add your environment variables
+   npm run dev
+   ```
+
+3. **Backend Setup**
+   ```bash
+   cd backend
+   npm install
+   cp .env.example .env
+   # Add your environment variables
+   npm run dev
+   ```
+
+4. **Environment Variables**
+   
+   **Frontend (.env.local):**
+   ```env
+   VITE_API_BASE_URL=http://localhost:3001
+   VITE_SUPABASE_URL=your_supabase_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+   
+   **Backend (.env):**
+   ```env
+   PORT=3001
+   OPENAI_API_KEY=your_openai_api_key
+   SUPABASE_URL=your_supabase_url
+   SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+   CORS_ORIGIN=http://localhost:5173
+   ```
+
+### Running the Project
+- Frontend will be available at: http://localhost:5173
+- Backend API will be available at: http://localhost:3001
