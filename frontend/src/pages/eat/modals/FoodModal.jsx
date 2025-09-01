@@ -32,16 +32,16 @@ export default function FoodModal({ open, onClose, initialData, userId, onDataCh
       setForm({
         name: initialData['Food name'] || '',
         number_of_servings: initialData['Number of Servings'] || 1,
-        calories: initialData.Calories || '',
-        carbs: initialData.Carbs || '',
-        fats: initialData.Fats || '',
-        protein: initialData.Protein || '',
+        calories: initialData.Calories ?? '',
+        carbs: initialData.Carbs ?? '',
+        fats: initialData.Fats ?? '',
+        protein: initialData.Protein ?? '',
       });
       setBaseNutrition({
-        calories: initialData.Calories || '',
-        carbs: initialData.Carbs || '',
-        fats: initialData.Fats || '',
-        protein: initialData.Protein || '',
+        calories: initialData.Calories ?? '',
+        carbs: initialData.Carbs ?? '',
+        fats: initialData.Fats ?? '',
+        protein: initialData.Protein ?? '',
       });
     }
   }, [initialData]);
@@ -52,21 +52,33 @@ export default function FoodModal({ open, onClose, initialData, userId, onDataCh
   }, [baseNutrition]);
 
   const validateInput = (name, value) => {
-    // 确保value是字符串类型
-    const stringValue = String(value);
-    if (!stringValue.trim()) {
-      return 'Field cannot be empty';
-    }
+    // 对于营养字段，允许 0 值
     if (['calories', 'carbs', 'fats', 'protein'].includes(name)) {
+      if (value === '' || value === null || value === undefined) {
+        return 'Field cannot be empty';
+      }
       if (isNaN(Number(value)) || Number(value) < 0) {
         return 'Must be a valid number';
       }
+      return null;
     }
+    
+    // 对于其他字段，确保不是空字符串
     if (name === 'number_of_servings') {
       if (isNaN(Number(value)) || Number(value) < 1) {
         return 'Must be at least 1';
       }
+      return null;
     }
+    
+    // 对于 name 字段，确保不是空字符串
+    if (name === 'name') {
+      if (!String(value).trim()) {
+        return 'Field cannot be empty';
+      }
+      return null;
+    }
+    
     return null;
   };
 
@@ -81,10 +93,14 @@ export default function FoodModal({ open, onClose, initialData, userId, onDataCh
     let value = e.target.value;
     if (!value || isNaN(Number(value)) || Number(value) < 1) value = '1';
     value = String(parseInt(value));
+    const multipliedNutrition = multiplyNutrition(baseNutritionRef.current, value);
     setForm(f => ({
       ...f,
       number_of_servings: value,
-      ...multiplyNutrition(baseNutritionRef.current, value)
+      calories: multipliedNutrition.calories ?? '',
+      carbs: multipliedNutrition.carbs ?? '',
+      fats: multipliedNutrition.fats ?? '',
+      protein: multipliedNutrition.protein ?? '',
     }));
   };
 
@@ -157,7 +173,7 @@ export default function FoodModal({ open, onClose, initialData, userId, onDataCh
     <ModalWrapper open={open} onClose={onClose}>
       <div className="eat-modal food-modal">
         <div className="eat-modal-group1 food-modal-group1">
-          <span className="eat-modal-title">Food</span>
+          <span className="eat-modal-title h2">Food</span>
           <button className="eat-modal-close-btn" onClick={onClose}>
             <img src={icons.closeFillBlack} alt="close" width="24" height="24" />
           </button>

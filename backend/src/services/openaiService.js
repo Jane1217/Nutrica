@@ -7,13 +7,7 @@ class OpenAIService {
       apiKey: config.openai.apiKey
     };
 
-    // Use proxy in development environment
-    if (config.openai.proxy) {
-      const { HttpsProxyAgent } = require('https-proxy-agent');
-      const proxyUrl = `${config.openai.proxy.protocol}://${config.openai.proxy.host}:${config.openai.proxy.port}`;
-      openaiConfig.httpAgent = new HttpsProxyAgent(proxyUrl);
-      console.log(`Using proxy: ${proxyUrl}`);
-    }
+
 
     this.openai = new OpenAI(openaiConfig);
   }
@@ -28,7 +22,7 @@ class OpenAIService {
             content: [
               { 
                 type: "text", 
-                text: `Analyze this food image and extract nutrition information. Return ONLY a valid JSON object with the following structure:\n{\n  \"name\": \"food name\",\n  \"calories\": number,\n  \"carbs\": number,\n  \"fats\": number, \n  \"protein\": number,\n  \"serving_size\": \"serving size string\"\n}\n\nIMPORTANT: All nutrition values (calories, carbs, fats, protein) must be numbers without units.\n\nCRITICAL: If you cannot clearly see or recognize a nutrition label with specific values, return this JSON instead:\n{\n  \"error\": true\n}\n\nOnly return nutrition data if you can clearly see and read the nutrition facts label. Do NOT guess or provide default values. If the image is blurry, unclear, or doesn't contain a nutrition label, return the error JSON.\n\nIf you see a human face, person, or any non-food object, return the error JSON.\n\nIf you cannot recognize a specific food name, use the main unit from the nutrition label's Serving size (such as 'package', 'bowl', 'cup', etc.) as the name, and add a positive adjective before it (such as 'Delicious', 'Tasty', 'Fresh', 'Yummy', 'Nutritious'), e.g. 'Delicious Package' or 'Tasty Bowl'. Do NOT use 'unknown food', 'packaged food', 'food item', or similar generic/unknown terms. Always try to provide a positive, concrete name.\nDo NOT include any markdown, code blocks, or extra text, only the JSON object.` 
+                text: `Analyze this food image and extract nutrition information. Return ONLY a valid JSON object with the following structure:\n{\n  \"name\": \"food name\",\n  \"calories\": number,\n  \"carbs\": number,\n  \"fats\": number, \n  \"protein\": number,\n  \"serving_size\": \"serving size string\"\n}\n\nIMPORTANT: All nutrition values (calories, carbs, fats, protein) must be numbers without units.\n\nCRITICAL: If you cannot clearly see or recognize a nutrition label with specific values, return this JSON instead:\n{\n  \"error\": true\n}\n\nOnly return nutrition data if you can clearly see and read the nutrition facts label. Do NOT guess or provide default values. If the image is blurry, unclear, or doesn't contain a nutrition label, return the error JSON.\n\nIf you see a human face, person, or any non-food object, return the error JSON.\n\nIf you cannot recognize a specific food name, use the main unit from the nutrition label's Serving size (such as 'package', 'bowl', 'cup', etc.) as the name, and add a positive adjective before it (such as 'Delicious', 'Tasty', 'Fresh', 'Yummy', 'Nutritious'), e.g. 'Delicious Package' or 'Tasty Bowl'. Do NOT use 'unknown food', 'packaged food', 'food item', or similar generic/unknown terms. Always try to provide a positive, concrete name.\n\nCRITICAL: If any nutrition value (carbs, fats, protein) is not listed on the nutrition label or shows as 0, you MUST return 0 for that field. Do NOT leave any nutrition field blank or undefined. This ensures all nutrition fields are properly filled for the user interface.\n\nDo NOT include any markdown, code blocks, or extra text, only the JSON object.` 
               },
               {
                 type: "image_url",
@@ -61,7 +55,7 @@ class OpenAIService {
         messages: [
           {
             role: "user",
-            content: `Analyze this food description and estimate nutrition information based on common knowledge. Return ONLY a valid JSON object with the following structure:\n{\n  \"name\": \"food name\",\n  \"calories\": number,\n  \"carbs\": number,\n  \"fats\": number, \n  \"protein\": number\n}\n\nIMPORTANT: All nutrition values (calories, carbs, fats, protein) must be numbers without units.\n\nFood description: ${description}\n\nIMPORTANT: Provide nutrition values for the TOTAL amount described, not per unit.\n\nIf the description mentions quantities (like "2 eggs"), include that in the name. Provide realistic nutrition values based on common food items. This is estimation based on general knowledge, not extraction from nutrition labels.\n\nIf you cannot understand the description or it's not related to food, return this JSON instead:\n{\n  \"error\": true\n}\n\nDo NOT include any markdown, code blocks, or extra text, only the JSON object.`
+            content: `Analyze this food description and estimate nutrition information based on common knowledge. Return ONLY a valid JSON object with the following structure:\n{\n  \"name\": \"food name\",\n  \"calories\": number,\n  \"carbs\": number,\n  \"fats\": number, \n  \"protein\": number\n}\n\nIMPORTANT: All nutrition values (calories, carbs, fats, protein) must be numbers without units.\n\nFood description: ${description}\n\nIMPORTANT: Provide nutrition values for the TOTAL amount described, not per unit.\n\nIf the description mentions quantities (like "2 eggs"), include that in the name. Provide realistic nutrition values based on common food items. This is estimation based on general knowledge, not extraction from nutrition labels.\n\nCRITICAL: If any nutrition value (carbs, fats, protein) is not applicable or would be 0 for the described food, you MUST return 0 for that field. Do NOT leave any nutrition field blank or undefined. This ensures all nutrition fields are properly filled for the user interface.\n\nIf you cannot understand the description or it's not related to food, return this JSON instead:\n{\n  \"error\": true\n}\n\nDo NOT include any markdown, code blocks, or extra text, only the JSON object.`
           }
         ],
         max_tokens: 500,

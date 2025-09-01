@@ -10,8 +10,8 @@ const config = {
   // CORS configuration
   cors: {
     origin: process.env.CORS_ORIGIN || (process.env.NODE_ENV === 'production' 
-      ? 'https://my-nutrition-demo-openai-frontend.vercel.app'
-      : 'https://localhost:3000'),
+      ? ['https://nutrica.app', 'https://my-nutrition-demo-openai-frontend.vercel.app']
+      : ['https://localhost:3000', 'http://localhost:3000']),
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: [
       'Content-Type',
@@ -56,13 +56,7 @@ const config = {
   
   // OpenAI configuration
   openai: {
-    apiKey: process.env.OPENAI_API_KEY,
-    // Proxy配置直接读取env，若未设置则为null
-    proxy: process.env.PROXY_HOST && process.env.PROXY_PORT && process.env.PROXY_PROTOCOL ? {
-      host: process.env.PROXY_HOST,
-      port: process.env.PROXY_PORT,
-      protocol: process.env.PROXY_PROTOCOL
-    } : null
+    apiKey: process.env.OPENAI_API_KEY
   },
   
   // File upload configuration

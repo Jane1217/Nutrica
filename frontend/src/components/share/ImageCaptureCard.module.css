@@ -12,6 +12,10 @@
   width: 48px;
   height: 16px;
   aspect-ratio: 3 / 1;
+  /* PNG图片优化 */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  object-fit: contain;
 }
 
 .puzzleWrapper {

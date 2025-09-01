@@ -97,6 +97,44 @@ export const formatFoodTimeSmart = (timeStr) => {
   if (isYesterday) return `Yesterday, ${timeStr12}`;
   const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][d.getMonth()];
   return `${month} ${d.getDate()}, ${timeStr12}`;
+};
+
+/**
+ * 样式管理工具函数
+ */
+
+// 合并样式对象
+export const mergeStyles = (...styleObjects) => {
+  return Object.assign({}, ...styleObjects);
+};
+
+// 条件样式
+export const conditionalStyle = (condition, trueStyle, falseStyle = {}) => {
+  return condition ? trueStyle : falseStyle;
+};
+
+// 创建响应式样式
+export const createResponsiveStyle = (baseStyle, breakpoints) => {
+  const responsiveStyle = { ...baseStyle };
+  
+  Object.keys(breakpoints).forEach(breakpoint => {
+    const mediaQuery = breakpoints[breakpoint];
+    if (window.innerWidth <= mediaQuery) {
+      Object.assign(responsiveStyle, breakpoints[breakpoint].styles);
+    }
+  });
+  
+  return responsiveStyle;
+};
+
+// 获取CSS变量值
+export const getCSSVariable = (variableName) => {
+  return getComputedStyle(document.documentElement).getPropertyValue(variableName);
+};
+
+// 设置CSS变量值
+export const setCSSVariable = (variableName, value) => {
+  document.documentElement.style.setProperty(variableName, value);
 }; 
 
 // 日期格式化

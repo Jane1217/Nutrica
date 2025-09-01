@@ -108,27 +108,6 @@
   flex-shrink: 0;
 }
 
-.addBtn {
-  width: 48px;
-  height: 48px;
-  border-radius: 24px;
-  border: 1px solid #22221B;
-  background: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2.5rem;
-  color: #22221B;
-  cursor: pointer;
-  transition: background 0.15s;
-  box-shadow: 0 2px 0 0 #22221B0A;
-  flex-shrink: 0;
-}
-
-.addBtn:hover {
-  background: #f3f3ec;
-}
-
 .addIcon {
   font-size: 2.5rem;
   line-height: 1;
@@ -159,8 +138,19 @@
   z-index: 2;
   background: transparent;
 }
-.addBtnAbsolute:hover {
-  background: #f3f3ec;
+
+.addIconDisplay {
+  width: 48px;
+  height: 48px;
+  border-radius: 24px;
+  border: 1px solid #22221B;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: #22221B;
+  flex-shrink: 0;
 }
 
 .selected {
