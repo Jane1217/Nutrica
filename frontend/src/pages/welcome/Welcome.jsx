@@ -36,15 +36,16 @@ export default function Welcome() {
           <span className="h4">Log in</span>
         </button>
       </div>
+
       {/* Hero Section - Tablet/Desktop Layout */}
       <div className={styles.heroSection}>
         <div className={styles.heroContent}>
-          <div className={styles.heroText}>
-            <div className={styles.value}>
+          <div className={styles.heroTextModule}>
+            <div className={styles.heroTitle}>
               Collect your nutrition puzzles
             </div>
             <div className={styles.text}>
-          Capture, savor, and share your everyday nutrition journey. Create a free account to celebrate your healthy eating moments.
+              Capture, savor, and share your everyday nutrition journey. Create a free account to celebrate your healthy eating moments.
             </div>
             <button
               className={styles.ctaButton}
@@ -62,6 +63,7 @@ export default function Welcome() {
           </div>
         </div>
       </div>
+
       {/* How it works Section - Tablet/Desktop Layout */}
       <div className={styles.howItWorksSection}>
         <div 
@@ -75,8 +77,8 @@ export default function Welcome() {
           How it works
         </div>
         <div className={styles.howItWorksGrid}>
-          {/* Frame 191 */}
-          <div className={styles.frame191}>
+          {/* hiw 1 */}
+          <div className={styles.hiw1}>
             <div className={styles.leftContent}>
               <div className={styles.iconContainer}>
                 <img src={icons.collectionsIcon} alt="Collections icon" />
@@ -106,8 +108,8 @@ export default function Welcome() {
             </div>
           </div>
           
-          {/* Frame 190 */}
-          <div className={styles.frame190}>
+          {/* hiw 2 */}
+          <div className={styles.hiw2}>
             <div className={styles.leftContent}>
               <div className={styles.iconContainer}>
                 <img src={icons.cameraIcon} alt="Camera icon" />
@@ -141,8 +143,8 @@ export default function Welcome() {
             </div>
           </div>
           
-          {/* Frame 192 */}
-          <div className={styles.frame192}>
+          {/* hiw 3 */}
+          <div className={styles.hiw3}>
             <div className={styles.leftContent}>
               <div className={styles.iconContainer}>
                 <img src={icons.imagePixel} alt="Image pixel icon" />
@@ -176,39 +178,43 @@ export default function Welcome() {
           </div>
         </div>
       </div>
-      {/* Frame 193 */}
-      <div className={styles.frame193}>
-        <div className={styles.leftContent}>
-          <div className={styles.frame193Icon}>
-            <img src={icons.trophy} alt="Trophy icon" />
-          </div>
-          <div className={styles.textContent}>
-            <div 
-              className="h2"
-              style={{
-                color: '#F3F3EC'
-              }}
-            >
-              Celebrate and share your nutrition achievement
+
+      {/* hiw 4 */}
+      <div className={styles.frame193Wrapper}>
+        <div className={styles.frame193}>
+          <div className={styles.leftContent}>
+            <div className={styles.frame193Icon}>
+              <img src={icons.trophy} alt="Trophy icon" />
             </div>
-            <div 
-              className="body1"
-              style={{
-                color: '#F3F3EC'
-              }}
-            >
-              After you meet your daily nutrition goal, the puzzle will be added to your collection to cheer your achievement, and available to share with others to celebrate and inspire healthy habits and mindful eating.
+            <div className={styles.textContent}>
+              <div 
+                className="h2"
+                style={{
+                  color: '#F3F3EC'
+                }}
+              >
+                Celebrate and share your nutrition achievement
+              </div>
+              <div 
+                className="body1"
+                style={{
+                  color: '#F3F3EC'
+                }}
+              >
+                After you meet your daily nutrition goal, the puzzle will be added to your collection to cheer your achievement, and available to share with others to celebrate and inspire healthy habits and mindful eating.
+              </div>
             </div>
           </div>
-        </div>
-        <div className={styles.frame193ImageContainer}>
-          <img 
-            src={icons.group170} 
-            alt="Group 170" 
-            className={styles.frame193Image}
-          />
+          <div className={styles.frame193ImageContainer}>
+            <img 
+              src={icons.group170} 
+              alt="Group 170" 
+              className={styles.frame193Image}
+            />
+          </div>
         </div>
       </div>
+
       {/* Frame 194 */}
       <div className={styles.frame194}>
         <div className={styles.frame194Content}>
@@ -230,8 +236,10 @@ export default function Welcome() {
           </button>
         </div>
       </div>
+
       {/* Footer Component */}
       <Footer />
+
       {/* 登录弹窗 */}
       <LogIn
         open={showLoginModal}
@@ -246,6 +254,7 @@ export default function Welcome() {
           setShowForgotPasswordModal(true);
         }}
       />
+
       {/* 注册弹窗 */}
       <SignUp
         open={showSignUpModal}
@@ -256,6 +265,7 @@ export default function Welcome() {
           setShowLoginModal(true);
         }}
       />
+
       {/* 忘记密码弹窗 */}
       <ForgotPassword
         open={showForgotPasswordModal}
@@ -265,6 +275,7 @@ export default function Welcome() {
           setShowLoginModal(true);
         }}
       />
+
     </div>
   );
 } 

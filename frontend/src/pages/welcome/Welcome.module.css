@@ -72,7 +72,7 @@
   gap: 36px;
 }
 
-.heroText {
+.heroTextModule {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -93,7 +93,7 @@
   object-fit: contain;
 }
 
-.value {
+.heroTitle {
   color: var(--Neutral-Primary-Text, #22221B);
   text-align: center;
   font-family: Kanit;
@@ -154,9 +154,9 @@
 /* ========================================
    6. Frame 样式 (移动端)
    ======================================== */
-.frame191,
-.frame190,
-.frame192,
+.hiw1,
+.hiw2,
+.hiw3,
 .frame193 {
   display: flex;
   padding: 24px;
@@ -166,17 +166,24 @@
   gap: 16px;
 }
 
-.frame191 {
+.hiw1 {
   background: #FCFCF8;
 }
 
-.frame192 {
+.hiw3 {
   background: #FCFCF8;
 }
 
 .frame193 {
   background: #2A4E14;
   margin-bottom: 0;
+}
+
+.leftContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
 }
 
 /* Frame 内部元素样式 */
@@ -205,6 +212,8 @@
 }
 
 .cardImagesContainer {
+  max-width: 375px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -212,6 +221,8 @@
 }
 
 .frame266 {
+  max-width: 375px;
+  margin: 0 auto;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -292,21 +303,21 @@
   /* Hero Section */
   .heroSection {
     padding: 0 24px;
+    
   }
-  
+
   .heroContent {
     flex-direction: row;
     align-items: center;
-    gap: 64px;
+    gap: 48px;
+    max-width: 1024px;
+    margin: 0 auto;
   }
   
-  .heroText {
+  .heroTextModule {
     flex: 1;
     align-items: flex-start;
     margin: 0;
-    text-align: left;
-    max-width: 45%;
-    min-width: 280px;
   }
   
   .heroImageContainer {
@@ -327,7 +338,7 @@
   }
   
   /* 文字对齐 */
-  .value,
+  .heroTitle,
   .text {
     text-align: left;
   }
@@ -344,69 +355,74 @@
   /* How It Works Grid */
   .howItWorksGrid {
     gap: 48px;
+    padding: 0 24px;
+    margin-bottom: 48px;
   }
   
   /* Frame 布局 */
-  .frame191,
-  .frame190,
-  .frame192,
+  .hiw1,
+  .hiw2,
+  .hiw3,
   .frame193 {
-    padding: 32px;
+    padding: 36px;
     display: flex !important;
     align-items: flex-start;
-    gap: 32px;
+    gap: 64px;
     width: 100%;
     min-height: 200px;
     box-sizing: border-box;
+    max-width: 1024px;
+    margin: 0 auto;
+    border-radius: 36px;
   }
   
-  .frame191 {
+  .hiw1 {
     flex-direction: row !important;
   }
   
-  .frame190 {
+  .hiw2 {
     flex-direction: row-reverse !important;
-  }
-  
-  .frame192 {
-    flex-direction: row !important;
-  }
-  
-  .frame193 {
-    flex-direction: row !important;
-  }
-  
-  /* Frame 背景 */
-  .frame191,
-  .frame192 {
     background: #FCFCF8;
   }
   
+  .hiw3 {
+    flex-direction: row !important;
+  }
+  
+
+  .frame193 {
+    flex-direction: row !important;
+    gap: 0px;
+  }
+
+  .frame193Wrapper {
+    width: 100%;
+    background: #2A4E14;
+    margin-bottom: 48px;
+  }
+
   /* 图标容器 */
-  .frame191 .iconContainer,
-  .frame190 .iconContainer,
-  .frame192 .iconContainer,
+  .hiw1 .iconContainer,
+  .hiw2 .iconContainer,
+  .hiw3 .iconContainer,
   .frame193 .frame193Icon {
-    margin-bottom: 0;
     flex-shrink: 0 !important;
   }
   
   /* 内容容器 */
-  .frame191 .leftContent,
-  .frame190 .leftContent,
-  .frame192 .leftContent,
+  .hiw1 .leftContent,
+  .hiw2 .leftContent,
+  .hiw3 .leftContent,
   .frame193 .leftContent {
     display: flex !important;
     flex-direction: column !important;
     gap: 16px;
-    flex: 1 !important;
-    max-width: 50% !important;
-    min-width: 0;
+    flex: 1;
   }
   
-  .frame191 .textContent,
-  .frame190 .textContent,
-  .frame192 .textContent,
+  .hiw1 .textContent,
+  .hiw2 .textContent,
+  .hiw3 .textContent,
   .frame193 .textContent {
     display: flex !important;
     flex-direction: column !important;
@@ -415,134 +431,53 @@
   }
   
   /* 图片容器 */
-  .frame191 .cardImagesContainer,
-  .frame190 .frame266,
-  .frame192 .frame266,
-  .frame193 .frame193ImageContainer {
-    flex-shrink: 0 !important;
-    max-width: 50% !important;
-    min-width: 300px;
-    min-height: 136px;
-    flex: 1;
+  .hiw1 .cardImagesContainer,
+  .hiw2 .frame266,
+  .hiw3 .frame266{
+    flex: 0 0 40%;
+    max-width: 360px;
     display: flex;
-    align-items: center;
   }
+
+  .frame193 .frame193ImageContainer {
+    flex: 0 0 40%;
+    max-width: 480px;
+    display: flex;
+  }
+
+
   
   /* 图片样式 */
-  .frame191 .frame266Image,
-  .frame190 .frame266Image,
-  .frame192 .frame266Image,
+  .hiw1 .frame266Image,
+  .hiw2 .frame266Image,
+  .hiw3 .frame266Image,
   .frame193 .frame193Image {
     width: 100%;
-    height: auto;
-    min-height: 136px;
-    flex: 1;
-    min-width: 0;
-    object-fit: contain;
   }
   
   /* 特殊容器处理 */
-  .frame191 .cardImagesContainer {
-    width: 100%;
-  }
-  
-  .frame190 .frame266,
-  .frame192 .frame266 {
+  .hiw2 .frame266,
+  .hiw3 .frame266 {
+    width: 327px;
     flex-direction: row;
     gap: 24px;
   }
   
-  .frame190 .frame266Image,
-  .frame192 .frame266Image {
-    max-width: none;
-  }
-  
+  .hiw2 .frame266Image,
   .cardImagesContainer {
     justify-content: flex-start;
   }
   
   /* Frame 194 */
   .frame194 {
-    width: 60% !important;
-    max-width: 800px !important;
-    min-width: 480px !important;
+    width: 60%;
+    max-width: 640px;
+    min-width: 480px;
     padding: 24px 32px;
+    margin: -120px auto 64px auto;
   }
   
   .frame194Content {
     text-align: center;
   }
 }
-
-/* ========================================
-   10. 响应式样式 - 超大屏幕 (>=1400px)
-   ======================================== */
-@media screen and (min-width: 1400px) {
-  .welcomeRoot {
-    max-width: 1400px;
-  }
-  
-  .heroSection {
-    padding: 0 48px;
-  }
-  
-  .heroContent {
-    gap: 80px;
-  }
-  
-  .heroText,
-  .heroImageContainer {
-    max-width: 40%;
-  }
-  
-  .heroImageContainer {
-    justify-content: flex-end;
-  }
-  
-  .heroImage {
-    width: 100%;
-    height: auto;
-    min-height: 136px;
-    max-width: none;
-    object-fit: contain;
-  }
-  
-  .frame191,
-  .frame192 {
-    padding: 32px;
-  }
-  
-  .frame194 {
-    padding: 24px 48px;
-  }
-}
-
-/* ========================================
-   11. 响应式样式 - 小屏幕 (<=767px)
-   ======================================== */
-@media screen and (max-width: 767px) {
-  .frame194 {
-    width: calc(100vw - 32px);
-    margin: -80px auto 0 auto;
-    max-height: 200px;
-    overflow: hidden;
-    padding: 16px;
-  }
-  
-  .frame194 .frame194Content {
-    gap: 16px;
-  }
-  
-  .frame194 .h2 {
-    font-size: 18px;
-    line-height: 1.3;
-    margin: 0;
-  }
-  
-  .frame194 .ctaButton {
-    padding: 12px 24px;
-    font-size: 14px;
-    width: auto;
-    min-width: 120px;
-  }
-} 
