@@ -6,6 +6,134 @@ import {
   isSynthesisPuzzle
 } from '../puzzles';
 
+/**
+ * 通用模态框状态管理
+ */
+export const createModalState = (initialState = {}) => {
+  const state = { ...initialState };
+  
+  const actions = {
+    open: (modalName) => {
+      // 关闭所有其他模态框
+      Object.keys(state).forEach(key => {
+        if (key.includes('Modal') || key.includes('show')) {
+          state[key] = false;
+        }
+      });
+      // 打开指定模态框
+      if (state[`show${modalName}Modal`] !== undefined) {
+        state[`show${modalName}Modal`] = true;
+      }
+    },
+    
+    close: (modalName) => {
+      if (state[`show${modalName}Modal`] !== undefined) {
+        state[`show${modalName}Modal`] = false;
+      }
+    },
+    
+    closeAll: () => {
+      Object.keys(state).forEach(key => {
+        if (key.includes('Modal') || key.includes('show')) {
+          state[key] = false;
+        }
+      });
+    },
+    
+    toggle: (modalName) => {
+      if (state[`show${modalName}Modal`] !== undefined) {
+        state[`show${modalName}Modal`] = !state[`show${modalName}Modal`];
+      }
+    }
+  };
+  
+  return { state, actions };
+};
+
+/**
+ * 获取模态框切换处理函数
+ */
+export const getModalHandlers = (setters) => {
+  const handlers = {};
+  
+  Object.keys(setters).forEach(key => {
+    if (key.startsWith('setShow') && key.endsWith('Modal')) {
+      const modalName = key.replace('setShow', '').replace('Modal', '');
+      handlers[`on${modalName}Close`] = () => setters[key](false);
+      handlers[`on${modalName}Open`] = () => setters[key](true);
+    }
+  });
+  
+  return handlers;
+};
+
+/**
+ * Toast管理工具函数
+ */
+export const createToastState = () => {
+  const state = {
+    showToast: false,
+    toastMessage: '',
+    toastType: 'info',
+    toastDuration: 3000
+  };
+  
+  const actions = {
+    showToast: (message, type = 'info', duration = 3000) => {
+      state.showToast = true;
+      state.toastMessage = message;
+      state.toastType = type;
+      state.toastDuration = duration;
+    },
+    
+    hideToast: () => {
+      state.showToast = false;
+    },
+    
+    showSuccessToast: (message, duration = 3000) => {
+      actions.showToast(message, 'success', duration);
+    },
+    
+    showErrorToast: (message, duration = 3000) => {
+      actions.showToast(message, 'error', duration);
+    },
+    
+    showInfoToast: (message, duration = 3000) => {
+      actions.showToast(message, 'info', duration);
+    }
+  };
+  
+  return { state, actions };
+};
+
+/**
+ * 获取Toast处理函数
+ */
+export const getToastHandlers = (setShowToast, setToastMessage) => {
+  return {
+    showToast: (message, type = 'info', duration = 3000) => {
+      setToastMessage(message);
+      setShowToast(true);
+      // 自动隐藏
+      setTimeout(() => setShowToast(false), duration);
+    },
+    
+    hideToast: () => setShowToast(false),
+    
+    showSuccessToast: (message, duration = 3000) => {
+      setToastMessage(message);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), duration);
+    },
+    
+    showErrorToast: (message, duration = 3000) => {
+      setToastMessage(message);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), duration);
+    }
+  };
+};
+
 // 默认营养素标签
 export const NUTRITION_LABELS = [
   { key: 'carbs', label: 'Carbs', nutrient: 1 },

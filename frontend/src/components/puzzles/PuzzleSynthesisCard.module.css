@@ -11,7 +11,8 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 12px;
-  align-self: stretch;
+  width: 100%; /* 使用width而不是align-self: stretch */
+  max-width: 100%; /* 确保不超过容器宽度 */
   border-radius: 24px;
   border: 1px solid var(--Neutral-Primary-Text, #22221B);
   background: #A9C971;
@@ -29,10 +30,10 @@
 }
 .synthesisTitle {
   color: var(--Neutral-Primary-Text, #22221B);
-  align-self: stretch;
+  width: 100%; /* 使用width而不是align-self: stretch */
 }
 .synthesisDesc {
-  align-self: stretch;
+  width: 100%; /* 使用width而不是align-self: stretch */
   color: var(--Neutral-Primary-Text, #22221B);
   font-family: Kanit, sans-serif;
   font-size: 14px;

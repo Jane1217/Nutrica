@@ -23,13 +23,37 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
     if (aiData) {
       setForm({
         name: aiData.name || '',
-        calories: aiData.calories || '',
-        carbs: aiData.carbs || '',
-        fats: aiData.fats || '',
-        protein: aiData.protein || '',
+        calories: aiData.calories ?? '',
+        carbs: aiData.carbs ?? '',
+        fats: aiData.fats ?? '',
+        protein: aiData.protein ?? '',
       });
     }
   }, [aiData]);
+
+  // 当modal打开时，重置所有状态
+  useEffect(() => {
+    if (open) {
+      setLoading(false);
+      setSuccess(false);
+      setErrorToast({ show: false, message: '' });
+      // 如果没有AI数据，重置表单
+      if (!aiData) {
+        setForm({
+          name: '',
+          calories: '',
+          carbs: '',
+          fats: '',
+          protein: '',
+        });
+      }
+    } else {
+      // 当modal关闭时，也重置所有状态
+      setLoading(false);
+      setSuccess(false);
+      setErrorToast({ show: false, message: '' });
+    }
+  }, [open, aiData]);
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -40,24 +64,46 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
     // 校验所有输入框不能为空
     const validation = validateFoodForm(form);
     if (!validation.isValid) {
-      setErrorToast({ show: true, message: 'Food description not recognized' });
+      // 使用简洁的错误信息，而不是validateFoodForm返回的详细错误信息
+      setErrorToast({ show: true, message: 'Field cannot be empty' });
       return;
     }
     
     setLoading(true);
+    // 立即清除任何之前的错误提示
     setErrorToast({ show: false, message: '' });
+    
     try {
       const result = await validateAndSaveFood(form, aiData?.emoji || '🍽️', onDataChange);
       
       if (result.success) {
+        // 保存成功后，立即清除所有状态，然后跳转
         setSuccess(true);
-        // 保存成功时不重置loading，让onDataChange处理跳转
+        setLoading(false);
+        setErrorToast({ show: false, message: '' });
+        
+        // 重置表单和AI数据
+        setForm({
+          name: '',
+          calories: '',
+          carbs: '',
+          fats: '',
+          protein: '',
+        });
+        setAiData(null);
+        
+        // 延迟跳转，确保状态更新完成
+        setTimeout(() => {
+          if (onDataChange) {
+            onDataChange();
+          }
+        }, 100);
       } else {
         setErrorToast({ show: true, message: 'Food description not recognized' });
-        setLoading(false); // 只在失败时重置loading
+        setLoading(false);
       }
     } catch (error) {
-      let errorMessage = 'Food description not recognized';
+      let errorMessage = 'Save failed';
       
       // 检查是否是网络错误
       if (error.message && (error.message.includes('fetch') || error.message.includes('network') || error.message.includes('connection'))) {
@@ -65,9 +111,8 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
       }
       
       setErrorToast({ show: true, message: errorMessage });
-      setLoading(false); // 只在失败时重置loading
+      setLoading(false);
     }
-    // 移除finally块，避免在成功时重置loading
   };
 
   const handleErrorToastClose = () => {
@@ -82,7 +127,7 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
             <button className="food-modal-back-btn" onClick={onBack}>
               <img src={icons.arrowLeft} alt="Back" />
             </button>
-            <span className="eat-modal-title">Food</span>
+            <span className="eat-modal-title h2">Food</span>
           </div>
           <button className="eat-modal-close-btn" onClick={onCloseModal}>
             <span className="close-fill">
@@ -101,28 +146,28 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
         <div className="food-modal-divider" style={{marginBottom: 15}} />
         <div className="food-modal-nutrition-list">
           <div className="food-modal-row">
-            <span className="food-modal-row-label h2">Calories</span>
+            <span className="food-modal-row-label h3">Calories</span>
             <div className="food-modal-input-group">
               <input name="calories" value={form.calories} onChange={handleChange} className="food-modal-input h4" />
               <span className="food-modal-unit h4">kcal</span>
             </div>
           </div>
           <div className="food-modal-row">
-            <span className="food-modal-row-label h2">Carbs</span>
+            <span className="food-modal-row-label h3">Carbs</span>
             <div className="food-modal-input-group">
               <input name="carbs" value={form.carbs} onChange={handleChange} className="food-modal-input h4" />
               <span className="food-modal-unit h4">g</span>
             </div>
           </div>
           <div className="food-modal-row">
-            <span className="food-modal-row-label h2">Fats</span>
+            <span className="food-modal-row-label h3">Fats</span>
             <div className="food-modal-input-group">
               <input name="fats" value={form.fats} onChange={handleChange} className="food-modal-input h4" />
               <span className="food-modal-unit h4">g</span>
             </div>
           </div>
           <div className="food-modal-row">
-            <span className="food-modal-row-label h2">Protein</span>
+            <span className="food-modal-row-label h3">Protein</span>
             <div className="food-modal-input-group">
               <input name="protein" value={form.protein} onChange={handleChange} className="food-modal-input h4" />
               <span className="food-modal-unit h4">g</span>
@@ -134,12 +179,15 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
           <button className="food-modal-confirm-btn h5" onClick={handleConfirm} disabled={loading}>{loading ? 'Saving...' : 'Log food'}</button>
         </div>
       </div>
-      <Toast
-        message={errorToast.message}
-        type="error"
-        show={errorToast.show}
-        onClose={handleErrorToastClose}
-      />
+      {/* 只在有错误且不是成功状态时显示错误Toast */}
+      {errorToast.show && !success && (
+        <Toast
+          message={errorToast.message}
+          type="error"
+          show={errorToast.show}
+          onClose={handleErrorToastClose}
+        />
+      )}
     </ModalWrapper>
   );
 } 

@@ -27,7 +27,7 @@ export default function AccountSettings({ userEmail }) {
   const [userInfo, setUserInfo] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState(null);
   const nickname = userInfo?.name || 'Your Name';
-  const [latestCalories, setLatestCalories] = useState(2000);
+  const [latestCalories, setLatestCalories] = useState(0);
 
   // 初始化时立即加载缓存数据
   React.useEffect(() => {
@@ -114,7 +114,7 @@ export default function AccountSettings({ userEmail }) {
   // 查询数据库中当前用户最近一次提交的calories
   const fetchLatestGoal = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return 2000;
+    if (!user) return 0;
     const { data, error } = await supabase
       .from('nutrition_goal')
       .select('calories')
@@ -122,9 +122,9 @@ export default function AccountSettings({ userEmail }) {
       .order('created_at', { ascending: false })
       .limit(1);
     if (error || !data || data.length === 0) {
-      return 2000;
+      return 0;
     }
-    return data[0].calories || 2000;
+    return data[0].calories || 0;
   };
 
   // 打开营养目标弹窗前，先查数据库
@@ -200,10 +200,10 @@ export default function AccountSettings({ userEmail }) {
 
   // 获取要显示的卡路里值：优先使用计算值，其次使用数据库值
   const getDisplayCalories = () => {
-    if (userInfo?.calculatedCalories) {
+    if (userInfo?.calculatedCalories && userInfo.calculatedCalories > 0) {
       return userInfo.calculatedCalories;
     }
-    return latestCalories;
+    return latestCalories && latestCalories > 0 ? latestCalories : 0;
   };
 
   const handleSignOut = async () => {
@@ -310,15 +310,18 @@ export default function AccountSettings({ userEmail }) {
       <div className={styles['account-card-list']}>
         <button className={`${styles['account-card-btn']} body1`} onClick={() => setShowUserInfoModal(true)}>
           Update Nutrition Goal
-          <span>{'>'}</span>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8.58984 16.59L13.1698 12L8.58984 7.41L9.99984 6L15.9998 12L9.99984 18L8.58984 16.59Z" fill="#6A6A61"/>
+          </svg>
         </button>
         <button className={`${styles['account-card-btn']} body1`} onClick={() => setShowChangePasswordModal(true)}>
           Change Password
-          <span>{'>'}</span>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M8.58984 16.59L13.1698 12L8.58984 7.41L9.99984 6L15.9998 12L9.99984 18L8.58984 16.59Z" fill="#6A6A61"/>
+          </svg>
         </button>
         <button className={`${styles['account-card-btn']} body1`} onClick={handleSignOut}>
           Sign Out
-          <span>{'>'}</span>
         </button>
       </div>
       <div className={styles['account-footer-bar']}>
@@ -344,7 +347,7 @@ export default function AccountSettings({ userEmail }) {
           <span className="h5" style={{color: 'var(--Neutral-Primary-Text, #22221B)', textAlign: 'center'}}>
             We&apos;d love to hear your feedback!<br />Contact us at
           </span>
-          <div className={`${styles.accountEmailContact} h5`}>Nutrica.life.app@gmail.com</div>
+          <div className={`${styles.accountEmailContact} h5`}>xangtu@gmail.com</div>
       </div>
       <EatModal
         open={showEatModal}
@@ -369,7 +372,8 @@ export default function AccountSettings({ userEmail }) {
         }}
         onSave={handleSaveCalories}
         name={userInfo?.name || ''}
-        calories={userInfo?.calculatedCalories || latestCalories || 2000}
+        calories={userInfo?.calculatedCalories || latestCalories || 0}
+        isUpdateMode={true}
       />
       <ProfileEditModal 
         open={showProfileEditModal} 

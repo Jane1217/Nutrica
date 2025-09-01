@@ -131,7 +131,7 @@
   font-family: 'Inter', Arial, sans-serif;
   font-size: 18px;
   font-weight: 500;
-  color: #000;
+  color: var(--Neutral-Primary-Text, #22221B);
   cursor: pointer;
   padding-bottom: 8px;
 }
@@ -178,7 +178,7 @@
   max-width: 768px;
   width: 100%;
   margin: 0 auto;
-  padding: 32px 32px;
+  padding: 0;
   box-sizing: border-box;
   background: var(--Brand-Background, #F3F3EC);
 }
@@ -212,9 +212,13 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 8px;
-  padding: 0;
+  padding: 0 0 8px 0;
   margin-top: 0;
   margin-bottom: 24px;
+  background: var(--Brand-Background, #F3F3EC);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .headerRow {
@@ -227,7 +231,7 @@
   box-sizing: border-box;
 }
 
-.closeButton {
+.loginCloseButton {
   display: flex;
   width: 48px;
   height: 48px;
@@ -245,7 +249,30 @@
   margin-top: -4px;
 }
 
-.closeButton:hover {
+.loginCloseButton:hover {
+  background-color: #f5f5f5;
+  border-color: #ccc;
+}
+
+.signupCloseButton {
+  display: flex;
+  width: 48px;
+  height: 48px;
+  padding: 14px;
+  justify-content: center;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid var(--Brand-Outline, #DBE2D0);
+  background: var(--Brand-Background, #F3F3EC);
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  margin-left: auto;
+  margin-right: 0;
+  margin-top: -4px;
+}
+
+.signupCloseButton:hover {
   background-color: #f5f5f5;
   border-color: #ccc;
 }
@@ -255,20 +282,23 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 8px;
-  padding: 0;
+  padding: 0 0 8px 0;
   margin-top: 0;
   margin-bottom: 24px;
   background: var(--Brand-Background, #F3F3EC);
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .signupOverline2 {
   align-self: stretch;
-  color: #000;
+  color: var(--Neutral-Primary-Text, #22221B);
   text-align: left;
 }
 .loginOverline2 {
   align-self: stretch;
-  color: #000;
+  color: var(--Neutral-Primary-Text, #22221B);
   text-align: left;
   white-space: nowrap;
   overflow: hidden;
@@ -285,7 +315,7 @@
   padding: 0 16px;
 }
 .signupHintText {
-  color: var(--Neutral-Black, #000);
+  color: var(--Neutral-Primary-Text, #22221B);
   margin-top: 4px;
 }
 .actionGroup {
@@ -295,6 +325,7 @@
   gap: 24px;
   width: 100%;
   align-self: center;
+  box-sizing: border-box;
 }
 
 .signupActionGroup {
@@ -319,7 +350,7 @@
 
 .signupTerms {
   width: 241px;
-  color: #000;
+  color: var(--Neutral-Primary-Text, #22221B);
   text-align: center;
   margin-top: 0;
 }
@@ -346,9 +377,11 @@
   width: 100%;
   align-self: center;
   margin-top: 24px;
+  padding: 0 32px 32px 32px;
+  box-sizing: border-box;
 }
 .actionModuleText {
-  color: #000;
+  color: var(--Neutral-Primary-Text, #22221B);
   text-align: center;
   margin-top: 24px;
 }
@@ -444,7 +477,19 @@
   background: #FCFCF8;
   padding: 20px 16px;
   font-family: inherit;
-  font-size: 16px;
+  font-size: 16px !important;
+  transition: border-color 0.2s ease;
+  /* 防止移动端自动缩放 */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  transform: scale(1);
+  transform-origin: left top;
+}
+
+.modalInput:focus {
+  outline: none;
+  border: 2px solid var(--Brand-Dark, #2A4E14);
 }
 
 .modalDivider {

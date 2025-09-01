@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import ModalWrapper from "../../../components/common/ModalWrapper";
 import SelectableCard from "../../../components/puzzles/SelectableCard";
+import BottomButton from "../../../components/common/BottomButton";
 import styles from "./PuzzleSelectModal.module.css";
 import { getPuzzleInCollection } from "../../../utils";
 import { getCurrentUser } from "../../../utils";
@@ -87,7 +88,6 @@ export default function PuzzleSelectModal({ open, onClose, onBack, puzzleList, c
                 inCollection={collectionStatus[puzzle.name] || false}
                 onAdd={() => setSelectedIdx(idx)}
                 isSelected={selectedIdx === idx}
-                style={{ cursor: 'pointer' }}
               />
             ))}
           </div>
@@ -95,18 +95,18 @@ export default function PuzzleSelectModal({ open, onClose, onBack, puzzleList, c
         
         {/* 底部按钮 */}
         <div className={styles.bottomContainer}>
-          <button
-            className={styles.selectButton}
+          <BottomButton
             disabled={selectedIdx === null || isLoading}
-            style={{ opacity: (selectedIdx === null || isLoading) ? 0.4 : 1 }}
+            isLoading={isLoading}
+            loadingText="Loading..."
             onClick={() => {
               if (selectedIdx !== null) {
                 onSelect(selectableList[selectedIdx]);
               }
             }}
           >
-            {isLoading ? 'Loading...' : 'Select puzzle'}
-          </button>
+            Select puzzle
+          </BottomButton>
         </div>
       </div>
     </ModalWrapper>

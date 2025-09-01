@@ -34,13 +34,7 @@ export default defineConfig({
     host: '0.0.0.0', // 允许局域网访问
     ...(isLocal && getHttpsConfig() && {
       https: getHttpsConfig()
-    }),
-    proxy: {
-      '/api': {
-        target: 'http://localhost:3001',
-        changeOrigin: true
-      }
-    }
+    })
   },
   build: {
     outDir: 'dist',

@@ -197,8 +197,10 @@
 }
 
 .paletteSegment {
-  width: 100%;
-  min-height: 0;
+  width: 24px;
+  height: 6px;
+  flex-shrink: 0;
+  border-radius: 4px 4px 0 0;
 }
 
 .nutritionValueWrapper {

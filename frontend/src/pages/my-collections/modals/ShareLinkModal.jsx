@@ -25,7 +25,7 @@ export default function ShareLinkModal({ open, onClose, puzzleName = 'carrot', n
     if (window.location.hostname === 'localhost') {
       BASE_URL = 'https://localhost:3000';
     } else {
-      BASE_URL = 'https://my-nutrition-demo-openai-frontend.vercel.app';
+      BASE_URL = 'https://nutrica.app';
     }
   }
   // nickname必须传递真实值

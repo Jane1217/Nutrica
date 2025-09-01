@@ -48,8 +48,8 @@ function getLocalDateString(date) {
 async function saveDailyHomeData(data) {
   if (!data.user_id || !data.date) return;
   
-  // 检查puzzle是否完成
-  const isPuzzleCompleted = data.puzzle_progress && data.puzzle_progress >= 100;
+  // 检查puzzle是否完成 - 修复：使用与checkPuzzleCompletion一致的条件
+  const isPuzzleCompleted = data.puzzle_progress === 1;
   
   const { error } = await supabase
     .from('daily_home_data')
@@ -64,6 +64,7 @@ async function saveDailyHomeData(data) {
   } else {
     // 只有在puzzle真正完成时才检查并添加到collections
     if (isPuzzleCompleted) {
+      console.log(`Puzzle completed, calling monitorPuzzleCompletion for ${data.puzzle_name}`);
       const completionResult = await monitorPuzzleCompletion(data.user_id, data);
       if (completionResult.success) {
         console.log('Puzzle completion monitored successfully');
@@ -94,7 +95,7 @@ export default function Home(props) {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState(null);
-  const [latestCalories, setLatestCalories] = useState(2000);
+  const [latestCalories, setLatestCalories] = useState(0);
   const [userId, setUserId] = useState(null);
   const [foods, setFoods] = useState([]);
   const [foodsPage, setFoodsPage] = useState(1); // 当前页数
@@ -367,10 +368,11 @@ export default function Home(props) {
 
 
   // EatModal 新增/修改后自动刷新foods和营养数据
-  const handleEatModalDataChange = () => {
+  const handleEatModalDataChange = async () => {
+    // 先刷新数据
     setFoodsPage(1);
-    fetchFoods(true);
-    fetchTodayNutritionData(); // 刷新今日营养数据
+    await fetchFoods(true);
+    await fetchTodayNutritionData(); // 刷新今日营养数据
     
     // 关闭EatModal并跳转到home页面
     setShowEatModal(false);
@@ -469,7 +471,8 @@ export default function Home(props) {
 
   // 获取要显示的卡路里值：优先使用计算值，其次使用数据库值
   const getDisplayCaloriesValue = () => {
-    return getDisplayCalories(userInfo, latestCalories);
+    const value = getDisplayCalories(userInfo, latestCalories);
+    return value && value > 0 ? value : 0;
   };
 
   // 新增：处理puzzle选择
@@ -517,7 +520,7 @@ export default function Home(props) {
 
   // 获取当前puzzle的描述
   function getPuzzleDescription(puzzle, progress, userName) {
-    if (!puzzle) return `Hey ${userName || 'User'}! Ready to collect today’s nutrition puzzle?`;
+    if (!puzzle) return `Hey ${userName || 'there'}! Ready to collect today’s nutrition puzzle?`;
     const percent = getPuzzleProgress(puzzle, progress);
     if (!puzzle.descriptions || puzzle.descriptions.length === 0) return puzzle.description;
     if (percent === 0) return puzzle.descriptions[0];
@@ -687,7 +690,7 @@ export default function Home(props) {
             puzzleName={renderData.puzzle_name}
             categoryName={renderData.puzzle_category}
             puzzleText={renderData.daily_text}
-            userName={userInfo?.name || 'User'}
+            userName={userInfo?.name || 'there'}
             hasSelectedPuzzle={!!renderData.puzzle_name}
           />
           <PuzzleContainer
@@ -745,6 +748,7 @@ export default function Home(props) {
             onSave={handleSaveCalories}
             name={userInfo?.name || ''}
             calories={getDisplayCaloriesValue()}
+            isUpdateMode={false}
           />
         <NutritionPuzzlesModal
           open={showPuzzlesModal}
