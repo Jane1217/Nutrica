@@ -56,7 +56,7 @@ export default function DescribeModal({ open, onClose, onBack, onCloseModal, onN
   };
 
   return (
-    <ModalWrapper open={open} onClose={onCloseModal}>
+    <ModalWrapper open={open} onClose={onCloseModal} size="eat">
       <div className="eat-modal food-modal">
         <div className="eat-modal-group1 food-modal-group1">
           <div className="food-modal-title-group">

@@ -7,20 +7,15 @@
   z-index: 999;
 }
 .food-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  position: relative;
   background: #F3F3EC;
   display: flex;
   flex-direction: column;
+  width: 100%;
+  min-height: 0;
   padding: 16px;
-  z-index: 1000;
   box-sizing: border-box;
-  border-radius: 36px 36px 0px 0px;
-  overflow-y: auto;
-  overflow-x: hidden;
+  border-radius: inherit;
   justify-content: flex-start;
 }
 
@@ -163,7 +158,7 @@
 }
 
 .describe-input-container {
-  flex: 1;
+  flex: none;
   display: flex;
   flex-direction: column;
   margin: 20px 0;

@@ -170,7 +170,7 @@ export default function FoodModal({ open, onClose, initialData, userId, onDataCh
   const isSingleServing = String(form.number_of_servings) === '1';
 
   return (
-    <ModalWrapper open={open} onClose={onClose}>
+    <ModalWrapper open={open} onClose={onClose} size="eat">
       <div className="eat-modal food-modal">
         <div className="eat-modal-group1 food-modal-group1">
           <span className="eat-modal-title h2">Food</span>

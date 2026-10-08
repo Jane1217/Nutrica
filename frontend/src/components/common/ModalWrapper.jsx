@@ -29,7 +29,7 @@ export default function ModalWrapper({ open, children, onClose, size = 'default'
     <div className="modal-overlay" onClick={onClose}>
       <div className={`modal-mask${animate ? " open" : ""}`} />
       <div
-        className={`modal-content${animate ? " open" : ""} ${size === 'auth' ? 'modal-content-auth' : ''} ${centered ? 'modal-content-centered' : ''}`}
+        className={`modal-content${animate ? " open" : ""} modal-content-${size} ${centered ? 'modal-content-centered' : ''}`}
         onClick={e => e.stopPropagation()}
       >
         {children}

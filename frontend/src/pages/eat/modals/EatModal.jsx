@@ -117,7 +117,7 @@ export default function EatModal({ onClose, foods = [], foodsLoading = false, on
   return (
     <>
       {/* 主EatModal */}
-      <ModalWrapper open={open && step === 'main'} onClose={onClose}>
+      <ModalWrapper open={open && step === 'main'} onClose={onClose} size="eat">
         <div className="eat-modal">
           <div className="eat-modal-group1">
             <span className="eat-modal-title h2">Eat</span>
