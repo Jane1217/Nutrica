@@ -39,16 +39,15 @@ export default function SignUp({ open, onClose, onAuth, onSwitchToLogin }) {
     }
     
     try {
-      const { data: emailExists, error: rpcError } = await supabase.rpc('check_email_exists', {
-        email_to_check: email
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          // Keep confirmation links on the active official deployment rather
+          // than relying on a stale Supabase Site URL.
+          emailRedirectTo: window.location.origin
+        }
       });
-      if (rpcError) {
-        console.error('RPC function error:', rpcError);
-      } else if (emailExists) {
-        setEmailError('An account with this email already exists.');
-        return;
-      }
-      const { data, error } = await supabase.auth.signUp({ email, password });
       if (error) {
         setError(error.message);
       } else {
