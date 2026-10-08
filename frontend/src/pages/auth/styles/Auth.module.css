@@ -712,6 +712,26 @@
   border: 1px solid #b8d9ac;
 }
 
+.signupConfirmation {
+  width: 100%;
+}
+
+.resendConfirmationButton {
+  display: block;
+  margin: 12px auto 0;
+  border: 0;
+  background: transparent;
+  color: var(--Brand-Dark, #245617);
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.resendConfirmationButton:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
 .modalActions {
   display: flex;
   gap: 12px;

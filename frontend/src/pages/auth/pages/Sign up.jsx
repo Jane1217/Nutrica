@@ -63,6 +63,29 @@ export default function SignUp({ open, onClose, onAuth, onSwitchToLogin }) {
     }
   };
 
+  const handleResendConfirmation = async () => {
+    if (!email) return;
+
+    setError('');
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+        options: { emailRedirectTo: window.location.origin }
+      });
+      if (error) {
+        setError(error.message);
+      } else {
+        setSuccess('A new confirmation email has been sent. Please check your inbox and spam folder.');
+      }
+    } catch {
+      setError('We could not resend the confirmation email. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <ModalWrapper open={open} onClose={onClose} size="auth">
       <main className={styles.signupMainContent}>
@@ -92,7 +115,19 @@ export default function SignUp({ open, onClose, onAuth, onSwitchToLogin }) {
           <div className={`${styles.signupHintText} body2`}>Password must have at least 8 characters.</div>
         </div>
         {error && <p className={styles.errorMessage} role="alert">{error}</p>}
-        {success && <p className={styles.successMessage} role="status">{success}</p>}
+        {success && (
+          <div className={styles.signupConfirmation} role="status">
+            <p className={styles.successMessage}>{success}</p>
+            <button
+              type="button"
+              className={`${styles.resendConfirmationButton} h5`}
+              onClick={handleResendConfirmation}
+              disabled={isLoading}
+            >
+              Didn&apos;t receive it? Resend confirmation email
+            </button>
+          </div>
+        )}
         <div className={`${styles.actionGroup} ${styles.signupActionGroup}`}>
           <BottomButton
             onClick={e => { e.preventDefault(); handleSignup(e); }}
