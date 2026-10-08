@@ -24,31 +24,15 @@ export default function EnterValueModal({ open, onClose, onBack, onCloseModal, u
     setForm(f => ({ ...f, [name]: value }));
   };
 
-  const validateInput = (name, value) => {
-    if (!value.trim()) {
-      return 'Field cannot be empty';
-    }
-    if (['calories', 'carbs', 'fats', 'protein'].includes(name)) {
-      if (isNaN(Number(value)) || Number(value) < 0) {
-        return 'Must be a valid number';
-      }
-    }
-    return null;
-  };
-
   const handleConfirm = async () => {
     // 清除之前的错误
     setError('');
     setErrorToast({ show: false, message: '' });
 
-    // 验证所有字段
-    const fields = ['name', 'calories', 'carbs', 'fats', 'protein'];
-    for (const field of fields) {
-      const validationError = validateInput(field, form[field]);
-      if (validationError) {
-        setErrorToast({ show: true, message: validationError });
-        return;
-      }
+    const validation = validateFoodForm(form);
+    if (!validation.isValid) {
+      setErrorToast({ show: true, message: validation.message });
+      return;
     }
     
     setLoading(true);

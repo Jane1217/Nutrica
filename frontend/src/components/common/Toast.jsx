@@ -42,9 +42,13 @@ export default function Toast({ message, type = 'error', show, onClose, duration
   };
 
   return (
-    <div className={`${styles.toast} ${styles[type]} ${isVisible ? styles.show : ''}`}>
+    <div
+      className={`${styles.toast} ${styles[type]} ${isVisible ? styles.show : ''}`}
+      role={type === 'error' ? 'alert' : 'status'}
+      aria-live={type === 'error' ? 'assertive' : 'polite'}
+    >
       {renderIcon()}
       <span className={styles.toastText}>{message}</span>
     </div>
   );
-} 
+}

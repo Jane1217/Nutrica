@@ -1,18 +1,16 @@
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+  inset: 0;
+  width: auto;
+  height: 100dvh;
   z-index: 4000;
 }
 
 .modal-mask {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+  inset: 0;
+  width: auto;
+  height: 100dvh;
   background: var(--Neutral-Primary-Text, #22221B);
   z-index: 4001;
   opacity: 0;

@@ -65,7 +65,7 @@ export default function App() {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        height: '100vh',
+        minHeight: '100dvh',
         fontSize: '16px',
         color: '#666'
       }}>
@@ -177,7 +177,7 @@ function PageLoading() {
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
-      minHeight: '100vh',
+      minHeight: '100dvh',
       fontSize: '16px',
       color: '#666'
     }}>

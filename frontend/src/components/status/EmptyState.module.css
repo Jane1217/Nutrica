@@ -1,5 +1,5 @@
 .emptyPage {
-  min-height: 100vh;
+  min-height: 100dvh;
   background: var(--Neutral-Background, #F3F3EC);
   display: flex;
   flex-direction: column;
@@ -41,4 +41,4 @@
   color: var(--Neutral-Secondary-Text, #666);
   margin: 0;
   line-height: 1.5;
-} 
+}

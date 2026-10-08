@@ -4,26 +4,31 @@
 
 // 验证食物表单
 export const validateFoodForm = (form) => {
-  const requiredFields = ['name'];
-  const missingFields = requiredFields.filter(field => !form[field]);
-  
-  if (missingFields.length > 0) {
-    return { isValid: false, message: `Missing required fields: ${missingFields.join(', ')}` };
+  const name = typeof form?.name === 'string' ? form.name.trim() : '';
+  if (!name) {
+    return { isValid: false, message: 'Food name is required' };
   }
-  
-  // 检查营养数据
+  if (name.length > 120) {
+    return { isValid: false, message: 'Food name must be 120 characters or fewer' };
+  }
+
   const nutritionFields = ['calories', 'carbs', 'fats', 'protein'];
-  const missingNutrition = nutritionFields.filter(field => 
-    form[field] === '' || form[field] === null || form[field] === undefined
-  );
-  
-  if (missingNutrition.length > 0) {
-    return { isValid: false, message: `Missing nutrition data: ${missingNutrition.join(', ')}` };
+  for (const field of nutritionFields) {
+    const rawValue = form?.[field];
+    if (rawValue === '' || rawValue === null || rawValue === undefined) {
+      return { isValid: false, message: `${field} is required` };
+    }
+    const value = Number(rawValue);
+    if (!Number.isFinite(value) || value < 0 || value > 100000) {
+      return { isValid: false, message: `${field} must be a number between 0 and 100000` };
+    }
   }
-  
-  // 如果有number_of_servings字段，验证它
-  if (form.hasOwnProperty('number_of_servings') && form.number_of_servings <= 0) {
-    return { isValid: false, message: 'Number of servings must be greater than 0' };
+
+  if (Object.prototype.hasOwnProperty.call(form, 'number_of_servings')) {
+    const servings = Number(form.number_of_servings);
+    if (!Number.isInteger(servings) || servings < 1 || servings > 100) {
+      return { isValid: false, message: 'Number of servings must be a whole number between 1 and 100' };
+    }
   }
   
   return { isValid: true, message: '' };
@@ -72,4 +77,4 @@ export const validateForm = (form, validationRules) => {
   
   const isValid = Object.keys(errors).length === 0;
   return { isValid, errors };
-}; 
+};

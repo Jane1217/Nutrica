@@ -42,6 +42,40 @@ const cleanNutritionData = (nutrition) => {
   };
 };
 
+const validateFoodPayload = ({ name, nutrition, number_of_servings, time, emoji }) => {
+  const normalizedName = typeof name === 'string' ? name.trim() : '';
+  if (!normalizedName) {
+    throw new Error('Food name is required');
+  }
+  if (normalizedName.length > 120) {
+    throw new Error('Food name must be 120 characters or fewer');
+  }
+
+  const servings = number_of_servings === undefined || number_of_servings === null
+    ? 1
+    : Number(number_of_servings);
+  if (!Number.isInteger(servings) || servings < 1 || servings > 100) {
+    throw new Error('Number of servings must be a whole number between 1 and 100');
+  }
+
+  const date = time === undefined || time === null || time === '' ? new Date() : new Date(time);
+  if (Number.isNaN(date.getTime())) {
+    throw new Error('Time must be a valid date');
+  }
+
+  const normalizedEmoji = typeof emoji === 'string' && emoji.trim()
+    ? Array.from(emoji.trim()).slice(0, 16).join('')
+    : '🍽️';
+
+  return {
+    name: normalizedName,
+    nutrition: cleanNutritionData(nutrition),
+    number_of_servings: servings,
+    time: date.toISOString(),
+    emoji: normalizedEmoji
+  };
+};
+
 // 验证文件类型
 const validateFileType = (file, allowedTypes) => {
   if (!allowedTypes.includes(file.mimetype)) {
@@ -82,6 +116,7 @@ module.exports = {
   validateRequiredFields,
   validateNutritionData,
   cleanNutritionData,
+  validateFoodPayload,
   validateFileType,
   validateFileSize,
   validateImageSignature

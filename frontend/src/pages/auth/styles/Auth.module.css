@@ -7,7 +7,7 @@
   max-width: 640px;
   margin: 0 auto;
   padding: 16px 16px 0 16px;
-  min-height: calc(100vh - 40px);
+  min-height: calc(100dvh - 40px);
   background: #F3F3EC;
   box-sizing: border-box;
   position: relative;

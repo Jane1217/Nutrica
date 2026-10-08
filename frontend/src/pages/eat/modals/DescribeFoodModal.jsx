@@ -64,8 +64,7 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
     // 校验所有输入框不能为空
     const validation = validateFoodForm(form);
     if (!validation.isValid) {
-      // 使用简洁的错误信息，而不是validateFoodForm返回的详细错误信息
-      setErrorToast({ show: true, message: 'Field cannot be empty' });
+      setErrorToast({ show: true, message: validation.message });
       return;
     }
     

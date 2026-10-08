@@ -3,7 +3,7 @@
   top: 0;
   left: 0;
   width: 100vw;
-  height: 100vh;
+  height: 100dvh;
   background: rgba(0, 0, 0, 0.4);
   z-index: 999;
   opacity: 0;
@@ -18,7 +18,7 @@
   flex-shrink: 0;
   background: #F3F3EC;
   width: 50vw;
-  height: 100vh;
+  height: 100dvh;
   position: fixed;
   top: 0;
   left: 0;
@@ -72,4 +72,4 @@
   display: flex;
   align-items: center;
   justify-content: center;
-} 
+}

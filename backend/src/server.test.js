@@ -7,7 +7,7 @@ process.env.CORS_ORIGIN = 'https://nutrica.fit';
 
 const request = require('supertest');
 const app = require('./server');
-const { cleanNutritionData } = require('./utils/validation');
+const { cleanNutritionData, validateFoodPayload } = require('./utils/validation');
 
 describe('public API safeguards', () => {
   test('health endpoint is publicly available with the expected CORS origin', async () => {
@@ -57,5 +57,32 @@ describe('nutrition validation', () => {
     [null]
   ])('rejects unsafe nutrition data: %p', (nutrition) => {
     expect(() => cleanNutritionData(nutrition)).toThrow();
+  });
+});
+
+describe('food payload validation', () => {
+  test('normalizes a complete food record before privileged persistence', () => {
+    expect(validateFoodPayload({
+      name: '  oatmeal  ',
+      nutrition: { calories: '300', carbs: 52, fats: 5, protein: 8 },
+      number_of_servings: '2',
+      time: '2026-10-08T12:00:00.000Z',
+      emoji: '🥣'
+    })).toEqual({
+      name: 'oatmeal',
+      nutrition: { calories: 300, carbs: 52, fats: 5, protein: 8 },
+      number_of_servings: 2,
+      time: '2026-10-08T12:00:00.000Z',
+      emoji: '🥣'
+    });
+  });
+
+  test.each([
+    { name: ' ', nutrition: {} },
+    { name: 'oatmeal', nutrition: {}, number_of_servings: 0 },
+    { name: 'oatmeal', nutrition: {}, number_of_servings: 1.5 },
+    { name: 'oatmeal', nutrition: {}, time: 'not-a-date' }
+  ])('rejects malformed privileged food payloads: %p', (payload) => {
+    expect(() => validateFoodPayload(payload)).toThrow();
   });
 });

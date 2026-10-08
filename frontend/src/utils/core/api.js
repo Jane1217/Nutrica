@@ -50,14 +50,27 @@ export const apiRequest = async (endpoint, options = {}) => {
 
   try {
     const response = await fetch(url, config);
+    const contentType = response.headers.get('content-type') || '';
+    const payload = contentType.includes('application/json')
+      ? await response.json()
+      : null;
 
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`HTTP ${response.status}: ${errorText}`);
+      throw new Error(
+        payload?.error?.message
+        || payload?.message
+        || `Request failed (${response.status})`
+      );
     }
 
-    const data = await response.json();
-    return data;
+    if (!payload) {
+      throw new Error('The server returned an invalid response');
+    }
+    if (payload.success === false) {
+      throw new Error(payload.error?.message || payload.error || 'Request failed');
+    }
+
+    return payload;
   } catch (error) {
     // 静默处理所有错误，不显示在控制台
     throw error;

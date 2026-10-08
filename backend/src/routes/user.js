@@ -81,7 +81,9 @@ router.delete('/account', authenticateUser, async (req, res) => {
       'food',
       'user_collections', 
       'daily_home_data',
-      'nutrition_goal'
+      'nutrition_goal',
+      'user_camera_permission',
+      'user_congratulations_shown'
     ];
     
     for (const table of tablesToDelete) {
@@ -145,4 +147,4 @@ router.delete('/account', authenticateUser, async (req, res) => {
   }
 });
 
-module.exports = router; 
+module.exports = router;
