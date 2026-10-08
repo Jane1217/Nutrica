@@ -10,10 +10,9 @@ const { performanceMonitor } = require('./middleware/performance');
 
 const app = express();
 
-
-
 // Security middleware
 app.use(helmet());
+app.disable('x-powered-by');
 
 // Compression middleware (gzip)
 if (config.api.compression) {
@@ -36,6 +35,17 @@ app.use(logger);
 // Rate limiting middleware
 const limiter = rateLimit(config.api.rateLimit);
 app.use(limiter);
+
+// Used by the hosting provider and deployment checks.  This deliberately does
+// not depend on Supabase or OpenAI so a cold start can be diagnosed separately
+// from an upstream provider outage.
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    success: true,
+    status: 'ok',
+    service: 'nutrica-api'
+  });
+});
 
 // API routes
 const routes = require('./routes');

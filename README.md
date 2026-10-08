@@ -56,7 +56,7 @@ Nutrica is a modern, full-stack web application that helps users track their dai
 
 ### Infrastructure
 - **Vercel** - Frontend hosting
-- **Railway** - Backend hosting
+- **Vercel or Railway** - Backend hosting
 - **Supabase** - Database and auth service
 
 ## 📁 Project Structure
@@ -141,6 +141,36 @@ A gamification feature that encourages consistent nutrition tracking:
 - Date-based navigation to view historical data
 - Visual indicators for goal progress
 - Automatic aggregation of multiple food entries
+
+## 🚢 Deployment and domain recovery
+
+The frontend and backend are deployed as two independent services. This keeps
+the OpenAI and Supabase service-role keys on the server and makes it possible to
+restore the product under a temporary Vercel URL before a custom domain is
+available.
+
+1. Create a **backend** Vercel project with `backend` as its Root Directory.
+   Add the values from `backend/.env.example` in Vercel's Production environment.
+   Set `CORS_ORIGIN` to a comma-separated list containing the temporary frontend
+   URL and, after recovery, `https://nutrica.app` and
+   `https://www.nutrica.app`.
+2. Deploy it and verify `https://<backend-url>/api/health`. A healthy deployment
+   returns `{ "success": true, "status": "ok" }`.
+3. Create a **frontend** Vercel project with `frontend` as its Root Directory.
+   Add the values from `frontend/.env.example`; set `VITE_API_BASE_URL` to the
+   backend URL from step 2 (without a trailing slash) and `VITE_FRONTEND_URL` to
+   the frontend's deployed URL. Redeploy after setting these build-time values.
+4. Before restoring the custom domain, sign up and log in through the temporary
+   frontend URL to verify authentication, food logging, AI text analysis, image
+   analysis, collections, and password-reset redirects.
+5. Renew or re-register `nutrica.app` with its registrar, then add both
+   `nutrica.app` and `www.nutrica.app` to the frontend Vercel project. Apply the
+   DNS records that Vercel supplies at the registrar and wait for verification.
+   Keep the temporary Vercel URL in `CORS_ORIGIN` so rollback remains possible.
+
+Never place `OPENAI_API_KEY` or `SUPABASE_SERVICE_ROLE_KEY` in frontend
+environment variables; values beginning with `VITE_` are included in the browser
+bundle.
 
 ## 🤝 Contributing
 

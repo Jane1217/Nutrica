@@ -4,8 +4,13 @@
 
 import { supabase } from '../../supabaseClient';
 
-// API基础URL
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://localhost:3001' : '');
+// API base URL.  Production uses a separately deployed API, configured at
+// build time by VITE_API_BASE_URL.  A same-origin fallback keeps a unified
+// deployment possible, while local development continues to use port 3001.
+const configuredApiUrl = import.meta.env.VITE_API_BASE_URL?.trim();
+const API_BASE_URL = configuredApiUrl
+  ? configuredApiUrl.replace(/\/$/, '')
+  : (import.meta.env.DEV ? 'http://localhost:3001' : '');
 
 // 获取认证头
 const getAuthHeaders = async () => {

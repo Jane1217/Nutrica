@@ -1,5 +1,18 @@
 require('dotenv').config();
 
+const parseAllowedOrigins = (value, fallback) => {
+  if (!value) return fallback;
+
+  return value
+    .split(',')
+    .map((origin) => origin.trim().replace(/\/$/, ''))
+    .filter(Boolean);
+};
+
+const defaultOrigins = process.env.NODE_ENV === 'production'
+  ? ['https://nutrica.app', 'https://www.nutrica.app']
+  : ['http://localhost:3000', 'https://localhost:3000'];
+
 const config = {
   // Server configuration
   server: {
@@ -9,9 +22,9 @@ const config = {
   
   // CORS configuration
   cors: {
-    origin: process.env.CORS_ORIGIN || (process.env.NODE_ENV === 'production' 
-      ? ['https://nutrica.app', 'https://my-nutrition-demo-openai-frontend.vercel.app']
-      : ['https://localhost:3000', 'http://localhost:3000']),
+    // Comma-separated in production, so preview and replacement deployments can
+    // be allowed without changing source code.
+    origin: parseAllowedOrigins(process.env.CORS_ORIGIN, defaultOrigins),
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: [
       'Content-Type',
@@ -94,4 +107,4 @@ if (missingEnvVars.length > 0) {
   process.exit(1);
 }
 
-module.exports = config; 
+module.exports = config;

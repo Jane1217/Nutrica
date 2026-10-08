@@ -3,13 +3,19 @@ const config = require('../config/config');
 
 class OpenAIService {
   constructor() {
-    const openaiConfig = {
+    this.openaiConfig = {
       apiKey: config.openai.apiKey
     };
+    this._openai = null;
+  }
 
-
-
-    this.openai = new OpenAI(openaiConfig);
+  // Avoid opening a client during a health check or a Vercel cold start that
+  // only serves non-AI routes.
+  get openai() {
+    if (!this._openai) {
+      this._openai = new OpenAI(this.openaiConfig);
+    }
+    return this._openai;
   }
 
   async analyzeImage(base64Image) {
@@ -104,4 +110,4 @@ class OpenAIService {
   }
 }
 
-module.exports = new OpenAIService(); 
+module.exports = new OpenAIService();
