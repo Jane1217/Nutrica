@@ -1,5 +1,9 @@
 {
   "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://nutrica-api.vercel.app/api/:path*"
+    },
     { "source": "/share/:userId/:puzzleName", "destination": "/" },
     { "source": "/my-collections/detail/:puzzleName", "destination": "/" },
     { "source": "/(.*)", "destination": "/" }
