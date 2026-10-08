@@ -22,7 +22,7 @@ export default function SafariCameraPermission() {
         
         <div className={`${styles.introduction} body1`}>
           <p>
-            While we are building the native app version of Nutrica, here's what you can do to avoid repeated camera permission popups by enabling full camera access for seamless scanning on Nutrica.life, with Safari.
+            While we are building the native app version of Nutrica, here's what you can do to avoid repeated camera permission popups by enabling full camera access for seamless scanning on Nutrica.fit with Safari.
           </p>
         </div>
         <svg
@@ -50,7 +50,7 @@ export default function SafariCameraPermission() {
           </div>
           
           <div className={`${styles.step} body1`}>
-            <span className={styles.stepText}>3. In the <strong>CAMERA ACCESS ON</strong> section, tap "Nutrica.life".</span>
+            <span className={styles.stepText}>3. In the <strong>CAMERA ACCESS ON</strong> section, tap "Nutrica.fit".</span>
           </div>
           
           <div className={`${styles.step} body1`}>

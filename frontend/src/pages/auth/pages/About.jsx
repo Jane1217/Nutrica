@@ -17,7 +17,7 @@ export default function About() {
         <h1 className={`${styles.title} h1`} style={{textAlign: 'left', alignSelf: 'flex-start', width: '100%'}}>About</h1>
         <div className={`${styles.introduction} body1`}>
           <p>
-            [Placeholder] Nutrica is a project made by a small but mighty team:
+            Nutrica is a project made by a small but mighty team:
           </p>
         </div>
         

@@ -303,7 +303,7 @@ export default function AccountSettings({ userEmail }) {
               </span>
           </div>
             <div className={`${styles.accountInfoBoxDesc} body2`}>
-            Avoid repeated camera permission popups for seamless scanning on Nutrica.life, with Safari.
+            Avoid repeated camera permission popups for seamless scanning on Nutrica.fit with Safari.
           </div>
         </div>
       )}
