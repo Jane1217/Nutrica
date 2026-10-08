@@ -18,20 +18,20 @@ const getAuthHeaders = async () => {
   const headers = {
     'Content-Type': 'application/json',
   };
-  
+
   if (session?.access_token) {
     headers['Authorization'] = `Bearer ${session.access_token}`;
   }
-  
+
   return headers;
 };
 
 // 通用API请求函数
 export const apiRequest = async (endpoint, options = {}) => {
   const url = `${API_BASE_URL}${endpoint}`;
-  
+
   const authHeaders = await getAuthHeaders();
-  
+
   const defaultOptions = {
     headers: {
       ...authHeaders,
@@ -50,12 +50,12 @@ export const apiRequest = async (endpoint, options = {}) => {
 
   try {
     const response = await fetch(url, config);
-    
+
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(`HTTP ${response.status}: ${errorText}`);
     }
-    
+
     const data = await response.json();
     return data;
   } catch (error) {
@@ -86,11 +86,17 @@ export const uploadFile = async (endpoint, file, onProgress = null) => {
   formData.append('image', file);
 
   const url = `${API_BASE_URL}${endpoint}`;
-  
+
   try {
+    const { data: { session } } = await supabase.auth.getSession();
+    const headers = session?.access_token
+      ? { Authorization: `Bearer ${session.access_token}` }
+      : {};
+
     const response = await fetch(url, {
       method: 'POST',
       body: formData,
+      headers,
     });
 
     if (!response.ok) {
@@ -99,12 +105,12 @@ export const uploadFile = async (endpoint, file, onProgress = null) => {
     }
 
     const data = await response.json();
-    
+
     // 检查API响应格式，确保与其他API保持一致
     if (data.success === false) {
       throw new Error(data.error?.message || data.error || 'Upload failed');
     }
-    
+
     return data;
   } catch (error) {
     // 静默处理所有错误，不显示在控制台
@@ -124,13 +130,13 @@ export const foodApi = {
     },
     body: JSON.stringify(foodData)
   }),
-  
+
   // 解析食物图片
   parseFoodImage: (file) => uploadFile('/api/ai/parse/food', file),
-  
+
   // 解析食物描述
   parseFoodDescription: (description) => apiPost('/api/ai/parse/description', { description }),
-  
+
   // 获取食物emoji
   getFoodEmoji: (foodNameOrDesc) => apiPost('/api/ai/parse/emoji', { text: foodNameOrDesc }),
 };
@@ -144,7 +150,7 @@ export const userApi = {
       'Authorization': `Bearer ${accessToken}`
     }
   }),
-  
+
   // 获取用户摄像头权限状态
   getCameraPermissionStatus: (token) => {
     return apiRequest('/api/user/camera-permission-status', {
@@ -154,7 +160,7 @@ export const userApi = {
       }
     });
   },
-  
+
   // 更新用户摄像头权限状态
   updateCameraPermission: (token) => {
     return apiRequest('/api/user/update-camera-permission', {
@@ -171,7 +177,7 @@ export const userApi = {
 export const collectionApi = {
   // 获取collection_puzzles数据
   getCollectionPuzzles: () => apiGet('/api/collection/collection-puzzles'),
-  
+
   // 获取用户collections（需要认证）
   getUserCollections: (collectionType, token) => {
     const params = collectionType ? `?collection_type=${encodeURIComponent(collectionType)}` : '';
@@ -182,14 +188,14 @@ export const collectionApi = {
       }
     });
   },
-  
+
   // 获取公开的collection数据（不需要认证）
   getPublicCollection: (userId, puzzleName) => {
     return apiRequest(`/api/collection/public-collection?user_id=${encodeURIComponent(userId)}&puzzle_name=${encodeURIComponent(puzzleName)}`, {
       method: 'GET'
     });
   },
-  
+
   // 添加或更新用户collection
   addUserCollection: (data, token) => apiRequest('/api/collection/user-collections', {
     method: 'POST',
@@ -199,7 +205,7 @@ export const collectionApi = {
     },
     body: JSON.stringify(data)
   }),
-  
+
   // 添加puzzle到collection
   addPuzzleToCollection: (data, token) => apiRequest('/api/collection/user-collections', {
     method: 'POST',
@@ -209,7 +215,7 @@ export const collectionApi = {
     },
     body: JSON.stringify(data)
   }),
-  
+
   // 获取CongratulationsModal显示状态
   getCongratulationsShownStatus: (puzzleName, collectionType, token) => apiRequest(`/api/collection/congratulations-shown-status?puzzle_name=${encodeURIComponent(puzzleName)}&collection_type=${encodeURIComponent(collectionType)}`, {
     method: 'GET',
@@ -217,7 +223,7 @@ export const collectionApi = {
       'Authorization': `Bearer ${token}`
     }
   }),
-  
+
   // 更新CongratulationsModal显示状态
   updateCongratulationsShown: (puzzleName, collectionType, token) => apiRequest('/api/collection/update-congratulations-shown', {
     method: 'POST',
@@ -235,7 +241,7 @@ export const handleApiError = (error, defaultMessage = 'API request failed') => 
     // 服务器返回了错误状态码
     const status = error.response.status;
     const data = error.response.data;
-    
+
     if (status === 401) {
       return 'Authentication failed. Please log in again.';
     } else if (status === 403) {

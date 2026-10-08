@@ -10,6 +10,10 @@ const { performanceMonitor } = require('./middleware/performance');
 
 const app = express();
 
+// Vercel is a reverse proxy. Trusting its first proxy hop ensures rate limits
+// are applied per visitor instead of treating every request as Vercel itself.
+app.set('trust proxy', 1);
+
 // Security middleware
 app.use(helmet());
 app.disable('x-powered-by');

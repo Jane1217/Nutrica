@@ -4,7 +4,7 @@
 
 Nutrica is a modern, full-stack web application that helps users track their daily nutrition intake using AI-powered food analysis. Simply describe what you ate or upload a photo of your food, and Nutrica automatically extracts and logs detailed nutritional information including calories, carbohydrates, fats, and protein.
 
-🌐 **Live Application**: [https://nutrica.app](https://nutrica.app)
+🌐 **Live Application**: [https://nutrica.fit](https://nutrica.fit)
 
 ## ✨ Features
 
@@ -109,12 +109,12 @@ my-nutrition-demo-openai/
 
 ## 🚀 Usage
 
-Visit [https://nutrica.app](https://nutrica.app) to start tracking your nutrition!
+Visit [https://nutrica.fit](https://nutrica.fit) to start tracking your nutrition!
 
 ### Getting Started
 1. **Sign Up**: Create a new account or log in with existing credentials
 2. **Set Goals**: Configure your daily nutrition goals (optional)
-3. **Log Food**: 
+3. **Log Food**:
    - Upload a photo of a nutrition label or food
    - Or describe what you ate in natural language
 4. **Track Progress**: View your daily nutrition intake and progress toward goals
@@ -152,8 +152,7 @@ available.
 1. Create a **backend** Vercel project with `backend` as its Root Directory.
    Add the values from `backend/.env.example` in Vercel's Production environment.
    Set `CORS_ORIGIN` to a comma-separated list containing the temporary frontend
-   URL and, after recovery, `https://nutrica.app` and
-   `https://www.nutrica.app`.
+   URL and, after recovery, `https://nutrica.fit`.
 2. Deploy it and verify `https://<backend-url>/api/health`. A healthy deployment
    returns `{ "success": true, "status": "ok" }`.
 3. Create a **frontend** Vercel project with `frontend` as its Root Directory.
@@ -163,9 +162,8 @@ available.
 4. Before restoring the custom domain, sign up and log in through the temporary
    frontend URL to verify authentication, food logging, AI text analysis, image
    analysis, collections, and password-reset redirects.
-5. Renew or re-register `nutrica.app` with its registrar, then add both
-   `nutrica.app` and `www.nutrica.app` to the frontend Vercel project. Apply the
-   DNS records that Vercel supplies at the registrar and wait for verification.
+5. Keep `nutrica.fit` connected to the frontend Vercel project and use Vercel
+   DNS. Verify the generated DNS records whenever the domain configuration changes.
    Keep the temporary Vercel URL in `CORS_ORIGIN` so rollback remains possible.
 
 Never place `OPENAI_API_KEY` or `SUPABASE_SERVICE_ROLE_KEY` in frontend

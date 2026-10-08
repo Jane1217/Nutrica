@@ -2,10 +2,10 @@ import React, { useRef, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import FoodModal from '../../modals/FoodModal';
 import { foodApi, handleApiError } from '../../../../utils';
-import { 
-  startCamera, 
-  stopCamera, 
-  forceReleaseCamera, 
+import {
+  startCamera,
+  stopCamera,
+  forceReleaseCamera,
   captureVideoFrame,
   setupCameraEventListeners,
   setupEnhancedCameraControls
@@ -45,7 +45,7 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
         setCameraActive,
         isMounted: isMountedRef.current
       });
-      
+
       // 如果摄像头启动失败，检查是否是权限问题
       if (!result) {
         // 检查权限状态
@@ -59,12 +59,12 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
         if (track && track.getCapabilities) {
           const capabilities = track.getCapabilities();
           console.log('Camera capabilities:', capabilities);
-          
+
           // 检查是否支持对焦
           if (capabilities.focusMode && capabilities.focusMode.length > 0) {
             console.log('Focus modes supported:', capabilities.focusMode);
           }
-          
+
           // 检查是否支持缩放
           if (capabilities.zoom) {
             console.log('Zoom supported:', capabilities.zoom);
@@ -97,16 +97,16 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
   // 拍照并只截取 scan-frame 区域
   const handleCapture = async () => {
     if (!videoRef.current || !cameraActive) return;
-    
+
     setLoading(true);
     const video = videoRef.current;
-    
+
     // 使用工具函数截取视频帧
     const canvas = captureVideoFrame(video, scanFrameRef.current);
-    
+
     // 停止摄像头
     handleStopCamera();
-    
+
     canvas.toBlob(async (blob) => {
       if (!blob) {
         setLoading(false);
@@ -115,7 +115,7 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
         }
         return;
       }
-      
+
       try {
         // 检查网络连接
         if (!navigator.onLine) {
@@ -126,7 +126,7 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
           }
           return;
         }
-        
+
         const data = await foodApi.parseFoodImage(blob);
         // 识别成功，弹出 FoodModal
         const foodName = data.data.name;
@@ -142,14 +142,14 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
         setFoodModalOpen(true);
       } catch (error) {
         let errorMessage = 'Food label not recognized';
-        
+
         // 检查是否是网络错误
         if (error.message && (error.message.includes('fetch') || error.message.includes('network') || error.message.includes('connection'))) {
           errorMessage = 'No Internet connection';
         }
-        
+
         setErrorToast({ show: true, message: errorMessage });
-        
+
         if (isMountedRef.current) {
           handleStartCamera();
         }
@@ -170,10 +170,10 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
     // 关闭FoodModal
     setFoodModalOpen(false);
     setFoodResult(null);
-    
+
     // 跳转到home页面
     navigate('/');
-    
+
     // 显示成功toast
     setSuccessToast(true);
   };
@@ -212,34 +212,29 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
       startCamera: handleStartCamera,
       isMounted: isMountedRef.current
     });
-    
-    // 监听路由变化
-    const unlisten = navigate(handleStopCamera);
-    
+
     // 5秒后自动隐藏控制提示
     const tipTimer = setTimeout(() => {
       setShowControlsTip(false);
     }, 5000);
-    
+
     // 清理函数
     return () => {
       console.log('Component unmounting, cleaning up camera...');
       isMountedRef.current = false;
-      
+
       // 清理增强控制
       cleanupEnhancedControls();
-      
+
       // 清理事件监听器
       cleanupListeners();
-      if (unlisten) unlisten();
-      
       // 清理定时器
       clearTimeout(tipTimer);
-      
+
       // 停止摄像头
       handleStopCamera();
       handleForceReleaseCamera();
-      
+
       console.log('Camera cleanup completed');
     };
   }, [navigate]);
@@ -255,7 +250,7 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
 
   return (
     <div className="scan-label-page">
-      
+
       {/* 摄像头权限被拒绝错误弹窗 */}
       {cameraPermissionDenied && (
         <div className="camera-permission-denied-overlay" onClick={() => setCameraPermissionDenied(false)}>
@@ -273,7 +268,7 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
           </div>
         </div>
       )}
-      
+
       <video ref={videoRef} className="scan-video" autoPlay playsInline muted></video>
       <div className="scan-overlay"></div>
       <div className="scan-center">
@@ -287,15 +282,15 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
         </div>
         <div className="scan-frame" ref={scanFrameRef}></div>
       </div>
-      
+
       {/* 摄像头控制提示 */}
       <div className={`camera-controls-tip ${showControlsTip ? '' : 'hidden'}`}>
         <span>Tap to focus • Pinch to zoom</span>
       </div>
-      
+
       {/* 对焦指示器 */}
       {focusIndicator && (
-        <div 
+        <div
           className="focus-indicator"
           style={{
             left: `${focusIndicator.x * 100}%`,
@@ -304,7 +299,7 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
           }}
         />
       )}
-      
+
       {/* 缩放指示器 */}
       <div className={`zoom-indicator ${zoomLevel > 1 ? 'visible' : ''}`}>
         <span>🔍 {zoomLevel.toFixed(1)}x</span>
@@ -364,4 +359,4 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
       />
     </div>
   );
-} 
+}

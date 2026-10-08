@@ -19,20 +19,6 @@ export default function ShareLinkModal({ open, onClose, puzzleName = 'carrot', n
     fetchUserId();
   }, []);
 
-  // 根据环境动态生成分享链接
-  let BASE_URL = '';
-  if (typeof window !== 'undefined') {
-    if (window.location.hostname === 'localhost') {
-      BASE_URL = 'https://localhost:3000';
-    } else {
-      BASE_URL = 'https://nutrica.app';
-    }
-  }
-  // nickname必须传递真实值
-  const params = [
-    `nickname=${encodeURIComponent(nickname || '')}`
-  ];
-  const paramStr = `?${params.join('&')}`;
   const shareLink = getShareLink({ userId, puzzleName, nickname });
 
   const handleCopy = async () => {
@@ -46,7 +32,7 @@ export default function ShareLinkModal({ open, onClose, puzzleName = 'carrot', n
 
   const handleShare = async () => {
     if (!shareLink) return;
-    
+
     // 检查是否支持 Web Share API
     if (navigator.share) {
       try {
@@ -100,4 +86,4 @@ export default function ShareLinkModal({ open, onClose, puzzleName = 'carrot', n
         </div>
     </ModalWrapper>
   );
-} 
+}

@@ -4,10 +4,10 @@ import styles from './SharePage.module.css';
 import { formatDateString, normalizeNutritionData, getUserNameFromQuery, capitalizePuzzleName, getPuzzleCardBackground, getPageBackground } from '../../utils';
 import { collectionApi } from '../../utils';
 import { puzzleCategories, colorOrders } from '../../data/puzzles';
-import { 
-  isSpecialPuzzle, 
-  getSpecialPuzzleConfig, 
-  hasNutritionModule, 
+import {
+  isSpecialPuzzle,
+  getSpecialPuzzleConfig,
+  hasNutritionModule,
   getPuzzleImageStyle,
   getPuzzleCollectionType,
   getPuzzleImageUrl,
@@ -50,7 +50,7 @@ export default function SharePage() {
     if (isSpecialPuzzle(puzzleName)) {
       return getSpecialPuzzleConfig(puzzleName);
     }
-    
+
     // 查找其他puzzle
     for (const cat of puzzleCategories) {
       const found = cat.puzzles.find(p => p.name.toLowerCase() === puzzleName.toLowerCase());
@@ -71,7 +71,7 @@ export default function SharePage() {
         const puzzleNameFormatted = capitalizePuzzleName(puzzleName);
         // 使用公开API获取collection数据
         const response = await collectionApi.getPublicCollection(userId, puzzleNameFormatted);
-        
+
         if (response.success && response.data) {
           setNutritionData(response.data.nutrition);
           setFirstCompletedAt(response.data.first_completed_at);
@@ -98,11 +98,11 @@ export default function SharePage() {
   const getDateString = (date) => {
     if (!date) return '';
     const dateObj = new Date(date);
-    return dateObj.toLocaleDateString('en-US', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
+    return dateObj.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
     });
   };
 
@@ -211,13 +211,13 @@ export default function SharePage() {
               {description}
             </div>
           </div>
-          <img 
-            src={iconUrl} 
-            alt={puzzleName} 
-            className={styles.puzzleImg} 
+          <img
+            src={iconUrl}
+            alt={puzzleName}
+            className={styles.puzzleImg}
             style={getPuzzleImageStyle(puzzleName)}
           />
-          
+
           {/* Nutrition Module - 根据puzzle配置决定是否显示 */}
           {hasNutritionModule(puzzleName) && (
           <div className={styles.nutritionModule}>
@@ -254,16 +254,16 @@ export default function SharePage() {
           <div className={`${styles.actionText} h4`}>
             Collect your nutrition puzzles on
           </div>
-          <a 
-                            href="https://nutrica.app/" 
+          <a
+            href="https://nutrica.fit/"
             className={styles.ctaButton}
             target="_blank"
             rel="noopener noreferrer"
           >
-            <span className={`${styles.ctaLabel} h4`}>Nutrica.life</span>
+            <span className={`${styles.ctaLabel} h4`}>Nutrica.fit</span>
           </a>
         </div>
       </div>
     </div>
   );
-} 
+}

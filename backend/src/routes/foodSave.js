@@ -9,24 +9,21 @@ const { authenticateUser } = require('../middleware/auth');
 // Add new food record
 router.post('/', authenticateUser, async (req, res) => {
   try {
-    logApiRequest('POST', '/api/food', req.body);
-    
-    // 新增：打印完整body内容，便于排查
-    console.log('API POST /api/food body:', JSON.stringify(req.body));
-    
+    logApiRequest('POST', '/api/food');
+
     const { name, nutrition, number_of_servings, time, emoji } = req.body;
     const user_id = req.user.id; // 从认证中间件获取用户ID
-    
+
     // 验证必需字段
     try {
       validateRequiredFields({ name, nutrition }, ['name', 'nutrition']);
     } catch (error) {
       return validationErrorResponse(res, error.message);
     }
-    
+
     // 清理营养数据
     const cleanNutrition = cleanNutritionData(nutrition);
-    
+
     const result = await databaseService.insertFood({
       user_id,
       name,
@@ -35,8 +32,8 @@ router.post('/', authenticateUser, async (req, res) => {
       time: time || new Date().toISOString(),
       emoji: emoji || '🍽️' // 默认emoji
     });
-    
-    logApiResponse('POST', '/api/food', 200, result);
+
+    logApiResponse('POST', '/api/food', 200);
     return successResponse(res, result, 'Food added successfully');
   } catch (error) {
     logError('Food creation failed', error);
@@ -44,4 +41,4 @@ router.post('/', authenticateUser, async (req, res) => {
   }
 });
 
-module.exports = router; 
+module.exports = router;

@@ -10,7 +10,7 @@ const parseAllowedOrigins = (value, fallback) => {
 };
 
 const defaultOrigins = process.env.NODE_ENV === 'production'
-  ? ['https://nutrica.app', 'https://www.nutrica.app']
+  ? ['https://nutrica.fit']
   : ['http://localhost:3000', 'https://localhost:3000'];
 
 const config = {
@@ -19,7 +19,7 @@ const config = {
     port: process.env.PORT || 3001,
     env: process.env.NODE_ENV || 'development',
   },
-  
+
   // CORS configuration
   cors: {
     // Comma-separated in production, so preview and replacement deployments can
@@ -39,7 +39,7 @@ const config = {
     optionsSuccessStatus: 200,
     maxAge: 86400 // 24 hours
   },
-  
+
   // Database configuration
   database: {
     supabaseUrl: process.env.SUPABASE_URL,
@@ -58,7 +58,7 @@ const config = {
       retryDelay: 1000, // 1秒重试延迟
     }
   },
-  
+
   // Cache configuration
   cache: {
     enabled: true,
@@ -66,12 +66,12 @@ const config = {
     maxSize: 1000, // 最大缓存条目数
     cleanupInterval: 10 * 60 * 1000, // 10分钟清理间隔
   },
-  
+
   // OpenAI configuration
   openai: {
     apiKey: process.env.OPENAI_API_KEY
   },
-  
+
   // File upload configuration
   upload: {
     maxFileSize: 5 * 1024 * 1024, // 5MB

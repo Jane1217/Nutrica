@@ -16,11 +16,16 @@ class DatabaseService {
       config.database.supabaseServiceKey, // 使用服务端密钥，绕过RLS
       this.supabaseConfig
     );
-    
+
     this.bucketName = 'nutrition-images';
-    
-    // 定期清理过期缓存
-    setInterval(() => this.cleanExpiredCache(), config.cache.cleanupInterval);
+
+    // Do not keep a serverless invocation (or a test process) alive only for
+    // in-memory cache housekeeping.
+    this.cacheCleanupTimer = setInterval(
+      () => this.cleanExpiredCache(),
+      config.cache.cleanupInterval
+    );
+    this.cacheCleanupTimer.unref?.();
   }
 
   // 重试机制
@@ -32,14 +37,14 @@ class DatabaseService {
         if (attempt === maxRetries) {
           throw error;
         }
-        
+
         // 只对网络错误和超时进行重试
         if (error.code === 'ECONNRESET' || error.code === 'ETIMEDOUT' || error.message.includes('timeout')) {
           console.log(`Database operation failed, retrying... (${attempt}/${maxRetries})`);
           await new Promise(resolve => setTimeout(resolve, config.database.query.retryDelay * attempt));
           continue;
         }
-        
+
         throw error;
       }
     }
@@ -52,7 +57,7 @@ class DatabaseService {
 
   getFromCache(key) {
     if (!config.cache.enabled) return null;
-    
+
     const cached = this.cache.get(key);
     if (cached && Date.now() - cached.timestamp < this.cacheTimeout) {
       return cached.data;
@@ -63,14 +68,14 @@ class DatabaseService {
 
   setCache(key, data) {
     if (!config.cache.enabled) return;
-    
+
     // 检查缓存大小限制
     if (this.cache.size >= this.maxCacheSize) {
       // 删除最旧的条目
       const oldestKey = this.cache.keys().next().value;
       this.cache.delete(oldestKey);
     }
-    
+
     this.cache.set(key, {
       data,
       timestamp: Date.now()
@@ -108,11 +113,11 @@ class DatabaseService {
           emoji
         }]);
       if (error) throw error;
-      
+
       // 清除相关缓存
       this.clearCache('user_foods');
       this.clearCache('today_nutrition');
-      
+
       return data;
     });
   }
@@ -132,7 +137,7 @@ class DatabaseService {
         .order('slot', { ascending: true });
 
       if (error) throw error;
-      
+
       this.setCache(cacheKey, data || []);
       return data || [];
     });
@@ -158,7 +163,7 @@ class DatabaseService {
 
       const { data, error } = await query;
       if (error) throw error;
-      
+
       this.setCache(cacheKey, data || []);
       return data || [];
     });
@@ -168,7 +173,7 @@ class DatabaseService {
   async addUserCollection(userId, collectionData) {
     return this.withRetry(async () => {
       const { collection_type, puzzle_name, nutrition, count = 1 } = collectionData;
-      
+
       if (!collection_type || !puzzle_name) {
         throw new Error('Missing required fields: collection_type and puzzle_name');
       }
@@ -191,15 +196,15 @@ class DatabaseService {
 
       if (existingCollection) {
         // 检查是否今天已经收集过
-        const lastCollectedDate = existingCollection.updated_at ? 
-          existingCollection.updated_at.split('T')[0] : 
+        const lastCollectedDate = existingCollection.updated_at ?
+          existingCollection.updated_at.split('T')[0] :
           existingCollection.created_at.split('T')[0];
-        
+
         if (lastCollectedDate === today) {
           // 今天已经收集过了，返回现有数据
           return { count: existingCollection.count };
         }
-        
+
         // 今天还没有收集过，增加count
         const { error: updateError } = await this.supabase
           .from('user_collections')
@@ -216,7 +221,7 @@ class DatabaseService {
 
         // 清除相关缓存
         this.clearCache('user_collections');
-        
+
         return { count: existingCollection.count + count };
       } else {
         // 创建新collection
@@ -237,7 +242,7 @@ class DatabaseService {
 
         // 清除相关缓存
         this.clearCache('user_collections');
-        
+
         return { count };
       }
     });
@@ -260,7 +265,7 @@ class DatabaseService {
         .maybeSingle();
 
       if (error) throw error;
-      
+
       this.setCache(cacheKey, data);
       return data;
     });
@@ -281,7 +286,7 @@ class DatabaseService {
       // 清除相关缓存
       this.clearCache('today_nutrition');
       this.clearCache('daily_home_data');
-      
+
       return true;
     });
   }
@@ -303,4 +308,4 @@ class DatabaseService {
 }
 
 // 导出单例实例
-module.exports = new DatabaseService(); 
+module.exports = new DatabaseService();

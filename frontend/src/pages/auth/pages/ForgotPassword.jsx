@@ -3,6 +3,7 @@ import ModalWrapper from '../../../components/common/ModalWrapper';
 import InputField from '../../../components/auth/InputField';
 import BottomButton from '../../../components/common/BottomButton';
 import { supabase } from '../../../supabaseClient';
+import { validateEmail } from '../../../utils/core/validation';
 import styles from '../styles/Auth.module.css';
 import resetPasswordStyles from '../styles/ResetPassword.module.css';
 import '../../../index.css';
@@ -24,8 +25,9 @@ export default function ForgotPassword({ open, onClose, onBackToLogin }) {
   }, [open]);
 
   const handleResetPassword = async () => {
-    if (!email) {
-      setError('Please enter your email address');
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.isValid) {
+      setError(emailValidation.message);
       return;
     }
 
@@ -33,9 +35,10 @@ export default function ForgotPassword({ open, onClose, onBackToLogin }) {
     setError('');
 
     try {
-      const FRONTEND_URL = import.meta.env.VITE_FRONTEND_URL || window.location.origin;
-      const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${FRONTEND_URL}/reset-password`
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        // Using the active origin keeps recovery links on the production
+        // domain and also works for an approved preview environment.
+        redirectTo: `${window.location.origin}/reset-password`
       });
 
       if (error) {
@@ -108,9 +111,9 @@ export default function ForgotPassword({ open, onClose, onBackToLogin }) {
             </p>
           </>
         )}
-        
+
         {/* 暂时为空内容 */}
       </main>
     </ModalWrapper>
   );
-} 
+}

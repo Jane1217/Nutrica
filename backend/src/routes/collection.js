@@ -7,7 +7,7 @@ const databaseService = require('../services/databaseService');
 router.get('/collection-puzzles', async (req, res) => {
   try {
     const data = await databaseService.getCollectionPuzzles();
-    
+
     res.json({
       success: true,
       data: data || []
@@ -17,8 +17,7 @@ router.get('/collection-puzzles', async (req, res) => {
     res.status(500).json({
       success: false,
       error: {
-        message: 'Internal server error',
-        details: error.message
+        message: 'Internal server error'
       }
     });
   }
@@ -32,8 +31,6 @@ router.get('/user-collections', authenticateUser, async (req, res) => {
 
     const data = await databaseService.getUserCollections(userId, collection_type);
 
-    console.log('User collections query result:', { data, userId, collection_type });
-
     res.json({
       success: true,
       data: data || []
@@ -43,8 +40,7 @@ router.get('/user-collections', authenticateUser, async (req, res) => {
     res.status(500).json({
       success: false,
       error: {
-        message: 'Internal server error',
-        details: error.message
+        message: 'Internal server error'
       }
     });
   }
@@ -82,8 +78,7 @@ router.post('/user-collections', authenticateUser, async (req, res) => {
     res.status(500).json({
       success: false,
       error: {
-        message: 'Internal server error',
-        details: error.message
+        message: 'Internal server error'
       }
     });
   }
@@ -124,8 +119,7 @@ router.get('/public-collection', async (req, res) => {
     res.status(500).json({
       success: false,
       error: {
-        message: 'Internal server error',
-        details: error.message
+        message: 'Internal server error'
       }
     });
   }
@@ -163,8 +157,7 @@ router.post('/update-congratulations-shown', authenticateUser, async (req, res) 
       return res.status(500).json({
         success: false,
         error: {
-          message: 'Failed to update congratulations shown status',
-          details: error.message
+          message: 'Failed to update congratulations shown status'
         }
       });
     }
@@ -178,8 +171,7 @@ router.post('/update-congratulations-shown', authenticateUser, async (req, res) 
     res.status(500).json({
       success: false,
       error: {
-        message: 'Internal server error',
-        details: error.message
+        message: 'Internal server error'
       }
     });
   }
@@ -213,8 +205,7 @@ router.get('/congratulations-shown-status', authenticateUser, async (req, res) =
       return res.status(500).json({
         success: false,
         error: {
-          message: 'Failed to fetch congratulations shown status',
-          details: error.message
+          message: 'Failed to fetch congratulations shown status'
         }
       });
     }
@@ -228,11 +219,10 @@ router.get('/congratulations-shown-status', authenticateUser, async (req, res) =
     res.status(500).json({
       success: false,
       error: {
-        message: 'Internal server error',
-        details: error.message
+        message: 'Internal server error'
       }
     });
   }
 });
 
-module.exports = router; 
+module.exports = router;

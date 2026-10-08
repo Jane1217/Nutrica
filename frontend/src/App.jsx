@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/home/home';
 import LogIn from './pages/auth/pages/Log In';
 import SignUp from './pages/auth/pages/Sign up';
+import ForgotPassword from './pages/auth/pages/ForgotPassword';
 import ResetPassword from './pages/auth/pages/ResetPassword';
 import AccountSettings from './pages/auth/pages/Account settings';
 import Tutorials from './pages/auth/pages/Tutorials';
@@ -15,6 +16,10 @@ import PrivacyNotice from './pages/auth/pages/PrivacyNotice';
 import About from './pages/auth/pages/About';
 import React, { useEffect, useState } from 'react';
 import { supabase } from './supabaseClient';
+
+function RequireAuth({ user, children }) {
+  return user ? children : <Navigate to="/log-in" replace />;
+}
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -52,10 +57,10 @@ export default function App() {
   // 如果正在加载，显示加载状态
   if (loading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
         height: '100vh',
         fontSize: '16px',
         color: '#666'
@@ -81,11 +86,12 @@ export default function App() {
           element={
             user
               ? <Navigate to="/" replace />
-              : <LogIn 
-                  open={true} 
-                  onClose={() => window.history.back()} 
+              : <LogIn
+                  open={true}
+                  onClose={() => window.history.back()}
                   onAuth={handleAuth}
                   onSwitchToSignUp={() => window.location.href = '/sign-up'}
+                  onSwitchToForgotPassword={() => window.location.href = '/forgot-password'}
                 />
           }
         />
@@ -94,12 +100,22 @@ export default function App() {
           element={
             user
               ? <Navigate to="/" replace />
-              : <SignUp 
-                  open={true} 
-                  onClose={() => window.history.back()} 
+              : <SignUp
+                  open={true}
+                  onClose={() => window.history.back()}
                   onAuth={handleAuth}
                   onSwitchToLogin={() => window.location.href = '/log-in'}
                 />
+          }
+        />
+        <Route
+          path="/forgot-password"
+          element={
+            <ForgotPassword
+              open={true}
+              onClose={() => window.location.href = '/'}
+              onBackToLogin={() => window.location.href = '/log-in'}
+            />
           }
         />
         <Route
@@ -111,29 +127,39 @@ export default function App() {
           }
         />
 
-        <Route path="/account" element={<AccountSettings userEmail={user?.email || ''} />} />
-        <Route path="/tutorials" element={<Tutorials isLoggedIn={!!user} userEmail={user?.email || ''} />} />
-        <Route path="/eat/scan-label" element={<ScanLabelPage userId={user?.id} />} />
-        <Route 
-          path="/my-collections" 
-          element={
-            user 
-              ? <MyCollections /> 
-              : <Navigate to="/log-in" replace />
-          } 
+        <Route
+          path="/account"
+          element={<RequireAuth user={user}><AccountSettings userEmail={user?.email || ''} /></RequireAuth>}
         />
-        <Route 
-          path="/my-collections/detail/:puzzleName" 
+        <Route path="/tutorials" element={<Tutorials isLoggedIn={!!user} userEmail={user?.email || ''} />} />
+        <Route
+          path="/eat/scan-label"
+          element={<RequireAuth user={user}><ScanLabelPage userId={user?.id} /></RequireAuth>}
+        />
+        <Route
+          path="/my-collections"
           element={
-            user 
-              ? <CollectionDetail /> 
+            user
+              ? <MyCollections />
               : <Navigate to="/log-in" replace />
-          } 
+          }
+        />
+        <Route
+          path="/my-collections/detail/:puzzleName"
+          element={
+            user
+              ? <CollectionDetail />
+              : <Navigate to="/log-in" replace />
+          }
         />
         <Route path="/share/:userId/:puzzleName" element={<SharePage />} />
-        <Route path="/safari-camera-permission" element={<SafariCameraPermission />} />
+        <Route
+          path="/safari-camera-permission"
+          element={<RequireAuth user={user}><SafariCameraPermission /></RequireAuth>}
+        />
         <Route path="/privacy-notice" element={<PrivacyNotice />} />
         <Route path="/about" element={<About />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );

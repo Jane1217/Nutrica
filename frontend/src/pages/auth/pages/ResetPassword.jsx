@@ -37,8 +37,6 @@ export default function ResetPassword() {
 
   // 检查用户是否已通过邮件链接认证
   useEffect(() => {
-    console.log('ResetPassword page loaded');
-    
     const checkAuthAndSession = async () => {
       try {
         // 检查URL参数
@@ -46,60 +44,43 @@ export default function ResetPassword() {
         const type = searchParams.get('type');
         const access_token = searchParams.get('access_token');
         const refresh_token = searchParams.get('refresh_token');
-        
-        console.log('URL params - token:', token, 'type:', type, 'access_token:', access_token);
-        
+
         // 检查当前session状态
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        console.log('Current session:', session);
-        console.log('Session error:', sessionError);
-        
-        if (sessionError) {
-          console.error('Error getting session:', sessionError);
-        }
-        
+        const { data: { session } } = await supabase.auth.getSession();
+
         if (session) {
-          console.log('User is authenticated for password reset');
           setIsAuthenticated(true);
           setError('');
         } else if (access_token && refresh_token) {
-          console.log('Found access_token and refresh_token in URL, setting session');
           // 如果有access_token和refresh_token，设置session
-          const { data, error } = await supabase.auth.setSession({
+          const { error } = await supabase.auth.setSession({
             access_token: access_token,
             refresh_token: refresh_token
           });
-          
+
           if (error) {
-            console.error('Error setting session:', error);
             setError('Invalid or expired reset link. Please request a new one.');
           } else {
-            console.log('Session set successfully');
             setIsAuthenticated(true);
             setError('');
           }
         } else if (token && type === 'recovery') {
-          console.log('Token found in URL, attempting to verify');
           // 如果有token，尝试验证
-          const { data, error } = await supabase.auth.verifyOtp({
+          const { error } = await supabase.auth.verifyOtp({
             token_hash: token,
             type: 'recovery'
           });
-          
+
           if (error) {
-            console.error('Token verification error:', error);
             setError('Invalid or expired reset link. Please request a new one.');
           } else {
-            console.log('Token verified successfully');
             setIsAuthenticated(true);
             setError('');
           }
         } else {
-          console.log('No session or valid token found');
           setError('Please click the link in your email to reset your password.');
         }
       } catch (err) {
-        console.error('Error in auth check:', err);
         setError('Error loading page. Please try again.');
       } finally {
         setIsLoadingPage(false);
@@ -110,13 +91,10 @@ export default function ResetPassword() {
 
     // 监听认证状态变化
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth state changed:', event, session);
       if (event === 'PASSWORD_RECOVERY' && session) {
-        console.log('Password recovery session established');
         setIsAuthenticated(true);
         setError('');
       } else if (event === 'SIGNED_IN' && session) {
-        console.log('User signed in, checking if this is password recovery');
         // 检查是否是通过密码重置链接登录的
         const token = searchParams.get('token');
         const access_token = searchParams.get('access_token');
@@ -156,15 +134,13 @@ export default function ResetPassword() {
     setSuccess('');
 
     try {
-      const { data, error } = await supabase.auth.updateUser({
+      const { error } = await supabase.auth.updateUser({
         password: password
       });
 
       if (error) {
-        console.error('Password update error:', error);
         setError(error.message);
       } else {
-        console.log('Password updated successfully:', data);
         setSuccess('Password updated successfully!');
         setShowSuccess(true);
         // 密码更新成功后，登出用户
@@ -173,7 +149,6 @@ export default function ResetPassword() {
         }, 1500);
       }
     } catch (err) {
-      console.error('Unexpected error:', err);
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);

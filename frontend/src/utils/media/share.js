@@ -1,16 +1,9 @@
 // 生成分享链接
 export function getShareLink({ userId, puzzleName, nickname }) {
-  let BASE_URL = '';
-  if (typeof window !== 'undefined') {
-    if (window.location.hostname === 'localhost') {
-      BASE_URL = 'https://localhost:3000';
-    } else {
-      BASE_URL = 'https://nutrica.app';
-    }
-  }
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
   const params = [`nickname=${encodeURIComponent(nickname || '')}`];
   const paramStr = `?${params.join('&')}`;
-  return userId ? `${BASE_URL}/share/${userId}/${puzzleName.toLowerCase()}${paramStr}` : '';
+  return userId ? `${baseUrl}/share/${userId}/${puzzleName.toLowerCase()}${paramStr}` : '';
 }
 
 // 复制到剪贴板
@@ -32,4 +25,4 @@ export async function copyToClipboard(text) {
       return false;
     }
   }
-} 
+}
