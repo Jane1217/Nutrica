@@ -33,7 +33,6 @@ export default function DeleteAccountModal({ open, onClose, userEmail }) {
 
       try {
         await userApi.deleteAccount(user.id, session.access_token);
-        console.log('Account deleted successfully');
       } catch (error) {
         console.error('Failed to delete account:', error);
         alert('Failed to delete account: ' + error.message);
@@ -114,4 +113,4 @@ export default function DeleteAccountModal({ open, onClose, userEmail }) {
       </div>
     </ModalWrapper>
   );
-} 
+}

@@ -64,11 +64,8 @@ async function saveDailyHomeData(data) {
   } else {
     // 只有在puzzle真正完成时才检查并添加到collections
     if (isPuzzleCompleted) {
-      console.log(`Puzzle completed, calling monitorPuzzleCompletion for ${data.puzzle_name}`);
       const completionResult = await monitorPuzzleCompletion(data.user_id, data);
-      if (completionResult.success) {
-        console.log('Puzzle completion monitored successfully');
-      } else if (completionResult.error !== 'Puzzle not completed or missing puzzle name' && 
+      if (!completionResult.success && completionResult.error !== 'Puzzle not completed or missing puzzle name' &&
                  completionResult.error !== 'Puzzle already collected today') {
         console.error('Failed to monitor puzzle completion:', completionResult.error);
       }
@@ -766,4 +763,4 @@ export default function Home(props) {
       </div>
     </>
   );
-} 
+}

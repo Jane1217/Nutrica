@@ -253,7 +253,6 @@ export default function AccountSettings({ userEmail }) {
         <div className={styles['account-email']+ ' h4'}>{userEmail}</div>
       {showSafariSetup && (
         <div className={styles['account-info-box']} onClick={() => {
-          console.log('Safari setup clicked');
           // 先尝试在当前页面打开，如果不行再尝试新标签页
           try {
             window.open('/safari-camera-permission', '_blank');

@@ -18,7 +18,6 @@ import { icons } from '../../../../utils';
 
 
 export default function ScanLabelPage({ onClose, userId, onDataChange }) {
-  console.log('ScanLabelPage rendered with userId:', userId);
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const scanFrameRef = useRef(null);
@@ -48,26 +47,15 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
 
       // 如果摄像头启动失败，检查是否是权限问题
       if (!result) {
-        // 检查权限状态
-        const permission = await navigator.permissions.query({ name: 'camera' });
-        if (permission.state === 'denied') {
-          setCameraPermissionDenied(true);
-        }
-      } else {
-        // 摄像头启动成功，检查功能支持
-        const track = result.getVideoTracks()[0];
-        if (track && track.getCapabilities) {
-          const capabilities = track.getCapabilities();
-          console.log('Camera capabilities:', capabilities);
-
-          // 检查是否支持对焦
-          if (capabilities.focusMode && capabilities.focusMode.length > 0) {
-            console.log('Focus modes supported:', capabilities.focusMode);
-          }
-
-          // 检查是否支持缩放
-          if (capabilities.zoom) {
-            console.log('Zoom supported:', capabilities.zoom);
+        // navigator.permissions is not implemented by every mobile browser.
+        if (navigator.permissions?.query) {
+          try {
+            const permission = await navigator.permissions.query({ name: 'camera' });
+            if (permission.state === 'denied') {
+              setCameraPermissionDenied(true);
+            }
+          } catch {
+            // Some browsers expose Permissions but do not support the camera query.
           }
         }
       }
@@ -163,6 +151,9 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
   const handleFoodModalClose = () => {
     setFoodModalOpen(false);
     setFoodResult(null);
+    if (isMountedRef.current) {
+      handleStartCamera();
+    }
   };
 
   // 处理FoodModal数据变化
@@ -191,7 +182,6 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
       videoRef,
       streamRef,
       onFocus: ({ x, y }) => {
-        console.log('Focus at:', x, y);
         // 显示对焦指示器
         setFocusIndicator({ x, y });
         setTimeout(() => setFocusIndicator(null), 1000);
@@ -199,7 +189,6 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
         setShowControlsTip(false);
       },
       onZoom: (zoom) => {
-        console.log('Zoom changed to:', zoom);
         setZoomLevel(zoom);
         // 隐藏控制提示
         setShowControlsTip(false);
@@ -220,7 +209,6 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
 
     // 清理函数
     return () => {
-      console.log('Component unmounting, cleaning up camera...');
       isMountedRef.current = false;
 
       // 清理增强控制
@@ -234,19 +222,8 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
       // 停止摄像头
       handleStopCamera();
       handleForceReleaseCamera();
-
-      console.log('Camera cleanup completed');
     };
   }, [navigate]);
-
-  // 监听foodModalOpen变化，弹窗打开时关闭摄像头，关闭时重启摄像头
-  useEffect(() => {
-    if (foodModalOpen) {
-      handleStopCamera();
-    } else if (isMountedRef.current) {
-      handleStartCamera();
-    }
-  }, [foodModalOpen]);
 
   return (
     <div className="scan-label-page">
@@ -263,7 +240,7 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
             </div>
             <div className="camera-permission-denied-divider"></div>
             <div className="camera-permission-denied-text body1">
-              Please allow camera permission for <span className="nutrition-life">"Nutrition.life"</span> in your browser settings.
+              Please allow camera permission for <span className="nutrition-life">"Nutrica.fit"</span> in your browser settings.
             </div>
           </div>
         </div>
@@ -305,7 +282,6 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
         <span>🔍 {zoomLevel.toFixed(1)}x</span>
       </div>
       <button className="scan-close-btn" onClick={() => {
-        console.log('Close button clicked, stopping camera and navigating...');
         handleStopCamera();
         handleForceReleaseCamera();
         navigate('/?eat=1');

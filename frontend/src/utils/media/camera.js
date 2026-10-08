@@ -20,6 +20,11 @@ export const startCamera = async ({
   isMounted = true
 }) => {
   if (!isMounted) return null;
+
+  const activeStream = streamRef?.current;
+  if (activeStream?.getTracks().some(track => track.readyState === 'live')) {
+    return activeStream;
+  }
   
   try {
     // 更完整的摄像头配置
@@ -28,27 +33,8 @@ export const startCamera = async ({
         facingMode,
         width: { ideal: 1920 },
         height: { ideal: 1080 },
-        // 添加对焦配置
-        focusMode: { ideal: 'continuous' }, // 优先使用连续对焦
-        // 添加曝光配置
-        exposureMode: { ideal: 'continuous' },
-        // 添加白平衡配置
-        whiteBalanceMode: { ideal: 'continuous' },
-        // 添加缩放配置
-        zoom: { ideal: 1.0 },
-        // 添加高级配置
-        advanced: [
-          // 尝试启用连续对焦
-          { focusMode: 'continuous' },
-          // 尝试启用自动曝光
-          { exposureMode: 'continuous' },
-          // 尝试启用自动白平衡
-          { whiteBalanceMode: 'continuous' },
-          // 尝试启用自动对焦
-          { focusMode: 'auto' },
-          // 尝试启用单次对焦
-          { focusMode: 'single-shot' }
-        ]
+        // Device-specific focus and zoom constraints are applied only after the
+        // browser confirms support via getCapabilities().
       }
     };
 
@@ -87,23 +73,18 @@ const setupCameraCapabilities = (stream) => {
   if (!track || !track.getCapabilities) return;
 
   const capabilities = track.getCapabilities();
-  const settings = track.getSettings();
-  
-  console.log('Camera capabilities:', capabilities);
-  console.log('Camera settings:', settings);
-
   // 尝试设置连续对焦
   if (capabilities.focusMode && capabilities.focusMode.includes('continuous')) {
     track.applyConstraints({
       advanced: [{ focusMode: 'continuous' }]
-    }).catch(err => console.log('Failed to set continuous focus:', err));
+    }).catch(() => {});
   }
   
   // 尝试设置自动对焦
   if (capabilities.focusMode && capabilities.focusMode.includes('auto')) {
     track.applyConstraints({
       advanced: [{ focusMode: 'auto' }]
-    }).catch(err => console.log('Failed to set auto focus:', err));
+    }).catch(() => {});
   }
 };
 
@@ -119,8 +100,6 @@ export const stopCamera = ({
   streamRef,
   setCameraActive
 }) => {
-  console.log('Stopping camera...');
-  
   // 立即设置状态为false
   setCameraActive?.(false);
   
@@ -134,35 +113,8 @@ export const stopCamera = ({
   
   // 停止所有媒体流
   if (streamRef?.current) {
-    streamRef.current.getTracks().forEach(track => {
-      console.log('Stopping track:', track.kind);
-      track.stop();
-    });
+    streamRef.current.getTracks().forEach(track => track.stop());
     streamRef.current = null;
-  }
-  
-  // 强制释放所有可能的媒体流
-  try {
-    // 获取所有媒体设备并强制停止
-    navigator.mediaDevices.enumerateDevices()
-      .then(devices => {
-        devices.forEach(device => {
-          if (device.kind === 'videoinput') {
-            console.log('Found video device:', device.label);
-          }
-        });
-      });
-    
-    // 尝试获取一个空的媒体流来释放权限
-    navigator.mediaDevices.getUserMedia({ video: false, audio: false })
-      .then(() => {
-        console.log('Camera permissions released');
-      })
-      .catch(() => {
-        console.log('Camera permissions already released');
-      });
-  } catch (error) {
-    console.log('Error releasing camera permissions:', error);
   }
   
   // 强制垃圾回收（如果浏览器支持）
@@ -183,32 +135,17 @@ export const forceReleaseCamera = ({
   streamRef,
   setCameraActive
 }) => {
-  console.log('Force releasing camera...');
-  
-  // 强制停止所有可能的视频流
-  try {
-    navigator.mediaDevices.getUserMedia({ video: true, audio: false })
-      .then(stream => {
-        stream.getTracks().forEach(track => {
-          console.log('Force stopping track:', track.kind);
-          track.stop();
-        });
-        console.log('Forced all video streams to stop');
-      })
-      .catch(() => {
-        console.log('No video streams to force stop');
-      });
-  } catch (error) {
-    console.log('Error force stopping streams:', error);
-  }
-  
-  // 强制清理所有可能的引用
+  // Never request a new stream while cleaning up: doing so can trigger a second
+  // permission prompt and leave the camera indicator active on mobile browsers.
   if (videoRef?.current) {
+    videoRef.current.pause();
     videoRef.current.srcObject = null;
-    videoRef.current.remove();
   }
   
-  if (streamRef) streamRef.current = null;
+  if (streamRef?.current) {
+    streamRef.current.getTracks().forEach(track => track.stop());
+    streamRef.current = null;
+  }
   setCameraActive?.(false);
 };
 
@@ -290,7 +227,7 @@ export const setupCameraEventListeners = ({
     window.removeEventListener('popstate', handlePopState);
     window.removeEventListener('pagehide', handlePageHide);
   };
-}; 
+};
 
 /**
  * 点击对焦
@@ -319,11 +256,11 @@ export const focusAtPoint = async (stream, x, y) => {
         if (capabilities.focusMode && capabilities.focusMode.includes('continuous')) {
           track.applyConstraints({
             advanced: [{ focusMode: 'continuous' }]
-          }).catch(err => console.log('Failed to restore continuous focus:', err));
+          }).catch(() => {});
         }
       }, 1000);
-    } catch (err) {
-      console.log('Failed to focus at point:', err);
+    } catch {
+      // Focusing is an optional capability; leave the camera usable if unsupported.
     }
   }
 };
@@ -345,8 +282,8 @@ export const setCameraZoom = async (stream, zoom) => {
       await track.applyConstraints({
         advanced: [{ zoom: clampedZoom }]
       });
-    } catch (err) {
-      console.log('Failed to set zoom:', err);
+    } catch {
+      // Zoom is an optional capability; leave the camera usable if unsupported.
     }
   }
 };
@@ -498,4 +435,4 @@ export const setupEnhancedCameraControls = ({
       video.removeEventListener('click', onClick);
     }
   };
-}; 
+};

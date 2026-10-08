@@ -63,8 +63,6 @@ export default function ProfileEditModal({ open, onClose, userInfo = {}, onSave 
               
               if (deleteError) {
                 console.error('Failed to delete old avatar:', deleteError);
-              } else {
-                console.log('Old avatar deleted:', fileName);
               }
             }
           } catch (error) {

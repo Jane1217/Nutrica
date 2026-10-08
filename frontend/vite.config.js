@@ -38,6 +38,8 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: true
+    // Do not publish source maps by default. They significantly increase the
+    // deployment size and expose the original client source to every visitor.
+    sourcemap: process.env.SOURCE_MAPS === 'true'
   }
-}) 
+})

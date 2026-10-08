@@ -20,7 +20,7 @@ export default function PrivacyNotice() {
           </p>
           <br />
           <p>
-            Your data will not be shared with any third parties and will be stored securely. All collected information is used solely for internal research and development.
+            We use carefully selected service providers to operate Nutrica, including Supabase for authentication and data storage and OpenAI to analyze food descriptions or label images that you choose to submit. We do not sell your personal information. Collected information is used to provide and improve the service.
           </p>
           <br />
           <p>
@@ -42,4 +42,4 @@ export default function PrivacyNotice() {
       </div>
     </div>
   );
-} 
+}

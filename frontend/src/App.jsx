@@ -1,21 +1,25 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import Home from './pages/home/home';
-import LogIn from './pages/auth/pages/Log In';
-import SignUp from './pages/auth/pages/Sign up';
-import ForgotPassword from './pages/auth/pages/ForgotPassword';
-import ResetPassword from './pages/auth/pages/ResetPassword';
-import AccountSettings from './pages/auth/pages/Account settings';
-import Tutorials from './pages/auth/pages/Tutorials';
-import ScanLabelPage from './pages/eat/pages/scan-label/ScanLabelPage';
-import Welcome from './pages/welcome/Welcome';
-import MyCollections from './pages/my-collections/pages/MyCollections';
-import CollectionDetail from './pages/my-collections/pages/CollectionDetail';
-import SharePage from './pages/share/SharePage';
-import SafariCameraPermission from './pages/auth/pages/SafariCameraPermission';
-import PrivacyNotice from './pages/auth/pages/PrivacyNotice';
-import About from './pages/auth/pages/About';
-import React, { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { supabase } from './supabaseClient';
+
+// Keep the first download focused on authentication and the current route.
+// The scanner, collections and account UI otherwise made every first visit
+// download the entire application before any page could render.
+const Home = lazy(() => import('./pages/home/home'));
+const LogIn = lazy(() => import('./pages/auth/pages/Log In'));
+const SignUp = lazy(() => import('./pages/auth/pages/Sign up'));
+const ForgotPassword = lazy(() => import('./pages/auth/pages/ForgotPassword'));
+const ResetPassword = lazy(() => import('./pages/auth/pages/ResetPassword'));
+const AccountSettings = lazy(() => import('./pages/auth/pages/Account settings'));
+const Tutorials = lazy(() => import('./pages/auth/pages/Tutorials'));
+const ScanLabelPage = lazy(() => import('./pages/eat/pages/scan-label/ScanLabelPage'));
+const Welcome = lazy(() => import('./pages/welcome/Welcome'));
+const MyCollections = lazy(() => import('./pages/my-collections/pages/MyCollections'));
+const CollectionDetail = lazy(() => import('./pages/my-collections/pages/CollectionDetail'));
+const SharePage = lazy(() => import('./pages/share/SharePage'));
+const SafariCameraPermission = lazy(() => import('./pages/auth/pages/SafariCameraPermission'));
+const PrivacyNotice = lazy(() => import('./pages/auth/pages/PrivacyNotice'));
+const About = lazy(() => import('./pages/auth/pages/About'));
 
 function RequireAuth({ user, children }) {
   return user ? children : <Navigate to="/log-in" replace />;
@@ -72,6 +76,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      <Suspense fallback={<PageLoading />}>
       <Routes>
         <Route
           path="/"
@@ -161,6 +166,22 @@ export default function App() {
         <Route path="/about" element={<About />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </Suspense>
     </BrowserRouter>
+  );
+}
+
+function PageLoading() {
+  return (
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      fontSize: '16px',
+      color: '#666'
+    }}>
+      Loading...
+    </div>
   );
 }

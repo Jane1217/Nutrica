@@ -699,6 +699,19 @@
   border: 1px solid #ffcdd2;
 }
 
+.successMessage {
+  width: 100%;
+  box-sizing: border-box;
+  background: #eaf5e4;
+  color: #245617;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin: 16px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  border: 1px solid #b8d9ac;
+}
+
 .modalActions {
   display: flex;
   gap: 12px;

@@ -15,6 +15,7 @@ export default function SignUp({ open, onClose, onAuth, onSwitchToLogin }) {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [success, setSuccess] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSignup = async (e) => {
@@ -39,6 +40,7 @@ export default function SignUp({ open, onClose, onAuth, onSwitchToLogin }) {
     }
     
     try {
+      setIsLoading(true);
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -56,6 +58,8 @@ export default function SignUp({ open, onClose, onAuth, onSwitchToLogin }) {
     } catch (err) {
       console.error('Unexpected error:', err);
       setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -87,8 +91,14 @@ export default function SignUp({ open, onClose, onAuth, onSwitchToLogin }) {
           />
           <div className={`${styles.signupHintText} body2`}>Password must have at least 8 characters.</div>
         </div>
+        {error && <p className={styles.errorMessage} role="alert">{error}</p>}
+        {success && <p className={styles.successMessage} role="status">{success}</p>}
         <div className={`${styles.actionGroup} ${styles.signupActionGroup}`}>
-          <BottomButton onClick={e => { e.preventDefault(); handleSignup(e); }}>
+          <BottomButton
+            onClick={e => { e.preventDefault(); handleSignup(e); }}
+            isLoading={isLoading}
+            loadingText="Creating account..."
+          >
             Sign up
           </BottomButton>
           <div className={`${styles.signupTerms} body2`}>
