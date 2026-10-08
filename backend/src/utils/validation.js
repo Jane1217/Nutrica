@@ -42,6 +42,40 @@ const cleanNutritionData = (nutrition) => {
   };
 };
 
+const normalizeRequiredText = (value, fieldName, maxLength = 120) => {
+  const normalizedValue = typeof value === 'string' ? value.trim() : '';
+  if (!normalizedValue) {
+    throw new Error(`${fieldName} is required`);
+  }
+  if (normalizedValue.length > maxLength) {
+    throw new Error(`${fieldName} must be ${maxLength} characters or fewer`);
+  }
+  return normalizedValue;
+};
+
+const validateUuid = (value, fieldName = 'ID') => {
+  const uuid = typeof value === 'string' ? value.trim() : '';
+  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  if (!uuidPattern.test(uuid)) {
+    throw new Error(`${fieldName} must be a valid UUID`);
+  }
+  return uuid;
+};
+
+const validateCollectionPayload = ({ collection_type, puzzle_name, nutrition, count }) => {
+  const normalizedCount = count === undefined || count === null ? 1 : Number(count);
+  if (!Number.isInteger(normalizedCount) || normalizedCount < 1 || normalizedCount > 100) {
+    throw new Error('Count must be a whole number between 1 and 100');
+  }
+
+  return {
+    collection_type: normalizeRequiredText(collection_type, 'Collection type'),
+    puzzle_name: normalizeRequiredText(puzzle_name, 'Puzzle name'),
+    nutrition: nutrition === undefined || nutrition === null ? {} : cleanNutritionData(nutrition),
+    count: normalizedCount
+  };
+};
+
 const validateFoodPayload = ({ name, nutrition, number_of_servings, time, emoji }) => {
   const normalizedName = typeof name === 'string' ? name.trim() : '';
   if (!normalizedName) {
@@ -116,6 +150,9 @@ module.exports = {
   validateRequiredFields,
   validateNutritionData,
   cleanNutritionData,
+  normalizeRequiredText,
+  validateUuid,
+  validateCollectionPayload,
   validateFoodPayload,
   validateFileType,
   validateFileSize,

@@ -7,14 +7,12 @@ const performanceMonitor = (req, res, next) => {
   // 监听响应结束事件
   res.on('finish', () => {
     const duration = performance.now() - start;
-    const { method, url } = req;
+    const { method, path } = req;
     const { statusCode } = res;
 
     // 记录慢查询（超过1秒的请求）
     if (duration > 1000) {
-      console.warn(`Slow API request: ${method} ${url} - ${duration.toFixed(2)}ms - Status: ${statusCode}`);
-    } else {
-      console.log(`API request: ${method} ${url} - ${duration.toFixed(2)}ms - Status: ${statusCode}`);
+      console.warn(`Slow API request: ${method} ${path} - ${duration.toFixed(2)}ms - Status: ${statusCode}`);
     }
   });
 

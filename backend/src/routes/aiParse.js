@@ -125,7 +125,7 @@ router.post('/description', async (req, res) => {
 // Parse food image
 router.post('/food', upload.single('image'), async (req, res) => {
   try {
-    logInfo(`Processing food image upload: ${req.file?.originalname}`);
+    logInfo('Processing food image upload');
 
     if (!req.file) {
       return fileUploadErrorResponse(res, 'No image file received');

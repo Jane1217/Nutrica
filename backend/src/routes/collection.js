@@ -2,6 +2,16 @@ const express = require('express');
 const router = express.Router();
 const { authenticateUser } = require('../middleware/auth');
 const databaseService = require('../services/databaseService');
+const {
+  normalizeRequiredText,
+  validateCollectionPayload,
+  validateUuid
+} = require('../utils/validation');
+
+const validationError = (res, error) => res.status(400).json({
+  success: false,
+  error: { message: error.message }
+});
 
 // 获取collection_puzzles数据
 router.get('/collection-puzzles', async (req, res) => {
@@ -27,15 +37,20 @@ router.get('/collection-puzzles', async (req, res) => {
 router.get('/user-collections', authenticateUser, async (req, res) => {
   try {
     const userId = req.user.id;
-    const { collection_type } = req.query;
+    const collectionType = req.query.collection_type === undefined
+      ? undefined
+      : normalizeRequiredText(req.query.collection_type, 'Collection type');
 
-    const data = await databaseService.getUserCollections(userId, collection_type);
+    const data = await databaseService.getUserCollections(userId, collectionType);
 
     res.json({
       success: true,
       data: data || []
     });
   } catch (error) {
+    if (error.message?.includes('Collection type')) {
+      return validationError(res, error);
+    }
     console.error('Error in user-collections endpoint:', error);
     res.status(500).json({
       success: false,
@@ -50,23 +65,14 @@ router.get('/user-collections', authenticateUser, async (req, res) => {
 router.post('/user-collections', authenticateUser, async (req, res) => {
   try {
     const userId = req.user.id;
-    const { collection_type, puzzle_name, nutrition, count = 1 } = req.body;
-
-    if (!collection_type || !puzzle_name) {
-      return res.status(400).json({
-        success: false,
-        error: {
-          message: 'Missing required fields: collection_type and puzzle_name'
-        }
-      });
+    let collection;
+    try {
+      collection = validateCollectionPayload(req.body || {});
+    } catch (error) {
+      return validationError(res, error);
     }
 
-    const result = await databaseService.addUserCollection(userId, {
-      collection_type,
-      puzzle_name,
-      nutrition,
-      count
-    });
+    const result = await databaseService.addUserCollection(userId, collection);
 
     res.json({
       success: true,
@@ -87,19 +93,17 @@ router.post('/user-collections', authenticateUser, async (req, res) => {
 // 获取公开的collection数据（不需要认证）
 router.get('/public-collection', async (req, res) => {
   try {
-    const { user_id, puzzle_name } = req.query;
-
-    if (!user_id || !puzzle_name) {
-      return res.status(400).json({
-        success: false,
-        error: {
-          message: 'Missing required parameters: user_id and puzzle_name'
-        }
-      });
+    let userId;
+    let puzzleName;
+    try {
+      userId = validateUuid(req.query.user_id, 'User ID');
+      puzzleName = normalizeRequiredText(req.query.puzzle_name, 'Puzzle name');
+    } catch (error) {
+      return validationError(res, error);
     }
 
     // 使用databaseService的方法
-    const collectionData = await databaseService.getPublicCollection(user_id, puzzle_name);
+    const collectionData = await databaseService.getPublicCollection(userId, puzzleName);
 
     if (!collectionData) {
       return res.status(404).json({
@@ -129,15 +133,13 @@ router.get('/public-collection', async (req, res) => {
 router.post('/update-congratulations-shown', authenticateUser, async (req, res) => {
   try {
     const userId = req.user.id;
-    const { puzzle_name, collection_type } = req.body;
-
-    if (!puzzle_name || !collection_type) {
-      return res.status(400).json({
-        success: false,
-        error: {
-          message: 'Missing required fields: puzzle_name and collection_type'
-        }
-      });
+    let puzzleName;
+    let collectionType;
+    try {
+      puzzleName = normalizeRequiredText(req.body?.puzzle_name, 'Puzzle name');
+      collectionType = normalizeRequiredText(req.body?.collection_type, 'Collection type');
+    } catch (error) {
+      return validationError(res, error);
     }
 
     // 插入或更新user_congratulations_shown表
@@ -145,8 +147,8 @@ router.post('/update-congratulations-shown', authenticateUser, async (req, res) 
       .from('user_congratulations_shown')
       .upsert({
         user_id: userId,
-        puzzle_name,
-        collection_type,
+        puzzle_name: puzzleName,
+        collection_type: collectionType,
         shown_at: new Date().toISOString()
       }, {
         onConflict: 'user_id,puzzle_name,collection_type'
@@ -181,15 +183,13 @@ router.post('/update-congratulations-shown', authenticateUser, async (req, res) 
 router.get('/congratulations-shown-status', authenticateUser, async (req, res) => {
   try {
     const userId = req.user.id;
-    const { puzzle_name, collection_type } = req.query;
-
-    if (!puzzle_name || !collection_type) {
-      return res.status(400).json({
-        success: false,
-        error: {
-          message: 'Missing required parameters: puzzle_name and collection_type'
-        }
-      });
+    let puzzleName;
+    let collectionType;
+    try {
+      puzzleName = normalizeRequiredText(req.query.puzzle_name, 'Puzzle name');
+      collectionType = normalizeRequiredText(req.query.collection_type, 'Collection type');
+    } catch (error) {
+      return validationError(res, error);
     }
 
     // 查询user_congratulations_shown表
@@ -197,8 +197,8 @@ router.get('/congratulations-shown-status', authenticateUser, async (req, res) =
       .from('user_congratulations_shown')
       .select('*')
       .eq('user_id', userId)
-      .eq('puzzle_name', puzzle_name)
-      .eq('collection_type', collection_type);
+      .eq('puzzle_name', puzzleName)
+      .eq('collection_type', collectionType);
 
     if (error) {
       console.error('Error fetching congratulations shown status:', error);

@@ -112,12 +112,22 @@ export const uploadFile = async (endpoint, file, onProgress = null) => {
       headers,
     });
 
+    const contentType = response.headers.get('content-type') || '';
+    const data = contentType.includes('application/json')
+      ? await response.json()
+      : null;
+
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`HTTP ${response.status}: ${errorText}`);
+      throw new Error(
+        data?.error?.message
+        || data?.message
+        || `Upload failed (${response.status})`
+      );
     }
 
-    const data = await response.json();
+    if (!data) {
+      throw new Error('The server returned an invalid response');
+    }
 
     // 检查API响应格式，确保与其他API保持一致
     if (data.success === false) {

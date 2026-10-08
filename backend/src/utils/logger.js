@@ -19,7 +19,9 @@ const logError = (message, error = null) => {
   const timestamp = formatTimestamp();
   const errorData = error ? ` | Error: ${error.message || error}` : '';
   console.error(`[${timestamp}] ERROR: ${message}${errorData}`);
-  if (error && error.stack) {
+  // Stack traces are valuable while developing, but routinely emitting them
+  // in production can expose internal implementation details and add noise.
+  if (process.env.NODE_ENV !== 'production' && error && error.stack) {
     console.error(`[${timestamp}] Stack: ${error.stack}`);
   }
 };
@@ -52,4 +54,4 @@ module.exports = {
   logWarning,
   logApiRequest,
   logApiResponse
-}; 
+};

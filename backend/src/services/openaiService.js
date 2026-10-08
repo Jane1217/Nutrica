@@ -1,5 +1,6 @@
 const { OpenAI } = require('openai');
 const config = require('../config/config');
+const { logError, logWarning } = require('../utils/logger');
 
 class OpenAIService {
   constructor() {
@@ -44,14 +45,8 @@ class OpenAIService {
 
       return response;
     } catch (error) {
-      console.error('OpenAI API Error:', error);
-      console.error('OpenAI Error Details:', {
-        message: error.message,
-        status: error.status,
-        code: error.code,
-        type: error.type
-      });
-      throw new Error(`Image analysis failed: ${error.message}`);
+      logError('OpenAI image analysis failed', error);
+      throw new Error('Image analysis failed');
     }
   }
 
@@ -72,14 +67,8 @@ class OpenAIService {
 
       return response;
     } catch (error) {
-      console.error('OpenAI API Error:', error);
-      console.error('OpenAI Error Details:', {
-        message: error.message,
-        status: error.status,
-        code: error.code,
-        type: error.type
-      });
-      throw new Error(`Description analysis failed: ${error.message}`);
+      logError('OpenAI description analysis failed', error);
+      throw new Error('Description analysis failed');
     }
   }
 
@@ -106,7 +95,7 @@ class OpenAIService {
       // 只保留第一个emoji字符
       return text.match(/\p{Emoji}/u) ? text : '🍽️';
     } catch (error) {
-      console.error('OpenAI Emoji API Error:', error);
+      logWarning('OpenAI emoji generation failed; using fallback emoji');
       return '🍽️';
     }
   }

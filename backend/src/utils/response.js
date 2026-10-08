@@ -13,8 +13,6 @@ const successResponse = (res, data = null, message = 'Success') => {
 
 // 错误响应
 const errorResponse = (res, error, statusCode = 500) => {
-  console.error(`[${new Date().toISOString()}] Error:`, error);
-
   // Do not leak provider, database, or internal implementation details to a
   // browser on server failures. Client errors remain actionable.
   const message = statusCode >= 500

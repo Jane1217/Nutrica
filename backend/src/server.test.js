@@ -7,7 +7,11 @@ process.env.CORS_ORIGIN = 'https://nutrica.fit';
 
 const request = require('supertest');
 const app = require('./server');
-const { cleanNutritionData, validateFoodPayload } = require('./utils/validation');
+const {
+  cleanNutritionData,
+  validateCollectionPayload,
+  validateFoodPayload
+} = require('./utils/validation');
 
 describe('public API safeguards', () => {
   test('health endpoint is publicly available with the expected CORS origin', async () => {
@@ -84,5 +88,31 @@ describe('food payload validation', () => {
     { name: 'oatmeal', nutrition: {}, time: 'not-a-date' }
   ])('rejects malformed privileged food payloads: %p', (payload) => {
     expect(() => validateFoodPayload(payload)).toThrow();
+  });
+});
+
+describe('collection payload validation', () => {
+  test('normalizes a collection payload before it reaches the service-role database client', () => {
+    expect(validateCollectionPayload({
+      collection_type: '  Magic Garden  ',
+      puzzle_name: '  Avocado  ',
+      nutrition: { calories: '', carbs: '10.5', fats: 2, protein: 1 },
+      count: '1'
+    })).toEqual({
+      collection_type: 'Magic Garden',
+      puzzle_name: 'Avocado',
+      nutrition: { calories: 0, carbs: 10.5, fats: 2, protein: 1 },
+      count: 1
+    });
+  });
+
+  test.each([
+    { collection_type: 'Magic Garden', puzzle_name: 'Avocado', count: 0 },
+    { collection_type: 'Magic Garden', puzzle_name: 'Avocado', count: 1.5 },
+    { collection_type: 'Magic Garden', puzzle_name: 'Avocado', count: 101 },
+    { collection_type: ' ', puzzle_name: 'Avocado' },
+    { collection_type: 'Magic Garden', puzzle_name: ' ' }
+  ])('rejects malformed collection payloads: %p', (payload) => {
+    expect(() => validateCollectionPayload(payload)).toThrow();
   });
 });

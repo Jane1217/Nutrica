@@ -24,6 +24,8 @@ const getHttpsConfig = () => {
   return false;
 };
 
+const localHttpsConfig = isLocal ? getHttpsConfig() : false;
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
@@ -32,8 +34,8 @@ export default defineConfig({
     port: 3000,
     open: true,
     host: '0.0.0.0', // 允许局域网访问
-    ...(isLocal && getHttpsConfig() && {
-      https: getHttpsConfig()
+    ...(localHttpsConfig && {
+      https: localHttpsConfig
     })
   },
   build: {
