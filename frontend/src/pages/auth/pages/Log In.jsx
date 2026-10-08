@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../../supabaseClient';
 import InputField from '../../../components/auth/InputField';
@@ -15,6 +15,15 @@ export default function LogIn({ open, onClose, onAuth, onSwitchToSignUp, onSwitc
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const navigate = useNavigate();
+
+  // A hidden login dialog must not leave an old error toast floating above the
+  // next dialog (for example, the password-recovery form).
+  useEffect(() => {
+    if (!open) {
+      setShowToast(false);
+      setToastMessage('');
+    }
+  }, [open]);
 
   const handleLogin = async (e) => {
     e.preventDefault();

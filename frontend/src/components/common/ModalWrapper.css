@@ -99,10 +99,25 @@
   
   /* Auth弹窗（login和sign up）使用640x640尺寸 */
   .modal-content-auth {
-    width: 640px;
-    height: 640px;
+    width: min(640px, calc(100vw - 48px));
+    height: auto;
+    min-height: 0;
     max-width: 640px;
-    max-height: 640px;
+    max-height: calc(100dvh - 48px);
+    overflow-y: auto;
+  }
+}
+
+/* Authentication flows are forms, not full-screen sheets. Their height should
+   follow the content at every viewport size and remain scrollable when needed. */
+@media (max-width: 768px) {
+  .modal-content-auth {
+    width: calc(100vw - 32px);
+    height: auto;
+    min-height: 0;
+    max-height: calc(100dvh - 32px);
+    border-radius: 28px;
+    overflow-y: auto;
   }
 }
 
