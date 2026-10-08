@@ -12,6 +12,8 @@ button {
   height: 100%;
   display: flex;
   flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .loadingContent {
@@ -33,6 +35,7 @@ button {
   background: var(--Brand-Background, #F3F3EC);
   box-sizing: border-box;
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
 }
 
