@@ -70,3 +70,5 @@ coverage/
 # 数据库设置和文档文件
 database_setup.sql
 test_rls_fix.md
+.vercel
+.env*

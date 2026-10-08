@@ -37,3 +37,4 @@ coverage/
 
 # 本地配置文件
 *.local
+.vercel

@@ -44,4 +44,6 @@ coverage/
 # 包管理器锁文件（可选，根据团队策略决定是否忽略）
 # package-lock.json
 # yarn.lock
-# pnpm-lock.yaml 
+# pnpm-lock.yaml
+.vercel
+.env*
