@@ -15,7 +15,7 @@ import Toast from '../../components/common/Toast';
 
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import styles from './Home.module.css';
-import { calculateNutritionFromCalories, formatFoods, fetchNutritionGoals, fetchTodayNutrition, getCurrentUser, getUserMetadata, updateUserMetadata, isUserInfoComplete, hasShownUserInfoModal, setUserInfoModalShown, getDisplayCalories } from '../../utils';
+import { formatFoods, getCurrentUser, getUserMetadata, updateUserMetadata, isUserInfoComplete, hasShownUserInfoModal, setUserInfoModalShown, getDisplayCalories } from '../../utils';
 import { puzzleCategories, colorOrders } from '../../data/puzzles';
 import { monitorPuzzleCompletion } from '../../utils';
 import { preloadCollectionStatus } from '../../utils';
@@ -26,6 +26,14 @@ import {
   getPuzzleProgressMessage,
 } from '../../utils/puzzles';
 import { formatLocalDateKey } from '../../utils/helpers';
+import {
+  calculateNutritionFromCalories,
+  calculateNutritionProgress,
+  DEFAULT_NUTRITION_GOALS,
+  EMPTY_NUTRITION,
+  fetchNutritionGoals,
+  fetchTodayNutrition,
+} from '../../utils/nutrition';
 
 // 保存 daily_home_data 快照到 supabase
 async function saveDailyHomeData(data) {
@@ -77,8 +85,8 @@ export default function Home({ isLoggedIn }) {
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   
   // 营养数据状态
-  const [nutritionGoals, setNutritionGoals] = useState({ calories: 2000, carbs: 200, protein: 150, fats: 65 });
-  const [todayNutrition, setTodayNutrition] = useState({ calories: 0, carbs: 0, protein: 0, fats: 0 });
+  const [nutritionGoals, setNutritionGoals] = useState(() => ({ ...DEFAULT_NUTRITION_GOALS }));
+  const [todayNutrition, setTodayNutrition] = useState(() => ({ ...EMPTY_NUTRITION }));
   const [currentDate, setCurrentDate] = useState(new Date());
   const [snapshotData, setSnapshotData] = useState(null);
   const [snapshotLoading, setSnapshotLoading] = useState(false); // 新增
@@ -275,7 +283,8 @@ export default function Home({ isLoggedIn }) {
   useEffect(() => {
     if (userId && selectedPuzzle) {
       const today = formatLocalDateKey(new Date());
-      const puzzleProgress = getPuzzleProgress(selectedPuzzle, calculateNutritionProgress());
+      const progress = calculateNutritionProgress(todayNutrition, nutritionGoals);
+      const puzzleProgress = getPuzzleProgress(selectedPuzzle, progress);
       saveDailyHomeData({
         user_id: userId,
         date: today,
@@ -284,7 +293,7 @@ export default function Home({ isLoggedIn }) {
           : '',
         puzzle_name: selectedPuzzle?.name || '',
         puzzle_id: selectedPuzzle?.id || '', //
-        daily_text: getPuzzleProgressMessage(selectedPuzzle, calculateNutritionProgress(), userInfo?.name),
+        daily_text: getPuzzleProgressMessage(selectedPuzzle, progress, userInfo?.name),
         pixel_art_data: selectedPuzzle?.pixelMap || null,
         calories: todayNutrition.calories,
         carbs: todayNutrition.carbs,
@@ -305,7 +314,8 @@ export default function Home({ isLoggedIn }) {
     const timer = setTimeout(() => {
       if (userId && selectedPuzzle) {
         const today = formatLocalDateKey(new Date());
-        const puzzleProgress = getPuzzleProgress(selectedPuzzle, calculateNutritionProgress());
+        const progress = calculateNutritionProgress(todayNutrition, nutritionGoals);
+        const puzzleProgress = getPuzzleProgress(selectedPuzzle, progress);
         saveDailyHomeData({
           user_id: userId,
           date: today,
@@ -314,7 +324,7 @@ export default function Home({ isLoggedIn }) {
             : '',
           puzzle_name: selectedPuzzle?.name || '',
           puzzle_id: selectedPuzzle?.id || '', // 新增
-          daily_text: getPuzzleProgressMessage(selectedPuzzle, calculateNutritionProgress(), userInfo?.name),
+          daily_text: getPuzzleProgressMessage(selectedPuzzle, progress, userInfo?.name),
           pixel_art_data: selectedPuzzle?.pixelMap || null,
           calories: todayNutrition.calories,
           carbs: todayNutrition.carbs,
@@ -447,15 +457,6 @@ export default function Home({ isLoggedIn }) {
     localStorage.setItem('selectedPuzzleDate', formatLocalDateKey(new Date()));
   };
 
-  // 计算营养进度
-  const calculateNutritionProgress = () => {
-    return {
-      1: Math.min(todayNutrition.carbs / nutritionGoals.carbs, 1), // carbs
-      2: Math.min(todayNutrition.protein / nutritionGoals.protein, 1), // protein  
-      3: Math.min(todayNutrition.fats / nutritionGoals.fats, 1) // fats
-    };
-  };
-
   // 选中puzzle时提取颜色（自动顺序）
   const colorOrder = selectedPuzzle ? colorOrders[selectedPuzzle.id] || [] : [];
   const carbsColors = getPuzzleNutrientColorsByOrder(selectedPuzzle?.pixelMap, 1, colorOrder);
@@ -530,7 +531,7 @@ export default function Home({ isLoggedIn }) {
       ? (historyProgress === 1
         ? 'Puzzle collected! Treat yourself in tomorrow’s challenge!'
         : 'So close to completing this puzzle! — try again next time!')
-      : getPuzzleProgressMessage(selectedPuzzle, calculateNutritionProgress(), userInfo?.name),
+      : getPuzzleProgressMessage(selectedPuzzle, calculateNutritionProgress(todayNutrition, nutritionGoals), userInfo?.name),
     pixel_art_data: snapshotData.pixel_art_data,
     calories: snapshotData.calories,
     carbs: snapshotData.carbs,
@@ -548,7 +549,7 @@ export default function Home({ isLoggedIn }) {
       ? (puzzleCategories.find(cat => cat.puzzles.some(p => selectedPuzzle.id.startsWith(p.id)))?.title || '')
       : '',
     puzzle_name: selectedPuzzle?.name || '',
-    daily_text: getPuzzleProgressMessage(selectedPuzzle, calculateNutritionProgress(), userInfo?.name),
+    daily_text: getPuzzleProgressMessage(selectedPuzzle, calculateNutritionProgress(todayNutrition, nutritionGoals), userInfo?.name),
     pixel_art_data: selectedPuzzle?.pixelMap || null,
     calories: todayNutrition.calories,
     carbs: todayNutrition.carbs,
@@ -557,7 +558,7 @@ export default function Home({ isLoggedIn }) {
     carbs_goal: nutritionGoals.carbs,
     protein_goal: nutritionGoals.protein,
     fats_goal: nutritionGoals.fats,
-    puzzle_progress: snapshotData ? snapshotData.puzzle_progress : getPuzzleProgress(selectedPuzzle, calculateNutritionProgress()),
+    puzzle_progress: snapshotData ? snapshotData.puzzle_progress : getPuzzleProgress(selectedPuzzle, calculateNutritionProgress(todayNutrition, nutritionGoals)),
     carbs_colors: snapshotData ? snapshotData.carbs_colors : carbsColors,
     protein_colors: snapshotData ? snapshotData.protein_colors : proteinColors,
     fats_colors: snapshotData ? snapshotData.fats_colors : fatsColors
@@ -570,7 +571,7 @@ export default function Home({ isLoggedIn }) {
         2: (snapshotData.protein_goal && snapshotData.protein ? Math.min(snapshotData.protein / snapshotData.protein_goal, 1) : 0),
         3: (snapshotData.fats_goal && snapshotData.fats ? Math.min(snapshotData.fats / snapshotData.fats_goal, 1) : 0),
       }
-    : calculateNutritionProgress();
+    : calculateNutritionProgress(todayNutrition, nutritionGoals);
 
   // PuzzleContainer的img参数（历史快照100%时也传img）
   const renderPuzzle = snapshotData

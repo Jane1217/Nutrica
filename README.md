@@ -2,7 +2,7 @@
 
 **AI-assisted nutrition tracking that turns everyday meal logging into a rewarding pixel-art collection.**
 
-[Live application](https://nutrica.fit) · [Architecture](docs/ARCHITECTURE.md) · [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md)
+[Live application](https://nutrica.fit) · [Architecture](docs/ARCHITECTURE.md) · [Security](SECURITY.md)
 
 Nutrica is a full-stack web application for logging meals, understanding macronutrients, and building healthier habits. Users can describe a meal or scan a nutrition label; the application uses OpenAI to structure the nutrition data, stores records behind Supabase authentication, and visualizes progress through a collectible puzzle system.
 
@@ -102,7 +102,7 @@ npm run verify    # both commands above
 npm run audit     # production dependency audit
 ```
 
-GitHub Actions runs the client build and backend test suite on every push and pull request.
+GitHub Actions runs the client build, frontend unit tests, and backend test suite on every push and pull request.
 
 ## Deployment
 

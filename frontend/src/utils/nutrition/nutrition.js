@@ -1,9 +1,43 @@
-// 计算三大营养素
+export const DEFAULT_NUTRITION_GOALS = Object.freeze({
+  calories: 2000,
+  carbs: 200,
+  protein: 150,
+  fats: 65,
+});
+
+export const EMPTY_NUTRITION = Object.freeze({
+  calories: 0,
+  carbs: 0,
+  protein: 0,
+  fats: 0,
+});
+
+const asNonNegativeNumber = (value) => {
+  const number = Number(value);
+  return Number.isFinite(number) && number >= 0 ? number : 0;
+};
+
+// Calculate macro targets from a calorie goal using the product's 50/30/20 split.
 export function calculateNutritionFromCalories(calories) {
-  const carbs = Math.round((0.50 * calories) / 4);
-  const fats = Math.round((0.30 * calories) / 9);
-  const protein = Math.round((0.20 * calories) / 4);
+  const safeCalories = asNonNegativeNumber(calories);
+  const carbs = Math.round((0.50 * safeCalories) / 4);
+  const fats = Math.round((0.30 * safeCalories) / 9);
+  const protein = Math.round((0.20 * safeCalories) / 4);
   return { carbs, fats, protein };
+}
+
+export function calculateNutritionProgress(current = EMPTY_NUTRITION, goals = DEFAULT_NUTRITION_GOALS) {
+  const progressFor = (nutrient) => {
+    const goal = asNonNegativeNumber(goals?.[nutrient]);
+    if (goal === 0) return 0;
+    return Math.min(asNonNegativeNumber(current?.[nutrient]) / goal, 1);
+  };
+
+  return {
+    1: progressFor('carbs'),
+    2: progressFor('protein'),
+    3: progressFor('fats'),
+  };
 }
 
 // 格式化foods数据
@@ -33,17 +67,17 @@ export async function fetchNutritionGoals(supabase, userId) {
 
     if (error) {
       console.error('Failed to fetch nutrition goals:', error);
-      return { calories: 2000, carbs: 200, protein: 150, fats: 65 };
+      return { ...DEFAULT_NUTRITION_GOALS };
     }
 
     if (data && data.length > 0) {
       return data[0];
     }
 
-    return { calories: 2000, carbs: 200, protein: 150, fats: 65 };
+    return { ...DEFAULT_NUTRITION_GOALS };
   } catch (error) {
     console.error('Error fetching nutrition goals:', error);
-    return { calories: 2000, carbs: 200, protein: 150, fats: 65 };
+    return { ...DEFAULT_NUTRITION_GOALS };
   }
 }
 
@@ -64,24 +98,24 @@ export async function fetchTodayNutrition(supabase, userId) {
 
     if (error) {
       console.error('Failed to fetch today nutrition data:', error);
-      return { calories: 0, carbs: 0, protein: 0, fats: 0 };
+      return { ...EMPTY_NUTRITION };
     }
 
     // 计算今日总营养摄入
     const totalNutrition = data.reduce((acc, food) => {
       if (food.nutrition) {
-        acc.calories += food.nutrition.calories || 0;
-        acc.carbs += food.nutrition.carbs || 0;
-        acc.protein += food.nutrition.protein || 0;
-        acc.fats += food.nutrition.fats || 0;
+        acc.calories += asNonNegativeNumber(food.nutrition.calories);
+        acc.carbs += asNonNegativeNumber(food.nutrition.carbs);
+        acc.protein += asNonNegativeNumber(food.nutrition.protein);
+        acc.fats += asNonNegativeNumber(food.nutrition.fats);
       }
       return acc;
-    }, { calories: 0, carbs: 0, protein: 0, fats: 0 });
+    }, { ...EMPTY_NUTRITION });
 
     return totalNutrition;
   } catch (error) {
     console.error('Error fetching today nutrition data:', error);
-    return { calories: 0, carbs: 0, protein: 0, fats: 0 };
+    return { ...EMPTY_NUTRITION };
   }
 }
 
@@ -92,6 +126,7 @@ export function checkNutritionGoal(current, goal) {
 
 // 获取营养完成百分比
 export function getNutritionPercentage(current, goal) {
-  if (goal === 0) return 0;
-  return Math.min(Math.round((current / goal) * 100), 100);
-} 
+  const safeGoal = asNonNegativeNumber(goal);
+  if (safeGoal === 0) return 0;
+  return Math.min(Math.round((asNonNegativeNumber(current) / safeGoal) * 100), 100);
+}
