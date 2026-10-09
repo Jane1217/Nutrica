@@ -131,7 +131,7 @@ export default function MyCollections() {
   if (loading) {
     return (
       <>
-        <NavLogo isLoggedIn={true} isAuth={false} />
+        <NavLogo isLoggedIn />
         <LoadingState />
       </>
     );
@@ -149,7 +149,7 @@ export default function MyCollections() {
   if (collections.length === 0 || !hasAnyCollectedPuzzles) {
     return (
       <>
-        <NavLogo isLoggedIn={true} isAuth={false} />
+        <NavLogo isLoggedIn />
         <EmptyState />
       </>
     );
@@ -194,7 +194,7 @@ export default function MyCollections() {
 
   return (
     <div className={styles.myCollectionsPage}>
-      <NavLogo isLoggedIn={true} isAuth={false} />
+      <NavLogo isLoggedIn />
       <div className={styles.container}>
         <h1 className={`${styles.title} h1`}>My Collections</h1>
         

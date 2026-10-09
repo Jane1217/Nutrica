@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import CameraPermissionModal from './CameraPermissionModal';
 import EnterValueModal from './EnterValueModal';
 import DescribeModal from './DescribeModal';
@@ -6,17 +6,15 @@ import DescribeFoodModal from './DescribeFoodModal';
 // 移除本地ScanLabelPage引用，后续用路由跳转
 import '../styles/EatModal.css';
 import { useNavigate } from 'react-router-dom';
-import { formatFoodTime, formatFoodTimeSmart } from '../../../utils';
+import { formatFoodTimeSmart } from '../../../utils';
 import ModalWrapper from '../../../components/common/ModalWrapper';
 import { icons } from '../../../utils';
 import { userApi } from '../../../utils';
 import { getCurrentUser } from '../../../utils';
 import { getAuthToken } from '../../../utils';
 
-export default function EatModal({ onClose, foods = [], foodsLoading = false, onDescribe, onEnterValue, userId, onDataChange, onFoodsScroll, open }) {
+export default function EatModal({ onClose, foods = [], foodsLoading = false, onDataChange, onFoodsScroll, open }) {
   const [step, setStep] = useState('main'); // 'main' | 'camera-permission' | 'scan' | 'enter-value' | 'describe' | 'describe-food'
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [aiData, setAiData] = useState(null);
   const [showCameraPermission, setShowCameraPermission] = useState(false);
   const navigate = useNavigate();
@@ -87,7 +85,6 @@ export default function EatModal({ onClose, foods = [], foodsLoading = false, on
       navigate('/eat/scan-label');
     }
   };
-  const handleCloseScan = () => setStep('main');
   const handleEnterValue = () => setStep('enter-value');
   const handleCloseEnterValue = () => setStep('main');
   const handleDescribe = () => setStep('describe');
@@ -97,7 +94,7 @@ export default function EatModal({ onClose, foods = [], foodsLoading = false, on
   const handleBackEnterValue = () => setStep('main');
   const handleBackDescribe = () => setStep('main');
   
-  const handleDescribeNext = async (description, aiData) => {
+  const handleDescribeNext = (_description, aiData) => {
     // AI分析已经在DescribeModal中处理，这里接收AI数据并跳转
     setAiData(aiData);
     setStep('describe-food');
@@ -210,7 +207,6 @@ export default function EatModal({ onClose, foods = [], foodsLoading = false, on
         onClose={handleCloseEnterValue}
         onBack={handleBackEnterValue}
         onCloseModal={onClose}
-        userId={userId}
         onDataChange={handleDataChange}
       />
       <DescribeModal 
@@ -226,7 +222,6 @@ export default function EatModal({ onClose, foods = [], foodsLoading = false, on
         onBack={handleBackDescribeFood}
         onCloseModal={onClose}
         aiData={aiData}
-        userId={userId}
         onDataChange={handleDataChange}
       />
     </>

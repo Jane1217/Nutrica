@@ -6,7 +6,7 @@ import ModalWrapper from '../../../components/common/ModalWrapper';
 import Toast from '../../../components/common/Toast';
 import { icons } from '../../../utils';
 
-export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal, aiData, userId, onDataChange }) {
+export default function DescribeFoodModal({ open, onBack, onCloseModal, aiData, onDataChange }) {
   const [form, setForm] = useState({
     name: '',
     calories: '',
@@ -73,7 +73,9 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
     setErrorToast({ show: false, message: '' });
     
     try {
-      const result = await validateAndSaveFood(form, aiData?.emoji || '🍽️', onDataChange);
+      // The modal owns the post-save transition, so the parent refresh runs
+      // exactly once after persistence succeeds.
+      const result = await validateAndSaveFood(form, aiData?.emoji || '🍽️');
       
       if (result.success) {
         // 保存成功后，立即清除所有状态，然后跳转
@@ -81,7 +83,8 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
         setLoading(false);
         setErrorToast({ show: false, message: '' });
         
-        // 重置表单和AI数据
+        // Reset only state owned by this component. `aiData` belongs to
+        // EatModal and is reset when that parent modal closes.
         setForm({
           name: '',
           calories: '',
@@ -89,13 +92,9 @@ export default function DescribeFoodModal({ open, onClose, onBack, onCloseModal,
           fats: '',
           protein: '',
         });
-        setAiData(null);
-        
-        // 延迟跳转，确保状态更新完成
+        // Defer the parent transition until this successful state has painted.
         setTimeout(() => {
-          if (onDataChange) {
-            onDataChange();
-          }
+          onDataChange?.();
         }, 100);
       } else {
         setErrorToast({ show: true, message: 'Food description not recognized' });

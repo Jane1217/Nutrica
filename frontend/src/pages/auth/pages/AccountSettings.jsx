@@ -228,7 +228,7 @@ export default function AccountSettings({ userEmail }) {
         onClose={() => setShowToast(false)}
         duration={3000}
       />
-      <NavLogo onEatClick={() => setShowEatModal(true)} isLoggedIn={true} isAuth={false} />
+      <NavLogo onEatClick={() => setShowEatModal(true)} isLoggedIn />
       <div className={styles['account-main']}>
         <div className={styles.accountHeaderRow}>
           <h1 className={`${styles['account-title']} h1`}>Account</h1>
@@ -342,14 +342,12 @@ export default function AccountSettings({ userEmail }) {
           <span className="h5" style={{color: 'var(--Neutral-Primary-Text, #22221B)', textAlign: 'center'}}>
             We&apos;d love to hear your feedback!<br />Contact us at
           </span>
-          <div className={`${styles.accountEmailContact} h5`}>xangtu@gmail.com</div>
+          <div className={`${styles.accountEmailContact} h5`}>nutrica.life.app@gmail.com</div>
       </div>
       <EatModal
         open={showEatModal}
         onClose={() => setShowEatModal(false)}
         foods={[]}
-        onDescribe={() => {}}
-        onEnterValue={() => {}}
       />
       <UserInfoModal
         open={showUserInfoModal}

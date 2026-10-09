@@ -645,10 +645,6 @@ export default function Home({ isLoggedIn }) {
           }}
           foods={foods}
           foodsLoading={foodsLoading}
-          onDescribe={() => alert('Describe')}
-          onEnterValue={() => alert('Enter Value')}
-          onScanLabel={() => alert('Scan Label')}
-          userId={userId}
           onDataChange={handleEatModalDataChange}
           onFoodsScroll={handleEatModalScroll}
         />
