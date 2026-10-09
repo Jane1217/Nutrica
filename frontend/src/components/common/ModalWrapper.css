@@ -31,7 +31,7 @@
   transform: translateX(-50%) translateY(100%);
   width: 100%;
   max-width: 768px;
-  height: calc(74vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  height: calc(74dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
   background: var(--Brand-Background, #F3F3EC);
   border-radius: 36px 36px 0px 0px;
   z-index: 4002;
@@ -158,7 +158,7 @@
   width: fit-content;
   height: fit-content;
   max-width: 90vw;
-  max-height: 90vh;
+  max-height: calc(100dvh - 32px);
   border-radius: 36px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.2);
   overflow: visible;
@@ -177,7 +177,7 @@
 
 /* NutritionHelpModal 特定样式 */
 .modal-content-centered .nutritionHelpModal {
-  width: 343px;
+  width: min(343px, calc(100vw - 32px));
   height: auto;
 }
 

@@ -35,6 +35,7 @@
 .clickable {
   cursor: pointer;
   transition: color 0.2s ease;
+  text-decoration: none;
 }
 
 .clickable:hover {
@@ -43,4 +44,10 @@
 
 .clickable:active {
   opacity: 0.8;
+}
+
+.clickable:focus-visible {
+  outline: 2px solid var(--Brand-Dark, #2A4E14);
+  outline-offset: 3px;
+  border-radius: 2px;
 }

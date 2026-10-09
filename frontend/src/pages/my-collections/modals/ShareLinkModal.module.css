@@ -1,8 +1,7 @@
 .modalBox {
   position: relative;
   display: flex;
-  width: 343px;
-  max-width: 100vw;
+  width: min(343px, 100%);
   padding: 24px;
   flex-direction: column;
   align-items: center;
@@ -26,6 +25,11 @@
   border: 1px solid var(--Brand-Outline, #DBE2D0);
   background: transparent;
   cursor: pointer;
+}
+
+.closeBtn:focus-visible {
+  outline: 2px solid var(--Brand-Dark, #2A4E14);
+  outline-offset: 2px;
 }
 .closeIcon {
   width: 20px;
@@ -142,4 +146,4 @@
 
 .shareBtn:not(:disabled):hover {
   background: var(--Brand-Dark-Hover, #1a3a0e);
-} 
+}

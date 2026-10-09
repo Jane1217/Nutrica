@@ -24,6 +24,17 @@ export default function ModalWrapper({ open, children, onClose, size = 'default'
     }
   }, [show, open]);
 
+  useEffect(() => {
+    if (!open || !onClose) return undefined;
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') onClose();
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [open, onClose]);
+
   if (!show) return null;
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -31,6 +42,9 @@ export default function ModalWrapper({ open, children, onClose, size = 'default'
       <div
         className={`modal-content${animate ? " open" : ""} modal-content-${size} ${centered ? 'modal-content-centered' : ''}`}
         onClick={e => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Dialog"
       >
         {children}
       </div>

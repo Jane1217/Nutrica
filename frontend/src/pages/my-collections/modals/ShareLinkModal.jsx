@@ -55,9 +55,9 @@ export default function ShareLinkModal({ open, onClose, puzzleName = 'carrot', n
     <ModalWrapper open={open} onClose={onClose} centered={true}>
       <div className={styles.modalBox}>
           {/* 右上角关闭按钮 */}
-          <div className={styles.closeBtn} onClick={onClose}>
-            <img src="/assets/close (2).svg" alt="close" className={styles.closeIcon} />
-          </div>
+          <button type="button" className={styles.closeBtn} onClick={onClose} aria-label="Close share link dialog">
+            <img src="/assets/close (2).svg" alt="" className={styles.closeIcon} />
+          </button>
           {/* Heading 区域 */}
           <div className={styles.heading}>
             <div className={styles.iconWrapper}>
@@ -67,7 +67,7 @@ export default function ShareLinkModal({ open, onClose, puzzleName = 'carrot', n
             </div>
             <div className={`${styles.headingText} h2`}>Share Link generated!</div>
           </div>
-          <img src="/assets/divider line.svg" alt="divider" className={styles.divider} />
+          <img src="/assets/divider line.svg" alt="" className={styles.divider} />
           {/* Link module */}
           <div className={styles.linkModule}>
             <div className={styles.linkWrapper}>

@@ -134,9 +134,9 @@ export default function CollectionDetail({
       <div className={styles.detailPage} style={{ background: getPageBackground(collectionType) }}>
         <div className={styles.header}>
           <h1 className={`${styles.title} h1`}>{puzzleName}</h1>
-          <div className={styles.closeBtn} onClick={handleClose}>
-            <img src="/assets/close (1).svg" alt="close" className={styles.closeIcon} />
-          </div>
+          <button type="button" className={styles.closeBtn} onClick={handleClose} aria-label="Close collection detail">
+            <img src="/assets/close (1).svg" alt="" className={styles.closeIcon} />
+          </button>
         </div>
         <div className={styles.container}>
           <div className={styles.errorContainer}>
@@ -222,9 +222,9 @@ export default function CollectionDetail({
       {/* Header */}
       <div className={styles.header}>
         <h1 className={`${styles.title} h1`}>{puzzleName}</h1>
-        <div className={styles.closeBtn} onClick={handleClose}>
-          <img src="/assets/close (1).svg" alt="close" className={styles.closeIcon} />
-        </div>
+        <button type="button" className={styles.closeBtn} onClick={handleClose} aria-label="Close collection detail">
+          <img src="/assets/close (1).svg" alt="" className={styles.closeIcon} />
+        </button>
       </div>
       {/* Container */}
       <div className={styles.container}>
@@ -257,4 +257,4 @@ export default function CollectionDetail({
       />
     </div>
   );
-} 
+}

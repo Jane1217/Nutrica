@@ -414,6 +414,15 @@
   max-width: 700px;
   box-sizing: border-box;
   margin: 16px 0 16px 0;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.account-info-box:focus-visible {
+  outline: 2px solid var(--Brand-Dark, #2A4E14);
+  outline-offset: 3px;
 }
 
 .account-footer-bar {

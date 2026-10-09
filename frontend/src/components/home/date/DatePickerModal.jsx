@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { DayPicker } from 'react-day-picker';
-import { format, isSameDay, startOfDay, isAfter, isBefore, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
+import { isSameDay, startOfDay, isAfter, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
 import 'react-day-picker/style.css';
 import styles from './DatePickerModal.module.css';
-import { supabase } from '../../../supabaseClient';
-import { apiGet } from '../../../utils';
 import ModalWrapper from '../../common/ModalWrapper';
 
 // Error Boundary Component
@@ -60,8 +58,6 @@ export default function DatePickerModal({ open, onClose, onDateSelect, currentDa
   const [firstPuzzleDate, setFirstPuzzleDate] = useState(null);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [availableDates, setAvailableDates] = useState([]); // 新增：可用日期
-  const [hasFetchedDates, setHasFetchedDates] = useState(false); // 新增：是否已请求过
-  const [monthChangeCount, setMonthChangeCount] = useState(0); // 新增：跟踪月份变化次数
 
   // 新增：将 activeDates 转为 Date 对象数组
   const activeDateObjs = activeDates.map(dateStr => {
@@ -88,12 +84,11 @@ export default function DatePickerModal({ open, onClose, onDateSelect, currentDa
     }
   };
 
-  // 优化：只在首次打开时请求日期
+  // Keep the picker in sync if the user creates another daily record while
+  // the dialog is already open.
   useEffect(() => {
-    if (open && !hasFetchedDates) {
-      fetchAvailableDates().then(() => setHasFetchedDates(true));
-    }
-  }, [open, hasFetchedDates]);
+    if (open) fetchAvailableDates();
+  }, [open, activeDates]);
 
   useEffect(() => {
     if (currentDate && currentDate instanceof Date && !isNaN(currentDate.getTime())) {
@@ -168,7 +163,6 @@ export default function DatePickerModal({ open, onClose, onDateSelect, currentDa
   const handleMonthChange = (month) => {
     // 允许导航到任何月份，不限制只有可选日期的月份
     setCurrentMonth(month);
-    setMonthChangeCount(prev => prev + 1);
     return true;
   };
 
@@ -228,4 +222,4 @@ export default function DatePickerModal({ open, onClose, onDateSelect, currentDa
       </div>
     </ModalWrapper>
   );
-} 
+}

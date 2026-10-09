@@ -252,16 +252,12 @@ export default function AccountSettings({ userEmail }) {
         <div className={styles['account-nickname'] + ' h3'}>{nickname}</div>
         <div className={styles['account-email']+ ' h4'}>{userEmail}</div>
       {showSafariSetup && (
-        <div className={styles['account-info-box']} onClick={() => {
-          // 先尝试在当前页面打开，如果不行再尝试新标签页
-          try {
-            window.open('/safari-camera-permission', '_blank');
-          } catch (error) {
-            console.error('Failed to open new tab:', error);
-            // 如果新标签页被阻止，尝试在当前页面打开
-            window.location.href = '/safari-camera-permission';
-          }
-        }} style={{cursor: 'pointer'}}>
+        <button
+          type="button"
+          className={styles['account-info-box']}
+          onClick={() => navigate('/safari-camera-permission')}
+          aria-label="Open Safari camera setup instructions"
+        >
             <div className={styles.accountInfoBoxHeader}>
               <span className={`${styles.accountInfoBoxTitle} body1`}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" className={styles.accountInfoBoxIcon}>
@@ -304,7 +300,7 @@ export default function AccountSettings({ userEmail }) {
             <div className={`${styles.accountInfoBoxDesc} body2`}>
             Avoid repeated camera permission popups for seamless scanning on Nutrica.fit with Safari.
           </div>
-        </div>
+        </button>
       )}
       <div className={styles['account-card-list']}>
         <button className={`${styles['account-card-btn']} body1`} onClick={() => setShowUserInfoModal(true)}>

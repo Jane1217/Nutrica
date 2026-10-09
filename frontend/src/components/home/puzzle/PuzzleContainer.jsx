@@ -27,7 +27,19 @@ export default function PuzzleContainer({
   const showSvg = forceShowSvg || (isComplete && selectedPuzzle?.img);
 
   return (
-    <div className={styles.puzzleContainer} onClick={() => { if (hasSelectedPuzzle && !showSvg) setShowMenu(true); }}>
+    <div
+      className={styles.puzzleContainer}
+      onClick={() => { if (hasSelectedPuzzle && !showSvg) setShowMenu(true); }}
+      onKeyDown={(event) => {
+        if (hasSelectedPuzzle && !showSvg && (event.key === 'Enter' || event.key === ' ')) {
+          event.preventDefault();
+          setShowMenu(true);
+        }
+      }}
+      role={hasSelectedPuzzle && !showSvg ? 'button' : undefined}
+      tabIndex={hasSelectedPuzzle && !showSvg ? 0 : undefined}
+      aria-label={hasSelectedPuzzle && !showSvg ? 'Open puzzle display options' : undefined}
+    >
       {isLoading ? (
         // Loading 状态
         <div className={styles.loadingContainer}>
@@ -104,4 +116,4 @@ export default function PuzzleContainer({
       )}
     </div>
   );
-} 
+}

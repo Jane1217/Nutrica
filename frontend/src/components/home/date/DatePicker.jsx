@@ -4,8 +4,6 @@ import { formatDate, getRelativeDateText } from '../../../utils';
 import styles from './DatePicker.module.css';
 import DatePickerModal from './DatePickerModal';
 import { supabase } from '../../../supabaseClient';
-import { apiGet } from '../../../utils';
-import { format } from 'date-fns';
 
 // 保存 daily_home_data 快照到 supabase
 async function saveDailyHomeData(data) {
@@ -154,7 +152,9 @@ export default function DatePicker(props) {
         .select('date')
         .eq('user_id', props.userId);
       if (!error && data) {
-        setActiveDates(data.map(row => getLocalDateString(new Date(row.date))));
+        setActiveDates(data
+          .map(row => typeof row.date === 'string' ? row.date.slice(0, 10) : '')
+          .filter(date => /^\d{4}-\d{2}-\d{2}$/.test(date)));
       }
     }
     fetchActiveDates();
@@ -185,15 +185,18 @@ export default function DatePicker(props) {
   return (
     <div className={styles.datePicker}>
       {/* Left arrow */}
-      <img 
-        src={icons.arrowBack} 
-        alt="Previous" 
-        className={`${styles.arrow} ${!canGoBack ? styles.arrowDisabled : ''}`}
+      <button
+        type="button"
+        className={`${styles.arrowButton} ${!canGoBack ? styles.arrowDisabled : ''}`}
         onClick={goToPreviousDay}
-      />
+        disabled={!canGoBack}
+        aria-label="Previous date"
+      >
+        <img src={icons.arrowBack} alt="" className={styles.arrow} />
+      </button>
       
       {/* Center date module */}
-      <div className={styles.dateModule} onClick={openDatePickerModal}>
+      <button type="button" className={styles.dateModule} onClick={openDatePickerModal} aria-label="Choose date">
         {/* Date text */}
         <span className={styles.dateText}>
           {formatDate(currentDate)}
@@ -203,15 +206,18 @@ export default function DatePicker(props) {
         <span className={styles.relativeDateText}>
           {getRelativeDateText(currentDate)}
         </span>
-      </div>
+      </button>
       
       {/* Right arrow */}
-      <img 
-        src={icons.arrowForward} 
-        alt="Next" 
-        className={`${styles.arrow} ${!canGoForward ? styles.arrowDisabled : ''}`}
+      <button
+        type="button"
+        className={`${styles.arrowButton} ${!canGoForward ? styles.arrowDisabled : ''}`}
         onClick={goToNextDay}
-      />
+        disabled={!canGoForward}
+        aria-label="Next date"
+      >
+        <img src={icons.arrowForward} alt="" className={styles.arrow} />
+      </button>
       
       {/* DatePicker Modal */}
       <DatePickerModal
@@ -224,4 +230,4 @@ export default function DatePicker(props) {
       />
     </div>
   );
-} 
+}

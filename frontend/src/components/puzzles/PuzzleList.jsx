@@ -17,23 +17,35 @@ export default function PuzzleList({ puzzleList = puzzleCategories, onCardClick 
         // 根据type属性决定渲染哪个组件
         if (category.type === 'synthesis') {
           return (
-            <div key={category.id || idx} onClick={() => onCardClick && onCardClick(category)} style={{ cursor: 'pointer', width: '100%' }}>
+            <button
+              key={category.id || idx}
+              type="button"
+              onClick={() => onCardClick && onCardClick(category)}
+              aria-label={`Choose ${category.title}`}
+              style={{ cursor: 'pointer', width: '100%', padding: 0, border: 0, background: 'transparent', textAlign: 'inherit' }}
+            >
               <PuzzleSynthesisCard
                 category={category}
               />
-            </div>
+            </button>
           );
         } else {
           // 默认使用collection类型
           return (
-            <div key={category.id || idx} onClick={() => onCardClick && onCardClick(category)} style={{ cursor: 'pointer', width: '100%' }}>
+            <button
+              key={category.id || idx}
+              type="button"
+              onClick={() => onCardClick && onCardClick(category)}
+              aria-label={`Choose ${category.title}`}
+              style={{ cursor: 'pointer', width: '100%', padding: 0, border: 0, background: 'transparent', textAlign: 'inherit' }}
+            >
               <PuzzleCollectionCard
                 category={category}
               />
-            </div>
+            </button>
           );
         }
       })}
     </div>
   );
-} 
+}

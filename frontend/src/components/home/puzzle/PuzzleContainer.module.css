@@ -13,6 +13,11 @@
   z-index: 5; /* 添加：确保边框在网格之上 */
 }
 
+.puzzleContainer:focus-visible {
+  outline: 3px solid var(--Brand-Dark, #2A4E14);
+  outline-offset: 4px;
+}
+
 .puzzleGrid {
   width: 250px;
   height: 250px;
@@ -183,4 +188,4 @@
   font-weight: 400;
   line-height: 150%;
   text-align: center;
-} 
+}

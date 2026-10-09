@@ -1,7 +1,8 @@
 .modalBody {
   position: relative;
   padding: 32px 24px 24px 24px;
-  min-width: 340px;
+  min-width: 0;
+  width: min(100%, 640px);
   max-width: 90vw;
   display: flex;
   justify-content: center; /* 水平居中 */
@@ -70,4 +71,4 @@
 .modalContentWrapper {
   max-width: 500px;
   width: 100%;
-} 
+}

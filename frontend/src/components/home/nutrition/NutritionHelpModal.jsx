@@ -7,21 +7,21 @@ export default function NutritionHelpModal({ open, onClose }) {
     <ModalWrapper open={open} onClose={onClose} centered={true}>
       <div className={`${styles.modal} nutritionHelpModal`}>
         {/* Close button */}
-        <button className={styles.closeButton} onClick={onClose}>
-          <img src="/assets/close.svg" alt="close" width="20" height="20" />
+        <button className={styles.closeButton} onClick={onClose} aria-label="Close nutrition puzzle help">
+          <img src="/assets/close.svg" alt="" width="20" height="20" />
         </button>
 
         {/* Heading with icon and text */}
         <div className={styles.heading}>
           <div className={styles.iconContainer}>
-            <img src="/assets/collection.svg" alt="collection" width="24" height="24" />
+            <img src="/assets/collection.svg" alt="" width="24" height="24" />
           </div>
           <h2 className="h2">How a nutrition puzzle comes together?</h2>
         </div>
 
         {/* Divider line */}
         <div className={styles.divider}>
-          <img src="/assets/divider line.svg" alt="divider" width="64" height="4" />
+          <img src="/assets/divider line.svg" alt="" width="64" height="4" />
         </div>
 
         {/* Text content */}
@@ -38,4 +38,4 @@ export default function NutritionHelpModal({ open, onClose }) {
       </div>
     </ModalWrapper>
   );
-} 
+}

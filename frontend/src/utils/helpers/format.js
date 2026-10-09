@@ -2,6 +2,20 @@
  * 前端格式化工具函数
  */
 
+// Date-only values from the database represent a calendar day, not midnight
+// UTC. Parsing `YYYY-MM-DD` with `new Date()` shifts that day for users west
+// of UTC, so construct it in the visitor's local calendar instead.
+const toLocalDate = (value) => {
+  if (value instanceof Date) return value;
+  if (typeof value === 'string') {
+    const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (match) {
+      return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+    }
+  }
+  return new Date(value);
+};
+
 // 格式化今天日期
 export const formatToday = () => {
   const d = new Date();
@@ -12,7 +26,7 @@ export const formatToday = () => {
 
 // 格式化指定日期
 export const formatDate = (date) => {
-  const d = new Date(date);
+  const d = toLocalDate(date);
   const week = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   return `${week[d.getDay()]}, ${month[d.getMonth()]} ${d.getDate()}`;
@@ -20,7 +34,7 @@ export const formatDate = (date) => {
 
 // 获取相对日期文本（Today, Yesterday, 或空字符串）
 export const getRelativeDateText = (date) => {
-  const d = new Date(date);
+  const d = toLocalDate(date);
   const today = new Date();
   const yesterday = new Date(today);
   yesterday.setDate(today.getDate() - 1);
@@ -140,7 +154,7 @@ export const setCSSVariable = (variableName, value) => {
 // 日期格式化
 export function formatDateString(date) {
   if (!date) return '';
-  const dateObj = new Date(date);
+  const dateObj = toLocalDate(date);
   return dateObj.toLocaleDateString('en-US', {
     weekday: 'long', year: 'numeric', month: 'short', day: 'numeric'
   });
@@ -170,4 +184,4 @@ export function normalizeNutritionData(nutrition) {
 // 获取昵称（优先query）
 export function getUserNameFromQuery(query, fallback = '') {
   return query?.get('nickname') || fallback || '';
-} 
+}

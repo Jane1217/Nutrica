@@ -36,32 +36,32 @@ export default function SidebarMenu({ open, onClose, isLoggedIn = false }) {
         onClick={onClose}
       ></div>
       <div className={`${styles.sidebar}${animate ? ` ${styles.sidebarOpen}` : ""}`}>
-        <div className={styles.closeBtn} onClick={onClose}>
+        <button type="button" className={styles.closeBtn} onClick={onClose} aria-label="Close navigation menu">
           <img src={icons.close} alt="Close" width="24" height="24" />
-        </div>
+        </button>
         <div className={styles.sidebarGroup}>
-          <div className={styles.sidebarItem} onClick={() => { navigate('/'); onClose(); }}>
+          <button type="button" className={styles.sidebarItem} onClick={() => { navigate('/'); onClose(); }}>
             <span className={styles.symbol}>
-              <img src={icons.home} alt="Home" width="24" height="24" />
+              <img src={icons.home} alt="" width="24" height="24" />
             </span>
             <span className="h4">Home</span>
-          </div>
-          <div className={styles.sidebarItem} onClick={() => { navigate('/my-collections'); onClose(); }}>
+          </button>
+          <button type="button" className={styles.sidebarItem} onClick={() => { navigate('/my-collections'); onClose(); }}>
             <span className={styles.symbol}>
-              <img src={icons.collection} alt="Achievement" width="24" height="24" />
+              <img src={icons.collection} alt="" width="24" height="24" />
             </span>
             <span className="h4">My Collections</span>
-          </div>
+          </button>
           {isLoggedIn && (
-            <div className={styles.sidebarItem} onClick={() => { navigate('/account'); onClose(); }}>
+            <button type="button" className={styles.sidebarItem} onClick={() => { navigate('/account'); onClose(); }}>
               <span className={styles.symbol}>
-                <img src={icons.account} alt="Account" width="24" height="24" />
+                <img src={icons.account} alt="" width="24" height="24" />
               </span>
               <span className="h4">Account</span>
-            </div>
+            </button>
           )}
         </div>
       </div>
     </>
   );
-} 
+}

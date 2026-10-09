@@ -14,6 +14,13 @@
   width: 24px;
   height: 24px;
   flex-shrink: 0;
+}
+
+.arrowButton {
+  display: flex;
+  padding: 0;
+  border: 0;
+  background: transparent;
   cursor: pointer;
 }
 
@@ -31,6 +38,15 @@
   padding: 4px 8px;
   border-radius: 8px;
   transition: background-color 0.2s ease;
+  border: 0;
+  background: transparent;
+  font: inherit;
+}
+
+.dateModule:focus-visible,
+.arrowButton:focus-visible {
+  outline: 2px solid var(--Brand-Dark, #2A4E14);
+  outline-offset: 2px;
 }
 
 

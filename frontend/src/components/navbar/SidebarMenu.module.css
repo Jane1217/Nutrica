@@ -40,12 +40,13 @@
   height: 24px;
   flex-shrink: 0;
   aspect-ratio: 1/1;
-  margin-bottom: 36px;
   padding: 20px 0px;
   cursor: pointer;
   display: flex;
   align-items: flex-start;
   margin-bottom: 48px;
+  border: 0;
+  background: transparent;
 }
 
 .sidebarGroup {
@@ -62,6 +63,20 @@
   gap: 8px;
   justify-content: flex-start;
   flex-shrink: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  padding: 0;
+}
+
+.sidebarItem:focus-visible,
+.closeBtn:focus-visible {
+  outline: 2px solid var(--Brand-Dark, #2A4E14);
+  outline-offset: 4px;
+  border-radius: 4px;
 }
 
 .symbol {

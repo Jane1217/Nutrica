@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { supabase } from './supabaseClient';
 
@@ -26,8 +26,17 @@ function RequireAuth({ user, children }) {
 }
 
 export default function App() {
+  return (
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
+  );
+}
+
+function AppRoutes() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // 初始化时获取用户状态
@@ -75,8 +84,7 @@ export default function App() {
   }
 
   return (
-    <BrowserRouter>
-      <Suspense fallback={<PageLoading />}>
+    <Suspense fallback={<PageLoading />}>
       <Routes>
         <Route
           path="/"
@@ -93,10 +101,10 @@ export default function App() {
               ? <Navigate to="/" replace />
               : <LogIn
                   open={true}
-                  onClose={() => window.history.back()}
+                  onClose={() => navigate('/')}
                   onAuth={handleAuth}
-                  onSwitchToSignUp={() => window.location.href = '/sign-up'}
-                  onSwitchToForgotPassword={() => window.location.href = '/forgot-password'}
+                  onSwitchToSignUp={() => navigate('/sign-up')}
+                  onSwitchToForgotPassword={() => navigate('/forgot-password')}
                 />
           }
         />
@@ -107,9 +115,9 @@ export default function App() {
               ? <Navigate to="/" replace />
               : <SignUp
                   open={true}
-                  onClose={() => window.history.back()}
+                  onClose={() => navigate('/')}
                   onAuth={handleAuth}
-                  onSwitchToLogin={() => window.location.href = '/log-in'}
+                  onSwitchToLogin={() => navigate('/log-in')}
                 />
           }
         />
@@ -118,8 +126,8 @@ export default function App() {
           element={
             <ForgotPassword
               open={true}
-              onClose={() => window.location.href = '/'}
-              onBackToLogin={() => window.location.href = '/log-in'}
+              onClose={() => navigate('/')}
+              onBackToLogin={() => navigate('/log-in')}
             />
           }
         />
@@ -166,8 +174,7 @@ export default function App() {
         <Route path="/about" element={<About />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-      </Suspense>
-    </BrowserRouter>
+    </Suspense>
   );
 }
 

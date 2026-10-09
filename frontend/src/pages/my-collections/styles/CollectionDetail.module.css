@@ -1,5 +1,5 @@
 .detailPage {
-  min-height: 100vh;
+  min-height: 100dvh;
   width: 100vw;
   display: flex;
   flex-direction: column;
@@ -37,6 +37,11 @@
   font-size: 2rem;
   cursor: pointer;
   background: transparent;
+}
+
+.closeBtn:focus-visible {
+  outline: 2px solid var(--Brand-Dark, #2A4E14);
+  outline-offset: 3px;
 }
 
 .closeIcon {
@@ -266,4 +271,4 @@
   width: 20px;
   height: 20px;
   aspect-ratio: 1/1;
-} 
+}

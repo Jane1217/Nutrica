@@ -1,6 +1,6 @@
 .modal {
   display: flex;
-  width: 343px;
+  width: min(343px, calc(100vw - 32px));
   height: auto;
   padding: 24px;
   flex-direction: column;
@@ -106,4 +106,4 @@
 .ctaButton span {
   color: var(--Neutral-White, #FFF);
   margin: 0;
-} 
+}

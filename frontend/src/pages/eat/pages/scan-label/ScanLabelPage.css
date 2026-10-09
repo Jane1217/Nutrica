@@ -13,7 +13,7 @@
   position: absolute;
   inset: 0;
   width: 100vw;
-  height: 100vh;
+  height: 100dvh;
   object-fit: cover;
   z-index: 0;
 }
@@ -140,7 +140,7 @@
 
 .camera-permission-denied-modal {
   display: flex;
-  width: 343px;
+  width: min(343px, calc(100vw - 32px));
   padding: 24px;
   flex-direction: column;
   align-items: center;
@@ -198,7 +198,7 @@
 
 .camera-permission-denied-text .nutrition-life {
   color: var(--Neutral-Primary-Text, #22221B);
-} 
+}
 
 /* 摄像头控制提示 */
 .camera-controls-tip {
@@ -281,4 +281,4 @@
 
 .zoom-indicator.visible {
   opacity: 1;
-} 
+}
