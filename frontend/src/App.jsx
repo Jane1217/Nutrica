@@ -7,11 +7,11 @@ import AppErrorBoundary from './components/common/AppErrorBoundary';
 // The scanner, collections and account UI otherwise made every first visit
 // download the entire application before any page could render.
 const Home = lazy(() => import('./pages/home/home'));
-const LogIn = lazy(() => import('./pages/auth/pages/Log In'));
-const SignUp = lazy(() => import('./pages/auth/pages/Sign up'));
+const LogIn = lazy(() => import('./pages/auth/pages/Login'));
+const SignUp = lazy(() => import('./pages/auth/pages/SignUp'));
 const ForgotPassword = lazy(() => import('./pages/auth/pages/ForgotPassword'));
 const ResetPassword = lazy(() => import('./pages/auth/pages/ResetPassword'));
-const AccountSettings = lazy(() => import('./pages/auth/pages/Account settings'));
+const AccountSettings = lazy(() => import('./pages/auth/pages/AccountSettings'));
 const Tutorials = lazy(() => import('./pages/auth/pages/Tutorials'));
 const ScanLabelPage = lazy(() => import('./pages/eat/pages/scan-label/ScanLabelPage'));
 const Welcome = lazy(() => import('./pages/welcome/Welcome'));

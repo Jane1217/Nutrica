@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { supabase } from '../../supabaseClient';
-import NavLogo from '../../components/navbar/Nav-Logo';
+import NavLogo from '../../components/navbar/NavLogo';
 import DatePicker from '../../components/home/date/DatePicker';
 import PuzzleTextModule from '../../components/home/puzzle/PuzzleTextModule';
 import PuzzleContainer from '../../components/home/puzzle/PuzzleContainer';
@@ -17,32 +17,15 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import styles from './Home.module.css';
 import { calculateNutritionFromCalories, formatFoods, fetchNutritionGoals, fetchTodayNutrition, getCurrentUser, getUserMetadata, updateUserMetadata, isUserInfoComplete, hasShownUserInfoModal, setUserInfoModalShown, getDisplayCalories } from '../../utils';
 import { puzzleCategories, colorOrders } from '../../data/puzzles';
-import { format } from 'date-fns';
 import { monitorPuzzleCompletion } from '../../utils';
 import { preloadCollectionStatus } from '../../utils';
-
-// 工具函数：按顺序提取某营养素的所有颜色
-function getNutrientColorsByOrder(pixelMap, nutrientType, colorOrder) {
-  if (!pixelMap) return [];
-  const colorSet = new Set();
-  for (let y = 0; y < pixelMap.length; y++) {
-    for (let x = 0; x < pixelMap[y].length; x++) {
-      const pix = pixelMap[y][x];
-      if (pix.nutrient === nutrientType) {
-        colorSet.add(pix.color);
-      }
-    }
-  }
-  return colorOrder.filter(color => colorSet.has(color));
-}
-
-// 工具函数：获取本地 yyyy-MM-dd 日期字符串
-function getLocalDateString(date) {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-}
+import {
+  findPuzzleById,
+  getPuzzleNutrientColorsByOrder,
+  getPuzzleProgress,
+  getPuzzleProgressMessage,
+} from '../../utils/puzzles';
+import { formatLocalDateKey } from '../../utils/helpers';
 
 // 保存 daily_home_data 快照到 supabase
 async function saveDailyHomeData(data) {
@@ -73,17 +56,7 @@ async function saveDailyHomeData(data) {
   }
 }
 
-// 新增：通过puzzle_id查找本地puzzle对象
-function findPuzzleById(puzzleId) {
-  if (!puzzleId) return null;
-  for (const cat of puzzleCategories) {
-    const found = cat.puzzles.find(p => p.id === puzzleId);
-    if (found) return found;
-  }
-  return null;
-}
-
-export default function Home(props) {
+export default function Home({ isLoggedIn }) {
   const [showEatModal, setShowEatModal] = useState(false);
   const [showUserInfoModal, setShowUserInfoModal] = useState(false);
   const [showNutritionGoalModal, setShowNutritionGoalModal] = useState(false);
@@ -92,7 +65,6 @@ export default function Home(props) {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState(null);
-  const [latestCalories, setLatestCalories] = useState(0);
   const [userId, setUserId] = useState(null);
   const [foods, setFoods] = useState([]);
   const [foodsPage, setFoodsPage] = useState(1); // 当前页数
@@ -100,7 +72,6 @@ export default function Home(props) {
   const [puzzleLoading, setPuzzleLoading] = useState(false); // 新增：puzzle loading 状态
   const [foodsTotal, setFoodsTotal] = useState(0); // 总数据量
   const foodsPerPage = 5;
-  const foodsAllRef = useRef([]); // 保存所有foods原始数据
   
   // Toast状态
   const [showSuccessToast, setShowSuccessToast] = useState(false);
@@ -111,7 +82,6 @@ export default function Home(props) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [snapshotData, setSnapshotData] = useState(null);
   const [snapshotLoading, setSnapshotLoading] = useState(false); // 新增
-  const [snapshotError, setSnapshotError] = useState(null); // 新增
 
   useEffect(() => {
     if (searchParams.get('eat') === '1') {
@@ -163,7 +133,7 @@ export default function Home(props) {
     
     const saved = localStorage.getItem('selectedPuzzle');
     const savedDate = localStorage.getItem('selectedPuzzleDate');
-    const todayStr = getLocalDateString(new Date());
+    const todayStr = formatLocalDateKey(new Date());
     
     if (saved && savedDate === todayStr) {
       try {
@@ -204,7 +174,7 @@ export default function Home(props) {
     // 确保 loading 状态为 true
     setPuzzleLoading(true);
     
-    const today = getLocalDateString(new Date());
+    const today = formatLocalDateKey(new Date());
     supabase.from('daily_home_data')
       .select('*')
       .eq('user_id', userId)
@@ -212,7 +182,7 @@ export default function Home(props) {
       .maybeSingle()
       .then(({ data }) => {
         if (data && data.puzzle_id) {
-          const puzzle = findPuzzleById(data.puzzle_id);
+          const puzzle = findPuzzleById(data.puzzle_id, puzzleCategories);
           if (puzzle) {
             setSelectedPuzzle(puzzle);
             localStorage.setItem('selectedPuzzle', JSON.stringify(puzzle));
@@ -277,7 +247,6 @@ export default function Home(props) {
     if (error) {
       console.error('Failed to fetch food data:', error);
       setFoods([]);
-      foodsAllRef.current = [];
       setFoodsTotal(0);
       return;
     }
@@ -287,12 +256,10 @@ export default function Home(props) {
     if (reset) {
       // 重置时，直接设置当前页数据
       setFoods(foodsFormatted);
-      foodsAllRef.current = data || [];
       setFoodsTotal(count || 0);
     } else {
       // 加载更多时，追加到现有数据
       setFoods(prevFoods => [...prevFoods, ...foodsFormatted]);
-      foodsAllRef.current = [...foodsAllRef.current, ...(data || [])];
     }
   };
 
@@ -307,7 +274,7 @@ export default function Home(props) {
   // 首次进入页面自动保存当天快照
   useEffect(() => {
     if (userId && selectedPuzzle) {
-      const today = getLocalDateString(new Date());
+      const today = formatLocalDateKey(new Date());
       const puzzleProgress = getPuzzleProgress(selectedPuzzle, calculateNutritionProgress());
       saveDailyHomeData({
         user_id: userId,
@@ -317,7 +284,7 @@ export default function Home(props) {
           : '',
         puzzle_name: selectedPuzzle?.name || '',
         puzzle_id: selectedPuzzle?.id || '', //
-        daily_text: getPuzzleDescription(selectedPuzzle, calculateNutritionProgress(), userInfo?.name),
+        daily_text: getPuzzleProgressMessage(selectedPuzzle, calculateNutritionProgress(), userInfo?.name),
         pixel_art_data: selectedPuzzle?.pixelMap || null,
         calories: todayNutrition.calories,
         carbs: todayNutrition.carbs,
@@ -337,7 +304,7 @@ export default function Home(props) {
     const msToMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 1) - now;
     const timer = setTimeout(() => {
       if (userId && selectedPuzzle) {
-        const today = getLocalDateString(new Date());
+        const today = formatLocalDateKey(new Date());
         const puzzleProgress = getPuzzleProgress(selectedPuzzle, calculateNutritionProgress());
         saveDailyHomeData({
           user_id: userId,
@@ -347,7 +314,7 @@ export default function Home(props) {
             : '',
           puzzle_name: selectedPuzzle?.name || '',
           puzzle_id: selectedPuzzle?.id || '', // 新增
-          daily_text: getPuzzleDescription(selectedPuzzle, calculateNutritionProgress(), userInfo?.name),
+          daily_text: getPuzzleProgressMessage(selectedPuzzle, calculateNutritionProgress(), userInfo?.name),
           pixel_art_data: selectedPuzzle?.pixelMap || null,
           calories: todayNutrition.calories,
           carbs: todayNutrition.carbs,
@@ -468,7 +435,7 @@ export default function Home(props) {
 
   // 获取要显示的卡路里值：优先使用计算值，其次使用数据库值
   const getDisplayCaloriesValue = () => {
-    const value = getDisplayCalories(userInfo, latestCalories);
+    const value = getDisplayCalories(userInfo);
     return value && value > 0 ? value : 0;
   };
 
@@ -477,7 +444,7 @@ export default function Home(props) {
     setSelectedPuzzle(puzzle);
     setShowPuzzlesModal(false);
     localStorage.setItem('selectedPuzzle', JSON.stringify(puzzle));
-    localStorage.setItem('selectedPuzzleDate', getLocalDateString(new Date()));
+    localStorage.setItem('selectedPuzzleDate', formatLocalDateKey(new Date()));
   };
 
   // 计算营养进度
@@ -489,72 +456,26 @@ export default function Home(props) {
     };
   };
 
-  // 计算puzzle完成度（已填色/有颜色的像素）
-  function getPuzzleProgress(puzzle, progress) {
-    if (!puzzle?.pixelMap) return 0;
-    let total = 0, filled = 0;
-    const nutrientPixels = [];
-    puzzle.pixelMap.forEach((row, y) =>
-      row.forEach((pix, x) => {
-        if (pix.nutrient !== 0) {
-          total++;
-          // 计算该像素是否已填色
-          const p = progress?.[pix.nutrient] || 0;
-          // 统计该营养素所有像素
-          if (!nutrientPixels[pix.nutrient]) nutrientPixels[pix.nutrient] = [];
-          nutrientPixels[pix.nutrient].push({ x, y });
-        }
-      })
-    );
-    // 计算每种营养素已填色数量
-    Object.keys(nutrientPixels).forEach(n => {
-      const nInt = parseInt(n);
-      const count = Math.round(nutrientPixels[n].length * (progress?.[nInt] || 0));
-      filled += count;
-    });
-    return total === 0 ? 0 : filled / total;
-  }
-
-  // 获取当前puzzle的描述
-  function getPuzzleDescription(puzzle, progress, userName) {
-    if (!puzzle) return `Hey ${userName || 'there'}! Ready to collect today’s nutrition puzzle?`;
-    const percent = getPuzzleProgress(puzzle, progress);
-    if (!puzzle.descriptions || puzzle.descriptions.length === 0) return puzzle.description;
-    if (percent === 0) return puzzle.descriptions[0];
-    if (percent < 0.25) return puzzle.descriptions[0];
-    if (percent < 0.5) return puzzle.descriptions[1];
-    if (percent < 0.75) return puzzle.descriptions[2];
-    if (percent < 0.9) return puzzle.descriptions[3];
-    if (percent < 1) return puzzle.descriptions[4];
-    return 'Puzzle collected! Treat yourself in tomorrow’s challenge!';
-  }
-
   // 选中puzzle时提取颜色（自动顺序）
   const colorOrder = selectedPuzzle ? colorOrders[selectedPuzzle.id] || [] : [];
-  const carbsColors = getNutrientColorsByOrder(selectedPuzzle?.pixelMap, 1, colorOrder);
-  const proteinColors = getNutrientColorsByOrder(selectedPuzzle?.pixelMap, 2, colorOrder);
-  const fatsColors = getNutrientColorsByOrder(selectedPuzzle?.pixelMap, 3, colorOrder);
-
-//console.log('selectedPuzzle', selectedPuzzle);
-//console.log('carbsColors', carbsColors, 'proteinColors', proteinColors, 'fatsColors', fatsColors);
+  const carbsColors = getPuzzleNutrientColorsByOrder(selectedPuzzle?.pixelMap, 1, colorOrder);
+  const proteinColors = getPuzzleNutrientColorsByOrder(selectedPuzzle?.pixelMap, 2, colorOrder);
+  const fatsColors = getPuzzleNutrientColorsByOrder(selectedPuzzle?.pixelMap, 3, colorOrder);
 
   // 监听 currentDate 变化，拉取快照
   useEffect(() => {
-    const todayStr = getLocalDateString(new Date());
-    const selectedStr = getLocalDateString(currentDate);
+    const todayStr = formatLocalDateKey(new Date());
+    const selectedStr = formatLocalDateKey(currentDate);
     if (selectedStr === todayStr) {
       setSnapshotData(null);
       setSnapshotLoading(false);
-      setSnapshotError(null);
       return;
     }
     let cancelled = false;
     setSnapshotLoading(true);
-    setSnapshotError(null);
     const timeout = setTimeout(() => {
       if (!cancelled) {
         setSnapshotLoading(false);
-        setSnapshotError('快照加载超时，请检查网络或稍后重试');
       }
     }, 10000); // 10秒超时
     async function fetchSnapshot() {
@@ -583,7 +504,6 @@ export default function Home(props) {
       if (!cancelled) {
         setSnapshotData(error ? null : data);
         setSnapshotLoading(false);
-        setSnapshotError(error ? '快照加载失败' : null);
       }
     }
     fetchSnapshot();
@@ -591,14 +511,14 @@ export default function Home(props) {
   }, [currentDate, userId]);
 
   // 渲染时优先用 snapshotData，只声明一次 todayStr 和 isHistory，后续复用
-  const todayStr = getLocalDateString(new Date());
+  const todayStr = formatLocalDateKey(new Date());
   const isHistory = snapshotData && snapshotData.date && snapshotData.date !== todayStr;
 
   // 计算历史页面拼图完成度
   let historyPuzzle = null;
   let historyProgress = 0;
   if (isHistory) {
-    historyPuzzle = findPuzzleById(snapshotData.puzzle_id);
+    historyPuzzle = findPuzzleById(snapshotData.puzzle_id, puzzleCategories);
     historyProgress = snapshotData.puzzle_progress;
   }
 
@@ -610,7 +530,7 @@ export default function Home(props) {
       ? (historyProgress === 1
         ? 'Puzzle collected! Treat yourself in tomorrow’s challenge!'
         : 'So close to completing this puzzle! — try again next time!')
-      : getPuzzleDescription(selectedPuzzle, calculateNutritionProgress(), userInfo?.name),
+      : getPuzzleProgressMessage(selectedPuzzle, calculateNutritionProgress(), userInfo?.name),
     pixel_art_data: snapshotData.pixel_art_data,
     calories: snapshotData.calories,
     carbs: snapshotData.carbs,
@@ -628,7 +548,7 @@ export default function Home(props) {
       ? (puzzleCategories.find(cat => cat.puzzles.some(p => selectedPuzzle.id.startsWith(p.id)))?.title || '')
       : '',
     puzzle_name: selectedPuzzle?.name || '',
-    daily_text: getPuzzleDescription(selectedPuzzle, calculateNutritionProgress(), userInfo?.name),
+    daily_text: getPuzzleProgressMessage(selectedPuzzle, calculateNutritionProgress(), userInfo?.name),
     pixel_art_data: selectedPuzzle?.pixelMap || null,
     calories: todayNutrition.calories,
     carbs: todayNutrition.carbs,
@@ -654,7 +574,7 @@ export default function Home(props) {
 
   // PuzzleContainer的img参数（历史快照100%时也传img）
   const renderPuzzle = snapshotData
-    ? findPuzzleById(snapshotData.puzzle_id)
+    ? findPuzzleById(snapshotData.puzzle_id, puzzleCategories)
     : selectedPuzzle;
 
   // 判断是否为历史快照（非今天）
@@ -662,7 +582,7 @@ export default function Home(props) {
 
   return (
     <>
-      <NavLogo onEatClick={() => setShowEatModal(true)} isLoggedIn={props.isLoggedIn} isAuth={false} />
+      <NavLogo onEatClick={() => setShowEatModal(true)} isLoggedIn={isLoggedIn} />
       <div className={styles['home-main']}>
         <div className={styles.container}>
           <DatePicker

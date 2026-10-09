@@ -16,6 +16,18 @@ const toLocalDate = (value) => {
   return new Date(value);
 };
 
+// Calendar-day keys must be created in local time. `toISOString()` would move
+// users west of UTC to the previous day around midnight.
+export const formatLocalDateKey = (value) => {
+  const date = toLocalDate(value);
+  if (Number.isNaN(date.getTime())) return '';
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 // 格式化今天日期
 export const formatToday = () => {
   const d = new Date();

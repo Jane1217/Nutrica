@@ -6,13 +6,13 @@ process.env.OPENAI_API_KEY = 'test-openai-key';
 process.env.CORS_ORIGIN = 'https://nutrica.fit';
 
 const request = require('supertest');
-const app = require('./server');
+const app = require('../src/server');
 const {
   cleanNutritionData,
   validateRequiredFields,
   validateCollectionPayload,
   validateFoodPayload
-} = require('./utils/validation');
+} = require('../src/utils/validation');
 
 describe('public API safeguards', () => {
   test('health endpoint is publicly available with the expected CORS origin', async () => {

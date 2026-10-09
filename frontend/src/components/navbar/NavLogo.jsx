@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styles from './Nav-Logo.module.css';
+import styles from './NavLogo.module.css';
 import SidebarMenu from './SidebarMenu';
 import { icons } from '../../utils';
 
 // hideEat 控制是否显示Eat+按钮，向后兼容hideCtaButtons
 // hideMenu 控制是否显示侧边栏菜单按钮
-export default function NavLogo({ hideEat = false, hideCtaButtons = false, hideMenu = false, isAuth = false, onEatClick, isLoggedIn = false }) {
+export default function NavLogo({ hideEat = false, hideCtaButtons = false, hideMenu = false, onEatClick, isLoggedIn = false }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const shouldHideEat = hideEat || hideCtaButtons;
   const navigate = useNavigate();
@@ -55,4 +55,4 @@ export default function NavLogo({ hideEat = false, hideCtaButtons = false, hideM
       {!hideMenu && <SidebarMenu open={sidebarOpen} onClose={() => setSidebarOpen(false)} isLoggedIn={isLoggedIn} />}
     </>
   );
-} 
+}

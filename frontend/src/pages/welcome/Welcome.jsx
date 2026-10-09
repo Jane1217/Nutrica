@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import NavLogo from '../../components/navbar/Nav-Logo';
-import LogIn from '../auth/pages/Log In';
-import SignUp from '../auth/pages/Sign up';
+import NavLogo from '../../components/navbar/NavLogo';
+import LogIn from '../auth/pages/Login';
+import SignUp from '../auth/pages/SignUp';
 import ForgotPassword from '../auth/pages/ForgotPassword';
 import Footer from '../../components/common/Footer';
 import { icons } from '../../utils/media/icons';
@@ -278,4 +278,4 @@ export default function Welcome() {
 
     </div>
   );
-} 
+}

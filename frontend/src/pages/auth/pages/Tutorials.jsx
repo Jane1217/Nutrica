@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import NavLogo from '../../../components/navbar/Nav-Logo';
+import NavLogo from '../../../components/navbar/NavLogo';
 import styles from '../styles/Auth.module.css';
 
 const tabs = ['Safari', 'Chrome', 'Edge', 'Other'];
@@ -36,4 +36,4 @@ export default function Tutorials({ isLoggedIn, userEmail }) {
       </div>
     </div>
   );
-} 
+}

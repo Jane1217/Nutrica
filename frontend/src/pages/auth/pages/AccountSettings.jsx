@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import NavLogo from '../../../components/navbar/Nav-Logo';
+import NavLogo from '../../../components/navbar/NavLogo';
 import EatModal from '../../../pages/eat/modals/EatModal';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../../supabaseClient';

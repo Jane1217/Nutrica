@@ -1,1 +1,1 @@
-export { default as NavLogo } from './Nav-Logo'; 
+export { default as NavLogo } from './NavLogo';

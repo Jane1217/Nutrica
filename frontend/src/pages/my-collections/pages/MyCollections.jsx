@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import NavLogo from '../../../components/navbar/Nav-Logo';
+import NavLogo from '../../../components/navbar/NavLogo';
 import styles from '../styles/MyCollections.module.css';
 import { useNavigate } from 'react-router-dom';
 import { getAuthToken } from '../../../utils';
@@ -328,4 +328,4 @@ export default function MyCollections() {
       />
     </div>
   );
-} 
+}

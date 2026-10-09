@@ -33,8 +33,11 @@ jobs:
       - name: Build frontend
         run: npm run build
 
+      - name: Test frontend utilities
+        run: npm --prefix frontend test
+
       - name: Install backend dependencies
         run: npm ci --prefix backend
 
       - name: Test backend
-        run: npm test
+        run: npm --prefix backend test
