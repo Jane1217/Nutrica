@@ -1,6 +1,7 @@
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { supabase } from './supabaseClient';
+import AppErrorBoundary from './components/common/AppErrorBoundary';
 
 // Keep the first download focused on authentication and the current route.
 // The scanner, collections and account UI otherwise made every first visit
@@ -36,6 +37,7 @@ export default function App() {
 function AppRoutes() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -84,8 +86,9 @@ function AppRoutes() {
   }
 
   return (
-    <Suspense fallback={<PageLoading />}>
-      <Routes>
+    <AppErrorBoundary resetKey={location.pathname}>
+      <Suspense fallback={<PageLoading />}>
+        <Routes>
         <Route
           path="/"
           element={
@@ -173,21 +176,26 @@ function AppRoutes() {
         <Route path="/privacy-notice" element={<PrivacyNotice />} />
         <Route path="/about" element={<About />} />
         <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Suspense>
+        </Routes>
+      </Suspense>
+    </AppErrorBoundary>
   );
 }
 
 function PageLoading() {
   return (
-    <div style={{
+    <div
+      role="status"
+      aria-live="polite"
+      style={{
       display: 'flex',
       justifyContent: 'center',
       alignItems: 'center',
       minHeight: '100dvh',
       fontSize: '16px',
-      color: '#666'
-    }}>
+        color: '#666'
+      }}
+    >
       Loading...
     </div>
   );
