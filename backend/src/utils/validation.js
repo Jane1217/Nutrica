@@ -4,7 +4,13 @@
 
 // 验证必需字段
 const validateRequiredFields = (data, requiredFields) => {
-  const missingFields = requiredFields.filter(field => !data[field]);
+  if (!data || typeof data !== 'object') {
+    throw new Error('Data must be an object');
+  }
+
+  const missingFields = requiredFields.filter(field => (
+    data[field] === undefined || data[field] === null || data[field] === ''
+  ));
   if (missingFields.length > 0) {
     throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
   }

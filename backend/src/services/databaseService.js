@@ -39,7 +39,8 @@ class DatabaseService {
         }
 
         // 只对网络错误和超时进行重试
-        if (error.code === 'ECONNRESET' || error.code === 'ETIMEDOUT' || error.message.includes('timeout')) {
+        const message = typeof error?.message === 'string' ? error.message.toLowerCase() : '';
+        if (error?.code === 'ECONNRESET' || error?.code === 'ETIMEDOUT' || message.includes('timeout')) {
           console.log(`Database operation failed, retrying... (${attempt}/${maxRetries})`);
           await new Promise(resolve => setTimeout(resolve, config.database.query.retryDelay * attempt));
           continue;

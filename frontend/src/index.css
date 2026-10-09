@@ -107,7 +107,7 @@ line-height: 150%; /* 15px */
 /* 只保留全局基础样式，业务样式写在各自的 module.css 文件中 */
 
 .app-root {
-  width: 100vw;
+  width: 100%;
   background: #EEF0EB;
   display: flex;
   flex-direction: column;

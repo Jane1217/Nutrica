@@ -9,6 +9,7 @@ const request = require('supertest');
 const app = require('./server');
 const {
   cleanNutritionData,
+  validateRequiredFields,
   validateCollectionPayload,
   validateFoodPayload
 } = require('./utils/validation');
@@ -40,6 +41,10 @@ describe('public API safeguards', () => {
 });
 
 describe('nutrition validation', () => {
+  test('treats zero as a present required numeric value', () => {
+    expect(validateRequiredFields({ calories: 0 }, ['calories'])).toBe(true);
+  });
+
   test('normalizes valid numbers and allows zero values', () => {
     expect(cleanNutritionData({
       calories: '123.456',
