@@ -16,7 +16,7 @@ export default function Footer() {
         <Link className={`h4 ${styles.footerCenter} ${styles.clickable}`} to="/about">
           About
         </Link>
-        <div className={`h4 ${styles.footerRight}`}>© 2025 Nutrica</div>
+        <div className={`h4 ${styles.footerRight}`}>© 2025–2026 Nutrica</div>
       </div>
     </div>
   );

@@ -1,189 +1,126 @@
-# Nutrica 🥗
+# Nutrica
 
-> AI-Powered Nutrition Tracking Application
+**AI-assisted nutrition tracking that turns everyday meal logging into a rewarding pixel-art collection.**
 
-Nutrica is a modern, full-stack web application that helps users track their daily nutrition intake using AI-powered food analysis. Simply describe what you ate or upload a photo of your food, and Nutrica automatically extracts and logs detailed nutritional information including calories, carbohydrates, fats, and protein.
+[Live application](https://nutrica.fit) · [Architecture](docs/ARCHITECTURE.md) · [Security](SECURITY.md)
 
-🌐 **Live Application**: [https://nutrica.fit](https://nutrica.fit)
+Nutrica is a full-stack web application for logging meals, understanding macronutrients, and building healthier habits. Users can describe a meal or scan a nutrition label; the application uses OpenAI to structure the nutrition data, stores records behind Supabase authentication, and visualizes progress through a collectible puzzle system.
 
-## ✨ Features
+## Highlights
 
-### 🤖 AI-Powered Food Analysis
-- **Image Recognition**: Upload photos of food labels or meals, and our AI extracts nutrition facts automatically
-- **Natural Language Processing**: Describe your meals in plain English, and get instant nutrition analysis
-- **Smart Emoji Generation**: Automatically generates relevant emojis for each food item
+- AI-assisted meal description and nutrition-label analysis, with server-side API credentials.
+- Supabase authentication, protected routes, password recovery, and per-user data access.
+- Daily calorie and macronutrient tracking with personalized goals.
+- Gamified, shareable pixel-art puzzle collections.
+- Responsive mobile and desktop UI, accessible dialogs, keyboard navigation, and safe viewport behavior.
+- Input validation, rate limiting, CORS allowlists, security headers, and health checks.
 
-### 📊 Comprehensive Nutrition Tracking
-- Track daily intake of calories, carbohydrates, fats, and protein
-- View nutrition data by date with an intuitive calendar interface
-- Set and monitor personalized nutrition goals
-- Visual progress indicators and statistics
+## Architecture
 
-### 🎮 Gamification
-- **Puzzle Collection System**: Collect puzzle pieces as you track your nutrition
-- Unlock achievements and build your food collection
-- Share your progress with friends and family
-
-### 🎨 Modern User Experience
-- Fully responsive design optimized for mobile and desktop
-- Smooth animations and transitions
-- Intuitive navigation with sidebar menu
-- Real-time data updates
-- Shareable nutrition reports with custom branding
-
-### 🔐 Secure Authentication
-- User registration and login with Supabase
-- Secure password reset functionality
-- Protected routes and data privacy
-
-## 🛠️ Tech Stack
-
-### Frontend
-- **React 19** - Modern UI library
-- **Vite** - Fast build tool and dev server
-- **React Router** - Client-side routing
-- **Supabase** - Authentication and database
-- **html2canvas** - Image generation for sharing
-- **date-fns** - Date manipulation utilities
-
-### Backend
-- **Node.js** - Runtime environment
-- **Express** - Web framework
-- **OpenAI API** - GPT-4 for food analysis
-- **Supabase** - Database and authentication
-- **Multer** - File upload handling
-- **Winston** - Logging
-
-### Infrastructure
-- **Vercel** - Frontend hosting
-- **Vercel or Railway** - Backend hosting
-- **Supabase** - Database and auth service
-
-## 📁 Project Structure
-
-```
-my-nutrition-demo-openai/
-├── frontend/                 # React frontend application
-│   ├── src/
-│   │   ├── components/      # Reusable UI components
-│   │   │   ├── auth/        # Authentication components
-│   │   │   ├── common/      # Common UI elements
-│   │   │   ├── home/        # Home page components
-│   │   │   ├── navbar/      # Navigation components
-│   │   │   ├── puzzles/     # Puzzle collection components
-│   │   │   └── share/       # Sharing components
-│   │   ├── pages/           # Page components
-│   │   │   ├── auth/        # Authentication pages
-│   │   │   ├── eat/         # Food logging pages
-│   │   │   ├── home/        # Home dashboard
-│   │   │   ├── my-collections/  # Collection management
-│   │   │   └── share/       # Share page
-│   │   ├── utils/           # Utility functions
-│   │   │   ├── collections/ # Collection utilities
-│   │   │   ├── core/        # Core utilities
-│   │   │   ├── helpers/     # Helper functions
-│   │   │   ├── media/       # Media handling
-│   │   │   └── nutrition/   # Nutrition calculations
-│   │   └── data/            # Static data
-│   └── public/              # Static assets
-│
-└── backend/                  # Node.js backend API
-    ├── src/
-    │   ├── config/          # Configuration files
-    │   ├── middleware/      # Express middleware
-    │   │   ├── auth.js      # Authentication middleware
-    │   │   ├── errorHandler.js
-    │   │   ├── logger.js
-    │   │   └── performance.js
-    │   ├── routes/          # API routes
-    │   │   ├── aiParse.js   # AI analysis endpoints
-    │   │   ├── collection.js
-    │   │   ├── foodSave.js
-    │   │   └── user.js
-    │   ├── services/        # Business logic
-    │   │   ├── databaseService.js
-    │   │   └── openaiService.js
-    │   └── utils/           # Utility functions
-    └── index.js             # Server entry point
+```mermaid
+flowchart LR
+  Browser[React + Vite client] -->|Bearer token / HTTPS| API[Express API]
+  Browser -->|Authentication| Auth[Supabase Auth]
+  API -->|Verified user token| DB[Supabase Postgres]
+  API -->|Structured food analysis| OpenAI[OpenAI API]
+  Browser -->|Static deployment| Web[Vercel: nutrica.fit]
+  API -->|Serverless deployment| ApiHost[Vercel: nutrica-api]
 ```
 
-## 🚀 Usage
+The browser only receives public Supabase configuration. OpenAI and Supabase service-role credentials remain on the API service.
 
-Visit [https://nutrica.fit](https://nutrica.fit) to start tracking your nutrition!
+## Tech stack
 
-### Getting Started
-1. **Sign Up**: Create a new account or log in with existing credentials
-2. **Set Goals**: Configure your daily nutrition goals (optional)
-3. **Log Food**:
-   - Upload a photo of a nutrition label or food
-   - Or describe what you ate in natural language
-4. **Track Progress**: View your daily nutrition intake and progress toward goals
-5. **Collect Puzzles**: Unlock puzzle pieces as you maintain consistent tracking
-6. **Share**: Generate and share your nutrition reports
+| Area | Technology |
+| --- | --- |
+| Client | React 19, Vite, React Router, CSS Modules |
+| API | Node.js, Express, Helmet, express-rate-limit, Multer |
+| Data & auth | Supabase |
+| AI | OpenAI `gpt-4.1-mini` |
+| Hosting | Vercel |
+| Tests | Jest, Supertest |
 
-## 🔑 Key Features Explained
+## Repository layout
 
-### AI Food Analysis
-The application uses OpenAI's GPT-4 model to analyze food images and descriptions:
-- **Image Analysis**: Extracts nutrition facts from food label photos
-- **Description Analysis**: Estimates nutrition values from natural language descriptions
-- **Error Handling**: Gracefully handles unrecognizable images or invalid descriptions
+```text
+.
+├── frontend/                  # React single-page application
+│   ├── src/components/        # Reusable UI by domain
+│   ├── src/pages/             # Route-level features and modals
+│   ├── src/utils/             # API, media, nutrition, and puzzle utilities
+│   └── public/                # Static brand and product assets
+├── backend/                   # Express API service
+│   └── src/
+│       ├── config/            # Runtime configuration
+│       ├── middleware/        # Auth, errors, logging, performance
+│       ├── routes/            # HTTP endpoints
+│       └── services/          # OpenAI and database boundaries
+├── docs/                      # Architecture and operational notes
+└── .github/workflows/         # Continuous integration
+```
 
-### Puzzle Collection System
-A gamification feature that encourages consistent nutrition tracking:
-- Users collect puzzle pieces based on their nutrition intake
-- Puzzles are organized by food categories
-- Completed puzzles can be viewed in the collections page
-- Share your collections with others
+## Local development
 
-### Nutrition Tracking
-- Real-time calculation of daily nutrition totals
-- Date-based navigation to view historical data
-- Visual indicators for goal progress
-- Automatic aggregation of multiple food entries
+### Prerequisites
 
-## 🚢 Deployment and domain recovery
+- Node.js 20 LTS or 22 LTS (the repository pins Node 20 for CI).
+- A Supabase project and an OpenAI API key for end-to-end AI features.
 
-The frontend and backend are deployed as two independent services. This keeps
-the OpenAI and Supabase service-role keys on the server and makes it possible to
-restore the product under a temporary Vercel URL before a custom domain is
-available.
+### 1. Configure environment variables
 
-1. Create a **backend** Vercel project with `backend` as its Root Directory.
-   Add the values from `backend/.env.example` in Vercel's Production environment.
-   Set `CORS_ORIGIN` to a comma-separated list containing the temporary frontend
-   URL and, after recovery, `https://nutrica.fit`.
-2. Deploy it and verify `https://<backend-url>/api/health`. A healthy deployment
-   returns `{ "success": true, "status": "ok" }`.
-3. Create a **frontend** Vercel project with `frontend` as its Root Directory.
-   Add the values from `frontend/.env.example`; set `VITE_API_BASE_URL` to the
-   backend URL from step 2 (without a trailing slash) and `VITE_FRONTEND_URL` to
-   the frontend's deployed URL. Redeploy after setting these build-time values.
-4. Before restoring the custom domain, sign up and log in through the temporary
-   frontend URL to verify authentication, food logging, AI text analysis, image
-   analysis, collections, and password-reset redirects.
-5. Keep `nutrica.fit` connected to the frontend Vercel project and use Vercel
-   DNS. Verify the generated DNS records whenever the domain configuration changes.
-   Keep the temporary Vercel URL in `CORS_ORIGIN` so rollback remains possible.
+```bash
+cp frontend/.env.example frontend/.env.local
+cp backend/.env.example backend/.env
+```
 
-Never place `OPENAI_API_KEY` or `SUPABASE_SERVICE_ROLE_KEY` in frontend
-environment variables; values beginning with `VITE_` are included in the browser
-bundle.
+Fill in the placeholders. Never put `OPENAI_API_KEY` or `SUPABASE_SERVICE_ROLE_KEY` in `frontend/.env.local`: any variable starting with `VITE_` is shipped to the browser.
 
-## 🤝 Contributing
+For local development, set `CORS_ORIGIN=http://localhost:5173` in `backend/.env` and set `VITE_API_BASE_URL=http://localhost:3001` in `frontend/.env.local`.
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+### 2. Install and run
 
-## 📝 License
+```bash
+npm --prefix frontend ci
+npm --prefix backend ci
 
-This project is open source and available under the MIT License.
+# Terminal 1
+npm run dev:api
 
-## 🙏 Acknowledgments
+# Terminal 2
+npm run dev:web
+```
 
-- OpenAI for providing the GPT-4 API
-- Supabase for authentication and database services
-- Vercel and Railway for hosting infrastructure
+The client is served at `http://localhost:5173`; the API listens on `http://localhost:3001`.
 
----
+## Quality checks
 
-Made with ❤️ for better nutrition tracking
+```bash
+npm run build     # production client build
+npm test          # API contract and validation tests
+npm run verify    # both commands above
+npm run audit     # production dependency audit
+```
+
+GitHub Actions runs the client build and backend test suite on every push and pull request.
+
+## Deployment
+
+The frontend and API are separate Vercel projects. This isolates server credentials from the browser bundle.
+
+1. Deploy `backend/` and configure the variables in [`backend/.env.example`](backend/.env.example). Set `CORS_ORIGIN` to `https://nutrica.fit` plus any approved preview origin.
+2. Verify `https://<api-domain>/api/health` returns `{"success":true,"status":"ok"}`.
+3. Deploy `frontend/` and configure [`frontend/.env.example`](frontend/.env.example), including the API URL without a trailing slash.
+4. Assign `nutrica.fit` to the frontend project. Production routing proxies `/api/*` to the API service.
+
+## Security and privacy
+
+- All API writes require a verified Supabase bearer token.
+- The API validates food and collection payloads before privileged persistence.
+- CORS, Helmet, compression, request-size limits, and rate limits are enabled at the API boundary.
+- Password recovery and account data are handled through Supabase.
+
+Please report a vulnerability privately according to [SECURITY.md](SECURITY.md). Nutrica is a personal nutrition tracker, not medical advice.
+
+## License
+
+Released under the [MIT License](LICENSE).

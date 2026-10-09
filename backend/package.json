@@ -1,6 +1,7 @@
 {
-  "name": "nutrition-facts-backend",
+  "name": "@nutrica/api",
   "version": "1.0.0",
+  "description": "Nutrica's authenticated Express API and AI integration boundary.",
   "main": "src/server.js",
   "scripts": {
     "start": "node index.js",
@@ -26,5 +27,9 @@
   "overrides": {
     "proxy-addr": "^2.0.8",
     "ws": "^8.21.0"
+  },
+  "engines": {
+    "node": ">=20.19 <23",
+    "npm": ">=10"
   }
 }

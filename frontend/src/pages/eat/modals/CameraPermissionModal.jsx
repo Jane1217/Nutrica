@@ -19,10 +19,10 @@ export default function CameraPermissionModal({ onClose, onOk, open = true }) {
           <path d="M2 2H51" stroke="#CDD3C4" strokeWidth="4" strokeLinecap="round"/>
         </svg>
         <span className="camera-permission-desc body1">
-          The food label scanner only works with camera permissions enabled for <span className="camera-permission-bold">Nutrica.io</span>. Please allow access in the next screen, no images will be saved.
+          The food label scanner only works with camera permissions enabled for <span className="camera-permission-bold">Nutrica.fit</span>. Please allow access in the next screen; no images will be saved.
         </span>
         <button className="camera-permission-btn h5" onClick={onOk || onClose}>Ok</button>
       </div>
     </ModalWrapper>
   );
-} 
+}
