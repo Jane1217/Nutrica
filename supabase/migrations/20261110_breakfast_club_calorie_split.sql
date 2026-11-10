@@ -1,5 +1,5 @@
 -- Replace the Breakfast Club theme: calorie-split pixel shares, copy in the designers' voice, a theme colour.
--- STATUS: written 2026-11-10, NOT yet applied to production (rejsoyzhhukatdaebgtq).
+-- STATUS: applied to production (rejsoyzhhukatdaebgtq) on 2026-11-10 as migration "breakfast_club_calorie_split".
 --
 -- Changes against the first version (20261110_puzzle_themes.sql), same pictures, names and slots:
 --   * pixels follow the product's calorie split directly (carbs ~50%, protein ~20%, fats ~30% of painted
