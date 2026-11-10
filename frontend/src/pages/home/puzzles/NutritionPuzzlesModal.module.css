@@ -71,4 +71,5 @@
 .modalContentWrapper {
   max-width: 500px;
   width: 100%;
+  margin: 0 auto; /* centre the cards when the modal is wider than the content */
 }
