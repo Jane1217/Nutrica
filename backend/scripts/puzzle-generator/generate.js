@@ -4,6 +4,7 @@
  *
  *   node scripts/puzzle-generator/generate.js "Breakfast Club" 6
  *   node scripts/puzzle-generator/generate.js "Breakfast Club" 6 --redraw    # keep the theme, draw new pictures
+ *   ... --redraw --only=ai_bacon                                             # redraw a single puzzle
  *
  * Writes into scripts/puzzle-generator/work/<theme_id>/:
  *   theme.json                  title, description, the puzzle list
@@ -77,7 +78,8 @@ async function main() {
   if (redraw) {
     // keep the reviewed theme, names and copy; only draw the pictures again
     const theme = JSON.parse(fs.readFileSync(path.join(dir, 'theme.json'), 'utf8'));
-    for (const puzzle of theme.puzzles) {
+    const only = args.find((a) => a.startsWith('--only='))?.slice('--only='.length);   // e.g. --only=ai_bacon
+    for (const puzzle of theme.puzzles.filter((p) => !only || p.id === only)) {
       console.log(`[${themeId}] ${puzzle.slot}/${theme.count} ${puzzle.name}: new picture with ${IMAGE_MODEL} ...`);
       const image = await client.images.generate({
         model: IMAGE_MODEL, prompt: imagePrompt(puzzle.food, title), size: '1024x1024', quality: 'low', n: 1,
