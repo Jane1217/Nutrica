@@ -1,5 +1,5 @@
 -- Replace the Breakfast Club artwork: cleaner Orange Juice and no visible colour bands.
--- STATUS: written 2026-11-10, NOT yet applied to production (rejsoyzhhukatdaebgtq).
+-- STATUS: applied to production (rejsoyzhhukatdaebgtq) on 2026-11-10; grid checksums verified against this file.
 --
 -- Why: the Orange Juice looked like two stacked layers. The picture the image model drew had a perspective
 -- glass opening (an elliptical rim above the liquid) and the generator's colour splitting (used to tune the
