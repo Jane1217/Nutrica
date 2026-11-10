@@ -10,6 +10,7 @@ import ProfileEditModal from '../modals/ProfileEditModal';
 import ChangePasswordModal from '../modals/ChangePasswordModal';
 import DeleteAccountModal from '../modals/DeleteAccountModal';
 import ModalWrapper from '../../../components/common/ModalWrapper';
+import { saveNutritionGoal } from '../../../utils/nutrition';
 import Toast from '../../../components/common/Toast';
 
 export default function AccountSettings({ userEmail }) {
@@ -23,6 +24,7 @@ export default function AccountSettings({ userEmail }) {
   const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState('success');
   const initial = userEmail ? userEmail[0].toUpperCase() : '';
   const [userInfo, setUserInfo] = useState(null);
   const [avatarUrl, setAvatarUrl] = useState(null);
@@ -170,30 +172,17 @@ export default function AccountSettings({ userEmail }) {
 
   // 保存用户填写的卡路里值到 nutrition_goal 表
   const handleSaveCalories = async (calories) => {
-    // 计算三大营养素
-    const carbs = Math.round((0.50 * calories) / 4);
-    const fats = Math.round((0.30 * calories) / 9);
-    const protein = Math.round((0.20 * calories) / 4);
-
-    // 获取当前用户id
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user;
     if (!user) return;
 
-    // 使用 upsert 保存到 nutrition_goal 表，避免唯一约束冲突
-    const { error } = await supabase
-      .from('nutrition_goal')
-      .upsert([
-        {
-          user_id: user.id,
-          calories,
-          carbs,
-          fats,
-          protein,
-          created_at: new Date().toISOString()
-        }
-      ], { onConflict: ['user_id'] });
+    const { error } = await saveNutritionGoal(supabase, user.id, calories);
     if (error) {
-      console.error('Failed to save:', error);
+      console.error('Failed to save nutrition goal:', error);
+      setToastMessage('Could not save your nutrition goal. Please try again.');
+      setToastType('error');
+      setShowToast(true);
+      return; // 保存失败时保持弹窗打开，别让用户以为已经保存
     }
     setShowNutritionGoalModal(false);
   };
@@ -216,6 +205,7 @@ export default function AccountSettings({ userEmail }) {
 
   const handlePasswordChangeSuccess = () => {
     setToastMessage('Password successfully changed');
+    setToastType('success');
     setShowToast(true);
   };
 
@@ -223,7 +213,7 @@ export default function AccountSettings({ userEmail }) {
     <>
       <Toast 
         message={toastMessage}
-        type="success"
+        type={toastType}
         show={showToast}
         onClose={() => setShowToast(false)}
         duration={3000}

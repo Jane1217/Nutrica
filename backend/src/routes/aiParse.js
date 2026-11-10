@@ -34,6 +34,9 @@ const upload = multer({
 const aiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 20,
+  // Count per signed-in user (this limiter runs after authentication) rather than per
+  // IP, so one heavy user does not lock out everyone behind the same network.
+  keyGenerator: (req) => req.user?.id || 'anonymous',
   standardHeaders: true,
   legacyHeaders: false,
   message: {

@@ -90,7 +90,9 @@ export default function ResetPassword() {
     };
   }, [searchParams, tokenHash]);
 
-  const handleResetPassword = async () => {
+  const handleResetPassword = async (e) => {
+    e?.preventDefault?.();
+    if (isLoading) return;
     if (!password) {
       setError('Please enter a new password');
       return;
@@ -188,7 +190,7 @@ export default function ResetPassword() {
             </BottomButton>
           </div>
         ) : (
-          <div className={styles.card}>
+          <form className={styles.card} onSubmit={handleResetPassword} noValidate>
             <h1 className={`${styles.title} h1`}>
               Reset Password
             </h1>
@@ -200,6 +202,9 @@ export default function ResetPassword() {
               <InputField
                 label="New Password"
                 type="password"
+                name="new-password"
+                autoComplete="new-password"
+                autoFocus
                 value={password}
                 onChange={setPassword}
                 error={null}
@@ -210,6 +215,8 @@ export default function ResetPassword() {
               <InputField
                 label="Confirm New Password"
                 type="password"
+                name="confirm-password"
+                autoComplete="new-password"
                 value={confirmPassword}
                 onChange={setConfirmPassword}
                 error={null}
@@ -223,13 +230,13 @@ export default function ResetPassword() {
             <FormError message={error} />
 
             <BottomButton
-              onClick={handleResetPassword}
+              type="submit"
               isLoading={isLoading}
               loadingText="Updating..."
             >
               Reset password
             </BottomButton>
-          </div>
+          </form>
         )}
       </div>
     </div>

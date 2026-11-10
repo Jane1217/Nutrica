@@ -89,7 +89,11 @@ const config = {
     version: 'v1',
     rateLimit: {
       windowMs: 15 * 60 * 1000, // 15 minutes
-      max: 100 // Limit each IP to 100 requests per 15 minutes
+      // Per IP. Many people share one IP on campus/office networks and a single
+      // page load already makes several API calls, so 100 was easy to exhaust.
+      max: 600,
+      standardHeaders: true,
+      legacyHeaders: false
     },
     // 性能优化
     compression: true,

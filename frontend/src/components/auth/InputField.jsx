@@ -1,20 +1,41 @@
-import React from 'react';
+import React, { useId } from 'react';
 import styles from './InputField.module.css';
 
-export default function InputField({ label, type = 'text', value, onChange, error }) {
+export default function InputField({
+  label,
+  type = 'text',
+  value,
+  onChange,
+  error,
+  name,
+  autoComplete,
+  autoFocus = false,
+  inputMode
+}) {
+  // Tie the label to its input (clicking the label focuses the field, screen
+  // readers announce it) and expose the error text to assistive technology.
+  const inputId = useId();
+  const errorId = `${inputId}-error`;
   return (
     <div className={styles.inputFieldRoot}>
-      <label className={`${styles.inputLabel} h6`}>{label}</label>
+      <label className={`${styles.inputLabel} h6`} htmlFor={inputId}>{label}</label>
       <div className={`${styles.inputFieldBox} ${error ? styles.inputFieldBoxError : ''}`}>
         <input
+          id={inputId}
           className={`${styles.inputFieldInput} body1`}
           type={type}
+          name={name}
           value={value}
+          autoComplete={autoComplete}
+          autoFocus={autoFocus}
+          inputMode={inputMode}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? errorId : undefined}
           onChange={e => onChange(e.target.value)}
         />
       </div>
       {error && (
-        <div className={styles.errorWrapper}>
+        <div className={styles.errorWrapper} id={errorId} role="alert">
           <span className={styles.errorIcon}>
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="21" viewBox="0 0 20 21" fill="none">
               <g clipPath="url(#clip0_1009_317)">

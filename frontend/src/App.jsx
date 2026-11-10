@@ -22,8 +22,19 @@ const SafariCameraPermission = lazy(() => import('./pages/auth/pages/SafariCamer
 const PrivacyNotice = lazy(() => import('./pages/auth/pages/PrivacyNotice'));
 const About = lazy(() => import('./pages/auth/pages/About'));
 
+// Remember where the visitor wanted to go so logging in brings them back there
+// (instead of always dropping them on the home page).
 function RequireAuth({ user, children }) {
-  return user ? children : <Navigate to="/log-in" replace />;
+  const location = useLocation();
+  return user ? children : <Navigate to="/log-in" replace state={{ from: location.pathname + location.search }} />;
+}
+
+// Only follow in-app paths: never an absolute URL, so the state cannot be abused as an open redirect.
+function getPostLoginPath(location) {
+  const from = location.state?.from;
+  return typeof from === 'string' && from.startsWith('/') && !from.startsWith('//') && !from.startsWith('/log-in') && !from.startsWith('/sign-up')
+    ? from
+    : '/';
 }
 
 export default function App() {
@@ -135,7 +146,7 @@ function AppRoutes() {
           path="/log-in"
           element={
             user
-              ? <Navigate to="/" replace />
+              ? <Navigate to={getPostLoginPath(location)} replace />
               : <LogIn
                   open={true}
                   onClose={() => navigate('/')}
@@ -170,11 +181,7 @@ function AppRoutes() {
         />
         <Route
           path="/reset-password"
-          element={
-            user
-              ? <ResetPassword />
-              : <ResetPassword />
-          }
+          element={<ResetPassword />}
         />
 
         <Route
@@ -188,19 +195,11 @@ function AppRoutes() {
         />
         <Route
           path="/my-collections"
-          element={
-            user
-              ? <MyCollections />
-              : <Navigate to="/log-in" replace />
-          }
+          element={<RequireAuth user={user}><MyCollections /></RequireAuth>}
         />
         <Route
           path="/my-collections/detail/:puzzleName"
-          element={
-            user
-              ? <CollectionDetail />
-              : <Navigate to="/log-in" replace />
-          }
+          element={<RequireAuth user={user}><CollectionDetail /></RequireAuth>}
         />
         <Route path="/share/:userId/:puzzleName" element={<SharePage />} />
         <Route

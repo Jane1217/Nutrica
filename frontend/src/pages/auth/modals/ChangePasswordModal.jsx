@@ -130,6 +130,8 @@ export default function ChangePasswordModal({ open, onClose, onPasswordChangeSuc
               <InputField
                 label="Current Password"
                 type="password"
+                name="current-password"
+                autoComplete="current-password"
                 value={currentPassword}
                 onChange={setCurrentPassword}
                 placeholder="Enter current password"
@@ -141,6 +143,8 @@ export default function ChangePasswordModal({ open, onClose, onPasswordChangeSuc
               <InputField
                 label="New Password"
                 type="password"
+                name="new-password"
+                autoComplete="new-password"
                 value={newPassword}
                 onChange={setNewPassword}
                 placeholder="Enter new password"
@@ -150,6 +154,8 @@ export default function ChangePasswordModal({ open, onClose, onPasswordChangeSuc
               <InputField
                 label="Confirm New Password"
                 type="password"
+                name="confirm-password"
+                autoComplete="new-password"
                 value={confirmPassword}
                 onChange={setConfirmPassword}
                 placeholder="Confirm new password"
