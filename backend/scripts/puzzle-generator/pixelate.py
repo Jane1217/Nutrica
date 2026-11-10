@@ -354,11 +354,12 @@ def assign_nutrients(palette, index):
 
 
 def split_colour(palette, index, which):
-    """Give the upper half of one colour's cells a slightly lighter shade, so the nutrient
-    shares can be tuned in finer steps (the hand-drawn puzzles use several shades too)."""
+    """Give the upper half of one colour's cells a *barely* lighter shade, so the nutrient shares can be tuned
+    in finer steps. The difference must stay almost invisible: a visible one turns a flat area (juice, a plate)
+    into horizontal bands that read as separate layers."""
     rows = sorted(y for y in range(GRID) for x in range(GRID) if index[y][x] == which)
     cut = rows[len(rows) // 2]
-    lighter = tuple(c + (255 - c) * 0.16 for c in palette[which])
+    lighter = tuple(c + (255 - c) * 0.05 for c in palette[which])
     palette.append(distinct_colour(palette, keep_visible(lighter)))
     new = len(palette) - 1
     for y in range(GRID):
