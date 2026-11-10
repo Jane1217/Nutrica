@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../../../supabaseClient';
 import { getFriendlyErrorMessage } from '../../../utils/core/errors';
 import InputField from '../../../components/auth/InputField';
+import FormError from '../../../components/auth/FormError';
 import BottomButton from '../../../components/common/BottomButton';
 import styles from '../styles/ResetPassword.module.css';
 import '../../../index.css';
@@ -24,107 +25,80 @@ const SimpleLogo = () => (
   </div>
 );
 
+// Where the recovery credential comes from, depending on how the email link was built:
+//  - `?token_hash=...&type=recovery` (our email template). Verified only when the user
+//    submits the form: the link itself does nothing, so email security scanners that
+//    pre-open every link cannot use up the one-time token before the user does.
+//  - `#access_token=...` / `?code=...` (Supabase's default `{{ .ConfirmationURL }}`).
+//    supabase-js turns these into a session by itself while it initializes.
+const getRecoveryTokenHash = (searchParams) => {
+  const hash = searchParams.get('token_hash') || searchParams.get('token');
+  return hash && (searchParams.get('type') || 'recovery') === 'recovery' ? hash : null;
+};
+
 export default function ResetPassword() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoadingPage, setIsLoadingPage] = useState(true);
+  // 'checking' -> 'ready' (form usable) | 'invalid' (link expired / already used / missing)
+  const [status, setStatus] = useState('checking');
   const [showSuccess, setShowSuccess] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const tokenHash = getRecoveryTokenHash(searchParams);
 
-  // 检查用户是否已通过邮件链接认证
   useEffect(() => {
-    const checkAuthAndSession = async () => {
-      try {
-        // 检查URL参数
-        const token = searchParams.get('token');
-        const type = searchParams.get('type');
-        const access_token = searchParams.get('access_token');
-        const refresh_token = searchParams.get('refresh_token');
+    let cancelled = false;
+    const markReady = () => { if (!cancelled) setStatus('ready'); };
 
-        // 检查当前session状态
-        const { data: { session } } = await supabase.auth.getSession();
-
-        if (session) {
-          setIsAuthenticated(true);
-          setError('');
-        } else if (access_token && refresh_token) {
-          // 如果有access_token和refresh_token，设置session
-          const { error } = await supabase.auth.setSession({
-            access_token: access_token,
-            refresh_token: refresh_token
-          });
-
-          if (error) {
-            setError('Invalid or expired reset link. Please request a new one.');
-          } else {
-            setIsAuthenticated(true);
-            setError('');
-          }
-        } else if (token && type === 'recovery') {
-          // 如果有token，尝试验证
-          const { error } = await supabase.auth.verifyOtp({
-            token_hash: token,
-            type: 'recovery'
-          });
-
-          if (error) {
-            setError('Invalid or expired reset link. Please request a new one.');
-          } else {
-            setIsAuthenticated(true);
-            setError('');
-          }
-        } else {
-          setError('Please click the link in your email to reset your password.');
-        }
-      } catch (err) {
-        setError('Error loading page. Please try again.');
-      } finally {
-        setIsLoadingPage(false);
-      }
-    };
-
-    checkAuthAndSession();
-
-    // 监听认证状态变化
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'PASSWORD_RECOVERY' && session) {
-        setIsAuthenticated(true);
-        setError('');
-      } else if (event === 'SIGNED_IN' && session) {
-        // 检查是否是通过密码重置链接登录的
-        const token = searchParams.get('token');
-        const access_token = searchParams.get('access_token');
-        if (token || access_token) {
-          setIsAuthenticated(true);
-          setError('');
-        }
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [searchParams]);
-
-  const handleResetPassword = async () => {
-    if (!isAuthenticated) {
-      setError('Please click the link in your email first');
-      return;
+    // A token_hash link is verified on submit, so the form can be shown right away.
+    if (tokenHash) {
+      markReady();
+      return undefined;
     }
 
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if ((event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') && session) markReady();
+    });
+
+    (async () => {
+      try {
+        const accessToken = searchParams.get('access_token');
+        const refreshToken = searchParams.get('refresh_token');
+        // getSession() waits for supabase-js to finish handling the URL (hash tokens / ?code=)
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) return markReady();
+
+        if (accessToken && refreshToken) {
+          const { error: sessionError } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
+          if (!sessionError) return markReady();
+        }
+        if (!cancelled) setStatus('invalid');
+      } catch {
+        if (!cancelled) setStatus('invalid');
+      }
+      return undefined;
+    })();
+
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
+  }, [searchParams, tokenHash]);
+
+  const handleResetPassword = async () => {
     if (!password) {
       setError('Please enter a new password');
       return;
     }
-
     if (password.length < 8) {
       setError('Password must be at least 8 characters long');
       return;
     }
-
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
@@ -132,34 +106,40 @@ export default function ResetPassword() {
 
     setIsLoading(true);
     setError('');
-    setSuccess('');
 
     try {
-      const { error } = await supabase.auth.updateUser({
-        password: password
-      });
-
-      if (error) {
-        setError(getFriendlyErrorMessage(error));
-      } else {
-        setSuccess('Password updated successfully!');
-        setShowSuccess(true);
-        // 密码更新成功后，登出用户
-        setTimeout(async () => {
-          await supabase.auth.signOut();
-        }, 1500);
+      if (tokenHash) {
+        // Validate the form first (above) so a typo does not burn the one-time token.
+        const { error: verifyError } = await supabase.auth.verifyOtp({
+          token_hash: tokenHash,
+          type: 'recovery'
+        });
+        if (verifyError) {
+          setStatus('invalid');
+          return;
+        }
       }
+
+      const { error: updateError } = await supabase.auth.updateUser({ password });
+      if (updateError) {
+        setError(getFriendlyErrorMessage(updateError));
+        return;
+      }
+
+      setShowSuccess(true);
+      // 密码更新成功后，登出用户，让他们用新密码重新登录
+      setTimeout(() => { supabase.auth.signOut(); }, 1500);
     } catch (err) {
-      setError('An unexpected error occurred. Please try again.');
+      setError(getFriendlyErrorMessage(err, 'An unexpected error occurred. Please try again.'));
     } finally {
       setIsLoading(false);
     }
   };
 
-  if (isLoadingPage) {
+  if (status === 'checking') {
     return (
       <div className={styles.loading}>
-        <div className={styles.loadingText}>Loading...</div>
+        <div className={`${styles.loadingText} body1`}>Loading...</div>
       </div>
     );
   }
@@ -173,7 +153,41 @@ export default function ResetPassword() {
 
       {/* Main Content */}
       <div className={styles.mainContent}>
-        {!showSuccess ? (
+        {showSuccess ? (
+          <div className={styles.successCard}>
+            {/* Success Icon */}
+            <div className={styles.successIcon}>
+              <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="40" cy="40" r="40" fill="var(--Alert-Success, #477E2D)"/>
+                <path d="M25 40L35 50L55 30" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+
+            {/* Success Message */}
+            <p className={`${styles.successMessage} body1`}>
+              Your password has been reset successfully.
+            </p>
+
+            {/* Login Button */}
+            <BottomButton
+              onClick={() => navigate('/', { state: { showLoginModal: true } })}
+            >
+              Log in
+            </BottomButton>
+          </div>
+        ) : status === 'invalid' ? (
+          <div className={styles.card}>
+            <h1 className={`${styles.title} h1`}>Reset Password</h1>
+            <FormError message="This reset link is invalid or has expired." />
+            <p className={`${styles.subtitle} body1`}>
+              Reset links can only be used once, and some email apps open links automatically
+              before you do. Request a new link and open it right away.
+            </p>
+            <BottomButton onClick={() => navigate('/forgot-password')}>
+              Send a new link
+            </BottomButton>
+          </div>
+        ) : (
           <div className={styles.card}>
             <h1 className={`${styles.title} h1`}>
               Reset Password
@@ -181,12 +195,6 @@ export default function ResetPassword() {
             <p className={`${styles.subtitle} body1`}>
               Please set your new password.
             </p>
-
-            {!isAuthenticated && (
-              <div className={styles.warning}>
-                Please click the link in your email to continue with password reset.
-              </div>
-            )}
 
             <div className={styles.inputWrapper}>
               <InputField
@@ -212,47 +220,14 @@ export default function ResetPassword() {
               Password must have at least 8 characters.
             </div>
 
-            {error && (
-              <div className={styles.error}>
-                {error}
-              </div>
-            )}
-
-            {success && (
-              <div className={styles.success}>
-                {success}
-              </div>
-            )}
+            <FormError message={error} />
 
             <BottomButton
               onClick={handleResetPassword}
-              disabled={!isAuthenticated}
               isLoading={isLoading}
               loadingText="Updating..."
             >
               Reset password
-            </BottomButton>
-          </div>
-        ) : (
-          <div className={styles.successCard}>
-            {/* Success Icon */}
-            <div className={styles.successIcon}>
-              <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="40" cy="40" r="40" fill="var(--Alert-Success, #477E2D)"/>
-                <path d="M25 40L35 50L55 30" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-
-            {/* Success Message */}
-            <p className={`${styles.successMessage} body1`}>
-              Your password has been reset successfully.
-            </p>
-
-            {/* Login Button */}
-            <BottomButton
-              onClick={() => navigate('/', { state: { showLoginModal: true } })}
-            >
-              Log in
             </BottomButton>
           </div>
         )}
