@@ -4,10 +4,12 @@ import styles from "./NutritionPuzzlesModal.module.css";
 import PuzzleList from "../../../components/puzzles/PuzzleList";
 import PuzzleSelectModal from "./PuzzleSelectModal";
 import { puzzleCategories } from '../../../data/puzzles';
+import { useGeneratedThemes } from '../../../utils/puzzles/generatedThemes';
 
 const puzzleList = puzzleCategories;
 
 export default function NutritionPuzzlesModal({ open, onClose, onReopen, onPuzzleSelect }) {
+  useGeneratedThemes(); // generated themes are added to puzzleCategories once loaded
   const [showPuzzleSelectModal, setShowPuzzleSelectModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
 

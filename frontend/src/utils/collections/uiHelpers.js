@@ -1,3 +1,4 @@
+import { findGeneratedPuzzle } from '../puzzles/generatedThemes';
 import { getAuthToken } from '../core';
 import { collectionApi } from '../core';
 import { 
@@ -147,6 +148,8 @@ export const NUTRITION_LABELS = [
  * @returns {string} 图标路径
  */
 export const getPuzzleIconPath = (puzzleName) => {
+  const generated = findGeneratedPuzzle(puzzleName);
+  if (generated) return generated.puzzle.img;
   const puzzleNameLower = puzzleName.toLowerCase();
   // Replace spaces with underscores for asset paths
   return `/assets/puzzles/puzzle_${puzzleNameLower.replace(/\s+/g, '_')}.svg`;

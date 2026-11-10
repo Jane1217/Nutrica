@@ -1,0 +1,40 @@
+{
+  "id": "breakfast_club",
+  "title": "Breakfast Club",
+  "description": "Start your day right by completing 6 tasty breakfast puzzles. Collect each one and watch your morning feast come to life. Breakfast never looked so bright!",
+  "type": "collection",
+  "count": 6,
+  "bg_color": "#F7C65C",
+  "puzzles": [
+    {
+      "id": "ai_pancake",
+      "name": "Pancake",
+      "slot": 1
+    },
+    {
+      "id": "ai_scrambled_eggs",
+      "name": "Scrambled Eggs",
+      "slot": 2
+    },
+    {
+      "id": "ai_bacon",
+      "name": "Bacon",
+      "slot": 3
+    },
+    {
+      "id": "ai_oatmeal",
+      "name": "Oatmeal",
+      "slot": 4
+    },
+    {
+      "id": "ai_orange_juice",
+      "name": "Orange Juice",
+      "slot": 5
+    },
+    {
+      "id": "ai_avocado_toast",
+      "name": "Avocado Toast",
+      "slot": 6
+    }
+  ]
+}

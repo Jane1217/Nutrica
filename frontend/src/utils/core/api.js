@@ -225,6 +225,9 @@ export const collectionApi = {
     return collectionPuzzlesCache.promise;
   },
 
+  // Generated puzzle themes (public: the share page needs them too)
+  getGeneratedThemes: () => apiGet('/api/collection/generated-themes'),
+
   // 获取用户collections（需要认证）
   getUserCollections: (collectionType, token) => {
     const params = collectionType ? `?collection_type=${encodeURIComponent(collectionType)}` : '';

@@ -1,3 +1,4 @@
+import { findGeneratedPuzzle } from './generatedThemes';
 // 特殊puzzle配置
 export const SPECIAL_PUZZLES = {
   'salmon nigiri boy': {
@@ -58,6 +59,12 @@ export function getPuzzleCollectionType(puzzleName) {
     return config.collectionType;
   }
   
+  // a generated puzzle is collected under its theme
+  const generated = findGeneratedPuzzle(puzzleName);
+  if (generated) {
+    return generated.theme.title;
+  }
+
   // 默认逻辑
   const puzzleNameLower = puzzleName.toLowerCase();
   if (puzzleNameLower === 'salmon' || puzzleNameLower === 'sushi rice' || puzzleNameLower === 'salmon nigiri boy') {
