@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /account
+Disallow: /my-collections
+Disallow: /eat/
+Disallow: /reset-password
+Disallow: /api/
+
+Sitemap: https://nutrica.fit/sitemap.xml

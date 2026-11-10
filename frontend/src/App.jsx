@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { supabase } from './supabaseClient';
 import AppErrorBoundary from './components/common/AppErrorBoundary';
+import { getPageTitle } from './utils/helpers/pageTitle';
 
 // Keep the first download focused on authentication and the current route.
 // The scanner, collections and account UI otherwise made every first visit
@@ -82,6 +83,10 @@ function AppRoutes() {
   const [user, setUser] = useState(readStoredUser);
   const [loading, setLoading] = useState(hasAuthCallbackInUrl);
   const location = useLocation();
+
+  useEffect(() => {
+    document.title = getPageTitle(location.pathname);
+  }, [location.pathname]);
   const navigate = useNavigate();
 
   useEffect(() => {
