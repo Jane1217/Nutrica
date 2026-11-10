@@ -1,4 +1,5 @@
 .card {
+  cursor: pointer;
   display: flex;
   min-height: 190px;
   padding: 16px;

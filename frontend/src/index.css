@@ -40,6 +40,29 @@ select {
   font-family: inherit;
 }
 
+/* Anything the user can click gets the pointer cursor (and a disabled control says so).
+   Individual components used to set this one by one and several were missed. */
+button,
+a[href],
+select,
+summary,
+[role='button'],
+label[for],
+input[type='checkbox'],
+input[type='radio'],
+input[type='range'],
+input[type='file'],
+input[type='submit'] {
+  cursor: pointer;
+}
+
+button:disabled,
+select:disabled,
+input:disabled,
+[aria-disabled='true'] {
+  cursor: not-allowed;
+}
+
 /* 全局重置所有元素的默认margin和padding */
 * {
   margin: 0;
