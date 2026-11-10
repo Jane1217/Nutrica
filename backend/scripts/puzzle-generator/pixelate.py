@@ -501,7 +501,7 @@ def main():
                      render(index, palette, nutrient_of, 'art', 0.5), render(index, palette, nutrient_of, 'map', 1.0)))
 
     theme_out = {k: theme[k] for k in ('id', 'title', 'description', 'type', 'count')}
-    theme_out['bg_color'] = '#D8E8E7'
+    theme_out['bg_color'] = theme.get('bg_color') or '#F8D77A'
     theme_out['puzzles'] = [{'id': p['id'], 'name': p['name'], 'slot': p['slot']} for p in theme['puzzles']]
     json.dump(theme_out, open(os.path.join(out_dir, 'theme.json'), 'w'), indent=2)
 

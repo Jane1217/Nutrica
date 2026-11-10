@@ -25,6 +25,19 @@ const theme = JSON.parse(fs.readFileSync(path.join(dir, 'theme.json'), 'utf8'));
 let failed = 0;
 const problemsOf = [];
 
+// Copy follows the hand-drawn themes (frontend/src/data/puzzles): short, witty, no emoji, no generic cheering.
+const EMOJI = /\p{Extended_Pictographic}/u;
+const CLICHE = /great job|keep going|keep it up|almost there|so close/i;
+const copyProblems = (label, text, min, max) => {
+  const out = [];
+  if (text.length < min || text.length > max) out.push(`${label} is ${text.length} characters, expected ${min}-${max}: "${text}"`);
+  if (EMOJI.test(text)) out.push(`${label} contains an emoji`);
+  if (CLICHE.test(text)) out.push(`${label} uses a generic cheer: "${text}"`);
+  return out;
+};
+
+if (!/^#[0-9A-Fa-f]{6}$/.test(theme.bg_color || '')) problemsOf.push('theme has no valid bg_color');
+problemsOf.push(...copyProblems('theme description', theme.description, 100, 170));
 if (theme.puzzles.length !== theme.count) problemsOf.push(`theme says ${theme.count} puzzles but lists ${theme.puzzles.length}`);
 if (new Set(theme.puzzles.map((p) => p.name.toLowerCase())).size !== theme.puzzles.length) problemsOf.push('duplicate puzzle names');
 if (new Set(theme.puzzles.map((p) => p.slot)).size !== theme.puzzles.length) problemsOf.push('duplicate slots');
@@ -41,6 +54,9 @@ for (const entry of theme.puzzles) {
 
   if (rows.length !== 24 || rows.some((r) => r.length !== 24)) problems.push('grid is not 24x24');
   if (puzzle.descriptions.length !== 5) problems.push('needs 5 progress messages');
+  problems.push(...copyProblems('completion line', puzzle.description, 40, 72));
+  puzzle.descriptions.forEach((d, i) => problems.push(...copyProblems(`message ${i + 1}`, d, 36, 85)));
+  if ((puzzle.descriptions.join(' ').match(/!/g) || []).length + (puzzle.description.match(/!/g) || []).length > 1) problems.push('too many exclamation marks');
   if (painted.length < MIN_CELLS) problems.push(`only ${painted.length} painted cells`);
   const usedRows = rows.map((r) => r.some((p) => p.nutrient)).filter(Boolean).length;
   const usedCols = [...Array(24).keys()].filter((x) => rows.some((r) => r[x].nutrient)).length;

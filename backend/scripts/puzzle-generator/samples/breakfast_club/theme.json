@@ -1,10 +1,10 @@
 {
   "id": "breakfast_club",
   "title": "Breakfast Club",
-  "description": "Start your day right by completing daily nutrition challenges and collecting 6 delicious breakfast-themed puzzles. Each puzzle brings you closer to building a wholesome morning meal. Rise and shine with every nutritious bite!",
+  "description": "Start your day right by completing 6 tasty breakfast puzzles. Collect each one and watch your morning feast come to life. Breakfast never looked so bright!",
   "type": "collection",
   "count": 6,
-  "bg_color": "#D8E8E7",
+  "bg_color": "#F7C65C",
   "puzzles": [
     {
       "id": "ai_pancake",
