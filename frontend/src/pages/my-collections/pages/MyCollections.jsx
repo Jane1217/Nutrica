@@ -71,8 +71,11 @@ export default function MyCollections() {
         }
 
         // 使用后端API查询用户在所有主题下的收集
-        const magicGardenResponse = await collectionApi.getUserCollections('Magic Garden', token);
-        const salmonNigiriResponse = await collectionApi.getUserCollections('Salmon Nigiri Boy', token);
+        // 两个请求互不依赖，并行发出
+        const [magicGardenResponse, salmonNigiriResponse] = await Promise.all([
+          collectionApi.getUserCollections('Magic Garden', token),
+          collectionApi.getUserCollections('Salmon Nigiri Boy', token)
+        ]);
         
         let allCollections = [];
         

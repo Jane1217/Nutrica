@@ -37,7 +37,7 @@ import {
 
 // 保存 daily_home_data 快照到 supabase
 async function saveDailyHomeData(data) {
-  if (!data.user_id || !data.date) return;
+  if (!data.user_id || !data.date) return false;
   
   // 检查puzzle是否完成 - 修复：使用与checkPuzzleCompletion一致的条件
   const isPuzzleCompleted = data.puzzle_progress === 1;
@@ -52,6 +52,7 @@ async function saveDailyHomeData(data) {
     ], { onConflict: ['user_id', 'date'] });
   if (error) {
     console.error('Failed to save daily home data:', error);
+    return false;
   } else {
     // 只有在puzzle真正完成时才检查并添加到collections
     if (isPuzzleCompleted) {
@@ -62,6 +63,7 @@ async function saveDailyHomeData(data) {
       }
     }
   }
+  return true;
 }
 
 export default function Home({ isLoggedIn }) {
@@ -81,6 +83,7 @@ export default function Home({ isLoggedIn }) {
   const [foodsTotal, setFoodsTotal] = useState(0); // 总数据量
   const foodsPerPage = 5;
   const fetchFoodsSeqRef = useRef(0); // 丢弃过期请求的结果
+  const lastSavedSnapshotRef = useRef(''); // 上次已保存快照的指纹，内容没变就不重复写库
   const loadingMoreRef = useRef(false); // 防止滚动事件重复触发"加载更多"
   const [goalsLoaded, setGoalsLoaded] = useState(false);
   const [nutritionLoaded, setNutritionLoaded] = useState(false);
@@ -280,9 +283,13 @@ export default function Home({ isLoggedIn }) {
   // 首次加载和userId变化时重置分页并获取营养数据
   useEffect(() => {
     setFoodsPage(1);
-    fetchFoods(true);
+    // 目标和今日摄入决定首页内容，立即加载并行发出；
+    // "最近食物"列表只在打开 Eat 弹窗时才用到（弹窗打开时也会自行加载），
+    // 稍后在空闲时预取，不和首页关键请求抢带宽。
     fetchNutritionGoalsData();
     fetchTodayNutritionData();
+    const prefetchTimer = setTimeout(() => fetchFoods(true), 1500);
+    return () => clearTimeout(prefetchTimer);
   }, [userId]);
 
   // 自动保存当天快照。必须等营养目标和今日摄入都加载完：
@@ -293,6 +300,13 @@ export default function Home({ isLoggedIn }) {
     const today = formatLocalDateKey(new Date());
     const progress = calculateNutritionProgress(todayNutrition, nutritionGoals);
     const puzzleProgress = getPuzzleProgress(selectedPuzzle, progress);
+    // 内容没变就不要再写一次：每次写入都会上传整张像素图(~30KB)，
+    // 完成拼图时还会触发多个收藏相关请求
+    const fingerprint = JSON.stringify([
+      userId, today, selectedPuzzle?.id, todayNutrition, nutritionGoals, puzzleProgress, userInfo?.name
+    ]);
+    if (fingerprint === lastSavedSnapshotRef.current) return;
+    lastSavedSnapshotRef.current = fingerprint;
     saveDailyHomeData({
       user_id: userId,
       date: today,
@@ -312,6 +326,9 @@ export default function Home({ isLoggedIn }) {
       carbs_colors: carbsColors,
       protein_colors: proteinColors,
       fats_colors: fatsColors
+    }).then(saved => {
+      // 保存失败时清除指纹，下次状态变化会重试
+      if (!saved && lastSavedSnapshotRef.current === fingerprint) lastSavedSnapshotRef.current = '';
     });
   }, [userId, selectedPuzzle, todayNutrition, nutritionGoals, userInfo, goalsLoaded, nutritionLoaded]);
 

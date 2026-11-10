@@ -1,4 +1,3 @@
-const { OpenAI } = require('openai');
 const config = require('../config/config');
 const { logError, logWarning } = require('../utils/logger');
 const { extractFirstEmoji } = require('../utils/nutritionLabel');
@@ -58,6 +57,8 @@ class OpenAIService {
   // only serves non-AI routes.
   get openai() {
     if (!this._openai) {
+      // SDK 较大：延迟到第一次真正调用 AI 时才加载，缩短 serverless 冷启动
+      const { OpenAI } = require('openai');
       this._openai = new OpenAI(this.openaiConfig);
     }
     return this._openai;

@@ -18,6 +18,8 @@ router.get('/collection-puzzles', async (req, res) => {
   try {
     const data = await databaseService.getCollectionPuzzles();
 
+    // 拼图配置是全站相同的静态数据：允许浏览器和 Vercel 边缘缓存，减少函数调用
+    res.set('Cache-Control', 'public, max-age=300, s-maxage=600, stale-while-revalidate=3600');
     res.json({
       success: true,
       data: data || []

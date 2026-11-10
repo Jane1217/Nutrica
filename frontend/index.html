@@ -26,10 +26,13 @@
   <meta name="twitter:image" content="https://nutrica.fit/assets/nutrica-social-preview.png" />
   <meta name="twitter:image:alt" content="Pixel-art foods assembled as a Nutrica nutrition puzzle garden" />
   <title>Nutrica — AI-Powered Nutrition Tracking</title>
-  <!-- Google Fonts - Kanit and Abhaya Libre -->
+  <!-- Google Fonts - Kanit and Abhaya Libre.
+       Only the weights/styles the app uses (no italics, no 300), and loaded without
+       blocking first paint: display=swap shows text immediately in the fallback font. -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Abhaya+Libre:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Abhaya+Libre:wght@400;600;700&display=swap" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700&family=Abhaya+Libre:wght@400;600;700&display=swap"></noscript>
 </head>
 <body>
   <div id="root"></div>

@@ -4,8 +4,46 @@
       "source": "/api/:path*",
       "destination": "https://nutrica-api.vercel.app/api/:path*"
     },
-    { "source": "/share/:userId/:puzzleName", "destination": "/" },
-    { "source": "/my-collections/detail/:puzzleName", "destination": "/" },
-    { "source": "/(.*)", "destination": "/" }
+    {
+      "source": "/share/:userId/:puzzleName",
+      "destination": "/"
+    },
+    {
+      "source": "/my-collections/detail/:puzzleName",
+      "destination": "/"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)\\.(js|css)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/assets/(.*)\\.(png|jpe?g|webp|svg|gif|ico|woff2?)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=604800"
+        }
+      ]
+    },
+    {
+      "source": "/(favicon\\.ico|favicon\\.svg)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=604800"
+        }
+      ]
+    }
   ]
-} 
+}

@@ -143,7 +143,7 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
       finalHeight = feet * 12 + inches;
     }
     
-    // 3秒后调用onSubmit
+    // 展示1秒的"计算中"界面后再调用 onSubmit（原来是3秒，纯等待）
     setTimeout(() => {
       setIsLoading(false);
       onSubmit && onSubmit({ 
@@ -159,7 +159,7 @@ export default function UserInfoModal({ open, onClose, onSubmit, initialData = {
         weightGoal,
         calculatedCalories 
       });
-    }, 3000);
+    }, 1000);
   };
 
   // 如果正在加载，显示加载界面

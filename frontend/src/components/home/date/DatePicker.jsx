@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { icons } from '../../../utils';
 import { formatDate, getRelativeDateText } from '../../../utils';
 import styles from './DatePicker.module.css';
-import DatePickerModal from './DatePickerModal';
+// react-day-picker 只在用户第一次打开日历时才加载
+const DatePickerModal = lazy(() => import('./DatePickerModal'));
 import { supabase } from '../../../supabaseClient';
 
 // 保存 daily_home_data 快照到 supabase
@@ -35,6 +36,7 @@ export default function DatePicker(props) {
   const [canGoBack, setCanGoBack] = useState(false);
   const [canGoForward, setCanGoForward] = useState(false);
   const [showDatePickerModal, setShowDatePickerModal] = useState(false);
+  const [datePickerOpened, setDatePickerOpened] = useState(false); // 打开过之后保持挂载，保留关闭动画
   const [userId, setUserId] = useState(null);
   const [activeDates, setActiveDates] = useState([]); // 新增：有数据的日期
 
@@ -168,6 +170,7 @@ export default function DatePicker(props) {
 
   // Open date picker modal
   const openDatePickerModal = () => {
+    setDatePickerOpened(true);
     setShowDatePickerModal(true);
   };
 
@@ -209,14 +212,18 @@ export default function DatePicker(props) {
       </button>
       
       {/* DatePicker Modal */}
-      <DatePickerModal
-        open={showDatePickerModal}
-        onClose={() => setShowDatePickerModal(false)}
-        onDateSelect={handleDateSelect}
-        currentDate={currentDate}
-        userId={userId}
-        activeDates={activeDates} // 新增
-      />
+      {datePickerOpened && (
+        <Suspense fallback={null}>
+        <DatePickerModal
+          open={showDatePickerModal}
+          onClose={() => setShowDatePickerModal(false)}
+          onDateSelect={handleDateSelect}
+          currentDate={currentDate}
+          userId={userId}
+          activeDates={activeDates} // 新增
+        />
+        </Suspense>
+      )}
     </div>
   );
 }

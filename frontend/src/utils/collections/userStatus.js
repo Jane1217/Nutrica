@@ -22,8 +22,11 @@ export const getUserCollectionStatus = async (userId, forceRefresh = false) => {
     }
 
     // 获取当前用户的收藏数据
-    const magicGardenResponse = await collectionApi.getUserCollections('Magic Garden', token);
-    const salmonNigiriResponse = await collectionApi.getUserCollections('Salmon Nigiri Boy', token);
+    // 两个请求互不依赖，并行发出
+    const [magicGardenResponse, salmonNigiriResponse] = await Promise.all([
+      collectionApi.getUserCollections('Magic Garden', token),
+      collectionApi.getUserCollections('Salmon Nigiri Boy', token)
+    ]);
     
     const collectionStatus = {};
     
