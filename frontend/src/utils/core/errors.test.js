@@ -1,7 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { getFriendlyErrorMessage, isNetworkError, NETWORK_ERROR_MESSAGE } from './errors.js';
+import {
+  getFriendlyErrorMessage,
+  isNetworkError,
+  isRateLimitError,
+  NETWORK_ERROR_MESSAGE,
+  RATE_LIMIT_MESSAGE
+} from './errors.js';
 
 test('recognizes connectivity failures from every browser', () => {
   assert.equal(isNetworkError(new TypeError('Failed to fetch')), true); // Chrome
@@ -23,4 +29,17 @@ test('keeps meaningful server messages and falls back otherwise', () => {
   assert.equal(getFriendlyErrorMessage(new Error('User already registered')), 'User already registered');
   assert.equal(getFriendlyErrorMessage(new Error(''), 'Try again later'), 'Try again later');
   assert.equal(getFriendlyErrorMessage(undefined), 'Something went wrong. Please try again.');
+});
+
+test('recognizes Supabase rate limit errors and explains them', () => {
+  const byStatus = { status: 429, message: 'Too Many Requests' };
+  const byCode = { code: 'over_email_send_rate_limit', message: 'email rate limit exceeded' };
+  const byMessage = { message: 'For security purposes, you can only request this after 37 seconds.' };
+
+  [byStatus, byCode, byMessage].forEach(error => {
+    assert.equal(isRateLimitError(error), true);
+    assert.equal(getFriendlyErrorMessage(error), RATE_LIMIT_MESSAGE);
+  });
+  assert.equal(isRateLimitError(new Error('Invalid login credentials')), false);
+  assert.equal(isRateLimitError('rate limit'), false);
 });

@@ -27,12 +27,12 @@ import {
 } from '../../utils/puzzles';
 import { formatLocalDateKey } from '../../utils/helpers';
 import {
-  calculateNutritionFromCalories,
   calculateNutritionProgress,
   DEFAULT_NUTRITION_GOALS,
   EMPTY_NUTRITION,
   fetchNutritionGoals,
   fetchTodayNutrition,
+  saveNutritionGoal,
 } from '../../utils/nutrition';
 
 // 保存 daily_home_data 快照到 supabase
@@ -413,40 +413,12 @@ export default function Home({ isLoggedIn }) {
 
   // 保存用户填写的卡路里值到 nutrition_goal 表
   const handleSaveCalories = async (calories) => {
-    const caloriesValue = Number(calories);
-    if (!Number.isFinite(caloriesValue) || caloriesValue <= 0) {
-      setShowNutritionGoalModal(false);
-      return;
-    }
-    calories = Math.round(caloriesValue);
-    // 计算三大营养素
-    const { carbs, fats, protein } = calculateNutritionFromCalories(calories);
-    // 获取当前用户id
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { session } } = await supabase.auth.getSession();
+    const user = session?.user;
     if (!user) return;
-    // 插入到 nutrition_goal 表
-    const { error } = await supabase
-      .from('nutrition_goal')
-      .insert([
-        {
-          user_id: user.id,
-          calories,
-          carbs,
-          fats,
-          protein,
-          created_at: new Date().toISOString()
-        }
-      ]);
+    const { error } = await saveNutritionGoal(supabase, user.id, calories);
     if (error) {
-      console.error('Failed to save calories, trying update:', error);
-      // 若表对 user_id 有唯一约束导致 insert 失败，则改为更新已有记录
-      const { error: updateError } = await supabase
-        .from('nutrition_goal')
-        .update({ calories, carbs, fats, protein, created_at: new Date().toISOString() })
-        .eq('user_id', user.id);
-      if (updateError) {
-        console.error('Failed to update calories:', updateError);
-      }
+      console.error('Failed to save nutrition goal:', error);
     }
     setShowNutritionGoalModal(false);
     // 保存后立即刷新目标，否则首页会一直用默认目标直到刷新页面

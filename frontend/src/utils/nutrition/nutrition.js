@@ -130,3 +130,34 @@ export function getNutritionPercentage(current, goal) {
   if (safeGoal === 0) return 0;
   return Math.min(Math.round((asNonNegativeNumber(current) / safeGoal) * 100), 100);
 }
+
+
+// Save the user's calorie goal (and the macro targets derived from it).
+// Works whether or not `nutrition_goal` has a unique constraint on user_id:
+// update the existing row when there is one, insert otherwise. (Account settings
+// used upsert(onConflict) and Home used insert, so each failed silently in the
+// situations the other handled.)
+export async function saveNutritionGoal(supabase, userId, calories) {
+  const value = Math.round(Number(calories));
+  if (!userId || !Number.isFinite(value) || value <= 0) {
+    return { error: new Error('Invalid calorie goal') };
+  }
+
+  const { carbs, fats, protein } = calculateNutritionFromCalories(value);
+  const row = { calories: value, carbs, fats, protein, created_at: new Date().toISOString() };
+
+  const { data: existing, error: lookupError } = await supabase
+    .from('nutrition_goal')
+    .select('user_id')
+    .eq('user_id', userId)
+    .limit(1);
+  if (lookupError) return { error: lookupError };
+
+  if (existing && existing.length > 0) {
+    const { error } = await supabase.from('nutrition_goal').update(row).eq('user_id', userId);
+    return { error };
+  }
+
+  const { error } = await supabase.from('nutrition_goal').insert([{ user_id: userId, ...row }]);
+  return { error };
+}
