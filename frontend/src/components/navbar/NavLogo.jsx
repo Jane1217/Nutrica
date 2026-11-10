@@ -17,12 +17,14 @@ export default function NavLogo({ hideEat = false, hideCtaButtons = false, hideM
         {/* Logo Module */}
         <div className={styles.logoModule}>
           {!hideMenu && (
-            <img 
-              src={icons.menu} 
-              alt="Menu" 
-              className={styles.menu}
+            <button
+              type="button"
+              className={styles.menuButton}
               onClick={() => setSidebarOpen(true)}
-            />
+              aria-label="Open navigation menu"
+            >
+              <img src={icons.menu} alt="" className={styles.menu} />
+            </button>
           )}
           <img 
             src={icons.logo} 
