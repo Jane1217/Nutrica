@@ -1,6 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import styles from '../styles/CollectionDetail.module.css';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useDiscoverPuzzles } from '../../../utils/puzzles/discover';
 import { puzzleCategories, colorOrders } from '../../../data/puzzles';
 import ShareLinkModal from '../modals/ShareLinkModal';
 import ImageShareModal from '../modals/ImageShareModal';
@@ -38,6 +39,7 @@ export default function CollectionDetail({
   const puzzleName = propPuzzleName || (params.puzzleName ? capitalizePuzzleName(params.puzzleName) : 'Carrot');
 
   // 查找当前puzzle的配置
+  const discoverVersion = useDiscoverPuzzles();
   const puzzle = useMemo(() => {
     // 使用puzzleConfig工具查找
     if (isSpecialPuzzle(puzzleName)) {
@@ -50,7 +52,7 @@ export default function CollectionDetail({
       if (found) return found;
     }
     return null;
-  }, [puzzleName]);
+  }, [puzzleName, discoverVersion]);
 
   const collectionType = propCollectionType || getPuzzleCollectionType(puzzleName);
   const iconUrl = propIconUrl || getPuzzleImageUrl(puzzleName, puzzle);

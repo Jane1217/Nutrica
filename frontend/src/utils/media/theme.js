@@ -1,6 +1,12 @@
+import { findDiscoverPuzzleByName } from '../puzzles/discover';
+
 // 根据puzzle名称和主题返回背景色
 export function getPuzzleCardBackground(puzzleName, collectionType = 'Magic Garden') {
   const puzzleNameLower = puzzleName.toLowerCase();
+
+  // Discover puzzles carry their own colour
+  const discover = findDiscoverPuzzleByName(puzzleName);
+  if (discover) return discover.bgColor;
   
   if (collectionType === 'Salmon Nigiri Boy') {
     if (puzzleNameLower === 'salmon' || puzzleNameLower === 'sushi rice') {
@@ -37,6 +43,9 @@ export function getPuzzleCardBackground(puzzleName, collectionType = 'Magic Gard
 export function getPageBackground(collectionType = 'Magic Garden') {
   if (collectionType === 'Salmon Nigiri Boy') {
     return '#FBBC91';
+  }
+  if (collectionType === 'Discover') {
+    return '#D8E8E7';
   }
   
   // Magic Garden主题

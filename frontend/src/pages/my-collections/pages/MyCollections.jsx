@@ -4,6 +4,7 @@ import styles from '../styles/MyCollections.module.css';
 import { useNavigate } from 'react-router-dom';
 import { getAuthToken } from '../../../utils';
 import { buttonProps } from '../../../utils/helpers/a11y';
+import { useDiscoverPuzzles } from '../../../utils/puzzles/discover';
 import { collectionApi } from '../../../utils';
 import CongratulationsModal from '../modals/CongratulationsModal';
 import { 
@@ -16,6 +17,7 @@ import { useUserData } from '../hooks';
 import { LoadingState, EmptyState } from '../../../components/status';
 
 export default function MyCollections() {
+  useDiscoverPuzzles(); // Discover icons come from the registry once it has loaded
   const [collections, setCollections] = useState([]); // 用户已收集的 puzzle
   const [collectionPuzzles, setCollectionPuzzles] = useState([]); // collection_puzzles配置
   const [loading, setLoading] = useState(true);
@@ -73,9 +75,10 @@ export default function MyCollections() {
 
         // 使用后端API查询用户在所有主题下的收集
         // 两个请求互不依赖，并行发出
-        const [magicGardenResponse, salmonNigiriResponse] = await Promise.all([
+        const [magicGardenResponse, salmonNigiriResponse, discoverResponse] = await Promise.all([
           collectionApi.getUserCollections('Magic Garden', token),
-          collectionApi.getUserCollections('Salmon Nigiri Boy', token)
+          collectionApi.getUserCollections('Salmon Nigiri Boy', token),
+          collectionApi.getUserCollections('Discover', token)
         ]);
         
         let allCollections = [];
@@ -92,6 +95,10 @@ export default function MyCollections() {
           console.error('Salmon Nigiri API failed:', salmonNigiriResponse.error);
         }
         
+        if (discoverResponse.success) {
+          allCollections = allCollections.concat(discoverResponse.data || []);
+        }
+
         setCollections(allCollections);
         
         // 检查是否应该显示CongratulationsModal
@@ -163,6 +170,9 @@ export default function MyCollections() {
   const magicGardenSlots = slots.filter(slot => slot.collection_type === 'Magic Garden');
   const magicGardenCompleted = magicGardenSlots.filter(slot => slot.collected).length;
   
+  const discoverSlots = slots.filter(slot => slot.collection_type === 'Discover');
+  const discoverCompleted = discoverSlots.filter(slot => slot.collected).length;
+
   // 处理特殊puzzle主题
   const specialPuzzleThemes = ['Salmon Nigiri Boy']; // 可以扩展更多特殊主题
   const specialThemeData = {};
@@ -240,6 +250,44 @@ export default function MyCollections() {
               </div>
               <div className={`${styles.collectionDescription} body1`}>
                 Complete daily nutrition challenge and collect {magicGardenSlots.length} nutrition puzzles in the Magic Garden. Little by little, your garden is coming alive. Keep tending to it with care.
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Discover: AI-made puzzles, shown once the user has collected at least one */}
+        {discoverSlots.length > 0 && discoverCompleted > 0 && (
+          <div className={styles.collectionList}>
+            <div className={`${styles.collectionScene} ${styles.discoverScene}`}>
+              <div className={styles.discoverGrid}>
+                {discoverSlots.map((slot) => (
+                  <div className={styles.puzzleSlot} key={slot.puzzle_name}>
+                    {slot.collected && (
+                      <div
+                        className={styles.puzzleImgWrapper}
+                        style={{ cursor: 'pointer' }}
+                        {...buttonProps(() => handlePuzzleClick(slot), slot.puzzle_name)}
+                      >
+                        <img src={slot.icon_url} alt={slot.puzzle_name} className={styles.puzzleImg} />
+                        {slot.count > 1 && (
+                          <div className={styles.puzzleCount}>{slot.count}</div>
+                        )}
+                      </div>
+                    )}
+                    <img src="/assets/shadow.svg" alt="shadow" className={styles.shadow} />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className={styles.textModule}>
+              <div className={styles.headingModule}>
+                <span className={`${styles.collectionName} h3`}>Discover</span>
+                <span className={`${styles.collectionProgress} h3`}>
+                  {discoverCompleted}/{discoverSlots.length}
+                </span>
+              </div>
+              <div className={`${styles.collectionDescription} body1`}>
+                Puzzles made from foods you love. Fill them with your daily nutrition and collect them all.
               </div>
             </div>
           </div>

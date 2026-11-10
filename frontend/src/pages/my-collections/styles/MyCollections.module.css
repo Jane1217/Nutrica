@@ -124,6 +124,21 @@
 
 
 
+.discoverScene {
+  height: auto;
+  padding: 28px 0;
+  background: #D8E8E7;
+}
+
+.discoverGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 88px);
+  grid-auto-rows: 88px;
+  gap: 20px 15px;
+  width: 295px;
+  justify-content: center;
+}
+
 .puzzleGrid {
   display: grid;
   grid-template-columns: repeat(3, 88px);

@@ -3,6 +3,7 @@ import { useParams, useLocation } from 'react-router-dom';
 import styles from './SharePage.module.css';
 import { formatDateString, normalizeNutritionData, getUserNameFromQuery, capitalizePuzzleName, getPuzzleCardBackground, getPageBackground } from '../../utils';
 import { collectionApi } from '../../utils';
+import { useDiscoverPuzzles } from '../../utils/puzzles/discover';
 import { puzzleCategories, colorOrders } from '../../data/puzzles';
 import {
   isSpecialPuzzle,
@@ -45,6 +46,7 @@ export default function SharePage() {
   const nicknameFromQuery = query.get('nickname');
 
   // 查找当前puzzle的配置
+  const discoverVersion = useDiscoverPuzzles();
   const puzzle = useMemo(() => {
     // 使用puzzleConfig工具查找
     if (isSpecialPuzzle(puzzleName)) {
@@ -57,7 +59,7 @@ export default function SharePage() {
       if (found) return found;
     }
     return null;
-  }, [puzzleName]);
+  }, [puzzleName, discoverVersion]);
 
   const collectionType = getPuzzleCollectionType(puzzleName);
   const iconUrl = getPuzzleImageUrl(puzzleName, puzzle);

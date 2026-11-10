@@ -225,6 +225,9 @@ export const collectionApi = {
     return collectionPuzzlesCache.promise;
   },
 
+  // Discover puzzles (public: the share page needs them too)
+  getDiscoverPuzzles: () => apiGet('/api/collection/discover-puzzles'),
+
   // 获取用户collections（需要认证）
   getUserCollections: (collectionType, token) => {
     const params = collectionType ? `?collection_type=${encodeURIComponent(collectionType)}` : '';

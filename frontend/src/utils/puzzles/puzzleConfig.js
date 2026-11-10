@@ -1,3 +1,5 @@
+import { findDiscoverPuzzleByName } from './discover';
+import { DISCOVER_COLLECTION_TYPE } from './generated';
 // 特殊puzzle配置
 export const SPECIAL_PUZZLES = {
   'salmon nigiri boy': {
@@ -58,6 +60,10 @@ export function getPuzzleCollectionType(puzzleName) {
     return config.collectionType;
   }
   
+  if (findDiscoverPuzzleByName(puzzleName)) {
+    return DISCOVER_COLLECTION_TYPE;
+  }
+
   // 默认逻辑
   const puzzleNameLower = puzzleName.toLowerCase();
   if (puzzleNameLower === 'salmon' || puzzleNameLower === 'sushi rice' || puzzleNameLower === 'salmon nigiri boy') {

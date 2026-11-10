@@ -1,3 +1,4 @@
+import { findDiscoverPuzzleByName } from '../puzzles/discover';
 import { getAuthToken } from '../core';
 import { collectionApi } from '../core';
 import { 
@@ -147,6 +148,8 @@ export const NUTRITION_LABELS = [
  * @returns {string} 图标路径
  */
 export const getPuzzleIconPath = (puzzleName) => {
+  const discover = findDiscoverPuzzleByName(puzzleName);
+  if (discover) return discover.img;
   const puzzleNameLower = puzzleName.toLowerCase();
   // Replace spaces with underscores for asset paths
   return `/assets/puzzles/puzzle_${puzzleNameLower.replace(/\s+/g, '_')}.svg`;

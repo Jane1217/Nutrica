@@ -40,6 +40,32 @@ describe('public API safeguards', () => {
   });
 });
 
+describe('discover puzzles endpoint', () => {
+  const databaseService = require('../src/services/databaseService');
+
+  afterEach(() => jest.restoreAllMocks());
+
+  test('is public, cacheable and returns the published puzzles', async () => {
+    jest.spyOn(databaseService, 'getGeneratedPuzzles').mockResolvedValue([{ id: 'ai_banana', name: 'Banana' }]);
+
+    const response = await request(app).get('/api/collection/discover-puzzles');
+
+    expect(response.status).toBe(200);
+    expect(response.headers['cache-control']).toContain('public');
+    expect(response.body).toEqual({ success: true, data: [{ id: 'ai_banana', name: 'Banana' }] });
+  });
+
+  test('hides database errors', async () => {
+    jest.spyOn(databaseService, 'getGeneratedPuzzles').mockRejectedValue(new Error('relation exploded'));
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    const response = await request(app).get('/api/collection/discover-puzzles');
+
+    expect(response.status).toBe(500);
+    expect(JSON.stringify(response.body)).not.toContain('exploded');
+  });
+});
+
 describe('nutrition validation', () => {
   test('treats zero as a present required numeric value', () => {
     expect(validateRequiredFields({ calories: 0 }, ['calories'])).toBe(true);

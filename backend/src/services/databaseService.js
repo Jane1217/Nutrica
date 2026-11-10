@@ -144,6 +144,32 @@ class DatabaseService {
     });
   }
 
+  // Discover puzzles (AI-generated artwork, see supabase/migrations/*_discover_puzzles.sql).
+  // Returns [] until the table exists so the API keeps working before the migration is applied.
+  async getGeneratedPuzzles() {
+    const cacheKey = this.getCacheKey('generated_puzzles', {});
+    const cached = this.getFromCache(cacheKey);
+    if (cached) {
+      return cached;
+    }
+
+    return this.withRetry(async () => {
+      const { data, error } = await this.supabase
+        .from('generated_puzzles')
+        .select('id, name, description, descriptions, bg_color, palette, grid')
+        .eq('published', true)
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        if (error.code === '42P01' || error.code === 'PGRST205') return [];
+        throw error;
+      }
+
+      this.setCache(cacheKey, data || []);
+      return data || [];
+    });
+  }
+
   // 获取用户collections（带缓存）
   async getUserCollections(userId, collectionType = null) {
     const cacheKey = this.getCacheKey('user_collections', { userId, collectionType });
