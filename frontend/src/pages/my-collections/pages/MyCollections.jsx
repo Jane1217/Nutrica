@@ -239,7 +239,7 @@ export default function MyCollections() {
                 </span>
               </div>
               <div className={`${styles.collectionDescription} body1`}>
-                Complete daily nutrition challenge and collect 5 nutrition puzzles in the Magic Garden. Little by little, your garden is coming alive. Keep tending to it with care.
+                Complete daily nutrition challenge and collect {magicGardenSlots.length} nutrition puzzles in the Magic Garden. Little by little, your garden is coming alive. Keep tending to it with care.
               </div>
             </div>
           </div>
