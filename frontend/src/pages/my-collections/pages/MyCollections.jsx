@@ -3,6 +3,7 @@ import NavLogo from '../../../components/navbar/NavLogo';
 import styles from '../styles/MyCollections.module.css';
 import { useNavigate } from 'react-router-dom';
 import { getAuthToken } from '../../../utils';
+import { buttonProps } from '../../../utils/helpers/a11y';
 import { collectionApi } from '../../../utils';
 import CongratulationsModal from '../modals/CongratulationsModal';
 import { 
@@ -212,7 +213,7 @@ export default function MyCollections() {
                       <div
                         className={styles.puzzleImgWrapper}
                         style={{ cursor: 'pointer' }}
-                        onClick={() => handlePuzzleClick(slot)}
+                        {...buttonProps(() => handlePuzzleClick(slot), slot.puzzle_name)}
                       >
                         <img
                           src={slot.icon_url}
@@ -255,7 +256,7 @@ export default function MyCollections() {
                       <div
                         className={styles.puzzleImgWrapper}
                         style={{ cursor: 'pointer' }}
-                        onClick={() => handlePuzzleClick(slot)}
+                        {...buttonProps(() => handlePuzzleClick(slot), slot.puzzle_name)}
                       >
                         <img
                           src={slot.icon_url}
@@ -277,11 +278,11 @@ export default function MyCollections() {
                     <div
                       className={styles.puzzleImgWrapper}
                       style={{ cursor: 'pointer' }}
-                      onClick={() => handlePuzzleClick({ 
+                      {...buttonProps(() => handlePuzzleClick({
                         puzzle_name: data.config.name,
                         collection_type: theme,
                         icon_url: data.config.img
-                      })}
+                      }), data.config.name)}
                     >
                       <img
                         src={data.config.img}
