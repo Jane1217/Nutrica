@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { supabase } from '../../supabaseClient';
 import NavLogo from '../../components/navbar/NavLogo';
 import DatePicker from '../../components/home/date/DatePicker';
@@ -80,6 +80,10 @@ export default function Home({ isLoggedIn }) {
   const [puzzleLoading, setPuzzleLoading] = useState(false); // 新增：puzzle loading 状态
   const [foodsTotal, setFoodsTotal] = useState(0); // 总数据量
   const foodsPerPage = 5;
+  const fetchFoodsSeqRef = useRef(0); // 丢弃过期请求的结果
+  const loadingMoreRef = useRef(false); // 防止滚动事件重复触发"加载更多"
+  const [goalsLoaded, setGoalsLoaded] = useState(false);
+  const [nutritionLoaded, setNutritionLoaded] = useState(false);
   
   // Toast状态
   const [showSuccessToast, setShowSuccessToast] = useState(false);
@@ -93,14 +97,10 @@ export default function Home({ isLoggedIn }) {
 
   useEffect(() => {
     if (searchParams.get('eat') === '1') {
+      // 食物数据由下面的 showEatModal effect 统一加载，避免重复请求
       setShowEatModal(true);
-      // 立即开始加载食物数据
-      if (userId) {
-        setFoodsPage(1);
-        fetchFoods(true);
-      }
     }
-  }, [searchParams, userId]);
+  }, [searchParams]);
 
   // 当EatModal打开时，立即开始加载食物数据
   useEffect(() => {
@@ -225,6 +225,7 @@ export default function Home({ isLoggedIn }) {
     if (!userId) return;
     const goals = await fetchNutritionGoals(supabase, userId);
     setNutritionGoals(goals);
+    setGoalsLoaded(true);
   };
 
   // 获取今日营养摄入数据
@@ -232,14 +233,16 @@ export default function Home({ isLoggedIn }) {
     if (!userId) return;
     const nutrition = await fetchTodayNutrition(supabase, userId);
     setTodayNutrition(nutrition);
+    setNutritionLoaded(true);
   };
 
   // 分页加载foods
-  const fetchFoods = async (reset = false) => {
+  const fetchFoods = async (reset = false, pageOverride) => {
     if (!userId) return;
+    const seq = ++fetchFoodsSeqRef.current;
     setFoodsLoading(true);
     
-    const page = reset ? 1 : foodsPage;
+    const page = reset ? 1 : (pageOverride ?? foodsPage);
     const from = (page - 1) * foodsPerPage;
     const to = from + foodsPerPage - 1;
     
@@ -249,11 +252,14 @@ export default function Home({ isLoggedIn }) {
       .eq('user_id', userId)
       .order('time', { ascending: false })
       .range(from, to);
-    
+
+    // 已有更新的请求发出，丢弃这次过期的结果
+    if (seq !== fetchFoodsSeqRef.current) return;
     setFoodsLoading(false);
     
     if (error) {
       console.error('Failed to fetch food data:', error);
+      if (!reset) return; // 加载更多失败时保留已有列表
       setFoods([]);
       setFoodsTotal(0);
       return;
@@ -279,66 +285,35 @@ export default function Home({ isLoggedIn }) {
     fetchTodayNutritionData();
   }, [userId]);
 
-  // 首次进入页面自动保存当天快照
+  // 自动保存当天快照。必须等营养目标和今日摄入都加载完：
+  // 否则会用默认目标/0摄入覆盖真实数据，甚至误判拼图完成并写入收藏。
+  // 不再使用"午夜定时保存"：它会在跨天后把前一天的数据写进新一天的记录。
   useEffect(() => {
-    if (userId && selectedPuzzle) {
-      const today = formatLocalDateKey(new Date());
-      const progress = calculateNutritionProgress(todayNutrition, nutritionGoals);
-      const puzzleProgress = getPuzzleProgress(selectedPuzzle, progress);
-      saveDailyHomeData({
-        user_id: userId,
-        date: today,
-        puzzle_category: selectedPuzzle
-          ? (puzzleCategories.find(cat => cat.puzzles.some(p => selectedPuzzle.id.startsWith(p.id)))?.title || '')
-          : '',
-        puzzle_name: selectedPuzzle?.name || '',
-        puzzle_id: selectedPuzzle?.id || '', //
-        daily_text: getPuzzleProgressMessage(selectedPuzzle, progress, userInfo?.name),
-        pixel_art_data: selectedPuzzle?.pixelMap || null,
-        calories: todayNutrition.calories,
-        carbs: todayNutrition.carbs,
-        protein: todayNutrition.protein,
-        fats: todayNutrition.fats,
-        carbs_goal: nutritionGoals.carbs,
-        protein_goal: nutritionGoals.protein,
-        fats_goal: nutritionGoals.fats,
-        puzzle_progress: puzzleProgress,
-        carbs_colors: carbsColors,
-        protein_colors: proteinColors,
-        fats_colors: fatsColors
-      });
-    }
-    // 设置午夜定时保存
-    const now = new Date();
-    const msToMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 1) - now;
-    const timer = setTimeout(() => {
-      if (userId && selectedPuzzle) {
-        const today = formatLocalDateKey(new Date());
-        const progress = calculateNutritionProgress(todayNutrition, nutritionGoals);
-        const puzzleProgress = getPuzzleProgress(selectedPuzzle, progress);
-        saveDailyHomeData({
-          user_id: userId,
-          date: today,
-          puzzle_category: selectedPuzzle
-            ? (puzzleCategories.find(cat => cat.puzzles.some(p => selectedPuzzle.id.startsWith(p.id)))?.title || '')
-            : '',
-          puzzle_name: selectedPuzzle?.name || '',
-          puzzle_id: selectedPuzzle?.id || '', // 新增
-          daily_text: getPuzzleProgressMessage(selectedPuzzle, progress, userInfo?.name),
-          pixel_art_data: selectedPuzzle?.pixelMap || null,
-          calories: todayNutrition.calories,
-          carbs: todayNutrition.carbs,
-          protein: todayNutrition.protein,
-          fats: todayNutrition.fats,
-          carbs_goal: nutritionGoals.carbs,
-          protein_goal: nutritionGoals.protein,
-          fats_goal: nutritionGoals.fats,
-          puzzle_progress: puzzleProgress
-        });
-      }
-    }, msToMidnight);
-    return () => clearTimeout(timer);
-  }, [userId, selectedPuzzle, todayNutrition, nutritionGoals, userInfo]);
+    if (!(userId && selectedPuzzle && goalsLoaded && nutritionLoaded)) return;
+    const today = formatLocalDateKey(new Date());
+    const progress = calculateNutritionProgress(todayNutrition, nutritionGoals);
+    const puzzleProgress = getPuzzleProgress(selectedPuzzle, progress);
+    saveDailyHomeData({
+      user_id: userId,
+      date: today,
+      puzzle_category: puzzleCategories.find(cat => cat.puzzles.some(p => selectedPuzzle.id.startsWith(p.id)))?.title || '',
+      puzzle_name: selectedPuzzle?.name || '',
+      puzzle_id: selectedPuzzle?.id || '',
+      daily_text: getPuzzleProgressMessage(selectedPuzzle, progress, userInfo?.name),
+      pixel_art_data: selectedPuzzle?.pixelMap || null,
+      calories: todayNutrition.calories,
+      carbs: todayNutrition.carbs,
+      protein: todayNutrition.protein,
+      fats: todayNutrition.fats,
+      carbs_goal: nutritionGoals.carbs,
+      protein_goal: nutritionGoals.protein,
+      fats_goal: nutritionGoals.fats,
+      puzzle_progress: puzzleProgress,
+      carbs_colors: carbsColors,
+      protein_colors: proteinColors,
+      fats_colors: fatsColors
+    });
+  }, [userId, selectedPuzzle, todayNutrition, nutritionGoals, userInfo, goalsLoaded, nutritionLoaded]);
 
 
   // EatModal 新增/修改后自动刷新foods和营养数据
@@ -359,12 +334,14 @@ export default function Home({ isLoggedIn }) {
   // EatModal滚动到底部时加载更多
   const handleEatModalScroll = (e) => {
     const el = e.target;
-    if (el.scrollHeight - el.scrollTop - el.clientHeight < 10 && !foodsLoading) {
+    if (el.scrollHeight - el.scrollTop - el.clientHeight < 10 && !foodsLoading && !loadingMoreRef.current) {
       // 检查是否还有更多数据
       if (foods.length < foodsTotal) {
         const nextPage = foodsPage + 1;
+        loadingMoreRef.current = true;
         setFoodsPage(nextPage);
-        fetchFoods(false);
+        // 显式传入下一页：fetchFoods 闭包里的 foodsPage 仍是旧值，否则会重复加载当前页
+        fetchFoods(false, nextPage).finally(() => { loadingMoreRef.current = false; });
       }
     }
   };
@@ -419,6 +396,12 @@ export default function Home({ isLoggedIn }) {
 
   // 保存用户填写的卡路里值到 nutrition_goal 表
   const handleSaveCalories = async (calories) => {
+    const caloriesValue = Number(calories);
+    if (!Number.isFinite(caloriesValue) || caloriesValue <= 0) {
+      setShowNutritionGoalModal(false);
+      return;
+    }
+    calories = Math.round(caloriesValue);
     // 计算三大营养素
     const { carbs, fats, protein } = calculateNutritionFromCalories(calories);
     // 获取当前用户id
@@ -438,9 +421,19 @@ export default function Home({ isLoggedIn }) {
         }
       ]);
     if (error) {
-      console.error('Failed to save calories:', error);
+      console.error('Failed to save calories, trying update:', error);
+      // 若表对 user_id 有唯一约束导致 insert 失败，则改为更新已有记录
+      const { error: updateError } = await supabase
+        .from('nutrition_goal')
+        .update({ calories, carbs, fats, protein, created_at: new Date().toISOString() })
+        .eq('user_id', user.id);
+      if (updateError) {
+        console.error('Failed to update calories:', updateError);
+      }
     }
     setShowNutritionGoalModal(false);
+    // 保存后立即刷新目标，否则首页会一直用默认目标直到刷新页面
+    await fetchNutritionGoalsData();
   };
 
   // 获取要显示的卡路里值：优先使用计算值，其次使用数据库值
@@ -513,6 +506,9 @@ export default function Home({ isLoggedIn }) {
 
   // 渲染时优先用 snapshotData，只声明一次 todayStr 和 isHistory，后续复用
   const todayStr = formatLocalDateKey(new Date());
+  const viewingToday = formatLocalDateKey(currentDate) === todayStr;
+  // 查看过去的日期但没有快照时显示空状态，而不是错误地显示"今天"的数据
+  const showEmptyPast = !viewingToday && !snapshotData;
   const isHistory = snapshotData && snapshotData.date && snapshotData.date !== todayStr;
 
   // 计算历史页面拼图完成度
@@ -544,6 +540,22 @@ export default function Home({ isLoggedIn }) {
     carbs_colors: snapshotData.carbs_colors,
     protein_colors: snapshotData.protein_colors,
     fats_colors: snapshotData.fats_colors
+  } : showEmptyPast ? {
+    puzzle_category: '',
+    puzzle_name: '',
+    daily_text: getPuzzleProgressMessage(null, {}, userInfo?.name),
+    pixel_art_data: null,
+    calories: 0,
+    carbs: 0,
+    protein: 0,
+    fats: 0,
+    carbs_goal: nutritionGoals.carbs,
+    protein_goal: nutritionGoals.protein,
+    fats_goal: nutritionGoals.fats,
+    puzzle_progress: 0,
+    carbs_colors: [],
+    protein_colors: [],
+    fats_colors: []
   } : {
     puzzle_category: selectedPuzzle
       ? (puzzleCategories.find(cat => cat.puzzles.some(p => selectedPuzzle.id.startsWith(p.id)))?.title || '')
@@ -571,12 +583,12 @@ export default function Home({ isLoggedIn }) {
         2: (snapshotData.protein_goal && snapshotData.protein ? Math.min(snapshotData.protein / snapshotData.protein_goal, 1) : 0),
         3: (snapshotData.fats_goal && snapshotData.fats ? Math.min(snapshotData.fats / snapshotData.fats_goal, 1) : 0),
       }
-    : calculateNutritionProgress(todayNutrition, nutritionGoals);
+    : (showEmptyPast ? {} : calculateNutritionProgress(todayNutrition, nutritionGoals));
 
   // PuzzleContainer的img参数（历史快照100%时也传img）
   const renderPuzzle = snapshotData
     ? findPuzzleById(snapshotData.puzzle_id, puzzleCategories)
-    : selectedPuzzle;
+    : (showEmptyPast ? null : selectedPuzzle);
 
   // 判断是否为历史快照（非今天）
   // 已在上方声明 todayStr 和 isHistory，这里移除重复声明
@@ -613,7 +625,11 @@ export default function Home({ isLoggedIn }) {
           />
           <PuzzleContainer
             hasSelectedPuzzle={!!renderData.puzzle_name}
-            onChoosePuzzle={() => setShowPuzzlesModal(true)}
+            onChoosePuzzle={() => {
+              // 拼图只能为"今天"选择：在过去日期点击时先回到今天
+              if (!viewingToday) setCurrentDate(new Date());
+              setShowPuzzlesModal(true);
+            }}
             selectedPuzzle={renderPuzzle}
             pixelArtData={renderData.pixel_art_data}
             progress={renderProgress}

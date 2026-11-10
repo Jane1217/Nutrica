@@ -44,8 +44,11 @@ function AppRoutes() {
     // 初始化时获取用户状态
     const initializeAuth = async () => {
       try {
-        const { data: { user } } = await supabase.auth.getUser();
-        setUser(user);
+        // getSession 只读本地存储（过期会自动刷新），不需要网络往返；
+        // 之前用 getUser 会让首屏一直停在 "Loading..." 直到认证服务器响应，
+        // 认证服务不可用时甚至要等很久。令牌的有效性由后端和 Supabase RLS 校验。
+        const { data: { session } } = await supabase.auth.getSession();
+        setUser(session?.user ?? null);
       } catch (error) {
         console.error('Error getting user:', error);
         setUser(null);
@@ -57,7 +60,15 @@ function AppRoutes() {
     initializeAuth();
 
     // 监听认证状态变化
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT') {
+        // 清除与用户绑定的本地缓存，避免下一个登录的账号看到上一个账号的 puzzle
+        try {
+          localStorage.removeItem('selectedPuzzle');
+          localStorage.removeItem('selectedPuzzleDate');
+          localStorage.removeItem('nutrica_user_cache');
+        } catch { /* localStorage 不可用时忽略 */ }
+      }
       setUser(session?.user || null);
       setLoading(false);
     });

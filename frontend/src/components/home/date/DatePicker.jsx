@@ -88,15 +88,11 @@ export default function DatePicker(props) {
       return;
     }
     
-    // 否则查找前一个有数据的日期
-    if (activeDates.length > 0) {
-      const currentIndex = activeDates.indexOf(currentDateStr);
-      if (currentIndex > 0) {
-        const prevDateStr = activeDates[currentIndex - 1];
-        const [year, month, day] = prevDateStr.split('-');
-        const prevDate = new Date(Number(year), Number(month) - 1, Number(day));
-        setCurrentDate(prevDate);
-      }
+    // 否则查找比当前日期更早的、最近一个有数据的日期（数据库返回顺序不保证有序）
+    const prevDateStr = [...activeDates].sort().reverse().find(d => d < currentDateStr);
+    if (prevDateStr) {
+      const [year, month, day] = prevDateStr.split('-');
+      setCurrentDate(new Date(Number(year), Number(month) - 1, Number(day)));
     }
   };
 
@@ -108,25 +104,15 @@ export default function DatePicker(props) {
     const today = new Date();
     const todayStr = getLocalDateString(today);
     
-    // 如果当前日期是昨天，直接导航到今天
-    if (currentDateStr === getLocalDateString(new Date(today.getTime() - 24 * 60 * 60 * 1000))) {
-      setCurrentDate(today);
+    // 优先查找比当前日期更晚、且不晚于今天的最近一个有数据的日期
+    const nextDateStr = [...activeDates].sort().find(d => d > currentDateStr && d < todayStr);
+    if (nextDateStr) {
+      const [year, month, day] = nextDateStr.split('-');
+      setCurrentDate(new Date(Number(year), Number(month) - 1, Number(day)));
       return;
     }
     
-    // 否则优先查找后一个有数据的日期
-    if (activeDates.length > 0) {
-      const currentIndex = activeDates.indexOf(currentDateStr);
-      if (currentIndex >= 0 && currentIndex < activeDates.length - 1) {
-        const nextDateStr = activeDates[currentIndex + 1];
-        const [year, month, day] = nextDateStr.split('-');
-        const nextDate = new Date(Number(year), Number(month) - 1, Number(day));
-        setCurrentDate(nextDate);
-        return;
-      }
-    }
-    
-    // 如果没有找到有数据的日期，且当前日期小于今天，则导航到今天
+    // 没有更晚的有数据日期，且当前日期早于今天，则导航到今天
     if (currentDateStr < todayStr) {
       setCurrentDate(today);
     }
@@ -167,7 +153,10 @@ export default function DatePicker(props) {
   // Handle date selection
   const handleDateSelect = async (date) => {
     // 切换日期前，先保存当前页面快照（切换前的日期）
-    if (userId && props.homeSnapshot) {
+    // 只在离开"今天"时保存：过去日期的快照本来就来自数据库，
+    // 重新保存会把别的数据写进没有记录的日期
+    if (userId && props.homeSnapshot?.puzzle_name
+        && getLocalDateString(currentDate) === getLocalDateString(new Date())) {
       await saveDailyHomeData({
         ...props.homeSnapshot,
         user_id: userId,

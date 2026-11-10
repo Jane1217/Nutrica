@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import ModalWrapper from '../../../components/common/ModalWrapper';
+import Toast from '../../../components/common/Toast';
+import { getFriendlyErrorMessage } from '../../../utils/core/errors';
 import { supabase } from '../../../supabaseClient';
 import { userApi } from '../../../utils';
 import styles from '../styles/Auth.module.css';
 
 export default function DeleteAccountModal({ open, onClose, userEmail }) {
   const [isLoading, setIsLoading] = useState(false);
+  const [errorToast, setErrorToast] = useState({ show: false, message: '' });
+  const showError = (message) => setErrorToast({ show: true, message });
 
   // 当弹窗打开时重置状态
   React.useEffect(() => {
@@ -27,7 +31,7 @@ export default function DeleteAccountModal({ open, onClose, userEmail }) {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session?.access_token) {
         console.error('Unable to get access token');
-        alert('Unable to get access token, please log in again');
+        showError('Unable to get access token, please log in again');
         return;
       }
 
@@ -35,7 +39,7 @@ export default function DeleteAccountModal({ open, onClose, userEmail }) {
         await userApi.deleteAccount(user.id, session.access_token);
       } catch (error) {
         console.error('Failed to delete account:', error);
-        alert('Failed to delete account: ' + error.message);
+        showError(getFriendlyErrorMessage(error, 'Failed to delete account. Please try again.'));
         return;
       }
 
@@ -52,7 +56,7 @@ export default function DeleteAccountModal({ open, onClose, userEmail }) {
 
     } catch (err) {
       console.error('Error deleting account:', err);
-      alert('Error deleting account: ' + err.message);
+      showError(getFriendlyErrorMessage(err, 'Failed to delete account. Please try again.'));
     } finally {
       setIsLoading(false);
     }
@@ -111,6 +115,12 @@ export default function DeleteAccountModal({ open, onClose, userEmail }) {
           </div>
         </div>
       </div>
+      <Toast
+        message={errorToast.message}
+        type="error"
+        show={errorToast.show}
+        onClose={() => setErrorToast({ show: false, message: '' })}
+      />
     </ModalWrapper>
   );
 }

@@ -2,11 +2,13 @@ import React, { useRef, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import FoodModal from '../../modals/FoodModal';
 import { foodApi, handleApiError } from '../../../../utils';
+import { isNetworkError, NETWORK_ERROR_MESSAGE } from '../../../../utils/core/errors';
 import {
   startCamera,
   stopCamera,
   forceReleaseCamera,
   captureVideoFrame,
+  canvasToJpegBlob,
   setupCameraEventListeners,
   setupEnhancedCameraControls
 } from '../../../../utils';
@@ -22,6 +24,7 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
   const streamRef = useRef(null);
   const scanFrameRef = useRef(null);
   const isMountedRef = useRef(true);
+  const capturingRef = useRef(false); // 防止连点快门重复上传（state 更新是异步的）
   const [loading, setLoading] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
   const [foodModalOpen, setFoodModalOpen] = useState(false);
@@ -84,67 +87,68 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
 
   // 拍照并只截取 scan-frame 区域
   const handleCapture = async () => {
-    if (!videoRef.current || !cameraActive) return;
+    if (!videoRef.current || !cameraActive || capturingRef.current) return;
+    capturingRef.current = true;
 
     setLoading(true);
     const video = videoRef.current;
 
-    // 使用工具函数截取视频帧
-    const canvas = captureVideoFrame(video, scanFrameRef.current);
+    const restartCamera = () => {
+      if (isMountedRef.current) handleStartCamera();
+    };
 
-    // 停止摄像头
-    handleStopCamera();
+    try {
+      // 使用工具函数截取视频帧（视频未就绪时会抛错）
+      const canvas = captureVideoFrame(video, scanFrameRef.current);
 
-    canvas.toBlob(async (blob) => {
+      // 停止摄像头
+      handleStopCamera();
+
+      // 压缩后再上传：更快、更省流量，并且不会超过服务端/Vercel 的请求体上限
+      const blob = await canvasToJpegBlob(canvas);
       if (!blob) {
-        setLoading(false);
-        if (isMountedRef.current) {
-          handleStartCamera(); // 拍照失败也重启摄像头
-        }
+        restartCamera(); // 拍照失败也重启摄像头
         return;
       }
 
-      try {
-        // 检查网络连接
-        if (!navigator.onLine) {
-          setErrorToast({ show: true, message: 'No Internet connection' });
-          setLoading(false);
-          if (isMountedRef.current) {
-            handleStartCamera();
-          }
-          return;
-        }
-
-        const data = await foodApi.parseFoodImage(blob);
-        // 识别成功，弹出 FoodModal
-        const foodName = data.data.name;
-        setFoodResult({
-          'Food name': foodName,
-          'Number of Servings': 1, // 默认 1
-          Calories: data.data.nutrition.calories,
-          Carbs: data.data.nutrition.carbs,
-          Fats: data.data.nutrition.fats,
-          Protein: data.data.nutrition.protein,
-          emoji: data.data.emoji || '🍽️'
-        });
-        setFoodModalOpen(true);
-      } catch (error) {
-        let errorMessage = 'Food label not recognized';
-
-        // 检查是否是网络错误
-        if (error.message && (error.message.includes('fetch') || error.message.includes('network') || error.message.includes('connection'))) {
-          errorMessage = 'No Internet connection';
-        }
-
-        setErrorToast({ show: true, message: errorMessage });
-
-        if (isMountedRef.current) {
-          handleStartCamera();
-        }
-      } finally {
-        setLoading(false);
+      // 检查网络连接
+      if (!navigator.onLine) {
+        setErrorToast({ show: true, message: NETWORK_ERROR_MESSAGE });
+        restartCamera();
+        return;
       }
-    }, 'image/jpeg', 0.95);
+
+      const data = await foodApi.parseFoodImage(blob);
+      // 识别成功，弹出 FoodModal
+      const foodName = data.data.name;
+      setFoodResult({
+        'Food name': foodName,
+        'Number of Servings': 1, // 默认 1
+        Calories: data.data.nutrition.calories,
+        Carbs: data.data.nutrition.carbs,
+        Fats: data.data.nutrition.fats,
+        Protein: data.data.nutrition.protein,
+        emoji: data.data.emoji || '🍽️'
+      });
+      setFoodModalOpen(true);
+    } catch (error) {
+      // 不同失败原因给出不同提示：断网 / 请求过多 / 超时 / 没识别到标签
+      let errorMessage = 'Food label not recognized';
+      const message = String(error?.message || '');
+      if (isNetworkError(error)) {
+        errorMessage = NETWORK_ERROR_MESSAGE;
+      } else if (error?.name === 'AbortError' || /timed out/i.test(message)) {
+        errorMessage = 'Analysis took too long. Please try again.';
+      } else if (/too many/i.test(message)) {
+        errorMessage = 'Too many requests. Please try again in a few minutes.';
+      }
+
+      setErrorToast({ show: true, message: errorMessage });
+      restartCamera();
+    } finally {
+      capturingRef.current = false;
+      setLoading(false);
+    }
   };
 
   // 关闭 FoodModal 时重启摄像头

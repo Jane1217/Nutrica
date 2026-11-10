@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../../supabaseClient';
 import InputField from '../../../components/auth/InputField';
+import FormError from '../../../components/auth/FormError';
 import BottomButton from '../../../components/common/BottomButton';
 import ModalWrapper from '../../../components/common/ModalWrapper';
 import { validateEmail, validatePassword } from '../../../utils/core/validation';
+import { getFriendlyErrorMessage } from '../../../utils/core/errors';
 import styles from '../styles/Auth.module.css';
 import '../../../index.css';
 
@@ -51,13 +53,13 @@ export default function SignUp({ open, onClose, onAuth, onSwitchToLogin }) {
         }
       });
       if (error) {
-        setError(error.message);
+        setError(getFriendlyErrorMessage(error));
       } else {
         setSuccess('Sign up successful! Please check your email and click the confirmation link to activate your account.');
       }
     } catch (err) {
       console.error('Unexpected error:', err);
-      setError('An unexpected error occurred. Please try again.');
+      setError(getFriendlyErrorMessage(err, 'An unexpected error occurred. Please try again.'));
     } finally {
       setIsLoading(false);
     }
@@ -75,12 +77,12 @@ export default function SignUp({ open, onClose, onAuth, onSwitchToLogin }) {
         options: { emailRedirectTo: window.location.origin }
       });
       if (error) {
-        setError(error.message);
+        setError(getFriendlyErrorMessage(error));
       } else {
         setSuccess('A new confirmation email has been sent. Please check your inbox and spam folder.');
       }
-    } catch {
-      setError('We could not resend the confirmation email. Please try again.');
+    } catch (err) {
+      setError(getFriendlyErrorMessage(err, 'We could not resend the confirmation email. Please try again.'));
     } finally {
       setIsLoading(false);
     }
@@ -113,11 +115,11 @@ export default function SignUp({ open, onClose, onAuth, onSwitchToLogin }) {
             error={passwordError}
           />
           <div className={`${styles.signupHintText} body2`}>Password must have at least 8 characters.</div>
+          <FormError message={error} className={styles.formErrorSpacing} />
         </div>
-        {error && <p className={styles.errorMessage} role="alert">{error}</p>}
         {success && (
           <div className={styles.signupConfirmation} role="status">
-            <p className={styles.successMessage}>{success}</p>
+            <p className={`${styles.successMessage} body2`}>{success}</p>
             <button
               type="button"
               className={`${styles.resendConfirmationButton} h5`}

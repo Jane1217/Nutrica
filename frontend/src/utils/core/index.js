@@ -3,4 +3,5 @@
  */
 export * from './api';
 export * from './user';
-export * from './validation'; 
+export * from './validation';
+export * from './errors'; 

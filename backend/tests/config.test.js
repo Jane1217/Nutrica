@@ -10,7 +10,9 @@ const originalNodeEnv = process.env.NODE_ENV;
 
 beforeEach(() => {
   Object.assign(process.env, requiredEnvironment, { NODE_ENV: 'development' });
-  delete process.env.CORS_ORIGIN;
+  // dotenv re-reads backend/.env on every require; an existing (even empty)
+  // variable wins, so this keeps the test independent of a developer's local .env
+  process.env.CORS_ORIGIN = '';
   jest.resetModules();
 });
 

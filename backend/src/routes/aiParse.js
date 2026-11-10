@@ -13,6 +13,7 @@ const {
 } = require('../utils/validation');
 const { successResponse, errorResponse, fileUploadErrorResponse } = require('../utils/response');
 const { logInfo, logError } = require('../utils/logger');
+const { extractFirstEmoji, calorieMismatch, isLikelyMisread } = require('../utils/nutritionLabel');
 
 // Configure multer for image upload
 const upload = multer({
@@ -63,6 +64,19 @@ const parseModelJson = (content) => {
   return parsed;
 };
 
+// Emoji comes back in the same model call (saves a full round trip); only ask
+// again when it is missing or not a real emoji.
+const resolveEmoji = async (modelEmoji, fallbackText) => (
+  extractFirstEmoji(modelEmoji) || openaiService.getFoodEmoji(fallbackText)
+);
+
+const readLabelNutrition = (data) => cleanNutritionData({
+  calories: data.calories ?? data.Calories,
+  carbs: data.carbs ?? data.Carbs,
+  fats: data.fats ?? data.Fats,
+  protein: data.protein ?? data.Protein
+});
+
 // AI endpoints consume billable provider capacity. Require a real user session
 // and cap burst usage before calling OpenAI.
 router.use(authenticateUser, aiLimiter);
@@ -104,7 +118,7 @@ router.post('/description', async (req, res) => {
 
     // 生成emoji
     const nutrition = cleanNutritionData(nutritionData);
-    const emoji = await openaiService.getFoodEmoji(nutritionData.name || description);
+    const emoji = await resolveEmoji(nutritionData.emoji, nutritionData.name || description);
 
     // Format response data to match frontend FoodModal
     const formattedData = {
@@ -160,18 +174,34 @@ router.post('/food', upload.single('image'), async (req, res) => {
       return errorResponse(res, new Error('Food analysis could not recognize that image.'), 422);
     }
 
-    // 生成emoji
-    const nutrition = cleanNutritionData({
-      calories: nutritionData.calories ?? nutritionData.Calories,
-      carbs: nutritionData.carbs ?? nutritionData.Carbs,
-      fats: nutritionData.fats ?? nutritionData.Fats,
-      protein: nutritionData.protein ?? nutritionData.Protein
-    });
-    const emoji = await openaiService.getFoodEmoji(nutritionData.name || '');
+    let nutrition = readLabelNutrition(nutritionData);
+    let finalData = nutritionData;
+
+    // Cross-check calories against the macros. A big gap usually means a
+    // misread digit or the wrong column, so re-read once with that hint and
+    // keep whichever read is more self-consistent.
+    if (isLikelyMisread(nutrition)) {
+      try {
+        const retry = await openaiService.analyzeImage(base64Image, req.file.mimetype, { previous: nutrition });
+        const retryData = parseModelJson(retry.choices?.[0]?.message?.content);
+        if (!retryData.error) {
+          const retryNutrition = readLabelNutrition(retryData);
+          if (calorieMismatch(retryNutrition) < calorieMismatch(nutrition)) {
+            nutrition = retryNutrition;
+            finalData = retryData;
+            logInfo('Label re-read produced a more consistent result');
+          }
+        }
+      } catch (retryError) {
+        logError('Label re-read failed; keeping first result', retryError);
+      }
+    }
+
+    const emoji = await resolveEmoji(finalData.emoji, finalData.name || '');
 
     // Format response data to match frontend FoodModal
     const formattedData = {
-      name: nutritionData.name || 'Unknown Food',
+      name: finalData.name || 'Unknown Food',
       nutrition: {
         ...nutrition
       },

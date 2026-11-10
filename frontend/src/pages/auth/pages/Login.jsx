@@ -5,6 +5,7 @@ import InputField from '../../../components/auth/InputField';
 import BottomButton from '../../../components/common/BottomButton';
 import ModalWrapper from '../../../components/common/ModalWrapper';
 import Toast from '../../../components/common/Toast';
+import { isNetworkError, NETWORK_ERROR_MESSAGE } from '../../../utils/core/errors';
 import styles from '../styles/Auth.module.css';
 import '../../../index.css';
 
@@ -31,7 +32,12 @@ export default function LogIn({ open, onClose, onAuth, onSwitchToSignUp, onSwitc
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
-        if (error.message && error.message.toLowerCase().includes('email not confirmed')) {
+        if (isNetworkError(error)) {
+          // supabase-js 把断网/服务不可用作为 error 返回（不会 throw），
+          // 以前会被误报为"邮箱或密码错误"
+          setToastMessage(NETWORK_ERROR_MESSAGE);
+          setShowToast(true);
+        } else if (error.message && error.message.toLowerCase().includes('email not confirmed')) {
           setError('Please verify your email address by clicking the confirmation link sent to your inbox.');
         } else {
           // 显示 Toast 错误通知
@@ -45,8 +51,8 @@ export default function LogIn({ open, onClose, onAuth, onSwitchToSignUp, onSwitc
     } catch (err) {
       console.error('Login error:', err);
       // 检查是否是网络错误
-      if (err.message && (err.message.includes('fetch') || err.message.includes('network') || err.message.includes('connection'))) {
-        setToastMessage('No Internet connection. Try again.');
+      if (isNetworkError(err)) {
+        setToastMessage(NETWORK_ERROR_MESSAGE);
       } else {
         setToastMessage('Incorrect email or password');
       }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../../../supabaseClient';
+import { getFriendlyErrorMessage } from '../../../utils/core/errors';
 import InputField from '../../../components/auth/InputField';
 import BottomButton from '../../../components/common/BottomButton';
 import styles from '../styles/ResetPassword.module.css';
@@ -139,7 +140,7 @@ export default function ResetPassword() {
       });
 
       if (error) {
-        setError(error.message);
+        setError(getFriendlyErrorMessage(error));
       } else {
         setSuccess('Password updated successfully!');
         setShowSuccess(true);

@@ -50,26 +50,6 @@ export default function ProfileEditModal({ open, onClose, userInfo = {}, onSave 
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
         
-        // 先删除用户原有的头像文件
-        if (userInfo.avatarUrl) {
-          try {
-            // 从URL中提取文件名
-            const urlParts = userInfo.avatarUrl.split('/');
-            const fileName = urlParts[urlParts.length - 1];
-            if (fileName && fileName.startsWith('avatar_')) {
-              const { error: deleteError } = await supabase.storage
-                .from('avatars')
-                .remove([fileName]);
-              
-              if (deleteError) {
-                console.error('Failed to delete old avatar:', deleteError);
-              }
-            }
-          } catch (error) {
-            console.error('Error deleting old avatar:', error);
-          }
-        }
-        
         // 使用保存的blob或从URL获取blob
         const blob = croppedBlob || await (await fetch(croppedUrl)).blob();
         
@@ -83,7 +63,26 @@ export default function ProfileEditModal({ open, onClose, userInfo = {}, onSave 
         
         if (error) {
           console.error('Failed to upload avatar:', error);
+          // 上传失败：保留原头像。不能保存 blob: 临时URL，否则会写进 user_metadata，之后头像永久失效
+          finalAvatarUrl = userInfo.avatarUrl || null;
         } else {
+          // 新头像上传成功后再删除旧文件（先删后传会在上传失败时丢失原头像）
+          if (userInfo.avatarUrl) {
+            try {
+              const oldFileName = userInfo.avatarUrl.split('/').pop();
+              if (oldFileName && oldFileName.startsWith('avatar_')) {
+                const { error: deleteError } = await supabase.storage
+                  .from('avatars')
+                  .remove([oldFileName]);
+                if (deleteError) {
+                  console.error('Failed to delete old avatar:', deleteError);
+                }
+              }
+            } catch (err) {
+              console.error('Error deleting old avatar:', err);
+            }
+          }
+
           // 获取公共URL
           const { data: { publicUrl } } = supabase.storage
             .from('avatars')
@@ -101,6 +100,7 @@ export default function ProfileEditModal({ open, onClose, userInfo = {}, onSave 
         }
       } catch (error) {
         console.error('Error processing avatar:', error);
+        finalAvatarUrl = userInfo.avatarUrl || null;
       } finally {
         setUploading(false);
       }

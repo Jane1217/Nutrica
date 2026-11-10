@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import '../styles/FoodModal.css';
 import { validateFoodForm } from '../../../utils';
 import { validateAndSaveFoodWithEmoji } from '../../../utils';
 import ModalWrapper from '../../../components/common/ModalWrapper';
 import Toast from '../../../components/common/Toast';
+import { getFriendlyErrorMessage } from '../../../utils/core/errors';
 import { icons } from '../../../utils';
 
 export default function EnterValueModal({ open, onClose, onBack, onCloseModal, userId, onDataChange }) {
@@ -18,6 +19,17 @@ export default function EnterValueModal({ open, onClose, onBack, onCloseModal, u
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
   const [errorToast, setErrorToast] = useState({ show: false, message: '' });
+
+  // 弹窗关闭后重置：该组件常驻挂载，否则第二次打开时按钮仍卡在"Saving..."且表单保留上次内容
+  useEffect(() => {
+    if (!open) {
+      setForm({ name: '', calories: '', carbs: '', fats: '', protein: '' });
+      setLoading(false);
+      setSuccess(false);
+      setError('');
+      setErrorToast({ show: false, message: '' });
+    }
+  }, [open]);
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -46,7 +58,7 @@ export default function EnterValueModal({ open, onClose, onBack, onCloseModal, u
         setLoading(false);
       }
     } catch (error) {
-      setError(error.message);
+      setError(getFriendlyErrorMessage(error));
       setLoading(false);
     }
   };

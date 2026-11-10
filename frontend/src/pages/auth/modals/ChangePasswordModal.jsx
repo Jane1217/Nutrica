@@ -4,6 +4,7 @@ import InputField from '../../../components/auth/InputField';
 import BottomButton from '../../../components/common/BottomButton';
 import Toast from '../../../components/common/Toast';
 import { supabase } from '../../../supabaseClient';
+import { getFriendlyErrorMessage } from '../../../utils/core/errors';
 
 export default function ChangePasswordModal({ open, onClose, onPasswordChangeSuccess }) {
   const [currentPassword, setCurrentPassword] = useState('');
@@ -82,7 +83,7 @@ export default function ChangePasswordModal({ open, onClose, onPasswordChangeSuc
       });
 
       if (error) {
-        setToastMessage(error.message);
+        setToastMessage(getFriendlyErrorMessage(error));
         setShowToast(true);
       } else {
         // 清空表单

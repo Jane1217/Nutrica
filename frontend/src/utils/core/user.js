@@ -1,13 +1,16 @@
 import { supabase } from '../../supabaseClient';
 
 // 获取当前用户信息
+// 读取本地会话中的用户（无网络往返）。首页加载时会多处调用它，
+// 以前每次都用 getUser() 向认证服务器发一次请求；updateUser 会同步更新本地会话，
+// 所以 user_metadata 不会过期。
 export async function getCurrentUser() {
-  const { data: { user }, error } = await supabase.auth.getUser();
+  const { data: { session }, error } = await supabase.auth.getSession();
   if (error) {
     console.error('Failed to get user info:', error);
     return null;
   }
-  return user;
+  return session?.user ?? null;
 }
 
 // 获取用户元数据

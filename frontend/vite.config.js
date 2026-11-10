@@ -38,8 +38,24 @@ export default defineConfig({
       https: localHttpsConfig
     })
   },
+  // Strip console.log/debug calls from production bundles (console.error/warn stay).
+  esbuild: {
+    pure: process.env.NODE_ENV === 'production' || process.env.VERCEL ? ['console.log', 'console.debug'] : []
+  },
   build: {
     outDir: 'dist',
+    rollupOptions: {
+      output: {
+        // Stable vendor chunks: an app-code deploy no longer invalidates the
+        // browser cache of React/Supabase, which rarely change.
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return undefined;
+          if (/node_modules\/(react|react-dom|react-router|react-router-dom|scheduler)\//.test(id)) return 'react-vendor';
+          if (id.includes('@supabase')) return 'supabase';
+          return undefined;
+        }
+      }
+    },
     // Do not publish source maps by default. They significantly increase the
     // deployment size and expose the original client source to every visitor.
     sourcemap: process.env.SOURCE_MAPS === 'true'
