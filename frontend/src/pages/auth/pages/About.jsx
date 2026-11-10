@@ -171,13 +171,14 @@ export default function About() {
            }}> 
              Contact us at
            </p>
-          <div className="h4" style={{
+          {/* It looks like a link, so make it one */}
+          <a className="h4" href="mailto:nutrica.life.app@gmail.com" style={{
             color: 'var(--Brand-Dark)',
             textDecoration: 'underline',
             cursor: 'pointer'
           }}>
-            Nutrica.life.app@gmail.com
-          </div>
+            nutrica.life.app@gmail.com
+          </a>
         </div>
       </div>
     </div>
