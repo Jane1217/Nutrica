@@ -411,6 +411,7 @@ button {
   text-align: center;
   height: auto;
   min-height: 48px;
+  font-size: 16px; /* match the other option pills (.h5 made these 14px) */
   cursor: pointer;
   transition: background 0.2s, color 0.2s, border 0.2s;
 }
@@ -450,7 +451,7 @@ button {
   background: var(--Brand-Dark, #2A4E14);
   color: #fff;
   border: none;
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 500;
   cursor: pointer;
 }
