@@ -4,6 +4,7 @@ import InputField from '../../../components/auth/InputField';
 import BottomButton from '../../../components/common/BottomButton';
 import FullScreenCropper from './FullScreenCropper';
 import { supabase } from '../../../supabaseClient';
+import { buttonProps } from '../../../utils/helpers/a11y';
 
 
 
@@ -257,7 +258,7 @@ export default function ProfileEditModal({ open, onClose, userInfo = {}, onSave 
               marginTop: 8, 
               marginBottom: 8,
               cursor: (croppedUrl || userInfo.avatarUrl) ? 'pointer' : 'default'
-            }} onClick={handleDeleteAvatar}>
+            }} {...((croppedUrl || userInfo.avatarUrl) ? buttonProps(handleDeleteAvatar, 'Delete avatar') : {})}>
               Delete
             </div>
           </div>

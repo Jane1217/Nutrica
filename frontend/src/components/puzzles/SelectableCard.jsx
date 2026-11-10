@@ -1,5 +1,6 @@
 import React from "react";
 import styles from "./SelectableCard.module.css";
+import { buttonProps } from "../../utils/helpers/a11y";
 
 export default function SelectableCard({
   title,
@@ -15,7 +16,7 @@ export default function SelectableCard({
   return (
     <div
       className={styles.card + (isSelected ? ' ' + styles.selected : '')}
-      onClick={onAdd}
+      {...buttonProps(onAdd, title)}
       style={{ background: bgColor, ...style }}
     >
       <div className={styles.topRow}>

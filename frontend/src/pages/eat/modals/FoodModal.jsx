@@ -194,7 +194,7 @@ export default function FoodModal({ open, onClose, initialData, userId, onDataCh
             <span className="food-modal-row-label h3">Calories</span>
             {isSingleServing ? (
               <div className="food-modal-input-group">
-                <input name="calories" value={form.calories} onChange={handleChange} className="food-modal-input h4" />
+                <input name="calories" inputMode="decimal" value={form.calories} onChange={handleChange} className="food-modal-input h4" />
                 <span className="food-modal-unit h5">kcal</span>
               </div>
             ) : (
@@ -207,7 +207,7 @@ export default function FoodModal({ open, onClose, initialData, userId, onDataCh
             <span className="food-modal-row-label h3">Carbs</span>
             {isSingleServing ? (
               <div className="food-modal-input-group">
-                <input name="carbs" value={form.carbs} onChange={handleChange} className="food-modal-input h4" />
+                <input name="carbs" inputMode="decimal" value={form.carbs} onChange={handleChange} className="food-modal-input h4" />
                 <span className="food-modal-unit h5">g</span>
               </div>
             ) : (
@@ -220,7 +220,7 @@ export default function FoodModal({ open, onClose, initialData, userId, onDataCh
             <span className="food-modal-row-label h3">Fats</span>
             {isSingleServing ? (
               <div className="food-modal-input-group">
-                <input name="fats" value={form.fats} onChange={handleChange} className="food-modal-input h4" />
+                <input name="fats" inputMode="decimal" value={form.fats} onChange={handleChange} className="food-modal-input h4" />
                 <span className="food-modal-unit h5">g</span>
               </div>
             ) : (
@@ -233,7 +233,7 @@ export default function FoodModal({ open, onClose, initialData, userId, onDataCh
             <span className="food-modal-row-label h3">Protein</span>
             {isSingleServing ? (
               <div className="food-modal-input-group">
-                <input name="protein" value={form.protein} onChange={handleChange} className="food-modal-input h4" />
+                <input name="protein" inputMode="decimal" value={form.protein} onChange={handleChange} className="food-modal-input h4" />
                 <span className="food-modal-unit h5">g</span>
               </div>
             ) : (

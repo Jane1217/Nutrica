@@ -106,8 +106,10 @@
   padding-bottom: 24px;
   background: #F3F3EC;
 }
-.account-footer-bar span {
+.account-footer-bar span,
+.account-footer-bar a {
   color: var(--Neutral-Secondary-Text, #6A6A61);
+  text-decoration: none;
 }
 .signupMainContent {
   display: flex;

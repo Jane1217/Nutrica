@@ -4,6 +4,7 @@ import EatModal from '../../../pages/eat/modals/EatModal';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../../supabaseClient';
 import styles from '../styles/Auth.module.css';
+import { buttonProps } from '../../../utils/helpers/a11y';
 import UserInfoModal from '../modals/UserInfoModal';
 import NutritionGoalModal from '../modals/NutritionGoalModal';
 import ProfileEditModal from '../modals/ProfileEditModal';
@@ -278,10 +279,10 @@ export default function AccountSettings({ userEmail }) {
                 </svg>
               Safari Camera Permission Setup
             </span>
-              <span className={styles.accountInfoBoxClose} onClick={(e) => {
+              <span className={styles.accountInfoBoxClose} {...buttonProps((e) => {
                 e.stopPropagation();
                 setShowSafariSetup(false);
-              }}>
+              }, 'Close')}>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
                   <path d="M12.0008 13.3998L7.10078 18.2998C6.91745 18.4831 6.68411 18.5748 6.40078 18.5748C6.11745 18.5748 5.88411 18.4831 5.70078 18.2998C5.51745 18.1165 5.42578 17.8831 5.42578 17.5998C5.42578 17.3165 5.51745 17.0831 5.70078 16.8998L10.6008 11.9998L5.70078 7.0998C5.51745 6.91647 5.42578 6.68314 5.42578 6.3998C5.42578 6.11647 5.51745 5.88314 5.70078 5.6998C5.88411 5.51647 6.11745 5.4248 6.40078 5.4248C6.68411 5.4248 6.91745 5.51647 7.10078 5.6998L12.0008 10.5998L16.9008 5.6998C17.0841 5.51647 17.3174 5.4248 17.6008 5.4248C17.8841 5.4248 18.1174 5.51647 18.3008 5.6998C18.4841 5.88314 18.5758 6.11647 18.5758 6.3998C18.5758 6.68314 18.4841 6.91647 18.3008 7.0998L13.4008 11.9998L18.3008 16.8998C18.4841 17.0831 18.5758 17.3165 18.5758 17.5998C18.5758 17.8831 18.4841 18.1165 18.3008 18.2998C18.1174 18.4831 17.8841 18.5748 17.6008 18.5748C17.3174 18.5748 17.0841 18.4831 16.9008 18.2998L12.0008 13.3998Z" fill="#6A6A61"/>
                 </svg>
@@ -310,23 +311,9 @@ export default function AccountSettings({ userEmail }) {
         </button>
       </div>
       <div className={styles['account-footer-bar']}>
-        <span className="h4" onClick={() => {
-          try {
-            window.open('/privacy-notice', '_blank');
-          } catch (error) {
-            console.error('Failed to open new tab:', error);
-            window.location.href = '/privacy-notice';
-          }
-        }} style={{cursor: 'pointer'}}>Privacy Notice</span>
-        <span className="h4" onClick={() => {
-          try {
-            window.open('/about', '_blank');
-          } catch (error) {
-            console.error('Failed to open new tab:', error);
-            window.location.href = '/about';
-          }
-        }} style={{cursor: 'pointer'}}>About</span>
-        <span className="h4" onClick={() => setShowDeleteAccountModal(true)} style={{cursor: 'pointer'}}>Delete Account</span>        
+        <a className="h4" href="/privacy-notice" target="_blank" rel="noopener noreferrer">Privacy Notice</a>
+        <a className="h4" href="/about" target="_blank" rel="noopener noreferrer">About</a>
+        <span className="h4" style={{cursor: 'pointer'}} {...buttonProps(() => setShowDeleteAccountModal(true))}>Delete Account</span>        
       </div>
         <div className={styles.accountFeedback}>
           <span className="h5" style={{color: 'var(--Neutral-Primary-Text, #22221B)', textAlign: 'center'}}>
