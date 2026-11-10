@@ -208,9 +208,22 @@ export const userApi = {
 };
 
 // Collection相关API
+const COLLECTION_PUZZLES_TTL_MS = 5 * 60 * 1000;
+const collectionPuzzlesCache = { promise: null, at: 0 };
 export const collectionApi = {
   // 获取collection_puzzles数据
-  getCollectionPuzzles: () => apiGet('/api/collection/collection-puzzles'),
+  // 拼图配置几乎不变：5分钟内复用同一个请求结果（失败时不缓存）
+  getCollectionPuzzles: () => {
+    const now = Date.now();
+    if (!collectionPuzzlesCache.promise || now - collectionPuzzlesCache.at > COLLECTION_PUZZLES_TTL_MS) {
+      collectionPuzzlesCache.at = now;
+      collectionPuzzlesCache.promise = apiGet('/api/collection/collection-puzzles').catch(error => {
+        collectionPuzzlesCache.promise = null;
+        throw error;
+      });
+    }
+    return collectionPuzzlesCache.promise;
+  },
 
   // 获取用户collections（需要认证）
   getUserCollections: (collectionType, token) => {

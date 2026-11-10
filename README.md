@@ -113,6 +113,15 @@ The frontend and API are separate Vercel projects. This isolates server credenti
 3. Deploy `frontend/` and configure [`frontend/.env.example`](frontend/.env.example), including the API URL without a trailing slash.
 4. Assign `nutrica.fit` to the frontend project. Production routing proxies `/api/*` to the API service.
 
+To redeploy production from a checkout (Vercel CLI 47 or newer, logged in):
+
+```bash
+npm i -g vercel@latest
+npm run deploy        # API, then web (or: npm run deploy:api / npm run deploy:web)
+```
+
+`scripts/deploy.sh` builds the frontend with the production variables stored in the Vercel project and uploads `dist/` together with `vercel.json`, which sets the long-lived cache headers for hashed assets.
+
 ## Security and privacy
 
 - All API writes require a verified Supabase bearer token.

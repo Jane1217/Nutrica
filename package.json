@@ -9,7 +9,10 @@
     "build": "npm --prefix frontend run build",
     "test": "npm --prefix frontend test && npm --prefix backend test",
     "verify": "npm run build && npm test",
-    "audit": "npm --prefix frontend audit --omit=dev && npm --prefix backend audit --omit=dev"
+    "audit": "npm --prefix frontend audit --omit=dev && npm --prefix backend audit --omit=dev",
+    "deploy:web": "scripts/deploy.sh web",
+    "deploy:api": "scripts/deploy.sh api",
+    "deploy": "scripts/deploy.sh all"
   },
   "engines": {
     "node": ">=22 <25",

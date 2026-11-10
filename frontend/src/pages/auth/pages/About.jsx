@@ -7,7 +7,7 @@ export default function About() {
     <div className={styles.container}>
       {/* 顶部logo */}
       <div className={styles.header}>
-        <img 
+        <img loading="lazy" decoding="async" 
           src="/assets/logo.svg" 
           alt="Nutrica Logo" 
           className={styles.logo}
@@ -46,8 +46,8 @@ export default function About() {
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              <img 
-                src="/assets/Frank.jpg" 
+              <img loading="lazy" decoding="async" 
+                src="/assets/Frank.webp" 
                 alt="Frank Gong" 
                 style={{
                   width: '100%',
@@ -87,8 +87,8 @@ export default function About() {
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              <img 
-                src="/assets/Yanxin.png" 
+              <img loading="lazy" decoding="async" 
+                src="/assets/Yanxin.webp" 
                 alt="Yanxin Chen" 
                 style={{
                   width: '100%',
@@ -128,8 +128,8 @@ export default function About() {
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              <img 
-                src="/assets/Zijin.png" 
+              <img loading="lazy" decoding="async" 
+                src="/assets/Zijin.webp" 
                 alt="Zijin Zhou" 
                 style={{
                   width: '100%',

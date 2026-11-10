@@ -55,7 +55,7 @@ export default function Welcome() {
             </button>
           </div>
           <div className={styles.heroImageContainer}>
-            <img 
+            <img fetchPriority="high" decoding="async" 
               src={icons.heroFrame} 
               alt="Hero illustration" 
               className={styles.heroImage}
@@ -81,7 +81,7 @@ export default function Welcome() {
           <div className={styles.hiw1}>
             <div className={styles.leftContent}>
               <div className={styles.iconContainer}>
-                <img src={icons.collectionsIcon} alt="Collections icon" />
+                <img loading="lazy" decoding="async" src={icons.collectionsIcon} alt="Collections icon" />
               </div>
               <div className={styles.textContent}>
                 <div 
@@ -103,8 +103,8 @@ export default function Welcome() {
               </div>
             </div>
             <div className={styles.cardImagesContainer}>
-              <img src={icons.card1} alt="Card 1" className={styles.frame266Image} />
-              <img src={icons.card2} alt="Card 2" className={styles.frame266Image} />
+              <img loading="lazy" decoding="async" src={icons.card1} alt="Card 1" className={styles.frame266Image} />
+              <img loading="lazy" decoding="async" src={icons.card2} alt="Card 2" className={styles.frame266Image} />
             </div>
           </div>
           
@@ -112,7 +112,7 @@ export default function Welcome() {
           <div className={styles.hiw2}>
             <div className={styles.leftContent}>
               <div className={styles.iconContainer}>
-                <img src={icons.cameraIcon} alt="Camera icon" />
+                <img loading="lazy" decoding="async" src={icons.cameraIcon} alt="Camera icon" />
               </div>
               <div className={styles.textContent}>
                 <div 
@@ -134,12 +134,12 @@ export default function Welcome() {
               </div>
             </div>
             <div className={styles.frame266}>
-              <img 
+              <img loading="lazy" decoding="async" 
                 src={icons.bottomSheet} 
                 alt="Bottom Sheet" 
                 className={styles.frame266Image}
               />
-              <img src={icons.scannerCamera} alt="Scanner Camera" className={styles.frame266Image} />
+              <img loading="lazy" decoding="async" src={icons.scannerCamera} alt="Scanner Camera" className={styles.frame266Image} />
             </div>
           </div>
           
@@ -147,7 +147,7 @@ export default function Welcome() {
           <div className={styles.hiw3}>
             <div className={styles.leftContent}>
               <div className={styles.iconContainer}>
-                <img src={icons.imagePixel} alt="Image pixel icon" />
+                <img loading="lazy" decoding="async" src={icons.imagePixel} alt="Image pixel icon" />
               </div>
               <div className={styles.textContent}>
                 <div 
@@ -169,7 +169,7 @@ export default function Welcome() {
               </div>
             </div>
             <div className={styles.frame266}>
-              <img 
+              <img loading="lazy" decoding="async" 
                 src={icons.frame265} 
                 alt="Frame 265" 
                 className={styles.frame266Image}
@@ -184,7 +184,7 @@ export default function Welcome() {
         <div className={styles.frame193}>
           <div className={styles.leftContent}>
             <div className={styles.frame193Icon}>
-              <img src={icons.trophy} alt="Trophy icon" />
+              <img loading="lazy" decoding="async" src={icons.trophy} alt="Trophy icon" />
             </div>
             <div className={styles.textContent}>
               <div 
@@ -206,7 +206,7 @@ export default function Welcome() {
             </div>
           </div>
           <div className={styles.frame193ImageContainer}>
-            <img 
+            <img loading="lazy" decoding="async" 
               src={icons.group170} 
               alt="Group 170" 
               className={styles.frame193Image}

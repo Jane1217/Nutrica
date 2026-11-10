@@ -7,7 +7,7 @@ import styles from '../../home/puzzle/PixelArtGrid.module.css';
  * @param {boolean} showGrid 是否显示网格线
  * @param {boolean} showUnfinishedBlocks 是否显示未完成像素的底色和网格线
  */
-export default function PixelArtGrid({ pixelMap, progress = {}, showGrid = true, showUnfinishedBlocks = true }) {
+function PixelArtGrid({ pixelMap, progress = {}, showGrid = true, showUnfinishedBlocks = true }) {
   // 如果 pixelMap 为空，生成默认 24x24 灰色占位
   const safePixelMap = pixelMap && Array.isArray(pixelMap) && pixelMap.length === 24
     ? pixelMap
@@ -20,11 +20,14 @@ export default function PixelArtGrid({ pixelMap, progress = {}, showGrid = true,
 
   // 统计每种营养素的像素索引，按从下至上、从左至右的顺序
   const nutrientPixels = {};
+  // 每个像素在其营养素序列中的序号：避免对 576 个格子逐个 findIndex（O(n²)）
+  const indexInNutrient = new Array(24 * 24).fill(-1);
   for (let y = 23; y >= 0; y--) { // 从下至上
     for (let x = 0; x < 24; x++) { // 从左至右
       const pix = safePixelMap[y][x];
       if (!pix.nutrient) continue;
       if (!nutrientPixels[pix.nutrient]) nutrientPixels[pix.nutrient] = [];
+      indexInNutrient[y * 24 + x] = nutrientPixels[pix.nutrient].length;
       nutrientPixels[pix.nutrient].push({ x, y });
     }
   }
@@ -56,7 +59,7 @@ export default function PixelArtGrid({ pixelMap, progress = {}, showGrid = true,
           
           if (shouldShowProgress) {
             // 按营养进度显示
-            const idx = nutrientPixels[pix.nutrient]?.findIndex(p => p.x === x && p.y === y);
+            const idx = pix.nutrient ? indexInNutrient[y * 24 + x] : -1;
             const isFilled = idx > -1 && idx < fillCounts[pix.nutrient];
             
             return (
@@ -104,7 +107,7 @@ export default function PixelArtGrid({ pixelMap, progress = {}, showGrid = true,
             );
           } else {
             // 默认逻辑（无pixelMap时）
-            const idx = nutrientPixels[pix.nutrient]?.findIndex(p => p.x === x && p.y === y);
+            const idx = pix.nutrient ? indexInNutrient[y * 24 + x] : -1;
             const isFilled = idx > -1 && idx < fillCounts[pix.nutrient];
             return (
               <div
@@ -127,4 +130,15 @@ export default function PixelArtGrid({ pixelMap, progress = {}, showGrid = true,
       )}
     </div>
   );
-} 
+}
+
+// 首页会因为许多无关状态（日期、弹窗、食物列表…）重渲染；
+// 拼图格子只依赖这几项，其余变化不需要重绘 ~1700 个 DOM 节点。
+const sameProgress = (a = {}, b = {}) => a[1] === b[1] && a[2] === b[2] && a[3] === b[3];
+
+export default React.memo(PixelArtGrid, (prev, next) => (
+  prev.pixelMap === next.pixelMap
+  && prev.showGrid === next.showGrid
+  && prev.showUnfinishedBlocks === next.showUnfinishedBlocks
+  && sameProgress(prev.progress, next.progress)
+));

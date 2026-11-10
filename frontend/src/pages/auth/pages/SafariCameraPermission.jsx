@@ -61,7 +61,7 @@ export default function SafariCameraPermission() {
         {/* 设置界面示例 */}
         <div className={styles.settingsExample}>
           <img 
-            src="/assets/safari setup.png" 
+            src="/assets/safari setup.webp" 
             alt="Safari Camera Permission Setup Example" 
             className={styles.settingsImage}
           />

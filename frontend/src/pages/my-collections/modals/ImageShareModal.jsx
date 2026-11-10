@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import html2canvas from 'html2canvas';
 import styles from './ImageShareModal.module.css';
 import ImageCaptureCard from '../../../components/share/ImageCaptureCard';
 import { domToImageBase64, getPageBackground } from '../../../utils';
