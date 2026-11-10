@@ -3,6 +3,7 @@ import ModalWrapper from '../../../components/common/ModalWrapper';
 import InputField from '../../../components/auth/InputField';
 import BottomButton from '../../../components/common/BottomButton';
 import { supabase } from '../../../supabaseClient';
+import { getFriendlyErrorMessage } from '../../../utils/core/errors';
 import { validateEmail } from '../../../utils/core/validation';
 import styles from '../styles/Auth.module.css';
 import resetPasswordStyles from '../styles/ResetPassword.module.css';
@@ -42,7 +43,7 @@ export default function ForgotPassword({ open, onClose, onBackToLogin }) {
       });
 
       if (error) {
-        setError(error.message);
+        setError(getFriendlyErrorMessage(error));
       } else {
         setShowSuccess(true);
         setEmail('');

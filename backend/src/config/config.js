@@ -79,7 +79,7 @@ const config = {
 
   // File upload configuration
   upload: {
-    maxFileSize: 5 * 1024 * 1024, // 5MB
+    maxFileSize: 4 * 1024 * 1024, // 4MB（Vercel 函数请求体上限约 4.5MB，超过会得到平台自己的 413 页面）
     allowedTypes: ['image/jpeg', 'image/png', 'image/jpg'],
   },
 

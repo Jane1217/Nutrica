@@ -85,7 +85,7 @@ export function multiplyNutrition(nutrition, servings) {
     const match = String(v).match(/-?\d+(\.\d+)?/);
     if (!match) return 0;
     const n = Number(match[0]);
-    return isNaN(n) ? 0 : n * s;
+    return isNaN(n) ? 0 : Math.round(n * s * 100) / 100;
   };
   return {
     calories: safe(nutrition.calories),

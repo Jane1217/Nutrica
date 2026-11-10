@@ -1,21 +1,28 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styles from './Toast.module.css';
 
 export default function Toast({ message, type = 'error', show, onClose, duration = 3000 }) {
   const [isVisible, setIsVisible] = useState(false);
+  // 父组件常传入内联 onClose，每次重渲染都会变；用 ref 保存，避免计时器被反复重置
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     if (show) {
       setIsVisible(true);
+      let closeTimer;
       const timer = setTimeout(() => {
         setIsVisible(false);
-        setTimeout(() => {
-          onClose && onClose();
+        closeTimer = setTimeout(() => {
+          onCloseRef.current && onCloseRef.current();
         }, 300); // 等待动画完成
       }, duration);
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+        clearTimeout(closeTimer);
+      };
     }
-  }, [show, duration, onClose]);
+  }, [show, duration]);
 
   if (!show && !isVisible) return null;
 

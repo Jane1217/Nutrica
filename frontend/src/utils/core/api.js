@@ -12,6 +12,8 @@ const API_BASE_URL = configuredApiUrl
   ? configuredApiUrl.replace(/\/$/, '')
   : (import.meta.env.DEV ? 'http://localhost:3001' : '');
 
+const UPLOAD_TIMEOUT_MS = 45000;
+
 // 获取认证头
 const getAuthHeaders = async () => {
   const { data: { session } } = await supabase.auth.getSession();
@@ -106,11 +108,20 @@ export const uploadFile = async (endpoint, file, onProgress = null) => {
       ? { Authorization: `Bearer ${session.access_token}` }
       : {};
 
-    const response = await fetch(url, {
-      method: 'POST',
-      body: formData,
-      headers,
-    });
+    // 超时后中止请求：否则网络卡住时"Analyzing..."遮罩会一直盖在屏幕上
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), UPLOAD_TIMEOUT_MS);
+    let response;
+    try {
+      response = await fetch(url, {
+        method: 'POST',
+        body: formData,
+        headers,
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     const contentType = response.headers.get('content-type') || '';
     const data = contentType.includes('application/json')

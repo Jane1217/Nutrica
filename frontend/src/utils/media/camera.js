@@ -27,18 +27,31 @@ export const startCamera = async ({
   }
   
   try {
-    // 更完整的摄像头配置
-    const constraints = {
-      video: {
-        facingMode,
-        width: { ideal: 1920 },
-        height: { ideal: 1080 },
-        // Device-specific focus and zoom constraints are applied only after the
-        // browser confirms support via getCapabilities().
-      }
-    };
+    // 依次尝试从高到低的约束：部分设备/浏览器不满足 1080p 或后置摄像头时
+    // 会抛 OverconstrainedError，这时降级而不是直接失败。
+    // Device-specific focus and zoom constraints are applied only after the
+    // browser confirms support via getCapabilities().
+    const constraintSets = [
+      { video: { facingMode, width: { ideal: 1920 }, height: { ideal: 1080 } } },
+      { video: { facingMode } },
+      { video: true }
+    ];
 
-    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+    let stream = null;
+    let lastError = null;
+    for (const constraints of constraintSets) {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia(constraints);
+        break;
+      } catch (err) {
+        lastError = err;
+        // 权限被拒绝/不支持时降级没有意义
+        if (!['OverconstrainedError', 'NotFoundError', 'ConstraintNotSatisfiedError'].includes(err?.name)) {
+          throw err;
+        }
+      }
+    }
+    if (!stream) throw lastError;
     
     if (videoRef?.current && isMounted) {
       videoRef.current.srcObject = stream;
@@ -60,6 +73,10 @@ export const startCamera = async ({
     }
   } catch (error) {
     console.error('Failed to start camera:', error);
+    // 权限错误要交给调用方显示"没有摄像头权限"的提示
+    if (error?.name === 'NotAllowedError' || error?.name === 'PermissionDeniedError') {
+      throw error;
+    }
     return null;
   }
 };
@@ -103,6 +120,12 @@ export const stopCamera = ({
   // 立即设置状态为false
   setCameraActive?.(false);
   
+  // video 上挂载的流可能和 streamRef 不是同一个，一并停止
+  const attachedStream = videoRef?.current?.srcObject;
+  if (attachedStream?.getTracks) {
+    attachedStream.getTracks().forEach(track => track.stop());
+  }
+
   // 立即清理video元素
   if (videoRef?.current) {
     videoRef.current.pause();
@@ -150,32 +173,85 @@ export const forceReleaseCamera = ({
 };
 
 /**
+ * 把屏幕上的取景框映射为视频帧里的像素区域。
+ * 视频以 object-fit: cover 显示：按较大的缩放比铺满并居中裁剪。
+ * 水平/垂直必须使用同一个缩放比，且要减去被裁掉的偏移量，
+ * 否则截取区域会和屏幕上的取景框错位。
+ * @param {{width: number, height: number}} video 视频原始分辨率
+ * @param {{left: number, top: number, width: number, height: number}} videoRect <video> 元素在屏幕上的矩形
+ * @param {{left: number, top: number, width: number, height: number}} frameRect 取景框在屏幕上的矩形
+ * @returns {{x: number, y: number, width: number, height: number}|null} 视频像素坐标；视频未就绪时返回 null
+ */
+export const computeCoverCrop = (video, videoRect, frameRect) => {
+  const vw = video.width;
+  const vh = video.height;
+  if (!vw || !vh || !videoRect.width || !videoRect.height) return null;
+
+  const scale = Math.max(videoRect.width / vw, videoRect.height / vh);
+  const offsetX = (videoRect.width - vw * scale) / 2;
+  const offsetY = (videoRect.height - vh * scale) / 2;
+
+  let x = (frameRect.left - videoRect.left - offsetX) / scale;
+  let y = (frameRect.top - videoRect.top - offsetY) / scale;
+  let width = frameRect.width / scale;
+  let height = frameRect.height / scale;
+
+  // 限制在视频范围内
+  x = Math.max(0, Math.min(x, vw - 1));
+  y = Math.max(0, Math.min(y, vh - 1));
+  width = Math.max(1, Math.min(width, vw - x));
+  height = Math.max(1, Math.min(height, vh - y));
+
+  return { x, y, width, height };
+};
+
+/**
  * 截取视频帧
  * @param {HTMLVideoElement} video - 视频元素
  * @param {HTMLElement} frameElement - 截取框元素
  * @returns {HTMLCanvasElement} 截取的canvas元素
  */
 export const captureVideoFrame = (video, frameElement) => {
-  // 获取截取框和视频的位置和尺寸
-  const frameRect = frameElement.getBoundingClientRect();
-  const videoRect = video.getBoundingClientRect();
-  
-  // 计算截取框在视频上的相对位置和尺寸（比例）
-  const scaleX = video.videoWidth / videoRect.width;
-  const scaleY = video.videoHeight / videoRect.height;
-  const sx = (frameRect.left - videoRect.left) * scaleX;
-  const sy = (frameRect.top - videoRect.top) * scaleY;
-  const sWidth = frameRect.width * scaleX;
-  const sHeight = frameRect.height * scaleY;
-  
+  const crop = computeCoverCrop(
+    { width: video.videoWidth, height: video.videoHeight },
+    video.getBoundingClientRect(),
+    frameElement.getBoundingClientRect()
+  );
+  if (!crop) {
+    throw new Error('Video is not ready');
+  }
+
   // 创建canvas只截取指定区域
   const canvas = document.createElement('canvas');
-  canvas.width = Math.round(sWidth);
-  canvas.height = Math.round(sHeight);
+  canvas.width = Math.round(crop.width);
+  canvas.height = Math.round(crop.height);
   const ctx = canvas.getContext('2d');
-  ctx.drawImage(video, sx, sy, sWidth, sHeight, 0, 0, canvas.width, canvas.height);
-  
+  ctx.drawImage(video, crop.x, crop.y, crop.width, crop.height, 0, 0, canvas.width, canvas.height);
+
   return canvas;
+};
+
+/**
+ * 把截取的画面压缩成适合上传的 JPEG。
+ * 原图可能是 1080p 的 0.95 质量 JPEG（几MB），既慢又可能超过服务端/Vercel 的请求体上限；
+ * 标签文字在最长边 1600px、质量 0.9 时仍然清晰可读。
+ * @param {HTMLCanvasElement} canvas
+ * @param {{ maxDimension?: number, quality?: number }} [options]
+ * @returns {Promise<Blob|null>}
+ */
+export const canvasToJpegBlob = (canvas, { maxDimension = 1600, quality = 0.9 } = {}) => {
+  let target = canvas;
+  const longest = Math.max(canvas.width, canvas.height);
+  if (longest > maxDimension) {
+    const ratio = maxDimension / longest;
+    target = document.createElement('canvas');
+    target.width = Math.max(1, Math.round(canvas.width * ratio));
+    target.height = Math.max(1, Math.round(canvas.height * ratio));
+    const ctx = target.getContext('2d');
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(canvas, 0, 0, target.width, target.height);
+  }
+  return new Promise(resolve => target.toBlob(resolve, 'image/jpeg', quality));
 };
 
 /**
@@ -416,18 +492,27 @@ export const setupEnhancedCameraControls = ({
 
   // 尝试绑定事件
   let bound = bindEvents();
+  let retryInterval = null;
   if (!bound) {
-    // 如果摄像头还没准备好，延迟重试
-    const retryInterval = setInterval(() => {
+    // 摄像头还没准备好时延迟重试：有次数上限，并且清理函数一定会清除它。
+    // 之前没有清除，桌面摄像头（没有对焦/缩放能力）离开页面后会永远每500ms轮询。
+    let attempts = 0;
+    retryInterval = setInterval(() => {
+      attempts += 1;
       bound = bindEvents();
-      if (bound) {
+      if (bound || attempts >= 20) {
         clearInterval(retryInterval);
+        retryInterval = null;
       }
     }, 500);
   }
 
   // 返回清理函数
   return () => {
+    if (retryInterval) {
+      clearInterval(retryInterval);
+      retryInterval = null;
+    }
     if (video) {
       video.removeEventListener('touchstart', onTouchStart);
       video.removeEventListener('touchmove', onTouchMove);

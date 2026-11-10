@@ -4,6 +4,7 @@ import { validateFoodForm } from '../../../utils';
 import { saveFoodWithServings, multiplyNutrition } from '../../../utils';
 import ModalWrapper from '../../../components/common/ModalWrapper';
 import Toast from '../../../components/common/Toast';
+import { getFriendlyErrorMessage } from '../../../utils/core/errors';
 import { icons } from '../../../utils';
 
 export default function FoodModal({ open, onClose, initialData, userId, onDataChange }) {
@@ -158,7 +159,7 @@ export default function FoodModal({ open, onClose, initialData, userId, onDataCh
         setLoading(false);
       }
     } catch (error) {
-      setError(error.message);
+      setError(getFriendlyErrorMessage(error));
       setLoading(false);
     }
   };

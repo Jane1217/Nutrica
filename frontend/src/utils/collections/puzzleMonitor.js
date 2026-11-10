@@ -1,7 +1,7 @@
 import { supabase } from '../../supabaseClient';
 import { collectionApi } from '../core';
 import { getAuthToken } from '../core';
-import { handlePuzzleCompletion } from './userStatus';
+import { handlePuzzleCompletion, clearCollectionCache } from './userStatus';
 
 // 检查puzzle是否完成（puzzle_progress === 1）
 export const checkPuzzleCompletion = (puzzleProgress) => {
@@ -130,7 +130,10 @@ export const monitorPuzzleCompletion = async (userId, dailyHomeData) => {
     // 添加到collections（只在今天首次完成时）
     const result = await addPuzzleToCollection(userId, puzzle_name, nutritionData);
     
-    if (!result.success) {
+    if (result.success) {
+      // 收藏写入成功后再清缓存，保证"已收集"状态是最新的
+      clearCollectionCache();
+    } else {
       console.error(`Failed to add ${puzzle_name} to collections:`, result.error);
     }
 

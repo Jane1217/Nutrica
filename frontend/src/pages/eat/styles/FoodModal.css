@@ -153,8 +153,11 @@
   margin-top: 16px;
 }
 .food-modal-error {
-  color: red;
+  color: var(--Alert-Error, #D03535);
   margin-top: 16px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 150%;
 }
 
 .describe-input-container {

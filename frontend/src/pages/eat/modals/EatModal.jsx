@@ -29,14 +29,9 @@ export default function EatModal({ onClose, foods = [], foodsLoading = false, on
   }, [open]);
 
   // 监听弹窗内容区滚动，触发加载更多
+  // 通过 React onScroll 绑定：弹窗内容区在 ModalWrapper 动画挂载之后才存在，
+  // 在 effect 里 addEventListener 可能因元素还没渲染而绑定失败
   const group2Ref = React.useRef(null);
-  useEffect(() => {
-    const el = group2Ref.current;
-    if (!el || !onFoodsScroll) return;
-    const handler = (e) => onFoodsScroll(e);
-    el.addEventListener('scroll', handler);
-    return () => el.removeEventListener('scroll', handler);
-  }, [onFoodsScroll]);
 
   // 新增/修改后调用onDataChange
   const handleDataChange = () => {
@@ -130,7 +125,7 @@ export default function EatModal({ onClose, foods = [], foodsLoading = false, on
                 </svg>
               </span>
             </div>
-            <div className="eat-modal-group2-2" ref={group2Ref}>
+            <div className="eat-modal-group2-2" ref={group2Ref} onScroll={onFoodsScroll}>
               {foodsLoading && foods.length === 0 ? (
                 <div className="eat-modal-loading">
                   <div className="eat-modal-loading-spinner"></div>
