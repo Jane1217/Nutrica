@@ -6,11 +6,9 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { getPuzzleProgress, getPuzzleNutrientColorsByOrder, getPuzzleProgressMessage } from '../../../frontend/src/utils/puzzles/progress.js';
 
-// Product rule (frontend/src/utils/nutrition/nutrition.js): calories are split 50% carbs, 30% fats,
-// 20% protein, so goal grams per kcal are 0.125 / 0.0333 / 0.05 -> 60% / 24% / 16% of goal grams.
-const grams = { 1: 0.5 / 4, 2: 0.2 / 4, 3: 0.3 / 9 };
-const gramTotal = grams[1] + grams[2] + grams[3];
-const TARGET = { 1: grams[1] / gramTotal, 2: grams[2] / gramTotal, 3: grams[3] / gramTotal };
+// Product rule (frontend/src/utils/nutrition/nutrition.js): calories are split 50% carbs, 30% fats, 20% protein,
+// and pixels are shared out the same way (nutrient 1 carbs, 2 protein, 3 fats).
+const TARGET = { 1: 0.5, 2: 0.2, 3: 0.3 };
 const SHARE_TOLERANCE = 0.06;
 // No limit on the number of painted cells: a clear, detailed picture matters most. These only catch
 // pictures that came out tiny or empty.

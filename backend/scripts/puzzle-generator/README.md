@@ -19,10 +19,10 @@ Review `samples/<theme>/preview.png` (picture -> 24x24 -> half filled -> nutrien
 - **A theme is the unit.** Title, description, size (default 6, like Magic Garden) and the puzzles are decided
   together and every picture shares one style prompt. The size never changes after publishing, and the API only
   serves a theme that has all its puzzles.
-- **Pixel shares come from the daily goals** (`frontend/src/utils/nutrition/nutrition.js`): calories are split
-  50% carbs / 30% fats / 20% protein, i.e. 60% / 24% / 16% of the goal *grams*. Pixels are shared out the same
-  way (+-4 points), so one pixel is worth the same number of grams for every nutrient: a user who follows the
-  split fills all three together, and puzzle progress equals total grams eaten / total goal grams.
+- **Pixel shares follow the product's calorie split** (`frontend/src/utils/nutrition/nutrition.js`): calories are
+  split 50% carbs / 30% fats / 20% protein, and painted cells are shared out the same way: **carbs 50%, fats 30%,
+  protein 20%** (+-4 points; colours are discrete so it cannot be exact). Puzzle progress is then the share of the
+  day's calorie goal reached through each nutrient. A user who follows the split fills all three together.
 - **No limit on the number of cells.** The object is drawn as large as the 24x24 canvas allows, because a clear,
   detailed picture matters most (the validator only catches pictures that came out tiny).
 - **Colour roles**: protein = the darkest colours (outline and shadow), fats = the accent colours, carbs = the body.

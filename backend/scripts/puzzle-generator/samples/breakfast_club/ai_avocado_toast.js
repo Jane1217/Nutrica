@@ -2,17 +2,12 @@
 const B = { color: '#F3F3EC', nutrient: 0 };
 const C1 = { color: '#C6DF3A', nutrient: 1 };
 const C2 = { color: '#A5DB36', nutrient: 1 };
-const C3 = { color: '#F5A458', nutrient: 1 };
-const C4 = { color: '#83BF49', nutrient: 1 };
-const C5 = { color: '#6CB327', nutrient: 1 };
-const C6 = { color: '#6BA043', nutrient: 1 };
-const C7 = { color: '#4E8E1F', nutrient: 1 };
-const P1 = { color: '#B75428', nutrient: 2 };
-const P2 = { color: '#5E5148', nutrient: 2 };
-const P3 = { color: '#403026', nutrient: 2 };
-const F1 = { color: '#F7B373', nutrient: 3 };
+const C3 = { color: '#6CB327', nutrient: 1 };
+const C4 = { color: '#4E8E1F', nutrient: 1 };
+const P1 = { color: '#403026', nutrient: 2 };
+const F1 = { color: '#F5A458', nutrient: 3 };
 const F2 = { color: '#DD7D31', nutrient: 3 };
-const F3 = { color: '#C36F4B', nutrient: 3 };
+const F3 = { color: '#B75428', nutrient: 3 };
 
 const ai_avocado_toast = {
   id: "ai_avocado_toast",
@@ -35,41 +30,41 @@ const ai_avocado_toast = {
     // 3
     [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
     // 4
-    [B,B,B,B,B,B,B,B,B,B,P2,P2,P2,P2,B,B,B,B,B,B,B,B,B,B],
+    [B,B,B,B,B,B,B,B,B,B,P1,P1,P1,P1,B,B,B,B,B,B,B,B,B,B],
     // 5
-    [B,B,B,B,B,B,B,B,B,P2,C4,C4,C2,C6,P2,P2,B,B,B,B,B,B,B,B],
+    [B,B,B,B,B,B,B,B,B,P1,C3,C3,C2,C4,P1,P1,B,B,B,B,B,B,B,B],
     // 6
-    [B,B,B,B,B,B,B,B,P2,C4,C1,C4,C4,C1,C1,C6,P2,P2,P2,B,B,B,B,B],
+    [B,B,B,B,B,B,B,B,P1,C3,C1,C3,C3,C1,C1,C4,P1,P1,P1,B,B,B,B,B],
     // 7
-    [B,B,B,B,B,B,P2,P2,C1,C2,C2,C4,C4,C4,C2,C2,C2,C4,C4,P2,P2,B,B,B],
+    [B,B,B,B,B,B,P1,P1,C1,C2,C2,C3,C3,C3,C2,C2,C2,C3,C3,P1,P1,B,B,B],
     // 8
-    [B,B,B,B,B,P2,C4,C6,C2,C2,C6,C6,C6,C1,C2,C2,C4,C2,C4,C4,C2,P2,B,B],
+    [B,B,B,B,B,P1,C3,C4,C2,C2,C4,C4,C4,C1,C2,C2,C3,C2,C3,C3,C2,P1,B,B],
     // 9
-    [B,B,B,B,P2,C6,C4,C2,C4,C4,C4,C1,C1,C6,C4,C4,C4,C4,C2,C4,C6,F1,P2,B],
+    [B,B,B,B,P1,C4,C3,C2,C3,C3,C3,C1,C1,C4,C3,C3,C3,C3,C2,C3,C4,F1,P1,B],
     // 10
-    [B,B,B,P2,C1,C6,C2,C2,C5,C5,C1,C1,C5,C5,C5,C5,C1,C1,C5,C6,C6,F1,P2,B],
+    [B,B,B,P1,C1,C4,C2,C2,C3,C3,C1,C1,C3,C3,C3,C3,C1,C1,C3,C4,C4,F1,P1,B],
     // 11
-    [B,B,P2,F1,C6,C2,C6,C5,C5,C6,C5,C5,C5,C6,C6,C2,C5,C5,C6,C6,F1,F1,P2,B],
+    [B,B,P1,F1,C4,C2,C4,C3,C3,C4,C3,C3,C3,C4,C4,C2,C3,C3,C4,C4,F1,F1,P1,B],
     // 12
-    [B,P3,F2,F1,C7,C5,C7,C5,C1,C7,C1,C5,C7,C5,C5,C5,C5,C7,C7,F1,F2,F2,P3,B],
+    [B,P1,F2,F1,C4,C3,C4,C3,C1,C4,C1,C3,C4,C3,C3,C3,C3,C4,C4,F1,F2,F2,P1,B],
     // 13
-    [B,P3,F1,F1,C7,C7,C5,C5,C7,C1,C2,C2,C5,C2,C5,C7,C7,C7,F1,F1,F3,F3,P3,B],
+    [B,P1,F1,F1,C4,C4,C3,C3,C4,C1,C2,C2,C3,C2,C3,C4,C4,C4,F1,F1,F3,F3,P1,B],
     // 14
-    [B,P3,F3,F1,F1,F1,C7,C7,C7,C7,C5,C5,C5,C7,C7,C7,C7,F1,F1,F3,F3,P3,B,B],
+    [B,P1,F3,F1,F1,F1,C4,C4,C4,C4,C3,C3,C3,C4,C4,C4,C4,F1,F1,F3,F3,P1,B,B],
     // 15
-    [B,P3,F2,F2,F3,C3,C3,C3,C7,C7,C7,C5,C7,C7,C7,C3,C3,F2,F3,F3,P3,B,B,B],
+    [B,P1,F2,F2,F3,F1,F1,F1,C4,C4,C4,C3,C4,C4,C4,F1,F1,F2,F3,F3,P1,B,B,B],
     // 16
-    [B,B,P3,F3,F2,F2,F3,C3,C3,C3,C7,C7,C7,C3,C3,C3,F3,F3,F3,P3,B,B,B,B],
+    [B,B,P1,F3,F2,F2,F3,F1,F1,F1,C4,C4,C4,F1,F1,F1,F3,F3,F3,P1,B,B,B,B],
     // 17
-    [B,B,B,P3,P3,P1,F2,F2,P1,C3,C3,C3,C3,C3,C3,P1,P1,P1,P3,B,B,B,B,B],
+    [B,B,B,P1,P1,F3,F2,F2,F3,F1,F1,F1,F1,F1,F1,F3,F3,F3,P1,B,B,B,B,B],
     // 18
-    [B,B,B,B,B,P3,P3,P1,F2,F2,P1,C3,C3,C3,P1,P1,P1,P3,B,B,B,B,B,B],
+    [B,B,B,B,B,P1,P1,F3,F2,F2,F3,F1,F1,F1,F3,F3,F3,P1,B,B,B,B,B,B],
     // 19
-    [B,B,B,B,B,B,B,P3,P3,P1,F2,P1,P1,P1,P1,P1,P3,B,B,B,B,B,B,B],
+    [B,B,B,B,B,B,B,P1,P1,F3,F2,F3,F3,F3,F3,F3,P1,B,B,B,B,B,B,B],
     // 20
-    [B,B,B,B,B,B,B,B,B,P3,P3,P1,P1,P1,P1,P3,B,B,B,B,B,B,B,B],
+    [B,B,B,B,B,B,B,B,B,P1,P1,F3,F3,F3,F3,P1,B,B,B,B,B,B,B,B],
     // 21
-    [B,B,B,B,B,B,B,B,B,B,B,P3,P3,P3,P3,B,B,B,B,B,B,B,B,B],
+    [B,B,B,B,B,B,B,B,B,B,B,P1,P1,P1,P1,B,B,B,B,B,B,B,B,B],
     // 22
     [B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B,B],
     // 23
@@ -79,5 +74,5 @@ const ai_avocado_toast = {
   ]
 };
 
-export const ai_avocado_toastColorOrder = [C1.color, C2.color, C3.color, C4.color, C5.color, C6.color, C7.color, P1.color, P2.color, P3.color, F1.color, F2.color, F3.color];
+export const ai_avocado_toastColorOrder = [C1.color, C2.color, C3.color, C4.color, P1.color, F1.color, F2.color, F3.color];
 export default ai_avocado_toast;

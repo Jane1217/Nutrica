@@ -11,10 +11,9 @@ Writes samples/<theme>/theme.json          the theme (title, type, size, colours
        samples/<theme>/preview.png         review sheet
 
 The product rules it follows (see frontend/src/utils/nutrition/nutrition.js):
-  * Daily goals are 50% carbs / 30% fats / 20% protein of calories, i.e. in grams per 1000 kcal:
-    carbs 125, protein 50, fats 33.3  ->  60% / 24% / 16% of the goal grams.
-    Pixels are shared out the same way, so one pixel is worth the same number of grams for every
-    nutrient and a user who follows the split fills all three together.
+  * Daily goals are split 50% carbs / 30% fats / 20% protein of calories. Pixels are shared out the same
+    way: carbs 50%, fats 30%, protein 20% of the painted cells (+-4 points, colours are discrete), so
+    puzzle progress is the share of the day's calorie goal reached through each nutrient.
   * Every colour belongs to exactly one nutrient (that is how the nutrition pool lists them).
   * Like the hand-drawn puzzles: protein is the darkest colours (outline and shadow), fats are the
     accent colours, carbs are the body. There is no limit on the number of painted cells: the object
@@ -33,11 +32,7 @@ GRID = 24
 BG_HEX = '#F3F3EC'                       # the puzzle background colour (nutrient 0)
 FILL_MARGIN = 1.09                       # canvas / object size: about one empty cell around the picture
 SPLIT_KCAL = {'carbs': 0.50, 'fats': 0.30, 'protein': 0.20}      # nutrition.js
-KCAL_PER_GRAM = {'carbs': 4, 'fats': 9, 'protein': 4}
-_grams = {k: SPLIT_KCAL[k] / KCAL_PER_GRAM[k] for k in SPLIT_KCAL}
-TARGET = {1: _grams['carbs'] / sum(_grams.values()),             # 0.60
-          2: _grams['protein'] / sum(_grams.values()),           # 0.24
-          3: _grams['fats'] / sum(_grams.values())}              # 0.16
+TARGET = {1: SPLIT_KCAL['carbs'], 2: SPLIT_KCAL['protein'], 3: SPLIT_KCAL['fats']}   # nutrient 1 carbs, 2 protein, 3 fats
 TOLERANCE = 0.04                         # max share error per nutrient
 NUTRIENT_TINT = {0: BG_HEX, 1: '#F4A259', 2: '#5B3A29', 3: '#6BBF59'}
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -327,7 +322,7 @@ def counts_of(palette, index):
 
 def assign_nutrients(palette, index):
     """Protein = the darkest colours, fats = the accent colours (furthest from the body colour),
-    carbs = the body; the three shares follow TARGET (60/24/16)."""
+    carbs = the body; the three shares follow TARGET (50/20/30)."""
     counts = counts_of(palette, index)
     total = sum(counts)
     n = len(palette)
