@@ -5,6 +5,7 @@
  *   node scripts/puzzle-generator/generate.js "Breakfast Club" 6
  *   node scripts/puzzle-generator/generate.js "Breakfast Club" 6 --redraw    # keep the theme, draw new pictures
  *   node scripts/puzzle-generator/generate.js "Breakfast Club" 6 --recopy    # keep the pictures, write the copy again
+ *   ... --redraw --only=ai_bacon --candidates=4      # draw 4 pictures to choose from (work/<id>/candidate_N.png)
  *   ... --redraw --only=ai_bacon                                             # redraw a single puzzle
  *
  * Writes into scripts/puzzle-generator/work/<theme_id>/:
@@ -55,7 +56,7 @@ const imagePrompt = (food, title) => (
   `Extremely low-resolution pixel art sprite of ${food}, one item from a themed set called "${title}", as if drawn on a tiny `
   + '24 by 24 pixel canvas: every visible pixel is a large, clear square (about 3% of the image width) and the object is about '
   + '20 pixels wide and tall, centered. A single-pixel-thick dark outline runs all the way around the OUTSIDE of the object and '
-  + 'nothing is drawn outside it; separate parts of the object (glass wall and liquid, fruit and bowl, plate and food) are separated '
+  + 'nothing is drawn outside it. Flat FRONT view, side-on, with no perspective: never draw an elliptical rim or the opening of a glass, bowl or cup, and show containers filled to the brim. Separate parts of the object (glass wall and liquid, fruit and bowl, plate and food) are separated '
   + 'by their own pixel of outline or a clearly different colour. Flat colors, at most 8 colors, no anti-aliasing, no dithering, '
   + 'no gradient, no shadow, no text. Plain, flat, solid magenta background (#FF00FF) like a green-screen, with no magenta on the object.'
 );
@@ -187,12 +188,18 @@ async function main() {
     // keep the reviewed theme, names and copy; only draw the pictures again
     const theme = JSON.parse(fs.readFileSync(path.join(dir, 'theme.json'), 'utf8'));
     const only = args.find((a) => a.startsWith('--only='))?.slice('--only='.length);   // e.g. --only=ai_bacon
+    const candidates = Number((args.find((a) => a.startsWith('--candidates=')) || '').slice('--candidates='.length)) || 1;
     for (const puzzle of theme.puzzles.filter((p) => !only || p.id === only)) {
-      console.log(`[${themeId}] ${puzzle.slot}/${theme.count} ${puzzle.name}: new picture with ${IMAGE_MODEL} ...`);
-      const image = await client.images.generate({
-        model: IMAGE_MODEL, prompt: imagePrompt(puzzle.food, title), size: '1024x1024', quality: 'low', n: 1,
-      });
-      fs.writeFileSync(path.join(dir, puzzle.id, 'source.png'), Buffer.from(image.data[0].b64_json, 'base64'));
+      console.log(`[${themeId}] ${puzzle.slot}/${theme.count} ${puzzle.name}: ${candidates} new picture(s) with ${IMAGE_MODEL} ...`);
+      for (let i = 1; i <= candidates; i += 1) {
+        const image = await client.images.generate({
+          model: IMAGE_MODEL, prompt: imagePrompt(puzzle.food, title), size: '1024x1024', quality: 'low', n: 1,
+        });
+        const bytes = Buffer.from(image.data[0].b64_json, 'base64');
+        // candidate_N.png are for choosing by eye; source.png (the one pixelate.py reads) is the first
+        fs.writeFileSync(path.join(dir, puzzle.id, `candidate_${i}.png`), bytes);
+        if (i === 1) fs.writeFileSync(path.join(dir, puzzle.id, 'source.png'), bytes);
+      }
     }
     console.log(`[${themeId}] redrawn: ${theme.puzzles.map((p) => p.name).join(', ')}`);
     return;
