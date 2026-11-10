@@ -611,6 +611,7 @@ export default function Home({ isLoggedIn }) {
             puzzleText={renderData.daily_text}
             userName={userInfo?.name || 'there'}
             hasSelectedPuzzle={!!renderData.puzzle_name}
+            isPastEmpty={showEmptyPast}
           />
           <PuzzleContainer
             hasSelectedPuzzle={!!renderData.puzzle_name}

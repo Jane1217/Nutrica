@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './PuzzleTextModule.module.css';
 
-export default function PuzzleTextModule({ puzzleName, puzzleText, userName, hasSelectedPuzzle = false, categoryName }) {
+export default function PuzzleTextModule({ puzzleName, puzzleText, userName, hasSelectedPuzzle = false, categoryName, isPastEmpty = false }) {
   return (
     <div className={styles.puzzleTextModule}>
       <span className={`${styles.puzzleName} label`}>
@@ -26,7 +26,9 @@ export default function PuzzleTextModule({ puzzleName, puzzleText, userName, has
               )
               : (puzzleText || 'Carrot')
           )
-          : `Hey ${userName || 'there'}! Ready to collect today's nutrition puzzle?`
+          : (isPastEmpty
+            ? 'No puzzle was collected on this day.'
+            : `Hey ${userName || 'there'}! Ready to collect today's nutrition puzzle?`)
         }
       </div>
     </div>
