@@ -109,6 +109,41 @@ def rgb_to_lab(rgb):
     return (116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz))
 
 
+def detect_blocks(img, is_bg, step):
+    """The model draws "pixels" of its own. Find their size and where they start, so that a 24x24 cell can
+    be exactly one of them. Returns (block size, x phase, y phase) or None if the picture is not blocky."""
+    import cmath
+    w, h = img.size
+    px = img.load()
+    xs, ys = [], []
+    for y in range(0, h, 3):                                  # colour changes along rows
+        for x in range(1, w):
+            a, b = px[x - 1, y], px[x, y]
+            if not is_bg[y // step][x // step] and sum(abs(i - j) for i, j in zip(a, b)) > 60:
+                xs.append(x)
+    for x in range(0, w, 3):                                  # colour changes along columns
+        for y in range(1, h):
+            a, b = px[x, y - 1], px[x, y]
+            if not is_bg[y // step][x // step] and sum(abs(i - j) for i, j in zip(a, b)) > 60:
+                ys.append(y)
+    if len(xs) < 200 or len(ys) < 200:
+        return None
+    best = None
+    size = 20.0
+    while size <= 70.0:                                       # which block size makes the changes line up?
+        zx = sum(cmath.exp(2j * cmath.pi * x / size) for x in xs[::2]) / len(xs[::2])
+        zy = sum(cmath.exp(2j * cmath.pi * y / size) for y in ys[::2]) / len(ys[::2])
+        score = (abs(zx) + abs(zy)) / 2
+        if best is None or score > best[0]:
+            best = (score, size, zx, zy)
+        size += 0.25
+    score, size, zx, zy = best
+    if score < 0.45:                                          # changes do not line up: not blocky
+        return None
+    phase = lambda z: (cmath.phase(z) % (2 * cmath.pi)) / (2 * cmath.pi) * size
+    return size, phase(zx), phase(zy)
+
+
 class Source:
     """A picture prepared for cutting: where the object is, and a histogram of its colours."""
 
@@ -122,9 +157,26 @@ class Source:
                for cx, v in enumerate(row) if not v]
         xs, ys = [p[0] for p in pts], [p[1] for p in pts]
         x0, x1, y0, y1 = min(xs), max(xs), min(ys), max(ys)
-        side = max(x1 - x0, y1 - y0) * FILL_MARGIN
-        cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
-        self.left, self.top, self.cell = cx - side / 2, cy - side / 2, side / GRID
+        blocks = detect_blocks(img, self.is_bg, self.step)
+        self.aligned = False
+        self.inset = 0.0
+        if blocks:
+            size, phx, phy = blocks
+            first_x, last_x = int((x0 - phx) // size), int((x1 - phx) // size)
+            first_y, last_y = int((y0 - phy) // size), int((y1 - phy) // size)
+            span_x, span_y = last_x - first_x + 1, last_y - first_y + 1
+            if max(span_x, span_y) <= GRID:                    # one picture pixel = one cell, no resampling
+                self.aligned = True
+                self.inset = 0.25                              # sample the middle of each block only
+                self.cell = size
+                self.left = phx + (first_x - (GRID - span_x) // 2) * size
+                self.top = phy + (first_y - (GRID - span_y) // 2) * size
+                self.block_info = (round(size, 1), span_x, span_y)
+        if not self.aligned:
+            side = max(x1 - x0, y1 - y0) * FILL_MARGIN
+            cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+            self.left, self.top, self.cell = cx - side / 2, cy - side / 2, side / GRID
+            self.block_info = None
         # histogram of foreground colours in 5-bit bins (keeps clustering fast)
         self.bins = {}
         for (x, y) in pts:
@@ -160,6 +212,28 @@ def weighted_kmeans(points, weights, k, seed=7, iters=30):
         if not changed:
             break
     return centres, assign
+
+
+def enforce_outline(palette, index):
+    """If the picture has an outline (dark colour around its edge), make it the OUTERMOST layer: every cell
+    on the silhouette becomes the outline colour, so a glass wall, bowl rim or plate edge never sits outside it."""
+    dark = min(range(len(palette)), key=lambda i: luminance(palette[i]))
+    if luminance(palette[dark]) >= 110:
+        return index
+    edge = []
+    for y in range(GRID):
+        for x in range(GRID):
+            if index[y][x] is None:
+                continue
+            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                nx, ny = x + dx, y + dy
+                if not (0 <= nx < GRID and 0 <= ny < GRID) or index[ny][nx] is None:
+                    edge.append((x, y))
+                    break
+    if edge and sum(1 for x, y in edge if index[y][x] == dark) / len(edge) >= 0.6:   # the style uses outlines
+        for x, y in edge:
+            index[y][x] = dark
+    return index
 
 
 def cut_index(src, k):
@@ -201,8 +275,8 @@ def cut_index(src, k):
     index = [[None] * GRID for _ in range(GRID)]
     for gy in range(GRID):
         for gx in range(GRID):
-            sx0, sy0 = int(src.left + gx * src.cell), int(src.top + gy * src.cell)
-            sx1, sy1 = int(src.left + (gx + 1) * src.cell), int(src.top + (gy + 1) * src.cell)
+            sx0, sy0 = int(src.left + (gx + src.inset) * src.cell), int(src.top + (gy + src.inset) * src.cell)
+            sx1, sy1 = int(src.left + (gx + 1 - src.inset) * src.cell), int(src.top + (gy + 1 - src.inset) * src.cell)
             total = fg = 0
             votes = {}
             step = src.step
@@ -219,6 +293,7 @@ def cut_index(src, k):
                 index[gy][gx] = dark
             else:
                 index[gy][gx] = max(votes, key=votes.get)
+    index = enforce_outline(palette, index)
     # drop unused colours and renumber
     used = sorted({i for row in index for i in row if i is not None})
     remap = {old: new for new, old in enumerate(used)}
@@ -426,7 +501,7 @@ def main():
         _, palette, index, nutrient_of, shares = best
         write_puzzle(out_dir, meta, palette, index, nutrient_of)
         fg = sum(counts_of(palette, index))
-        report.append((meta['name'], fg, len(palette), largest_component_share(index), shares))
+        report.append((meta['name'], fg, len(palette), largest_component_share(index), shares, prepared.block_info))
         rows.append((src.resize((240, 240)), render(index, palette, nutrient_of, 'art', 1.0),
                      render(index, palette, nutrient_of, 'art', 0.5), render(index, palette, nutrient_of, 'map', 1.0)))
 
@@ -444,11 +519,12 @@ def main():
 
     print(f"theme {theme['title']!r}: {len(report)} puzzles; target shares carbs/protein/fats = "
           + '/'.join(f'{TARGET[k]:.2f}' for k in (1, 2, 3)))
-    print(f"{'puzzle':16} {'cells':>5} {'colours':>7} {'connected':>9}   carbs/protein/fats")
-    for name, fg, k, comp, shares in report:
+    print(f"{'puzzle':16} {'cells':>5} {'colours':>7} {'connected':>9}   carbs/protein/fats   aligned to the picture's own pixels")
+    for name, fg, k, comp, shares, blocks in report:
         ok = max(abs(shares[x] - TARGET[x]) for x in (1, 2, 3)) <= TOLERANCE + 0.02
         print(f"{name:16} {fg:5d} {k:7d} {comp:9.0%}   " + ' '.join(f'{shares[x]:.2f}' for x in (1, 2, 3))
-              + ('' if ok else '  <-- outside the rules'))
+              + ('' if ok else '  <-- outside the rules')
+              + (f'   {blocks[0]}px blocks, {blocks[1]}x{blocks[2]}' if blocks else '   not blocky: resampled'))
 
 
 if __name__ == '__main__':

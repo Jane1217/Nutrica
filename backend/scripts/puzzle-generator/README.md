@@ -33,13 +33,18 @@ Review `samples/<theme>/preview.png` (picture -> 24x24 -> half filled -> nutrien
 
 1. `generate.js` asks a text model for the theme and its puzzle list, then for each puzzle an image on a flat
    **magenta** background (a green-screen colour no food uses, so near-white foods like rice are not mistaken
-   for background) and its copy (completion line + 5 progress messages).
-2. `pixelate.py` finds the object by flood-filling the background from the border, scales it to fill the
-   canvas, builds a palette (k-means in Lab colour space, trying several sizes) and gives every 24x24 cell the
-   colour that covers **most** of it. Cells are never averaged (averaging an outline with the fill makes muddy
-   in-between shades and blurs boundaries), and a dark outline wins when it covers a third of a cell, because
-   outlines are thinner than a cell. Colours are then assigned to nutrients to match the shares (splitting a
-   colour into two shades when finer steps are needed) and the puzzle is written.
+   for background) and its copy (completion line + 5 progress messages). The picture is requested as
+   *extremely low-resolution* pixel art (about 20 large pixels across, a one-pixel outline around the outside,
+   parts separated by their own pixel), so the model's own pixels are about the size of one puzzle cell.
+   `--redraw` keeps a reviewed theme and only draws the pictures again.
+2. `pixelate.py` finds the object by flood-filling the background from the border and **detects the picture's own
+   pixel blocks** (size and phase, from where its colours change). When the object spans at most 24 blocks every
+   cell is exactly one block (sampled in its middle), so nothing is resampled and no boundary gets blended;
+   otherwise it falls back to a majority vote per cell (never an average, which makes muddy in-between shades,
+   and a dark outline wins at a third of a cell). The palette is built in Lab colour space (k-means, several sizes).
+   If the picture has an outline, every cell on the silhouette becomes the outline colour, so the outline is always
+   the outermost layer (a glass wall or plate rim can never sit outside it). Colours are then assigned to
+   nutrients to match the shares (splitting a colour into two shades when finer steps are needed).
 3. `validate.mjs` loads every puzzle through the app's own `progress.js` and checks all the rules above.
 4. `export-sql.mjs` prints the INSERTs for `puzzle_themes`, `generated_puzzles` and `collection_puzzles`
    (see `supabase/migrations/*_puzzle_themes.sql` for the tables).

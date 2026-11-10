@@ -3,6 +3,7 @@
  * Prototype: generate a whole Nutrica THEME (a collection of puzzles) with OpenAI.
  *
  *   node scripts/puzzle-generator/generate.js "Breakfast Club" 6
+ *   node scripts/puzzle-generator/generate.js "Breakfast Club" 6 --redraw    # keep the theme, draw new pictures
  *
  * Writes into scripts/puzzle-generator/work/<theme_id>/:
  *   theme.json                  title, description, the puzzle list
@@ -34,10 +35,12 @@ Return ONLY JSON:
 }`;
 
 const imagePrompt = (food, title) => (
-  `Pixel art sprite of ${food}, one item from a themed set called "${title}", drawn like a retro game item. `
-  + 'Chunky pixels, flat colors, a bold dark outline, at most 8 colors, simple readable shape, the object centered '
-  + 'and filling about 70% of the frame, on a perfectly plain, flat, solid magenta background (#FF00FF) like a green-screen, '
-  + 'with no magenta anywhere on the object. No text, no shadow, no gradient, no dithering, no border, no other objects.'
+  `Extremely low-resolution pixel art sprite of ${food}, one item from a themed set called "${title}", as if drawn on a tiny `
+  + '24 by 24 pixel canvas: every visible pixel is a large, clear square (about 3% of the image width) and the object is about '
+  + '20 pixels wide and tall, centered. A single-pixel-thick dark outline runs all the way around the OUTSIDE of the object and '
+  + 'nothing is drawn outside it; separate parts of the object (glass wall and liquid, fruit and bowl, plate and food) are separated '
+  + 'by their own pixel of outline or a clearly different colour. Flat colors, at most 8 colors, no anti-aliasing, no dithering, '
+  + 'no gradient, no shadow, no text. Plain, flat, solid magenta background (#FF00FF) like a green-screen, with no magenta on the object.'
 );
 
 const copyPrompt = (name, title) => `You write copy for Nutrica, a friendly nutrition-tracking game where each day the user fills a pixel-art "${name}" puzzle (theme: ${title}) by reaching their carbs, protein and fat goals.
@@ -58,7 +61,9 @@ async function chatJson(prompt, temperature) {
 }
 
 async function main() {
-  const [title, countArg] = process.argv.slice(2);
+  const args = process.argv.slice(2);
+  const redraw = args.includes('--redraw');
+  const [title, countArg] = args.filter((a) => !a.startsWith('--'));
   const count = Number(countArg || 6);
   if (!title || !Number.isInteger(count) || count < 2 || count > 12) {
     console.error('usage: node generate.js "<Theme title>" [count 2-12, default 6]');
@@ -68,6 +73,20 @@ async function main() {
   const themeId = slug(title);
   const dir = path.join(__dirname, 'work', themeId);
   fs.mkdirSync(dir, { recursive: true });
+
+  if (redraw) {
+    // keep the reviewed theme, names and copy; only draw the pictures again
+    const theme = JSON.parse(fs.readFileSync(path.join(dir, 'theme.json'), 'utf8'));
+    for (const puzzle of theme.puzzles) {
+      console.log(`[${themeId}] ${puzzle.slot}/${theme.count} ${puzzle.name}: new picture with ${IMAGE_MODEL} ...`);
+      const image = await client.images.generate({
+        model: IMAGE_MODEL, prompt: imagePrompt(puzzle.food, title), size: '1024x1024', quality: 'low', n: 1,
+      });
+      fs.writeFileSync(path.join(dir, puzzle.id, 'source.png'), Buffer.from(image.data[0].b64_json, 'base64'));
+    }
+    console.log(`[${themeId}] redrawn: ${theme.puzzles.map((p) => p.name).join(', ')}`);
+    return;
+  }
 
   console.log(`[${themeId}] designing the theme (${count} puzzles) ...`);
   const theme = await chatJson(themePrompt(title, count), 0.8);
