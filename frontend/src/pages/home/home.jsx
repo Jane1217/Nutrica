@@ -17,7 +17,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import styles from './Home.module.css';
 import { formatFoods, getCurrentUser, getUserMetadata, updateUserMetadata, isUserInfoComplete, hasShownUserInfoModal, setUserInfoModalShown, getDisplayCalories } from '../../utils';
 import { puzzleCategories, colorOrders } from '../../data/puzzles';
-import { useDiscoverPuzzles, loadDiscoverPuzzles } from '../../utils/puzzles/discover';
+import { useGeneratedThemes, loadGeneratedThemes } from '../../utils/puzzles/generatedThemes';
 import { monitorPuzzleCompletion } from '../../utils';
 import { preloadCollectionStatus } from '../../utils';
 import {
@@ -68,7 +68,7 @@ async function saveDailyHomeData(data) {
 }
 
 export default function Home({ isLoggedIn }) {
-  useDiscoverPuzzles(); // re-render when Discover puzzles finish loading
+  useGeneratedThemes(); // re-render when generated themes finish loading
   const [showEatModal, setShowEatModal] = useState(false);
   const [showUserInfoModal, setShowUserInfoModal] = useState(false);
   const [showNutritionGoalModal, setShowNutritionGoalModal] = useState(false);
@@ -197,8 +197,8 @@ export default function Home({ isLoggedIn }) {
         if (data && data.puzzle_id) {
           let puzzle = findPuzzleById(data.puzzle_id, puzzleCategories);
           if (!puzzle) {
-            // Discover puzzles arrive from the API; wait for them before giving up on the saved id
-            await loadDiscoverPuzzles();
+            // generated themes arrive from the API; wait for them before giving up on the saved id
+            await loadGeneratedThemes();
             puzzle = findPuzzleById(data.puzzle_id, puzzleCategories);
           }
           if (puzzle) {

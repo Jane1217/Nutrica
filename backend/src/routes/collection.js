@@ -35,15 +35,15 @@ router.get('/collection-puzzles', async (req, res) => {
   }
 });
 
-// Discover puzzles are the same for every visitor (and the share page is public), so no auth
+// Generated puzzle themes are the same for every visitor (and the share page is public), so no auth
 // and a short cache.
-router.get('/discover-puzzles', async (req, res) => {
+router.get('/generated-themes', async (req, res) => {
   try {
-    const data = await databaseService.getGeneratedPuzzles();
+    const data = await databaseService.getGeneratedThemes();
     res.set('Cache-Control', 'public, max-age=300, s-maxage=600, stale-while-revalidate=3600');
     res.json({ success: true, data: data || [] });
   } catch (error) {
-    console.error('Error in discover-puzzles endpoint:', error);
+    console.error('Error in generated-themes endpoint:', error);
     res.status(500).json({ success: false, error: { message: 'Internal server error' } });
   }
 });

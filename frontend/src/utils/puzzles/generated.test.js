@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { expandGeneratedPuzzle, isValidGeneratedPuzzle, buildPuzzleSvgUrl } from './generated.js';
+import { expandGeneratedPuzzle, expandGeneratedTheme, isValidGeneratedPuzzle, buildPuzzleSvgUrl } from './generated.js';
 import { getPuzzleProgress, getPuzzleNutrientColorsByOrder } from './progress.js';
 
 const row = () => {
@@ -65,4 +65,42 @@ test('the artwork svg only contains painted cells', () => {
   const svg = decodeURIComponent(url.split(',')[1]);
   assert.equal((svg.match(/<rect /g) || []).length, 5);
   assert.ok(svg.includes('fill="#98E673"'));
+});
+
+const themeRow = (overrides = {}) => ({
+  id: 'breakfast_club',
+  title: 'Breakfast Club',
+  description: 'Start the day well.',
+  type: 'collection',
+  puzzle_count: 2,
+  bg_color: '#D8E8E7',
+  puzzles: [
+    { ...row(), id: 'ai_b', name: 'B', slot: 2 },
+    { ...row(), id: 'ai_a', name: 'A', slot: 1 },
+  ],
+  ...overrides,
+});
+
+test('a theme becomes a category with its puzzles in slot order and their colour orders', () => {
+  const { category, colorOrders } = expandGeneratedTheme(themeRow());
+  assert.equal(category.id, 'breakfast_club');
+  assert.equal(category.title, 'Breakfast Club');
+  assert.equal(category.desc, 'Start the day well.');
+  assert.equal(category.count, 2);
+  assert.equal(category.type, 'collection');
+  assert.equal(category.isGenerated, true);
+  assert.deepEqual(category.puzzles.map((p) => p.name), ['A', 'B']);
+  assert.deepEqual(colorOrders.ai_a, ['#FF9F58', '#3B0E09', '#98E673']);
+});
+
+test('a theme is ignored as a whole when it is incomplete, malformed or of an unknown type', () => {
+  assert.equal(expandGeneratedTheme(themeRow({ puzzle_count: 3 })), null);                       // half a theme
+  assert.equal(expandGeneratedTheme(themeRow({ type: 'synthesis' })), null);                      // not supported yet
+  assert.equal(expandGeneratedTheme(themeRow({ puzzles: [row(), { ...row(), id: 'x', grid: [] }] })), null);
+  assert.equal(expandGeneratedTheme(themeRow({ title: undefined })), null);
+  assert.equal(expandGeneratedTheme(null), null);
+});
+
+test('an invalid background colour falls back to the default', () => {
+  assert.equal(expandGeneratedTheme(themeRow({ bg_color: 'red' })).category.bgColor, '#D8E8E7');
 });

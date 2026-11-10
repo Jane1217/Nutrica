@@ -1,34 +1,50 @@
 #!/usr/bin/env python3
 """
-Prototype: turn a generated picture into a Nutrica puzzle (24x24 cells).
+Prototype: turn a generated theme (pictures) into Nutrica puzzles (24x24 cells).
 
-    python3 scripts/puzzle-generator/pixelate.py banana egg salmon_sushi
+    python3 scripts/puzzle-generator/pixelate.py breakfast_club
 
-Reads  work/<id>/source.png + work/<id>/meta.json   (made by generate.js)
-Writes samples/<id>.js   - same shape as frontend/src/data/puzzles/carrot.js
-       samples/<id>.svg  - the finished artwork (the app's "puzzle complete" image)
-       work/preview.png  - contact sheet: source -> 24x24 -> half filled (+ the hand-drawn carrot)
+Reads  work/<theme>/theme.json, work/<theme>/<puzzle>/source.png + meta.json   (made by generate.js)
+Writes samples/<theme>/theme.json          the theme (title, type, size, colours, puzzle list)
+       samples/<theme>/<puzzle>.js         same shape as frontend/src/data/puzzles/carrot.js
+       samples/<theme>/<puzzle>.svg        the finished artwork
+       samples/<theme>/preview.png         review sheet
 
-Pure Python + Pillow, no other dependencies.
+The product rules it follows (see frontend/src/utils/nutrition/nutrition.js):
+  * Daily goals are 50% carbs / 30% fats / 20% protein of calories, i.e. in grams per 1000 kcal:
+    carbs 125, protein 50, fats 33.3  ->  60% / 24% / 16% of the goal grams.
+    Pixels are shared out the same way, so one pixel is worth the same number of grams for every
+    nutrient and a user who follows the split fills all three together.
+  * Every colour belongs to exactly one nutrient (that is how the nutrition pool lists them).
+  * Like the hand-drawn puzzles: protein is the darkest colours (outline and shadow), fats are the
+    accent colours, carbs are the body. There is no limit on the number of painted cells: the object
+    is drawn as large as the 24x24 canvas allows, because a clear, detailed picture matters most.
+Pure Python + Pillow.
 """
 import json
-import math
 import os
 import random
-import re
 import sys
-from itertools import product
+from itertools import combinations
 
 from PIL import Image, ImageDraw
 
 GRID = 24
-BG_HEX = '#F3F3EC'          # the app's puzzle background colour (cell value 0)
-OUTLINE_BONUS = 0.03        # hand-drawn puzzles use the darkest colour (protein) as the outline
+BG_HEX = '#F3F3EC'                       # the puzzle background colour (nutrient 0)
+FILL_MARGIN = 1.09                       # canvas / object size: about one empty cell around the picture
+SPLIT_KCAL = {'carbs': 0.50, 'fats': 0.30, 'protein': 0.20}      # nutrition.js
+KCAL_PER_GRAM = {'carbs': 4, 'fats': 9, 'protein': 4}
+_grams = {k: SPLIT_KCAL[k] / KCAL_PER_GRAM[k] for k in SPLIT_KCAL}
+TARGET = {1: _grams['carbs'] / sum(_grams.values()),             # 0.60
+          2: _grams['protein'] / sum(_grams.values()),           # 0.24
+          3: _grams['fats'] / sum(_grams.values())}              # 0.16
+TOLERANCE = 0.04                         # max share error per nutrient
+NUTRIENT_TINT = {0: BG_HEX, 1: '#F4A259', 2: '#5B3A29', 3: '#6BBF59'}
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 
 def hex_of(rgb):
-    return '#%02X%02X%02X' % tuple(int(round(c)) for c in rgb)
+    return '#%02X%02X%02X' % tuple(int(round(max(0, min(255, c)))) for c in rgb)
 
 
 def luminance(rgb):
@@ -48,8 +64,8 @@ def background_colour(img):
 
 
 def foreground_mask(img, bg, step=2, tol=70):
-    """Flood fill the background inwards from the border. Everything the fill cannot reach is
-    the object, so light areas enclosed by the outline (rice, egg white) stay part of it."""
+    """Flood fill the background inwards from the border; whatever it cannot reach is the object
+    (so light areas enclosed by the outline, like rice or egg white, stay part of it)."""
     w, h = img.size
     px = img.load()
     cols, rows = (w + step - 1) // step, (h + step - 1) // step
@@ -68,15 +84,13 @@ def foreground_mask(img, bg, step=2, tol=70):
     return is_bg, step
 
 
-def cut_cells(img):
-    bg = background_colour(img)
+def cut_cells(img, is_bg, step, margin):
     w, h = img.size
     px = img.load()
-    is_bg, step = foreground_mask(img, bg)
-    fg_pts = [(cx * step, cy * step) for cy, row in enumerate(is_bg) for cx, v in enumerate(row) if not v]
-    xs, ys = [p[0] for p in fg_pts], [p[1] for p in fg_pts]
+    pts = [(cx * step, cy * step) for cy, row in enumerate(is_bg) for cx, v in enumerate(row) if not v]
+    xs, ys = [p[0] for p in pts], [p[1] for p in pts]
     x0, x1, y0, y1 = min(xs), max(xs), min(ys), max(ys)
-    side = max(x1 - x0, y1 - y0) * 1.1
+    side = max(x1 - x0, y1 - y0) * margin
     cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
     left, top = cx - side / 2, cy - side / 2
     cell = side / GRID
@@ -98,6 +112,14 @@ def cut_cells(img):
             if total and fg / total >= 0.5:
                 cells[gy][gx] = (r / fg, g / fg, b / fg)
     return cells
+
+
+def cells_for_puzzle(img):
+    """Draw the object as large as the canvas allows (the more cells, the clearer the picture)."""
+    bg = background_colour(img)
+    is_bg, step = foreground_mask(img, bg)
+    cells = cut_cells(img, is_bg, step, FILL_MARGIN)
+    return cells, sum(1 for row in cells for c in row if c)
 
 
 # ---- 2. reduce to a small palette -----------------------------------------------------
@@ -127,24 +149,8 @@ def kmeans(points, k, seed=7, iters=25):
     return centres
 
 
-def quantise(cells, k):
-    pts = [c for row in cells for c in row if c]
-    centres = kmeans(pts, min(k, len(pts)))
-    merged = []
-    for c in centres:                                # merge near-duplicates
-        if all(dist2(c, m) > 22 ** 2 for m in merged):
-            merged.append(c)
-    index = [[None] * GRID for _ in range(GRID)]
-    for y in range(GRID):
-        for x in range(GRID):
-            if cells[y][x]:
-                index[y][x] = min(range(len(merged)), key=lambda i: dist2(cells[y][x], merged[i]))
-    return [keep_visible(c) for c in merged], index
-
-
 def keep_visible(rgb, min_dist=22):
-    """Near-white foods (rice, egg white) vanish on the puzzle's off-white background: shade
-    them slightly until they stand out."""
+    """Near-white foods vanish on the off-white puzzle background: shade them until they show."""
     bg = tuple(int(BG_HEX[i:i + 2], 16) for i in (1, 3, 5))
     for _ in range(12):
         if dist2(rgb, bg) >= min_dist ** 2:
@@ -153,34 +159,102 @@ def keep_visible(rgb, min_dist=22):
     return rgb
 
 
+def distinct_colour(palette, rgb):
+    """A colour belongs to exactly one nutrient, so no two palette entries may share a hex value."""
+    taken = {hex_of(c) for c in palette}
+    for _ in range(40):
+        if hex_of(rgb) not in taken:
+            return rgb
+        rgb = tuple(c + (255 - c) * 0.03 if c < 250 else c - 3 for c in rgb)
+    raise ValueError('could not find a distinct colour')
+
+
+def quantise(cells, k=8):
+    pts = [c for row in cells for c in row if c]
+    merged = []
+    for c in kmeans(pts, min(k, len(pts))):
+        if all(dist2(c, m) > 22 ** 2 for m in merged):
+            merged.append(c)
+    index = [[None] * GRID for _ in range(GRID)]
+    for y in range(GRID):
+        for x in range(GRID):
+            if cells[y][x]:
+                index[y][x] = min(range(len(merged)), key=lambda i: dist2(cells[y][x], merged[i]))
+    palette = []
+    for c in merged:
+        palette.append(distinct_colour(palette, keep_visible(c)))
+    return palette, index
+
+
 # ---- 3. give every colour to carbs (1), protein (2) or fats (3) -------------------------
-def assign_nutrients(palette, index, shares):
+def counts_of(palette, index):
     counts = [0] * len(palette)
     for row in index:
         for i in row:
             if i is not None:
                 counts[i] += 1
+    return counts
+
+
+def assign_nutrients(palette, index):
+    """Protein = the darkest colours, fats = the accent colours (furthest from the body colour),
+    carbs = the body; the three shares follow TARGET (60/24/16)."""
+    counts = counts_of(palette, index)
     total = sum(counts)
-    floor = {k: max(0.08, shares.get(k, 0)) for k in ('carbs', 'protein', 'fats')}
-    norm = sum(floor.values())
-    target = {1: floor['carbs'] / norm, 2: floor['protein'] / norm, 3: floor['fats'] / norm}
-    darkest = min(range(len(palette)), key=lambda i: luminance(palette[i]))
+    n = len(palette)
+    by_dark = sorted(range(n), key=lambda i: luminance(palette[i]))
+    body = max((i for i in range(n) if i != by_dark[0]), key=lambda i: counts[i])
+    spread = {i: dist2(palette[i], palette[body]) ** 0.5 / 441.7 for i in range(n)}   # 0..1
 
     best, best_score = None, 1e9
-    for combo in product((1, 2, 3), repeat=len(palette)):
-        sums = {1: 0, 2: 0, 3: 0}
-        for i, n in enumerate(combo):
-            sums[n] += counts[i]
-        if any(sums[n] == 0 for n in (1, 2, 3)):     # every nutrient needs pixels to fill
+    for p in range(1, n - 1):                              # protein = the p darkest colours
+        protein = set(by_dark[:p])
+        if body in protein:
             continue
-        score = sum(abs(sums[n] / total - target[n]) for n in (1, 2, 3))
-        if combo[darkest] != 2:
-            score += OUTLINE_BONUS
-        if score < best_score:
-            best, best_score = combo, score
+        rest = [i for i in range(n) if i not in protein and i != body]
+        for size in range(1, len(rest) + 1):
+            for fats in combinations(rest, size):          # fats = a subset of the remaining colours
+                sums = {1: 0, 2: 0, 3: 0}
+                for i in range(n):
+                    sums[2 if i in protein else 3 if i in fats else 1] += counts[i]
+                err = sum(abs(sums[k] / total - TARGET[k]) for k in (1, 2, 3))
+                score = err - 0.02 * sum(spread[i] for i in fats) / len(fats)
+                if score < best_score:
+                    best, best_score = (protein, set(fats)), score
     if best is None:
         raise ValueError('palette too small to cover carbs, protein and fats')
-    return list(best), counts, target
+    protein, fats = best
+    nutrient_of = [2 if i in protein else 3 if i in fats else 1 for i in range(n)]
+    shares = {k: sum(c for c, v in zip(counts, nutrient_of) if v == k) / total for k in (1, 2, 3)}
+    return nutrient_of, shares
+
+
+def split_colour(palette, index, which):
+    """Give the upper half of one colour's cells a slightly lighter shade, so the nutrient
+    shares can be tuned in finer steps (the hand-drawn puzzles use several shades too)."""
+    rows = sorted(y for y in range(GRID) for x in range(GRID) if index[y][x] == which)
+    cut = rows[len(rows) // 2]
+    lighter = tuple(c + (255 - c) * 0.16 for c in palette[which])
+    palette.append(distinct_colour(palette, keep_visible(lighter)))
+    new = len(palette) - 1
+    for y in range(GRID):
+        for x in range(GRID):
+            if index[y][x] == which and y < cut:
+                index[y][x] = new
+
+
+def fit_to_rules(palette, index):
+    nutrient_of, shares = assign_nutrients(palette, index)
+    for _ in range(5):
+        if max(abs(shares[k] - TARGET[k]) for k in (1, 2, 3)) <= TOLERANCE:
+            break
+        counts = counts_of(palette, index)
+        candidates = [i for i in range(len(palette)) if counts[i] >= 10]
+        if not candidates or len(palette) >= 11:
+            break
+        split_colour(palette, index, max(candidates, key=lambda i: counts[i]))
+        nutrient_of, shares = assign_nutrients(palette, index)
+    return nutrient_of, shares
 
 
 # ---- 4. checks ------------------------------------------------------------------------
@@ -208,7 +282,8 @@ def largest_component_share(index):
 
 
 # ---- 5. write the puzzle file -----------------------------------------------------------
-def write_puzzle(pid, meta, palette, index, nutrient_of):
+def write_puzzle(out_dir, meta, palette, index, nutrient_of):
+    pid = meta['id']
     names = {1: 'C', 2: 'P', 3: 'F'}
     order, label = [], {}
     for n in (1, 2, 3):
@@ -218,20 +293,16 @@ def write_puzzle(pid, meta, palette, index, nutrient_of):
             label[i] = f'{names[n]}{j}'
             order.append(i)
 
+    counts = counts_of(palette, index)
+    body = max((i for i in range(len(palette)) if nutrient_of[i] == 1), key=lambda i: counts[i])
+    bg = tuple(c + (255 - c) * 0.55 for c in palette[body])
+
     lines = ["// Generated by backend/scripts/puzzle-generator (prototype) - review before shipping.",
              f"const B = {{ color: '{BG_HEX}', nutrient: 0 }};"]
     for i in order:
         lines.append(f"const {label[i]} = {{ color: '{hex_of(palette[i])}', nutrient: {nutrient_of[i]} }};")
-
-    counts = {}
-    for i in range(len(palette)):
-        counts[i] = sum(row.count(i) for row in index)
-    body = max((i for i in range(len(palette)) if nutrient_of[i] != 2), key=lambda i: counts[i])
-    bg = tuple(c + (255 - c) * 0.55 for c in palette[body])
-
-    rows = []
-    for y, row in enumerate(index, 1):
-        rows.append(f"    // {y}\n    [" + ','.join('B' if i is None else label[i] for i in row) + '],')
+    rows = [f"    // {y}\n    [" + ','.join('B' if i is None else label[i] for i in row) + '],'
+            for y, row in enumerate(index, 1)]
     js = json.dumps
     lines += ['', f"const {pid} = {{", f"  id: {js(pid)},", f"  name: {js(meta['name'])},",
               f"  description: {js(meta['description'])},", '  descriptions: [',
@@ -240,8 +311,6 @@ def write_puzzle(pid, meta, palette, index, nutrient_of):
               '  pixelMap: [', *rows, '  ]', '};', '',
               f"export const {pid}ColorOrder = [{', '.join(label[i] + '.color' for i in order)}];",
               f"export default {pid};", '']
-    out_dir = os.path.join(HERE, 'samples')
-    os.makedirs(out_dir, exist_ok=True)
     with open(os.path.join(out_dir, f'{pid}.js'), 'w') as f:
         f.write('\n'.join(lines))
 
@@ -256,78 +325,76 @@ def write_puzzle(pid, meta, palette, index, nutrient_of):
     svg.append('</svg>')
     with open(os.path.join(out_dir, f'{pid}.svg'), 'w') as f:
         f.write('\n'.join(svg))
-    return order, label
+    return bg
 
 
-# ---- 6. preview sheet ---------------------------------------------------------------
-def render(index, palette, nutrient_of, fill=1.0, cell=14):
+# ---- 6. review sheet ------------------------------------------------------------------
+def render(index, palette, nutrient_of, mode='art', fill=1.0, cell=10):
     img = Image.new('RGB', (GRID * cell, GRID * cell), BG_HEX)
     d = ImageDraw.Draw(img)
     for x in range(GRID + 1):
         d.line([(x * cell, 0), (x * cell, GRID * cell)], fill='#E7E7DE')
         d.line([(0, x * cell), (GRID * cell, x * cell)], fill='#E7E7DE')
+    # the app fills each nutrient from the bottom up, left to right (PixelArtGrid.jsx)
     per = {1: [], 2: [], 3: []}
-    for i in range(len(palette)):
-        per[nutrient_of[i]].append(i)
-    order = {n: sorted(v, key=lambda i: -luminance(palette[i])) for n, v in per.items()}
-    for n in (1, 2, 3):                                   # fill each nutrient's cells in colour order
-        cells = [(y, x) for i in order[n] for y in range(GRID) for x in range(GRID) if index[y][x] == i]
-        for y, x in cells[:round(len(cells) * fill)]:
-            d.rectangle([x * cell, y * cell, (x + 1) * cell - 1, (y + 1) * cell - 1],
-                        fill=hex_of(palette[index[y][x]]))
+    for y in range(GRID - 1, -1, -1):
+        for x in range(GRID):
+            if index[y][x] is not None:
+                per[nutrient_of[index[y][x]]].append((y, x))
+    for n in (1, 2, 3):
+        for y, x in per[n][:round(len(per[n]) * fill)]:
+            colour = hex_of(palette[index[y][x]]) if mode == 'art' else NUTRIENT_TINT[n]
+            d.rectangle([x * cell, y * cell, (x + 1) * cell - 1, (y + 1) * cell - 1], fill=colour)
     return img
 
 
-def load_hand_drawn(path):
-    src = open(path).read()
-    consts = {m[0]: (m[1], int(m[2])) for m in re.findall(r"const (\w+) = \{ color: '(#\w+)', nutrient: (\d) \}", src)}
-    rows = re.findall(r'^\s*\[((?:[A-Z]\d?,?)+)\],?$', src, re.M)
-    palette, nutrient_of, lookup = [], [], {}
-    for name, (colour, nutrient) in consts.items():
-        if name == 'B':
-            continue
-        lookup[name] = len(palette)
-        palette.append(tuple(int(colour[i:i + 2], 16) for i in (1, 3, 5)))
-        nutrient_of.append(nutrient)
-    index = [[None if c == 'B' else lookup[c] for c in r.split(',') if c] for r in rows]
-    return index, palette, nutrient_of
-
-
 def main():
-    ids = sys.argv[1:]
-    if not ids:
-        sys.exit('usage: pixelate.py <id> [id...]')
-    sheet_rows, report = [], []
-    for pid in ids:
-        meta = json.load(open(os.path.join(HERE, 'work', pid, 'meta.json')))
-        src = Image.open(os.path.join(HERE, 'work', pid, 'source.png')).convert('RGB')
-        cells = cut_cells(src)
-        palette, index = quantise(cells, 8)
-        nutrient_of, counts, target = assign_nutrients(palette, index, meta['shares'])
-        fg = sum(counts)
-        share = largest_component_share(index)
-        got = {n: sum(c for c, v in zip(counts, nutrient_of) if v == n) / fg for n in (1, 2, 3)}
-        write_puzzle(pid, meta, palette, index, nutrient_of)
-        report.append((pid, fg, len(palette), share, got, target))
-        sheet_rows.append((src.resize((336, 336)), render(index, palette, nutrient_of, 1.0),
-                           render(index, palette, nutrient_of, 0.5)))
+    if len(sys.argv) != 2:
+        sys.exit('usage: pixelate.py <theme_id>')
+    theme_id = sys.argv[1]
+    theme = json.load(open(os.path.join(HERE, 'work', theme_id, 'theme.json')))
+    out_dir = os.path.join(HERE, 'samples', theme_id)
+    os.makedirs(out_dir, exist_ok=True)
 
-    hand = os.path.join(HERE, '../../../frontend/src/data/puzzles/carrot.js')
-    if os.path.exists(hand):
-        i, p, n = load_hand_drawn(hand)
-        sheet_rows.append((Image.new('RGB', (336, 336), 'white'), render(i, p, n, 1.0), render(i, p, n, 0.5)))
+    rows, report = [], []
+    for meta in theme['puzzles']:
+        src = Image.open(os.path.join(HERE, 'work', theme_id, meta['id'], 'source.png')).convert('RGB')
+        cells, count = cells_for_puzzle(src)
+        best = None                           # try a few palette sizes, keep the one closest to the rules
+        for k in (8, 7, 9, 6, 10):
+            palette, index = quantise(cells, k)
+            nutrient_of, shares = fit_to_rules(palette, index)
+            error = max(abs(shares[x] - TARGET[x]) for x in (1, 2, 3))
+            if best is None or error < best[0]:
+                best = (error, palette, index, nutrient_of, shares)
+            if error <= TOLERANCE:
+                break
+        _, palette, index, nutrient_of, shares = best
+        write_puzzle(out_dir, meta, palette, index, nutrient_of)
+        fg = sum(counts_of(palette, index))
+        report.append((meta['name'], fg, len(palette), largest_component_share(index), shares))
+        rows.append((src.resize((240, 240)), render(index, palette, nutrient_of, 'art', 1.0),
+                     render(index, palette, nutrient_of, 'art', 0.5), render(index, palette, nutrient_of, 'map', 1.0)))
 
-    pad = 12
-    sheet = Image.new('RGB', (3 * 340 + 4 * pad, len(sheet_rows) * 340 + pad), 'white')
-    for r, (a, b, c) in enumerate(sheet_rows):
-        for k, im in enumerate((a, b, c)):
-            sheet.paste(im, (pad + k * (340 + pad), pad + r * 340))
-    sheet.save(os.path.join(HERE, 'work', 'preview.png'))
+    theme_out = {k: theme[k] for k in ('id', 'title', 'description', 'type', 'count')}
+    theme_out['bg_color'] = '#D8E8E7'
+    theme_out['puzzles'] = [{'id': p['id'], 'name': p['name'], 'slot': p['slot']} for p in theme['puzzles']]
+    json.dump(theme_out, open(os.path.join(out_dir, 'theme.json'), 'w'), indent=2)
 
-    print(f"{'puzzle':14} {'cells':>5} {'colours':>7} {'connected':>9}   carbs/protein/fats (got vs target)")
-    for pid, fg, k, share, got, target in report:
-        print(f"{pid:14} {fg:5d} {k:7d} {share:9.0%}   "
-              + ' '.join(f'{got[n]:.2f}/{target[n]:.2f}' for n in (1, 2, 3)))
+    pad, size = 10, 244
+    sheet = Image.new('RGB', (4 * size + 5 * pad, len(rows) * size + (len(rows) + 1) * pad), 'white')
+    for r, imgs in enumerate(rows):
+        for c, im in enumerate(imgs):
+            sheet.paste(im, (pad + c * (size + pad), pad + r * (size + pad)))
+    sheet.save(os.path.join(out_dir, 'preview.png'))
+
+    print(f"theme {theme['title']!r}: {len(report)} puzzles; target shares carbs/protein/fats = "
+          + '/'.join(f'{TARGET[k]:.2f}' for k in (1, 2, 3)))
+    print(f"{'puzzle':16} {'cells':>5} {'colours':>7} {'connected':>9}   carbs/protein/fats")
+    for name, fg, k, comp, shares in report:
+        ok = max(abs(shares[x] - TARGET[x]) for x in (1, 2, 3)) <= TOLERANCE + 0.02
+        print(f"{name:16} {fg:5d} {k:7d} {comp:9.0%}   " + ' '.join(f'{shares[x]:.2f}' for x in (1, 2, 3))
+              + ('' if ok else '  <-- outside the rules'))
 
 
 if __name__ == '__main__':

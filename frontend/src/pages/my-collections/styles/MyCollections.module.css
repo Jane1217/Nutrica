@@ -124,13 +124,12 @@
 
 
 
-.discoverScene {
+.themeScene {
   height: auto;
   padding: 28px 0;
-  background: #D8E8E7;
 }
 
-.discoverGrid {
+.themeGrid {
   display: grid;
   grid-template-columns: repeat(3, 88px);
   grid-auto-rows: 88px;

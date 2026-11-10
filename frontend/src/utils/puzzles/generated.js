@@ -1,14 +1,12 @@
 /**
- * Discover puzzles are stored compactly in the database (see
- * supabase/migrations/*_discover_puzzles.sql) and expanded here into the same shape as the
- * hand-drawn puzzles in data/puzzles/*.js, so the rest of the app does not need to know the
- * difference.
+ * Generated themes (AI-made collections, like "Magic Garden") are stored compactly in the database
+ * (see supabase/migrations/*_puzzle_themes.sql) and expanded here into the same shapes as the
+ * hand-drawn categories and puzzles in data/puzzles/*.js, so the rest of the app does not need to
+ * know the difference.
  *
  *   palette: [{ color: '#RRGGBB', nutrient: 1|2|3 }]   listed in the order a nutrient's colours fill
  *   grid:    24 rows x 24 palette indexes, -1 = empty background cell
  */
-export const DISCOVER_COLLECTION_TYPE = 'Discover';
-export const DISCOVER_CATEGORY_ID = 'discover';
 export const GRID_SIZE = 24;
 
 const BACKGROUND = { color: '#F3F3EC', nutrient: 0 };
@@ -57,5 +55,37 @@ export function expandGeneratedPuzzle(row) {
       isGenerated: true,
     },
     colorOrder: row.palette.map((p) => p.color),
+  };
+}
+
+// A theme row from the API ({ id, title, description, type, puzzle_count, bg_color, puzzles: [...] })
+// becomes a category like the ones in data/puzzles/index.js. A theme whose puzzles are not all valid and
+// complete is ignored as a whole (a half theme would break "3/6" style progress).
+export function expandGeneratedTheme(row) {
+  if (!row || typeof row.id !== 'string' || typeof row.title !== 'string' || !Array.isArray(row.puzzles)) return null;
+  if (row.type !== 'collection') return null;
+  if (!Number.isInteger(row.puzzle_count) || row.puzzles.length !== row.puzzle_count) return null;
+
+  const expanded = [...row.puzzles]
+    .sort((a, b) => (a.slot || 0) - (b.slot || 0))
+    .map(expandGeneratedPuzzle);
+  if (expanded.some((item) => item === null)) return null;
+
+  const bgColor = HEX_COLOUR.test(row.bg_color) ? row.bg_color : '#D8E8E7';
+  const colorOrders = {};
+  expanded.forEach(({ puzzle, colorOrder }) => { colorOrders[puzzle.id] = colorOrder; });
+
+  return {
+    category: {
+      id: row.id,
+      title: row.title,
+      desc: row.description,
+      count: row.puzzle_count,
+      type: 'collection',
+      bgColor,
+      puzzles: expanded.map((item) => item.puzzle),
+      isGenerated: true,
+    },
+    colorOrders,
   };
 }

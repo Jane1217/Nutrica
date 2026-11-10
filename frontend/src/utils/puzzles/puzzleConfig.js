@@ -1,5 +1,4 @@
-import { findDiscoverPuzzleByName } from './discover';
-import { DISCOVER_COLLECTION_TYPE } from './generated';
+import { findGeneratedPuzzle } from './generatedThemes';
 // 特殊puzzle配置
 export const SPECIAL_PUZZLES = {
   'salmon nigiri boy': {
@@ -60,8 +59,10 @@ export function getPuzzleCollectionType(puzzleName) {
     return config.collectionType;
   }
   
-  if (findDiscoverPuzzleByName(puzzleName)) {
-    return DISCOVER_COLLECTION_TYPE;
+  // a generated puzzle is collected under its theme
+  const generated = findGeneratedPuzzle(puzzleName);
+  if (generated) {
+    return generated.theme.title;
   }
 
   // 默认逻辑

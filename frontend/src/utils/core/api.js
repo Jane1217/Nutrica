@@ -225,8 +225,8 @@ export const collectionApi = {
     return collectionPuzzlesCache.promise;
   },
 
-  // Discover puzzles (public: the share page needs them too)
-  getDiscoverPuzzles: () => apiGet('/api/collection/discover-puzzles'),
+  // Generated puzzle themes (public: the share page needs them too)
+  getGeneratedThemes: () => apiGet('/api/collection/generated-themes'),
 
   // 获取用户collections（需要认证）
   getUserCollections: (collectionType, token) => {

@@ -4,7 +4,7 @@ import styles from '../styles/MyCollections.module.css';
 import { useNavigate } from 'react-router-dom';
 import { getAuthToken } from '../../../utils';
 import { buttonProps } from '../../../utils/helpers/a11y';
-import { useDiscoverPuzzles } from '../../../utils/puzzles/discover';
+import { useGeneratedThemes, loadGeneratedThemes, getGeneratedThemes } from '../../../utils/puzzles/generatedThemes';
 import { collectionApi } from '../../../utils';
 import CongratulationsModal from '../modals/CongratulationsModal';
 import { 
@@ -17,7 +17,7 @@ import { useUserData } from '../hooks';
 import { LoadingState, EmptyState } from '../../../components/status';
 
 export default function MyCollections() {
-  useDiscoverPuzzles(); // Discover icons come from the registry once it has loaded
+  useGeneratedThemes(); // Discover icons come from the registry once it has loaded
   const [collections, setCollections] = useState([]); // 用户已收集的 puzzle
   const [collectionPuzzles, setCollectionPuzzles] = useState([]); // collection_puzzles配置
   const [loading, setLoading] = useState(true);
@@ -75,10 +75,12 @@ export default function MyCollections() {
 
         // 使用后端API查询用户在所有主题下的收集
         // 两个请求互不依赖，并行发出
-        const [magicGardenResponse, salmonNigiriResponse, discoverResponse] = await Promise.all([
+        // generated themes come from the API; their titles are collection types too
+        const generatedThemes = await loadGeneratedThemes();
+        const [magicGardenResponse, salmonNigiriResponse, ...generatedResponses] = await Promise.all([
           collectionApi.getUserCollections('Magic Garden', token),
           collectionApi.getUserCollections('Salmon Nigiri Boy', token),
-          collectionApi.getUserCollections('Discover', token)
+          ...generatedThemes.map((theme) => collectionApi.getUserCollections(theme.title, token))
         ]);
         
         let allCollections = [];
@@ -94,11 +96,11 @@ export default function MyCollections() {
         } else {
           console.error('Salmon Nigiri API failed:', salmonNigiriResponse.error);
         }
-        
-        if (discoverResponse.success) {
-          allCollections = allCollections.concat(discoverResponse.data || []);
-        }
 
+        generatedResponses.forEach((response) => {
+          if (response.success) allCollections = allCollections.concat(response.data || []);
+        });
+        
         setCollections(allCollections);
         
         // 检查是否应该显示CongratulationsModal
@@ -170,8 +172,11 @@ export default function MyCollections() {
   const magicGardenSlots = slots.filter(slot => slot.collection_type === 'Magic Garden');
   const magicGardenCompleted = magicGardenSlots.filter(slot => slot.collected).length;
   
-  const discoverSlots = slots.filter(slot => slot.collection_type === 'Discover');
-  const discoverCompleted = discoverSlots.filter(slot => slot.collected).length;
+  // generated themes: one section each, sized by the theme's own puzzle count
+  const generatedThemeSections = getGeneratedThemes().map((theme) => {
+    const themeSlots = slots.filter(slot => slot.collection_type === theme.title);
+    return { theme, slots: themeSlots, completed: themeSlots.filter(slot => slot.collected).length };
+  }).filter(section => section.completed > 0);
 
   // 处理特殊puzzle主题
   const specialPuzzleThemes = ['Salmon Nigiri Boy']; // 可以扩展更多特殊主题
@@ -255,12 +260,12 @@ export default function MyCollections() {
           </div>
         )}
 
-        {/* Discover: AI-made puzzles, shown once the user has collected at least one */}
-        {discoverSlots.length > 0 && discoverCompleted > 0 && (
-          <div className={styles.collectionList}>
-            <div className={`${styles.collectionScene} ${styles.discoverScene}`}>
-              <div className={styles.discoverGrid}>
-                {discoverSlots.map((slot) => (
+        {/* Generated themes: one section per theme, shown once the user has collected one of its puzzles */}
+        {generatedThemeSections.map(({ theme, slots: themeSlots, completed }) => (
+          <div className={styles.collectionList} key={theme.id}>
+            <div className={`${styles.collectionScene} ${styles.themeScene}`} style={{ background: theme.bgColor }}>
+              <div className={styles.themeGrid}>
+                {themeSlots.map((slot) => (
                   <div className={styles.puzzleSlot} key={slot.puzzle_name}>
                     {slot.collected && (
                       <div
@@ -281,17 +286,17 @@ export default function MyCollections() {
             </div>
             <div className={styles.textModule}>
               <div className={styles.headingModule}>
-                <span className={`${styles.collectionName} h3`}>Discover</span>
+                <span className={`${styles.collectionName} h3`}>{theme.title}</span>
                 <span className={`${styles.collectionProgress} h3`}>
-                  {discoverCompleted}/{discoverSlots.length}
+                  {completed}/{themeSlots.length}
                 </span>
               </div>
               <div className={`${styles.collectionDescription} body1`}>
-                Puzzles made from foods you love. Fill them with your daily nutrition and collect them all.
+                {theme.desc}
               </div>
             </div>
           </div>
-        )}
+        ))}
 
         {/* 特殊Puzzle主题 */}
         {Object.entries(specialThemeData).map(([theme, data]) => (

@@ -40,29 +40,77 @@ describe('public API safeguards', () => {
   });
 });
 
-describe('discover puzzles endpoint', () => {
+describe('generated themes endpoint', () => {
   const databaseService = require('../src/services/databaseService');
 
   afterEach(() => jest.restoreAllMocks());
 
-  test('is public, cacheable and returns the published puzzles', async () => {
-    jest.spyOn(databaseService, 'getGeneratedPuzzles').mockResolvedValue([{ id: 'ai_banana', name: 'Banana' }]);
+  test('is public, cacheable and returns the published themes', async () => {
+    jest.spyOn(databaseService, 'getGeneratedThemes').mockResolvedValue([{ id: 'breakfast_club', title: 'Breakfast Club', puzzles: [] }]);
 
-    const response = await request(app).get('/api/collection/discover-puzzles');
+    const response = await request(app).get('/api/collection/generated-themes');
 
     expect(response.status).toBe(200);
     expect(response.headers['cache-control']).toContain('public');
-    expect(response.body).toEqual({ success: true, data: [{ id: 'ai_banana', name: 'Banana' }] });
+    expect(response.body).toEqual({ success: true, data: [{ id: 'breakfast_club', title: 'Breakfast Club', puzzles: [] }] });
   });
 
   test('hides database errors', async () => {
-    jest.spyOn(databaseService, 'getGeneratedPuzzles').mockRejectedValue(new Error('relation exploded'));
+    jest.spyOn(databaseService, 'getGeneratedThemes').mockRejectedValue(new Error('relation exploded'));
     jest.spyOn(console, 'error').mockImplementation(() => {});
 
-    const response = await request(app).get('/api/collection/discover-puzzles');
+    const response = await request(app).get('/api/collection/generated-themes');
 
     expect(response.status).toBe(500);
     expect(JSON.stringify(response.body)).not.toContain('exploded');
+  });
+});
+
+describe('generated themes service', () => {
+  const databaseService = require('../src/services/databaseService');
+  const realSupabase = databaseService.supabase;
+
+  // minimal stand-in for the supabase query builder: every call returns the builder, awaiting it resolves
+  const fakeSupabase = (tables) => ({
+    from: (name) => {
+      const result = tables[name];
+      const builder = {};
+      ['select', 'eq', 'in', 'order'].forEach((method) => { builder[method] = () => builder; });
+      builder.then = (resolve, reject) => Promise.resolve(result).then(resolve, reject);
+      return builder;
+    },
+  });
+
+  afterEach(() => {
+    databaseService.supabase = realSupabase;
+    databaseService.clearCache?.('generated_themes');
+  });
+
+  const puzzle = (themeId, slot) => ({ id: `${themeId}_${slot}`, theme_id: themeId, slot, name: `P${themeId}${slot}` });
+
+  test('only returns themes that have all their puzzles', async () => {
+    databaseService.cache?.clear?.();
+    databaseService.supabase = fakeSupabase({
+      puzzle_themes: { data: [
+        { id: 'full', title: 'Full', puzzle_count: 2 },
+        { id: 'half', title: 'Half', puzzle_count: 3 },
+      ], error: null },
+      generated_puzzles: { data: [puzzle('full', 1), puzzle('full', 2), puzzle('half', 1)], error: null },
+    });
+
+    const themes = await databaseService.getGeneratedThemes();
+
+    expect(themes.map((theme) => theme.id)).toEqual(['full']);
+    expect(themes[0].puzzles.map((p) => p.slot)).toEqual([1, 2]);
+  });
+
+  test('returns an empty list while the tables do not exist yet', async () => {
+    databaseService.cache?.clear?.();
+    databaseService.supabase = fakeSupabase({
+      puzzle_themes: { data: null, error: { code: '42P01', message: 'relation does not exist' } },
+    });
+
+    expect(await databaseService.getGeneratedThemes()).toEqual([]);
   });
 });
 

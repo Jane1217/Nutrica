@@ -1,12 +1,12 @@
-import { findDiscoverPuzzleByName } from '../puzzles/discover';
+import { findGeneratedPuzzle, findGeneratedTheme } from '../puzzles/generatedThemes';
 
 // 根据puzzle名称和主题返回背景色
 export function getPuzzleCardBackground(puzzleName, collectionType = 'Magic Garden') {
   const puzzleNameLower = puzzleName.toLowerCase();
 
-  // Discover puzzles carry their own colour
-  const discover = findDiscoverPuzzleByName(puzzleName);
-  if (discover) return discover.bgColor;
+  // Generated puzzles carry their own colour
+  const generated = findGeneratedPuzzle(puzzleName);
+  if (generated) return generated.puzzle.bgColor;
   
   if (collectionType === 'Salmon Nigiri Boy') {
     if (puzzleNameLower === 'salmon' || puzzleNameLower === 'sushi rice') {
@@ -44,8 +44,9 @@ export function getPageBackground(collectionType = 'Magic Garden') {
   if (collectionType === 'Salmon Nigiri Boy') {
     return '#FBBC91';
   }
-  if (collectionType === 'Discover') {
-    return '#D8E8E7';
+  const generatedTheme = findGeneratedTheme(collectionType);
+  if (generatedTheme) {
+    return generatedTheme.bgColor;
   }
   
   // Magic Garden主题

@@ -1,0 +1,40 @@
+{
+  "id": "breakfast_club",
+  "title": "Breakfast Club",
+  "description": "Start your day right by completing daily nutrition challenges and collecting 6 delicious breakfast-themed puzzles. Each puzzle brings you closer to building a wholesome morning meal. Rise and shine with every nutritious bite!",
+  "type": "collection",
+  "count": 6,
+  "bg_color": "#D8E8E7",
+  "puzzles": [
+    {
+      "id": "ai_pancake",
+      "name": "Pancake",
+      "slot": 1
+    },
+    {
+      "id": "ai_scrambled_eggs",
+      "name": "Scrambled Eggs",
+      "slot": 2
+    },
+    {
+      "id": "ai_bacon",
+      "name": "Bacon",
+      "slot": 3
+    },
+    {
+      "id": "ai_oatmeal",
+      "name": "Oatmeal",
+      "slot": 4
+    },
+    {
+      "id": "ai_orange_juice",
+      "name": "Orange Juice",
+      "slot": 5
+    },
+    {
+      "id": "ai_avocado_toast",
+      "name": "Avocado Toast",
+      "slot": 6
+    }
+  ]
+}

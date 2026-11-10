@@ -144,29 +144,46 @@ class DatabaseService {
     });
   }
 
-  // Discover puzzles (AI-generated artwork, see supabase/migrations/*_discover_puzzles.sql).
-  // Returns [] until the table exists so the API keeps working before the migration is applied.
-  async getGeneratedPuzzles() {
-    const cacheKey = this.getCacheKey('generated_puzzles', {});
+  // Generated puzzle themes with their puzzles (see supabase/migrations/*_puzzle_themes.sql).
+  // Only complete, published themes are returned. Returns [] until the tables exist, so the API keeps
+  // working before the migration is applied.
+  async getGeneratedThemes() {
+    const cacheKey = this.getCacheKey('generated_themes', {});
     const cached = this.getFromCache(cacheKey);
     if (cached) {
       return cached;
     }
 
     return this.withRetry(async () => {
-      const { data, error } = await this.supabase
-        .from('generated_puzzles')
-        .select('id, name, description, descriptions, bg_color, palette, grid')
+      const missingTable = (error) => error && (error.code === '42P01' || error.code === 'PGRST205');
+
+      const themes = await this.supabase
+        .from('puzzle_themes')
+        .select('id, title, description, type, puzzle_count, bg_color')
         .eq('published', true)
         .order('created_at', { ascending: true });
+      if (themes.error) {
+        if (missingTable(themes.error)) return [];
+        throw themes.error;
+      }
+      if (!themes.data || themes.data.length === 0) return [];
 
-      if (error) {
-        if (error.code === '42P01' || error.code === 'PGRST205') return [];
-        throw error;
+      const puzzles = await this.supabase
+        .from('generated_puzzles')
+        .select('id, theme_id, slot, name, description, descriptions, bg_color, palette, grid')
+        .in('theme_id', themes.data.map((theme) => theme.id))
+        .order('slot', { ascending: true });
+      if (puzzles.error) {
+        if (missingTable(puzzles.error)) return [];
+        throw puzzles.error;
       }
 
-      this.setCache(cacheKey, data || []);
-      return data || [];
+      const result = themes.data
+        .map((theme) => ({ ...theme, puzzles: (puzzles.data || []).filter((puzzle) => puzzle.theme_id === theme.id) }))
+        .filter((theme) => theme.puzzles.length === theme.puzzle_count);   // never serve half a theme
+
+      this.setCache(cacheKey, result);
+      return result;
     });
   }
 
