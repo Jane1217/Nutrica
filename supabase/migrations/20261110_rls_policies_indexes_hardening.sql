@@ -1,7 +1,6 @@
 -- Database hardening and persistence fix.
--- STATUS: written 2026-11-10, NOT yet applied to the production project (rejsoyzhhukatdaebgtq).
--- Review it, then run it in the Supabase SQL editor (it is one transaction) or apply it with
--- the Supabase CLI / MCP.
+-- STATUS: applied to the production project (rejsoyzhhukatdaebgtq) on 2026-11-10 as migration
+-- "rls_policies_indexes_hardening". Kept here so the schema can be rebuilt from the repo.
 --
 -- 1. daily_home_data had row level security ON and NO policies. The browser reads and writes
 --    this table directly (selected puzzle for the day, per-day snapshots), so every request
