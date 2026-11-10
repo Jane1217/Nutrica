@@ -32,7 +32,7 @@ export default function PrivacyNotice() {
           </p>
           <br />
           <p>
-            If you would like your data to be deleted, please contact us at Nutrica.life.app@gmail.com.
+            If you would like your data to be deleted, please contact us at nutrica.life.app@gmail.com.
           </p>
           <br />
           <p>

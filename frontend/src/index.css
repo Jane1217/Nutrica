@@ -23,6 +23,23 @@ body, #root, .app-root {
   padding: 0;
 }
 
+/* Base typography. Text that has no .h1/.body1/... class (loading screens, messages,
+   native elements) used to fall back to the browser default (Times/Arial). */
+body {
+  font-family: Kanit, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  color: var(--Neutral-Primary-Text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Form controls do not inherit the page font by default. Only the family is inherited
+   (not size/weight) so existing control sizes do not change. */
+button,
+input,
+textarea,
+select {
+  font-family: inherit;
+}
+
 /* 全局重置所有元素的默认margin和padding */
 * {
   margin: 0;

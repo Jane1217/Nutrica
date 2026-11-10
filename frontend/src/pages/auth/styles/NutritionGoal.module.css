@@ -90,7 +90,7 @@
 }
 
 .calcDesc {
-  color: #666;
+  color: var(--Neutral-Secondary-Text, #6A6A61);
   line-height: 1.4;
 }
 

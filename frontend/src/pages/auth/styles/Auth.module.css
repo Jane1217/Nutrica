@@ -37,7 +37,7 @@
   margin-bottom: 4px;
 }
 .account-email {
-  color: #888;
+  color: var(--Neutral-Secondary-Text, #6A6A61);
   margin-bottom: 24px;
 }
 .account-card-list {
@@ -56,7 +56,7 @@
   margin-left: 0;
   margin-right: 0;
   align-self: stretch;
-  font-family: Inter;
+  font-family: Kanit, sans-serif;
   font-size: 16px;
   font-style: normal;
   font-weight: 500;
@@ -72,12 +72,11 @@
   border: 1px solid var(--Brand-Outline, #DBE2D0);
   background: var(--Brand-Off-White, #FCFCF8);
   color: var(--Neutral-Primary-Text, #22221B);
-  font-family: Inter;
+  font-family: Kanit, sans-serif;
   font-size: 16px;
   font-style: normal;
   font-weight: 500;
   line-height: 150%; /* 24px */
-  letter-spacing: -0.32px;
   box-sizing: border-box;
   width: 100%;
 }
@@ -109,66 +108,6 @@
 }
 .account-footer-bar span {
   color: var(--Neutral-Secondary-Text, #6A6A61);
-}
-.tutorial-main {
-  max-width: 768px;
-  margin: 0 auto;
-  padding: 24px 0 0 0;
-}
-.tutorial-title {
-  font-family: 'Inter', Arial, sans-serif;
-  font-size: 24px;
-  font-weight: 700;
-  margin-bottom: 16px;
-}
-.tutorial-tabs {
-  display: flex;
-  gap: 24px;
-  margin-bottom: 24px;
-}
-.tutorial-tab {
-  position: relative;
-  font-family: 'Inter', Arial, sans-serif;
-  font-size: 18px;
-  font-weight: 500;
-  color: var(--Neutral-Primary-Text, #22221B);
-  cursor: pointer;
-  padding-bottom: 8px;
-}
-.tutorial-tab-active {
-  font-weight: 700;
-}
-.tutorial-indicator {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 0;
-  width: 64px;
-  height: 4px;
-  background: #000;
-  border-radius: 2px;
-  display: block;
-}
-.tutorial-step {
-  margin-bottom: 32px;
-}
-.tutorial-step-title {
-  font-family: 'Inter', Arial, sans-serif;
-  font-size: 20px;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-.tutorial-step-desc {
-  font-family: 'Inter', Arial, sans-serif;
-  font-size: 16px;
-  margin-bottom: 12px;
-}
-.tutorial-img {
-  width: 100%;
-  height: 120px;
-  background: url('https://www.transparenttextures.com/patterns/checkerboard.png') lightgray 50% / cover no-repeat;
-  border-radius: 8px;
-  border: 1.5px solid #000;
 }
 .signupMainContent {
   display: flex;
@@ -400,7 +339,7 @@
 
 
 .account-email {
-  color: #888;
+  color: var(--Neutral-Secondary-Text, #6A6A61);
   font-size: 18px;
 }
 .account-info-box {
@@ -434,7 +373,7 @@
   padding-top: 16px;
   display: flex;
   justify-content: space-around;
-  color: #888;
+  color: var(--Neutral-Secondary-Text, #6A6A61);
   font-size: 15px;
   width: 100%;
 }
@@ -548,12 +487,11 @@
   border-radius: 999px;
   background: #F3F3EC;
   color: #26361B;
-  font-family: Inter, 'Helvetica Neue', Arial, sans-serif;
+  font-family: Kanit, sans-serif;
   font-size: 16px;
   font-style: normal;
   font-weight: 500;
   line-height: 150%;
-  letter-spacing: -0.32px;
   border: 1px solid #CDD3C4;
   cursor: pointer;
   transition: background 0.2s, color 0.2s, border 0.2s;
@@ -640,7 +578,7 @@
 }
 .accountInfoBoxDesc {
   font-size: 15px;
-  color: #666;
+  color: var(--Neutral-Secondary-Text, #6A6A61);
   line-height: 1.4;
 }
 .accountFeedback {
@@ -684,7 +622,7 @@
 
 .modalSubtitle {
   font-size: 16px;
-  color: #666;
+  color: var(--Neutral-Secondary-Text, #6A6A61);
   margin-bottom: 24px;
   line-height: 1.5;
 }

@@ -12,7 +12,6 @@ const SignUp = lazy(() => import('./pages/auth/pages/SignUp'));
 const ForgotPassword = lazy(() => import('./pages/auth/pages/ForgotPassword'));
 const ResetPassword = lazy(() => import('./pages/auth/pages/ResetPassword'));
 const AccountSettings = lazy(() => import('./pages/auth/pages/AccountSettings'));
-const Tutorials = lazy(() => import('./pages/auth/pages/Tutorials'));
 const ScanLabelPage = lazy(() => import('./pages/eat/pages/scan-label/ScanLabelPage'));
 const Welcome = lazy(() => import('./pages/welcome/Welcome'));
 const MyCollections = lazy(() => import('./pages/my-collections/pages/MyCollections'));
@@ -123,7 +122,7 @@ function AppRoutes() {
         alignItems: 'center',
         minHeight: '100dvh',
         fontSize: '16px',
-        color: '#666'
+        color: 'var(--Neutral-Secondary-Text, #6A6A61)'
       }}>
         Loading...
       </div>
@@ -188,7 +187,8 @@ function AppRoutes() {
           path="/account"
           element={<RequireAuth user={user}><AccountSettings userEmail={user?.email || ''} /></RequireAuth>}
         />
-        <Route path="/tutorials" element={<Tutorials isLoggedIn={!!user} userEmail={user?.email || ''} />} />
+        {/* The old placeholder "Camera Permission Helper" page (lorem ipsum) was never linked. */}
+        <Route path="/tutorials" element={<Navigate to="/" replace />} />
         <Route
           path="/eat/scan-label"
           element={<RequireAuth user={user}><ScanLabelPage userId={user?.id} /></RequireAuth>}
@@ -226,7 +226,7 @@ function PageLoading() {
       alignItems: 'center',
       minHeight: '100dvh',
       fontSize: '16px',
-        color: '#666'
+        color: 'var(--Neutral-Secondary-Text, #6A6A61)'
       }}
     >
       Loading...
