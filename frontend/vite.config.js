@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import fs from 'fs';
 import path from 'path';
@@ -26,9 +26,28 @@ const getHttpsConfig = () => {
 
 const localHttpsConfig = isLocal ? getHttpsConfig() : false;
 
+// Open the Supabase connection while the bundle is still downloading. Injected by a
+// plugin (instead of %VITE_SUPABASE_URL% in index.html) so builds without that
+// variable, such as CI, keep working.
+const preconnectSupabase = (supabaseUrl) => ({
+  name: 'preconnect-supabase',
+  transformIndexHtml() {
+    if (!supabaseUrl) return undefined;
+    try {
+      return [{
+        tag: 'link',
+        attrs: { rel: 'preconnect', href: new URL(supabaseUrl).origin, crossorigin: '' },
+        injectTo: 'head-prepend'
+      }];
+    } catch {
+      return undefined;
+    }
+  }
+});
+
 // https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [react()],
+export default defineConfig(({ mode }) => ({
+  plugins: [react(), preconnectSupabase(loadEnv(mode, process.cwd(), 'VITE_').VITE_SUPABASE_URL)],
   base: '/',
   server: {
     port: 3000,
@@ -60,4 +79,4 @@ export default defineConfig({
     // deployment size and expose the original client source to every visitor.
     sourcemap: process.env.SOURCE_MAPS === 'true'
   }
-})
+}))
