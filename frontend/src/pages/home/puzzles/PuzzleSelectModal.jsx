@@ -52,7 +52,7 @@ export default function PuzzleSelectModal({ open, onClose, onBack, puzzleList, c
         <div className={styles.modalHeader}>
           {/* 返回箭头和标题 */}
           <div className={styles.headerLeft}>
-            <button
+            <button aria-label="Back"
               onClick={onBack}
               className={styles.backButton}
             >
@@ -64,7 +64,7 @@ export default function PuzzleSelectModal({ open, onClose, onBack, puzzleList, c
             <span className={`h3 ${styles.headerTitle}`}>{categoryTitle}</span>
           </div>
           {/* 关闭按钮 */}
-          <button
+          <button aria-label="Close"
             type="button"
             onClick={onClose}
             className={styles.closeButton}

@@ -53,7 +53,7 @@ export default function NutritionGoalModal({ open, onClose, onBack, onSave, name
         <h1 className={nutritionGoalStyles.title}>
           <div className={nutritionGoalStyles.headerRow}>
             <div className="h2">{isUpdateMode ? 'Update Nutrition Goal' : `Thanks for the info${name ? `, ${name}` : ''}!`}</div>
-            <button className={nutritionGoalStyles.closeButton} onClick={onClose}>
+            <button aria-label="Close" className={nutritionGoalStyles.closeButton} onClick={onClose}>
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
                 <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>

@@ -102,7 +102,7 @@ export default function FullScreenCropper({ imageUrl, onCropComplete, onCancel }
         padding: '16px 24px',
         background: 'linear-gradient(to bottom, rgba(0,0,0,0.5), transparent)'
       }}>
-        <button
+        <button aria-label="Cancel"
           onClick={onCancel}
           style={{
             background: 'rgba(255,255,255,0.2)',

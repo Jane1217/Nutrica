@@ -294,7 +294,7 @@ export default function ScanLabelPage({ onClose, userId, onDataChange }) {
           <img src={icons.closeFill} alt="close" width="24" height="24" />
         </span>
       </button>
-      <button className="scan-shutter" onClick={handleCapture} disabled={loading}>
+      <button aria-label="Take photo" className="scan-shutter" onClick={handleCapture} disabled={loading}>
         <svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96" fill="none">
           <rect x="2" y="2" width="92" height="92" rx="46" stroke="white" strokeWidth="4"/>
           <circle cx="36" cy="36" r="36" transform="matrix(1 0 0 -1 12 84)" fill="white"/>

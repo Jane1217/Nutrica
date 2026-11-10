@@ -38,7 +38,7 @@ export default function NutritionPuzzlesModal({ open, onClose, onReopen, onPuzzl
           <div className={styles.headerLeft}>
             <div className={`h2 ${styles.headerTitle}`}>Nutrition Puzzles</div>
           </div>
-          <button 
+          <button aria-label="Close" 
             type="button" 
             onClick={onClose} 
             className={styles.closeButton}
