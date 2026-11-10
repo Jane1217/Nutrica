@@ -35,8 +35,11 @@ Review `samples/<theme>/preview.png` (picture -> 24x24 -> half filled -> nutrien
    **magenta** background (a green-screen colour no food uses, so near-white foods like rice are not mistaken
    for background) and its copy (completion line + 5 progress messages).
 2. `pixelate.py` finds the object by flood-filling the background from the border, scales it to fill the
-   canvas, reduces it to a small palette (k-means, trying several sizes), assigns colours to nutrients to
-   match the shares (splitting a colour into two shades when finer steps are needed) and writes the puzzle.
+   canvas, builds a palette (k-means in Lab colour space, trying several sizes) and gives every 24x24 cell the
+   colour that covers **most** of it. Cells are never averaged (averaging an outline with the fill makes muddy
+   in-between shades and blurs boundaries), and a dark outline wins when it covers a third of a cell, because
+   outlines are thinner than a cell. Colours are then assigned to nutrients to match the shares (splitting a
+   colour into two shades when finer steps are needed) and the puzzle is written.
 3. `validate.mjs` loads every puzzle through the app's own `progress.js` and checks all the rules above.
 4. `export-sql.mjs` prints the INSERTs for `puzzle_themes`, `generated_puzzles` and `collection_puzzles`
    (see `supabase/migrations/*_puzzle_themes.sql` for the tables).

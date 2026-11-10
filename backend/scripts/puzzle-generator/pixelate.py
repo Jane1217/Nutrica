@@ -84,71 +84,6 @@ def foreground_mask(img, bg, step=2, tol=70):
     return is_bg, step
 
 
-def cut_cells(img, is_bg, step, margin):
-    w, h = img.size
-    px = img.load()
-    pts = [(cx * step, cy * step) for cy, row in enumerate(is_bg) for cx, v in enumerate(row) if not v]
-    xs, ys = [p[0] for p in pts], [p[1] for p in pts]
-    x0, x1, y0, y1 = min(xs), max(xs), min(ys), max(ys)
-    side = max(x1 - x0, y1 - y0) * margin
-    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
-    left, top = cx - side / 2, cy - side / 2
-    cell = side / GRID
-
-    cells = [[None] * GRID for _ in range(GRID)]
-    for gy in range(GRID):
-        for gx in range(GRID):
-            sx0, sy0 = int(left + gx * cell), int(top + gy * cell)
-            sx1, sy1 = int(left + (gx + 1) * cell), int(top + (gy + 1) * cell)
-            total = fg = 0
-            r = g = b = 0
-            for y in range(max(sy0, 0), min(sy1, h), step):
-                for x in range(max(sx0, 0), min(sx1, w), step):
-                    total += 1
-                    if not is_bg[y // step][x // step]:
-                        p = px[x, y]
-                        fg += 1
-                        r += p[0]; g += p[1]; b += p[2]
-            if total and fg / total >= 0.5:
-                cells[gy][gx] = (r / fg, g / fg, b / fg)
-    return cells
-
-
-def cells_for_puzzle(img):
-    """Draw the object as large as the canvas allows (the more cells, the clearer the picture)."""
-    bg = background_colour(img)
-    is_bg, step = foreground_mask(img, bg)
-    cells = cut_cells(img, is_bg, step, FILL_MARGIN)
-    return cells, sum(1 for row in cells for c in row if c)
-
-
-# ---- 2. reduce to a small palette -----------------------------------------------------
-def kmeans(points, k, seed=7, iters=25):
-    rnd = random.Random(seed)
-    centres = [rnd.choice(points)]
-    while len(centres) < k:                          # k-means++ seeding
-        d = [min(dist2(p, c) for c in centres) for p in points]
-        total = sum(d)
-        if total == 0:
-            break
-        pick, acc = rnd.random() * total, 0
-        for p, w in zip(points, d):
-            acc += w
-            if acc >= pick:
-                centres.append(p)
-                break
-    for _ in range(iters):
-        groups = [[] for _ in centres]
-        for p in points:
-            groups[min(range(len(centres)), key=lambda i: dist2(p, centres[i]))].append(p)
-        new = [tuple(sum(v[i] for v in g) / len(g) for i in range(3)) if g else centres[j]
-               for j, g in enumerate(groups)]
-        if new == centres:
-            break
-        centres = new
-    return centres
-
-
 def keep_visible(rgb, min_dist=22):
     """Near-white foods vanish on the off-white puzzle background: shade them until they show."""
     bg = tuple(int(BG_HEX[i:i + 2], 16) for i in (1, 3, 5))
@@ -159,6 +94,142 @@ def keep_visible(rgb, min_dist=22):
     return rgb
 
 
+def rgb_to_lab(rgb):
+    """Perceptual colour space: distances between shades match what the eye sees, so a dark outline
+    and a dark shadow stay apart where plain RGB would merge them."""
+    def lin(v):
+        v /= 255.0
+        return v / 12.92 if v <= 0.04045 else ((v + 0.055) / 1.055) ** 2.4
+    r, g, b = (lin(c) for c in rgb)
+    x = (0.4124 * r + 0.3576 * g + 0.1805 * b) / 0.95047
+    y = 0.2126 * r + 0.7152 * g + 0.0722 * b
+    z = (0.0193 * r + 0.1192 * g + 0.9505 * b) / 1.08883
+    f = lambda t: t ** (1 / 3) if t > 0.008856 else 7.787 * t + 16 / 116
+    fx, fy, fz = f(x), f(y), f(z)
+    return (116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz))
+
+
+class Source:
+    """A picture prepared for cutting: where the object is, and a histogram of its colours."""
+
+    def __init__(self, img):
+        self.img = img
+        self.px = img.load()
+        bg = background_colour(img)
+        self.is_bg, self.step = foreground_mask(img, bg)
+        w, h = img.size
+        pts = [(cx * self.step, cy * self.step) for cy, row in enumerate(self.is_bg)
+               for cx, v in enumerate(row) if not v]
+        xs, ys = [p[0] for p in pts], [p[1] for p in pts]
+        x0, x1, y0, y1 = min(xs), max(xs), min(ys), max(ys)
+        side = max(x1 - x0, y1 - y0) * FILL_MARGIN
+        cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+        self.left, self.top, self.cell = cx - side / 2, cy - side / 2, side / GRID
+        # histogram of foreground colours in 5-bit bins (keeps clustering fast)
+        self.bins = {}
+        for (x, y) in pts:
+            p = self.px[min(x, w - 1), min(y, h - 1)]
+            key = (p[0] >> 3, p[1] >> 3, p[2] >> 3)
+            n, r, g, b = self.bins.get(key, (0, 0, 0, 0))
+            self.bins[key] = (n + 1, r + p[0], g + p[1], b + p[2])
+
+    def bin_key(self, p):
+        return (p[0] >> 3, p[1] >> 3, p[2] >> 3)
+
+
+def weighted_kmeans(points, weights, k, seed=7, iters=30):
+    rnd = random.Random(seed)
+    centres = [points[rnd.choices(range(len(points)), weights)[0]]]
+    while len(centres) < k:                                  # k-means++ seeding
+        d = [min(dist2(p, c) for c in centres) * w for p, w in zip(points, weights)]
+        if sum(d) == 0:
+            break
+        centres.append(points[rnd.choices(range(len(points)), d)[0]])
+    assign = [0] * len(points)
+    for _ in range(iters):
+        changed = False
+        for i, p in enumerate(points):
+            j = min(range(len(centres)), key=lambda c: dist2(p, centres[c]))
+            if j != assign[i]:
+                assign[i], changed = j, True
+        for j in range(len(centres)):
+            members = [(points[i], weights[i]) for i in range(len(points)) if assign[i] == j]
+            total = sum(w for _, w in members)
+            if total:
+                centres[j] = tuple(sum(p[d] * w for p, w in members) / total for d in range(3))
+        if not changed:
+            break
+    return centres, assign
+
+
+def cut_index(src, k):
+    """24x24 grid of palette indexes. Every cell takes the colour that covers most of it (no averaging,
+    so no muddy in-between shades), except that a dark outline wins when it covers a third of the cell:
+    outlines are thinner than a cell and a plain majority vote would erase them."""
+    keys = list(src.bins)
+    weights = [src.bins[key][0] for key in keys]
+    rgbs = [tuple(src.bins[key][i] / src.bins[key][0] for i in (1, 2, 3)) for key in keys]
+    labs = [rgb_to_lab(c) for c in rgbs]
+    centres, assign = weighted_kmeans(labs, weights, min(k, len(keys)))
+
+    # palette colours = weighted mean RGB of each cluster; merge clusters that look the same
+    members = {}
+    for i, j in enumerate(assign):
+        members.setdefault(j, []).append(i)
+    clusters = []
+    for j, idxs in members.items():
+        total = sum(weights[i] for i in idxs)
+        rgb = tuple(sum(rgbs[i][d] * weights[i] for i in idxs) / total for d in range(3))
+        clusters.append([rgb, rgb_to_lab(rgb), idxs])
+    merged = []
+    for rgb, lab, idxs in sorted(clusters, key=lambda c: -sum(weights[i] for i in c[2])):
+        for m in merged:
+            if dist2(lab, m[1]) < 7 ** 2:
+                m[2].extend(idxs)
+                break
+        else:
+            merged.append([rgb, lab, list(idxs)])
+    bin_to_palette = {}
+    for pi, (_, _, idxs) in enumerate(merged):
+        for i in idxs:
+            bin_to_palette[keys[i]] = pi
+    palette = [keep_visible(m[0]) for m in merged]
+    dark = min(range(len(palette)), key=lambda i: luminance(palette[i]))
+    has_outline = luminance(palette[dark]) < 110
+
+    w, h = src.img.size
+    index = [[None] * GRID for _ in range(GRID)]
+    for gy in range(GRID):
+        for gx in range(GRID):
+            sx0, sy0 = int(src.left + gx * src.cell), int(src.top + gy * src.cell)
+            sx1, sy1 = int(src.left + (gx + 1) * src.cell), int(src.top + (gy + 1) * src.cell)
+            total = fg = 0
+            votes = {}
+            step = src.step
+            for y in range((max(sy0, 0) + step - 1) // step * step, min(sy1, h), step):   # sample on the same grid
+                for x in range((max(sx0, 0) + step - 1) // step * step, min(sx1, w), step):   # the histogram used
+                    total += 1
+                    if not src.is_bg[y // step][x // step]:
+                        fg += 1
+                        pi = bin_to_palette[src.bin_key(src.px[x, y])]
+                        votes[pi] = votes.get(pi, 0) + 1
+            if not total or fg / total < 0.5:
+                continue
+            if has_outline and votes.get(dark, 0) / fg >= 0.34:
+                index[gy][gx] = dark
+            else:
+                index[gy][gx] = max(votes, key=votes.get)
+    # drop unused colours and renumber
+    used = sorted({i for row in index for i in row if i is not None})
+    remap = {old: new for new, old in enumerate(used)}
+    index = [[None if i is None else remap[i] for i in row] for row in index]
+    palette = [palette[i] for i in used]
+    unique = []
+    for c in palette:
+        unique.append(distinct_colour(unique, c))
+    return unique, index
+
+
 def distinct_colour(palette, rgb):
     """A colour belongs to exactly one nutrient, so no two palette entries may share a hex value."""
     taken = {hex_of(c) for c in palette}
@@ -167,23 +238,6 @@ def distinct_colour(palette, rgb):
             return rgb
         rgb = tuple(c + (255 - c) * 0.03 if c < 250 else c - 3 for c in rgb)
     raise ValueError('could not find a distinct colour')
-
-
-def quantise(cells, k=8):
-    pts = [c for row in cells for c in row if c]
-    merged = []
-    for c in kmeans(pts, min(k, len(pts))):
-        if all(dist2(c, m) > 22 ** 2 for m in merged):
-            merged.append(c)
-    index = [[None] * GRID for _ in range(GRID)]
-    for y in range(GRID):
-        for x in range(GRID):
-            if cells[y][x]:
-                index[y][x] = min(range(len(merged)), key=lambda i: dist2(cells[y][x], merged[i]))
-    palette = []
-    for c in merged:
-        palette.append(distinct_colour(palette, keep_visible(c)))
-    return palette, index
 
 
 # ---- 3. give every colour to carbs (1), protein (2) or fats (3) -------------------------
@@ -245,12 +299,12 @@ def split_colour(palette, index, which):
 
 def fit_to_rules(palette, index):
     nutrient_of, shares = assign_nutrients(palette, index)
-    for _ in range(5):
+    for _ in range(8):
         if max(abs(shares[k] - TARGET[k]) for k in (1, 2, 3)) <= TOLERANCE:
             break
         counts = counts_of(palette, index)
         candidates = [i for i in range(len(palette)) if counts[i] >= 10]
-        if not candidates or len(palette) >= 11:
+        if not candidates or len(palette) >= 14:
             break
         split_colour(palette, index, max(candidates, key=lambda i: counts[i]))
         nutrient_of, shares = assign_nutrients(palette, index)
@@ -359,10 +413,10 @@ def main():
     rows, report = [], []
     for meta in theme['puzzles']:
         src = Image.open(os.path.join(HERE, 'work', theme_id, meta['id'], 'source.png')).convert('RGB')
-        cells, count = cells_for_puzzle(src)
+        prepared = Source(src)
         best = None                           # try a few palette sizes, keep the one closest to the rules
-        for k in (8, 7, 9, 6, 10):
-            palette, index = quantise(cells, k)
+        for k in (10, 8, 12, 9, 7, 11):
+            palette, index = cut_index(prepared, k)
             nutrient_of, shares = fit_to_rules(palette, index)
             error = max(abs(shares[x] - TARGET[x]) for x in (1, 2, 3))
             if best is None or error < best[0]:
