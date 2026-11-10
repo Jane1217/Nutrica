@@ -34,32 +34,52 @@ export default function App() {
   );
 }
 
+// supabase-js keeps the session in localStorage under `sb-<project>-auth-token`.
+// Reading it directly lets the first render happen immediately: awaiting
+// getSession()/getUser() blocks on the auth server whenever the access token has
+// expired (a refresh round trip) or another tab holds the auth lock, which kept
+// returning visitors on a blank "Loading..." screen for seconds.
+const AUTH_STORAGE_KEY = /^sb-.+-auth-token$/;
+
+function readStoredUser() {
+  try {
+    for (let i = 0; i < localStorage.length; i += 1) {
+      const key = localStorage.key(i);
+      if (key && AUTH_STORAGE_KEY.test(key)) {
+        const stored = JSON.parse(localStorage.getItem(key));
+        const storedUser = stored?.user ?? stored?.currentSession?.user ?? null;
+        if (storedUser?.id) return storedUser;
+      }
+    }
+  } catch {
+    // localStorage unavailable or corrupted: treat as signed out
+  }
+  return null;
+}
+
+// Email-confirmation / password-recovery links carry tokens in the URL that
+// supabase-js must process before we know who the user is.
+function hasAuthCallbackInUrl() {
+  if (typeof window === 'undefined') return false;
+  return /access_token|refresh_token|type=(recovery|signup|magiclink|invite|email_change)|[?&]code=/
+    .test(`${window.location.hash}${window.location.search}`);
+}
+
+// Never keep the app on the loading screen longer than this waiting for auth.
+const AUTH_INIT_TIMEOUT_MS = 3000;
+
 function AppRoutes() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(readStoredUser);
+  const [loading, setLoading] = useState(hasAuthCallbackInUrl);
   const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
-    // 初始化时获取用户状态
-    const initializeAuth = async () => {
-      try {
-        // getSession 只读本地存储（过期会自动刷新），不需要网络往返；
-        // 之前用 getUser 会让首屏一直停在 "Loading..." 直到认证服务器响应，
-        // 认证服务不可用时甚至要等很久。令牌的有效性由后端和 Supabase RLS 校验。
-        const { data: { session } } = await supabase.auth.getSession();
-        setUser(session?.user ?? null);
-      } catch (error) {
-        console.error('Error getting user:', error);
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
+    // Safety net for the URL-callback case: render with whatever we know.
+    const timeoutId = setTimeout(() => setLoading(false), AUTH_INIT_TIMEOUT_MS);
 
-    initializeAuth();
-
-    // 监听认证状态变化
+    // INITIAL_SESSION fires once supabase-js has validated (and if needed
+    // refreshed) the stored session; it then corrects the optimistic user above.
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT') {
         // 清除与用户绑定的本地缓存，避免下一个登录的账号看到上一个账号的 puzzle
@@ -73,7 +93,10 @@ function AppRoutes() {
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      clearTimeout(timeoutId);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleAuth = () => {
