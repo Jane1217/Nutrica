@@ -9,7 +9,7 @@
   background: #F3F3EC;
   margin: auto 16px;
   max-height: 60vh;
-  min-width: 320px;
+  min-width: min(320px, calc(100vw - 32px));
   max-width: 480px;
   width: 100%;
   align-items: center;
