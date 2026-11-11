@@ -5,12 +5,14 @@ import BottomButton from "../../../components/common/BottomButton";
 import styles from "./PuzzleSelectModal.module.css";
 import { getPuzzleInCollection } from "../../../utils";
 import { getCurrentUser } from "../../../utils";
+import { getStageLock } from "../../../utils/puzzles/journey";
 
-export default function PuzzleSelectModal({ open, onClose, onBack, puzzleList, categoryTitle = 'Magic Garden', onSelect }) {
+export default function PuzzleSelectModal({ open, onClose, onBack, puzzleList, categoryTitle = 'Magic Garden', isJourney = false, onSelect }) {
   const [selectedIdx, setSelectedIdx] = useState(null);
   const [collectionStatus, setCollectionStatus] = useState({});
   const [userId, setUserId] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [statusLoaded, setStatusLoaded] = useState(false);
   
   const selectableList = (puzzleList.length === 1
     ? Array.from({ length: 6 }, (_, idx) => ({ ...puzzleList[0], id: `${puzzleList[0].id}_${idx}` }))
@@ -33,6 +35,7 @@ export default function PuzzleSelectModal({ open, onClose, onBack, puzzleList, c
           }
           setCollectionStatus(status);
         }
+        setStatusLoaded(true);
       } catch (error) {
         console.error('Error fetching user and collection status:', error);
       } finally {
@@ -41,6 +44,7 @@ export default function PuzzleSelectModal({ open, onClose, onBack, puzzleList, c
     };
 
     if (open) {
+      setStatusLoaded(false);
       fetchUserAndCollectionStatus();
     }
   }, [open, selectableList]);
@@ -78,18 +82,25 @@ export default function PuzzleSelectModal({ open, onClose, onBack, puzzleList, c
         {/* 滚动内容区 */}
         <div className={styles.scrollArea}>
           <div className={styles.listArea}>
-            {selectableList.map((puzzle, idx) => (
-              <SelectableCard
-                key={puzzle.id || idx}
-                title={puzzle.name}
-                desc={puzzle.description}
-                img={puzzle.img}
-                bgColor={puzzle.bgColor}
-                inCollection={collectionStatus[puzzle.name] || false}
-                onAdd={() => setSelectedIdx(idx)}
-                isSelected={selectedIdx === idx}
-              />
-            ))}
+            {selectableList.map((puzzle, idx) => {
+              // Journey: stage n opens once stages 1..n-1 are collected. Until the status is known, later stages stay locked.
+              const stage = isJourney ? getStageLock(selectableList, idx, collectionStatus) : { locked: false, missing: null };
+              const locked = isJourney && idx > 0 && (stage.locked || !statusLoaded);
+              return (
+                <SelectableCard
+                  key={puzzle.id || idx}
+                  title={puzzle.name}
+                  desc={puzzle.description}
+                  img={puzzle.img}
+                  bgColor={puzzle.bgColor}
+                  inCollection={collectionStatus[puzzle.name] || false}
+                  locked={locked}
+                  lockedHint={locked && stage.missing ? `Collect ${stage.missing} first` : ''}
+                  onAdd={() => setSelectedIdx(idx)}
+                  isSelected={selectedIdx === idx}
+                />
+              );
+            })}
           </div>
         </div>
         

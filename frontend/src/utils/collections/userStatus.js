@@ -1,6 +1,7 @@
 import { puzzleCategories } from '../../data/puzzles';
 import { collectionApi } from '../core';
 import { getAuthToken } from '../core';
+import { loadGeneratedThemes } from '../puzzles/generatedThemes';
 
 // 缓存机制
 let collectionStatusCache = null;
@@ -23,9 +24,13 @@ export const getUserCollectionStatus = async (userId, forceRefresh = false) => {
 
     // 获取当前用户的收藏数据
     // 两个请求互不依赖，并行发出
-    const [magicGardenResponse, salmonNigiriResponse] = await Promise.all([
+    // The generated themes (Breakfast Club, Hatch Day ...) are collection types too; without them their puzzles never
+    // show as collected, and a journey could never unlock its next stage.
+    const generatedThemes = await loadGeneratedThemes();
+    const [magicGardenResponse, salmonNigiriResponse, ...generatedResponses] = await Promise.all([
       collectionApi.getUserCollections('Magic Garden', token),
-      collectionApi.getUserCollections('Salmon Nigiri Boy', token)
+      collectionApi.getUserCollections('Salmon Nigiri Boy', token),
+      ...generatedThemes.map((theme) => collectionApi.getUserCollections(theme.title, token).catch(() => null))
     ]);
     
     const collectionStatus = {};
@@ -42,6 +47,14 @@ export const getUserCollectionStatus = async (userId, forceRefresh = false) => {
       });
     }
     
+    generatedResponses.forEach((response) => {
+      if (response?.success && response.data) {
+        response.data.forEach(item => {
+          collectionStatus[item.puzzle_name.toLowerCase()] = true;
+        });
+      }
+    });
+
     // 更新缓存
     collectionStatusCache = collectionStatus;
     cacheTimestamp = now;

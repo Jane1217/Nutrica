@@ -169,3 +169,27 @@
   background: var(--Brand-Secondary-Dark, #26361B);
   box-sizing: border-box;
 } 
+/* Journey stages that are not unlocked yet */
+.locked {
+  cursor: not-allowed;
+  filter: grayscale(0.85);
+  opacity: 0.6;
+}
+
+.lockBadge {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: #FFF;
+  border: 1px solid var(--Neutral-Primary-Text, #22221B);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lockedHint {
+  font-family: Kanit, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--Neutral-Primary-Text, #22221B);
+}

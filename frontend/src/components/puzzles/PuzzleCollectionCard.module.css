@@ -73,3 +73,13 @@
   font-size: 2rem;
   border: 1px solid var(--Neutral-Primary-Text, #22221B);
 }
+
+/* Journey: an arrow between the stages */
+.stageArrow {
+  flex-shrink: 0;
+  align-self: center;
+  color: var(--Neutral-Primary-Text, #22221B);
+  font-size: 1.5rem;
+  line-height: 1;
+  margin: 0 -2px;
+}
