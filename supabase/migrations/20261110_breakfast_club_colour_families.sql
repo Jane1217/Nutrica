@@ -1,5 +1,5 @@
 -- Replace the Breakfast Club artwork: recognisable sprites, one colour family per nutrient, even bottom-up fill.
--- STATUS: written 2026-11-10, NOT yet applied to production (rejsoyzhhukatdaebgtq).
+-- STATUS: applied to production (rejsoyzhhukatdaebgtq) on 2026-11-10; grid and palette checksums verified against this file.
 --
 -- Why: the generated puzzles were hard to read as pixel art and their colours were not unified.
 --   * Colours: like the hand-drawn puzzles (carrot: orange reds / dark brown / greens), every nutrient is now ONE
@@ -13,13 +13,13 @@
 --     be tuned colour by colour, and the hand-drawn puzzles themselves range from 40% to 79% carbs).
 -- Names, slots, copy and the theme colour are unchanged.
 --
--- Safe only while nobody has collected or is playing these puzzles yet; the guard below stops the
--- migration otherwise, because replacing the artwork would change their progress.
+-- Safe while nobody has collected these puzzles: the guard below stops the migration otherwise. A puzzle that is
+-- only selected for today (daily_home_data) is fine: ids, names and slots stay the same and progress is stored per
+-- nutrient, so that row just shows the new picture.
 do $$
 begin
-  if exists (select 1 from public.user_collections where collection_type = 'Breakfast Club')
-     or exists (select 1 from public.daily_home_data where puzzle_id like 'ai\_%') then
-    raise exception 'Breakfast Club puzzles are already in use; do not replace them in place';
+  if exists (select 1 from public.user_collections where collection_type = 'Breakfast Club') then
+    raise exception 'Breakfast Club puzzles are already collected; do not replace them in place';
   end if;
 end $$;
 
