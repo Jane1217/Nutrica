@@ -1,5 +1,5 @@
 -- A new kind of series, the JOURNEY, and its first theme "Hatch Day".
--- STATUS: written 2026-11-10, NOT yet applied to production (rejsoyzhhukatdaebgtq).
+-- STATUS: applied to production (rejsoyzhhukatdaebgtq) on 2026-11-10; grid/palette checksums verified against this file.
 --
 -- A journey follows ONE character through ordered stages (egg, hatching, chick, young hen, hen). Stage n can only be
 -- chosen once stages 1..n-1 are collected (enforced in the app's puzzle picker). It is stored like a collection:
