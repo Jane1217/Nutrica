@@ -12,19 +12,21 @@ Writes samples/<theme>/theme.json          the theme (title, type, size, colours
 
 The product rules it follows (see frontend/src/utils/nutrition/nutrition.js):
   * Daily goals are split 50% carbs / 30% fats / 20% protein of calories. Pixels are shared out the same
-    way: carbs 50%, fats 30%, protein 20% of the painted cells (+-4 points, colours are discrete), so
-    puzzle progress is the share of the day's calorie goal reached through each nutrient.
-  * Every colour belongs to exactly one nutrient (that is how the nutrition pool lists them).
-  * Like the hand-drawn puzzles: protein is the darkest colours (outline and shadow), fats are the
-    accent colours, carbs are the body. There is no limit on the number of painted cells: the object
-    is drawn as large as the 24x24 canvas allows, because a clear, detailed picture matters most.
+    way as closely as the colour families allow (carbs 50%, fats 30%, protein 20% of the painted cells).
+  * Every nutrient is ONE colour family (a few shades of a single hue) and every colour belongs to exactly one
+    nutrient, like the hand-drawn puzzles. The dark outline is a family of its own.
+  * The app fills each nutrient bottom-up on its own, so the grouping prefers cuts that fill evenly (fill_scatter).
+  * There is no limit on the number of painted cells: the object is drawn as large as the 24x24 canvas allows.
+Usage:  pixelate.py <theme>          build the puzzles from work/<theme>/<puzzle>/source.png
+        pixelate.py <theme> --all    review every candidate_N.png (work/<theme>/candidates_art.png)
 Pure Python + Pillow.
 """
 import json
+import math
 import os
 import random
 import sys
-from itertools import combinations
+from itertools import product
 
 from PIL import Image, ImageDraw
 
@@ -33,7 +35,8 @@ BG_HEX = '#F3F3EC'                       # the puzzle background colour (nutrien
 FILL_MARGIN = 1.09                       # canvas / object size: about one empty cell around the picture
 SPLIT_KCAL = {'carbs': 0.50, 'fats': 0.30, 'protein': 0.20}      # nutrition.js
 TARGET = {1: SPLIT_KCAL['carbs'], 2: SPLIT_KCAL['protein'], 3: SPLIT_KCAL['fats']}   # nutrient 1 carbs, 2 protein, 3 fats
-TOLERANCE = 0.04                         # max share error per nutrient
+SCATTER_WEIGHT = 900                     # cost of an unevenly filling picture (see fill_scatter)
+SHARE_LIMIT = 0.10                       # max share error per nutrient: colours are discrete and each nutrient is one colour family
 NUTRIENT_TINT = {0: BG_HEX, 1: '#F4A259', 2: '#5B3A29', 3: '#6BBF59'}
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -310,6 +313,27 @@ def distinct_colour(palette, rgb):
     raise ValueError('could not find a distinct colour')
 
 
+def lab_to_rgb(lab):
+    L, a, b = lab
+    fy = (L + 16) / 116
+    fx, fz = fy + a / 500, fy - b / 200
+    inv = lambda t: t ** 3 if t ** 3 > 0.008856 else (t - 16 / 116) / 7.787
+    x, y, z = 0.95047 * inv(fx), inv(fy), 1.08883 * inv(fz)
+    r = 3.2406 * x - 1.5372 * y - 0.4986 * z
+    g = -0.9689 * x + 1.8758 * y + 0.0415 * z
+    bl = 0.0557 * x - 0.2040 * y + 1.0570 * z
+    gamma = lambda v: 12.92 * v if v <= 0.0031308 else 1.055 * max(v, 0) ** (1 / 2.4) - 0.055
+    return tuple(max(0.0, min(255.0, 255 * gamma(v))) for v in (r, g, bl))
+
+
+def lch(lab):
+    return lab[0], math.hypot(lab[1], lab[2]), math.atan2(lab[2], lab[1])
+
+
+def from_lch(L, C, h):
+    return (L, C * math.cos(h), C * math.sin(h))
+
+
 # ---- 3. give every colour to carbs (1), protein (2) or fats (3) -------------------------
 def counts_of(palette, index):
     counts = [0] * len(palette)
@@ -320,66 +344,143 @@ def counts_of(palette, index):
     return counts
 
 
-def assign_nutrients(palette, index):
-    """Protein = the darkest colours, fats = the accent colours (furthest from the body colour),
-    carbs = the body; the three shares follow TARGET (50/20/30)."""
+def fit_families(palette, index):
+    """The hand-drawn puzzles give each nutrient ONE colour family: a few shades of the same hue (carrot: orange
+    reds, a dark brown, greens). So the palette is cut into three groups whose colours are as close as possible
+    to each other (little spread of hue inside a group), and the groups are the nutrients. Among the cuts that
+    keep the groups coherent, the one whose pixel shares are closest to TARGET (50/20/30) wins."""
     counts = counts_of(palette, index)
     total = sum(counts)
     n = len(palette)
-    by_dark = sorted(range(n), key=lambda i: luminance(palette[i]))
-    body = max((i for i in range(n) if i != by_dark[0]), key=lambda i: counts[i])
-    spread = {i: dist2(palette[i], palette[body]) ** 0.5 / 441.7 for i in range(n)}   # 0..1
-
-    best, best_score = None, 1e9
-    for p in range(1, n - 1):                              # protein = the p darkest colours
-        protein = set(by_dark[:p])
-        if body in protein:
+    feats = []
+    for c in palette:
+        L, a, b = rgb_to_lab(c)
+        feats.append((0.45 * L, a, b))                           # hue matters more than lightness
+    sq = [f[0] ** 2 + f[1] ** 2 + f[2] ** 2 for f in feats]
+    ranked = []
+    for assign in product((1, 2, 3), repeat=n):
+        w = [0, 0, 0, 0]
+        sx, sy, sz, s2 = [0.0] * 4, [0.0] * 4, [0.0] * 4, [0.0] * 4
+        for i in range(n):
+            g, c = assign[i], counts[i]
+            w[g] += c
+            sx[g] += c * feats[i][0]
+            sy[g] += c * feats[i][1]
+            sz[g] += c * feats[i][2]
+            s2[g] += c * sq[i]
+        if min(w[1], w[2], w[3]) < 0.07 * total:                 # every nutrient needs a real share of the picture
             continue
-        rest = [i for i in range(n) if i not in protein and i != body]
-        for size in range(1, len(rest) + 1):
-            for fats in combinations(rest, size):          # fats = a subset of the remaining colours
-                sums = {1: 0, 2: 0, 3: 0}
-                for i in range(n):
-                    sums[2 if i in protein else 3 if i in fats else 1] += counts[i]
-                err = sum(abs(sums[k] / total - TARGET[k]) for k in (1, 2, 3))
-                score = err - 0.02 * sum(spread[i] for i in fats) / len(fats)
-                if score < best_score:
-                    best, best_score = (protein, set(fats)), score
-    if best is None:
+        spread = sum(s2[g] - (sx[g] ** 2 + sy[g] ** 2 + sz[g] ** 2) / w[g] for g in (1, 2, 3)) / total
+        err = max(abs(w[g] / total - TARGET[g]) for g in (1, 2, 3))
+        ranked.append((spread + 2500 * err ** 2, assign, spread, {g: w[g] / total for g in (1, 2, 3)}))
+    if not ranked:
         raise ValueError('palette too small to cover carbs, protein and fats')
-    protein, fats = best
-    nutrient_of = [2 if i in protein else 3 if i in fats else 1 for i in range(n)]
-    shares = {k: sum(c for c, v in zip(counts, nutrient_of) if v == k) / total for k in (1, 2, 3)}
-    return nutrient_of, shares
+    ranked.sort(key=lambda r: r[0])
+    best = None
+    for cost, assign, spread, shares in ranked[:25]:              # among the coherent cuts, prefer one that fills bottom-up
+        grid = [[0 if i is None else assign[i] for i in row] for row in index]
+        scatter = fill_scatter(grid)
+        total_cost = cost + SCATTER_WEIGHT * scatter
+        if best is None or total_cost < best[0]:
+            best = (total_cost, assign, spread, shares, scatter)
+    _, assign, spread, shares, scatter = best
+    return list(assign), shares, spread, scatter
 
 
-def split_colour(palette, index, which):
-    """Give the upper half of one colour's cells a *barely* lighter shade, so the nutrient shares can be tuned
-    in finer steps. The difference must stay almost invisible: a visible one turns a flat area (juice, a plate)
-    into horizontal bands that read as separate layers."""
-    rows = sorted(y for y in range(GRID) for x in range(GRID) if index[y][x] == which)
-    cut = rows[len(rows) // 2]
-    lighter = tuple(c + (255 - c) * 0.05 for c in palette[which])
-    palette.append(distinct_colour(palette, keep_visible(lighter)))
-    new = len(palette) - 1
+def unify_hues(palette, index, nutrient_of):
+    """Pull every group onto one hue: shades of the same family only differ in lightness (and a little in
+    saturation). The dark group (outline, deep shadow) takes the hue of the biggest coloured group, which makes it
+    a dark brown / dark green rather than a grey."""
+    counts = counts_of(palette, index)
+    labs = [rgb_to_lab(c) for c in palette]
+    groups = {g: [i for i in range(len(palette)) if nutrient_of[i] == g] for g in (1, 2, 3)}
+
+    def mean_hue(members):
+        x = sum(counts[i] * lch(labs[i])[1] * math.cos(lch(labs[i])[2]) for i in members if lch(labs[i])[1] >= 10)
+        y = sum(counts[i] * lch(labs[i])[1] * math.sin(lch(labs[i])[2]) for i in members if lch(labs[i])[1] >= 10)
+        return math.atan2(y, x) if (x or y) else None
+
+    mean_l = {g: sum(counts[i] * labs[i][0] for i in m) / max(1, sum(counts[i] for i in m)) for g, m in groups.items()}
+    dark = [g for g in groups if mean_l[g] < 40]
+    coloured = [g for g in groups if g not in dark]
+    body = max(coloured or groups, key=lambda g: sum(counts[i] for i in groups[g]))
+    out = list(palette)
+    for g, members in groups.items():
+        hue = mean_hue(groups[body] if g in dark else members)
+        for i in members:
+            L, C, h = lch(labs[i])
+            if g in dark:
+                if hue is None:
+                    continue
+                new = from_lch(L, min(max(C, 10), 24), hue)
+            elif hue is not None and C >= 8:
+                dh = math.atan2(math.sin(hue - h), math.cos(hue - h))
+                new = from_lch(L, C, h + 0.85 * dh)
+            else:
+                continue
+            out[i] = lab_to_rgb(new)
+    return out
+
+
+PROGRESS_CASES = [(.3, .3, .3), (.5, .5, .5), (.7, .7, .7), (.5, .3, .7), (.3, .7, .5), (.7, .5, .3), (.6, .4, .5)]
+
+
+def fill_scatter(nutrients):
+    """How far the way the app fills the picture is from a clean bottom-to-top fill. The app fills every nutrient
+    on its own, bottom row first, so the picture only fills evenly if each nutrient's cells are spread over the
+    same heights. For several progress mixes (carbs, protein, fats) this is the share of (filled, unfilled)
+    cell pairs where the filled cell sits ABOVE the unfilled one: 0 = perfectly bottom-up, 0.5 = random.
+    `nutrients` is a 24x24 grid of 0 (empty) or the nutrient 1/2/3."""
+    order = {1: [], 2: [], 3: []}
+    for y in range(GRID - 1, -1, -1):
+        for x in range(GRID):
+            if nutrients[y][x]:
+                order[nutrients[y][x]].append(y)
+    scores = []
+    for mix in PROGRESS_CASES:
+        filled, empty = [0] * GRID, [0] * GRID
+        for n, p in zip((1, 2, 3), mix):
+            take = round(len(order[n]) * p)
+            for j, y in enumerate(order[n]):
+                (filled if j < take else empty)[y] += 1
+        f_total, e_total = sum(filled), sum(empty)
+        if not f_total or not e_total:
+            continue
+        inversions = sum(filled[a] * empty[b] for a in range(GRID) for b in range(a + 1, GRID))   # a is above b
+        scores.append(inversions / (f_total * e_total))
+    return sum(scores) / len(scores)
+
+
+def despeckle(index):
+    """A cell with no neighbour of its own colour is noise from the resampling, not a detail: take the colour
+    most of its neighbours have."""
+    out = [row[:] for row in index]
     for y in range(GRID):
         for x in range(GRID):
-            if index[y][x] == which and y < cut:
-                index[y][x] = new
+            c = index[y][x]
+            if c is None:
+                continue
+            near = [index[y + dy][x + dx] for dx in (-1, 0, 1) for dy in (-1, 0, 1)
+                    if (dx or dy) and 0 <= x + dx < GRID and 0 <= y + dy < GRID]
+            if c not in near:
+                colours = [v for v in near if v is not None]
+                if len(colours) >= 5:
+                    out[y][x] = max(set(colours), key=colours.count)
+    return out
 
 
 def fit_to_rules(palette, index):
-    nutrient_of, shares = assign_nutrients(palette, index)
-    for _ in range(8):
-        if max(abs(shares[k] - TARGET[k]) for k in (1, 2, 3)) <= TOLERANCE:
-            break
-        counts = counts_of(palette, index)
-        candidates = [i for i in range(len(palette)) if counts[i] >= 10]
-        if not candidates or len(palette) >= 14:
-            break
-        split_colour(palette, index, max(candidates, key=lambda i: counts[i]))
-        nutrient_of, shares = assign_nutrients(palette, index)
-    return nutrient_of, shares
+    index = despeckle(index)
+    used = sorted({i for row in index for i in row if i is not None})
+    remap = {old: new for new, old in enumerate(used)}
+    index = [[None if i is None else remap[i] for i in row] for row in index]
+    palette = [palette[i] for i in used]
+    nutrient_of, shares, spread, scatter = fit_families(palette, index)
+    palette = unify_hues(palette, index, nutrient_of)
+    unique = []
+    for c in palette:
+        unique.append(distinct_colour(unique, c))
+    return unique, index, nutrient_of, shares, spread, scatter
 
 
 # ---- 4. checks ------------------------------------------------------------------------
@@ -473,32 +574,61 @@ def render(index, palette, nutrient_of, mode='art', fill=1.0, cell=10):
     return img
 
 
+def process(path):
+    """Cut one picture into a puzzle: try a few palette sizes, keep the cut with the most coherent colour
+    families and the pixel shares closest to the rules."""
+    src = Image.open(path).convert('RGB')
+    prepared = Source(src)
+    best = None
+    for k in (10, 9, 8, 7):
+        palette, index = cut_index(prepared, k)
+        palette, index, nutrient_of, shares, spread, scatter = fit_to_rules(palette, index)
+        error = max(abs(shares[x] - TARGET[x]) for x in (1, 2, 3))
+        score = spread + 2500 * error ** 2 + SCATTER_WEIGHT * scatter
+        if best is None or score < best['score']:
+            best = dict(score=score, palette=palette, index=index, nutrient_of=nutrient_of, shares=shares,
+                        spread=spread, scatter=scatter, blocks=prepared.block_info)
+    best['src'] = src
+    return best
+
+
 def main():
-    if len(sys.argv) != 2:
-        sys.exit('usage: pixelate.py <theme_id>')
-    theme_id = sys.argv[1]
+    args = [a for a in sys.argv[1:] if not a.startswith('--')]
+    if len(args) != 1:
+        sys.exit('usage: pixelate.py <theme_id> [--all]')
+    theme_id = args[0]
     theme = json.load(open(os.path.join(HERE, 'work', theme_id, 'theme.json')))
     out_dir = os.path.join(HERE, 'samples', theme_id)
-    os.makedirs(out_dir, exist_ok=True)
 
+    if '--all' in sys.argv:
+        # review every drawn candidate (candidate_N.png) so the best picture can be chosen by eye
+        pad, size = 8, 244
+        names = [meta for meta in theme['puzzles']]
+        cols = 4
+        sheet = Image.new('RGB', (cols * 2 * size + (cols * 2 + 1) * pad, len(names) * (size + pad) + pad), 'white')
+        for r, meta in enumerate(names):
+            for c in range(cols):
+                path = os.path.join(HERE, 'work', theme_id, meta['id'], f'candidate_{c + 1}.png')
+                if not os.path.exists(path):
+                    continue
+                got = process(path)
+                sheet.paste(got['src'].resize((size, size)), (pad + c * 2 * (size + pad), pad + r * (size + pad)))
+                sheet.paste(render(got['index'], got['palette'], got['nutrient_of'], 'art', 1.0).resize((size, size)),
+                            (pad + (c * 2 + 1) * (size + pad), pad + r * (size + pad)))
+                print(f"{meta['name']:16} candidate {c + 1}: shares " + '/'.join(f'{got["shares"][x]:.2f}' for x in (1, 2, 3))
+                      + f"  spread {got['spread']:.0f}  scatter {got['scatter']:.2f}")
+        sheet.save(os.path.join(HERE, 'work', theme_id, 'candidates_art.png'))
+        return
+
+    os.makedirs(out_dir, exist_ok=True)
     rows, report = [], []
     for meta in theme['puzzles']:
-        src = Image.open(os.path.join(HERE, 'work', theme_id, meta['id'], 'source.png')).convert('RGB')
-        prepared = Source(src)
-        best = None                           # try a few palette sizes, keep the one closest to the rules
-        for k in (10, 8, 12, 9, 7, 11):
-            palette, index = cut_index(prepared, k)
-            nutrient_of, shares = fit_to_rules(palette, index)
-            error = max(abs(shares[x] - TARGET[x]) for x in (1, 2, 3))
-            if best is None or error < best[0]:
-                best = (error, palette, index, nutrient_of, shares)
-            if error <= TOLERANCE:
-                break
-        _, palette, index, nutrient_of, shares = best
+        got = process(os.path.join(HERE, 'work', theme_id, meta['id'], 'source.png'))
+        palette, index, nutrient_of, shares = got['palette'], got['index'], got['nutrient_of'], got['shares']
         write_puzzle(out_dir, meta, palette, index, nutrient_of)
         fg = sum(counts_of(palette, index))
-        report.append((meta['name'], fg, len(palette), largest_component_share(index), shares, prepared.block_info))
-        rows.append((src.resize((240, 240)), render(index, palette, nutrient_of, 'art', 1.0),
+        report.append((meta['name'], fg, len(palette), largest_component_share(index), shares, got['blocks']))
+        rows.append((got['src'].resize((240, 240)), render(index, palette, nutrient_of, 'art', 1.0),
                      render(index, palette, nutrient_of, 'art', 0.5), render(index, palette, nutrient_of, 'map', 1.0)))
 
     theme_out = {k: theme[k] for k in ('id', 'title', 'description', 'type', 'count')}
@@ -515,12 +645,11 @@ def main():
 
     print(f"theme {theme['title']!r}: {len(report)} puzzles; target shares carbs/protein/fats = "
           + '/'.join(f'{TARGET[k]:.2f}' for k in (1, 2, 3)))
-    print(f"{'puzzle':16} {'cells':>5} {'colours':>7} {'connected':>9}   carbs/protein/fats   aligned to the picture's own pixels")
+    print(f"{'puzzle':16} {'cells':>5} {'colours':>7} {'connected':>9}   carbs/protein/fats")
     for name, fg, k, comp, shares, blocks in report:
-        ok = max(abs(shares[x] - TARGET[x]) for x in (1, 2, 3)) <= TOLERANCE + 0.02
+        ok = max(abs(shares[x] - TARGET[x]) for x in (1, 2, 3)) <= SHARE_LIMIT
         print(f"{name:16} {fg:5d} {k:7d} {comp:9.0%}   " + ' '.join(f'{shares[x]:.2f}' for x in (1, 2, 3))
-              + ('' if ok else '  <-- outside the rules')
-              + (f'   {blocks[0]}px blocks, {blocks[1]}x{blocks[2]}' if blocks else '   not blocky: resampled'))
+              + ('' if ok else '  <-- outside the rules'))
 
 
 if __name__ == '__main__':
