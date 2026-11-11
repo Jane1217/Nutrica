@@ -165,7 +165,7 @@ export default function EatModal({ onClose, foods = [], foodsLoading = false, on
             </div>
           </div>
           {/* group3: 横线和AI按钮 */}
-          <div className="eat-modal-group3" style={{marginBottom:0}}>
+          <div className="eat-modal-group3">
             <div className="eat-modal-divider"></div>
             <div className="eat-modal-group3-1" style={{display:'flex',gap:8}}>
             <button className="eat-modal-ai-btn" onClick={handleDescribe}>

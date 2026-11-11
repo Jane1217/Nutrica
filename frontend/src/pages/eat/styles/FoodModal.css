@@ -177,7 +177,8 @@
   font-size: 18px;
   color: rgba(0, 0, 0, 0.40);
   line-height: 1.5;
-  min-height: 200px;
+  /* shrinks on a short screen (on-screen keyboard open) so the Next button stays in view */
+  min-height: clamp(96px, calc(100dvh - 300px), 200px);
   padding: 0;
 }
 
@@ -216,6 +217,9 @@
   gap: 8px;
   align-self: stretch;
   background: var(--Brand-Background, #F3F3EC);
+  position: sticky;                /* when the sheet scrolls on a short screen the action buttons stay reachable */
+  bottom: 0;
+  z-index: 1;
 }
 
 .food-modal-static-value {

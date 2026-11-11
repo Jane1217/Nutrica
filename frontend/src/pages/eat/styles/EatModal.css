@@ -178,10 +178,16 @@
   flex-direction: column;
   gap: 16px;
   margin-top: 24px;
-  margin-bottom: 0;
   width: 100%;
   flex-shrink: 0;
-  position: relative;
+  /* On a short (landscape) screen the sheet scrolls: keep the Describe / Enter Value / Scan Label row pinned to the
+     bottom edge. The padding and negative margin keep the layout identical when everything fits. */
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  background: #F3F3EC;
+  padding-bottom: 16px;
+  margin-bottom: -16px;
 }
 .eat-modal-group3-1 {
   display: flex;

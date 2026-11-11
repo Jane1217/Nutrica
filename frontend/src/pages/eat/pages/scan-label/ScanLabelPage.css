@@ -30,7 +30,8 @@
   border: 4px solid #FFF;
   flex-shrink: 0;
   width: 100%;
-  height: 48vh;
+  /* on a short (landscape) screen the frame would run into the shutter button: leave room for the tip above it and the shutter below */
+  height: max(96px, min(48vh, calc(100dvh - 232px)));
   background: none;
   box-shadow: 0 0 0 9999px rgba(35, 38, 31, 0.60);
   z-index: 2;
