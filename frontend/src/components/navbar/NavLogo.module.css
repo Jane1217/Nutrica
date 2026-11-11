@@ -17,6 +17,7 @@
 }
 
 .menuButton {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -24,6 +25,13 @@
   border: none;
   background: none;
   cursor: pointer;
+}
+
+/* 24px icon buttons are too small to tap reliably on a phone: grow the touch area to 44px without changing the look */
+.menuButton::after {
+  content: '';
+  position: absolute;
+  inset: -10px;
 }
 
 .menu {

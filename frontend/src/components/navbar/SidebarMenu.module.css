@@ -58,6 +58,7 @@
 }
 
 .sidebarItem {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -70,6 +71,13 @@
   font: inherit;
   text-align: left;
   padding: 0;
+}
+
+/* 24px icon buttons are too small to tap reliably on a phone: grow the touch area to 44px without changing the look */
+.sidebarItem::after {
+  content: '';
+  position: absolute;
+  inset: -10px 0;
 }
 
 .sidebarItem:focus-visible,

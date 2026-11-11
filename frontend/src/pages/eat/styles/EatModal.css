@@ -185,7 +185,7 @@
 }
 .eat-modal-group3-1 {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   flex-direction: row;
   gap: 8px;
   width: 100%;
@@ -196,7 +196,7 @@
   display: inline-flex;
   padding: 24px 16px;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: flex-start;
   align-items: center;
   gap: 8px;
   border-radius: 16px;

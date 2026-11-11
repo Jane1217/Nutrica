@@ -119,6 +119,19 @@
     border-radius: 28px;
     overflow-y: auto;
   }
+
+  /* The generic mobile sheet is pinned with left:0 / right:0, which leaves a 32px strip on the right once this
+     modal is narrower than the screen, and sits flush on the bottom edge. Centre it and lift it like the Eat sheet. */
+  .modal-content-auth {
+    left: 50%;
+    right: auto;
+    bottom: 16px;
+    transform: translate(-50%, calc(100% + 16px));
+  }
+
+  .modal-content-auth.open {
+    transform: translate(-50%, 0);
+  }
 }
 
 /* Food-entry flows should size to their content.  They use the same overlay as

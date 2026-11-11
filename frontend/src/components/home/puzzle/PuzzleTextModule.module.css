@@ -1,6 +1,7 @@
 .puzzleTextModule {
   display: flex;
-  width: 320px;
+  width: 100%;
+  max-width: 320px;
   flex-direction: column;
   align-items: center;
   gap: 8px;
@@ -14,7 +15,7 @@
 
 .puzzleText {
   display: flex;
-  height: 88px;
+  min-height: 88px;               /* the line can wrap to a 4th row on a narrow phone */
   flex-direction: column;
   justify-content: center;
   align-self: stretch;
