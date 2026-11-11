@@ -1,0 +1,35 @@
+{
+  "id": "hatch_day",
+  "title": "Hatch Day",
+  "description": "Follow a chick\u2019s journey from egg to hen through 5 stages. Collect each puzzle to unlock the next. Watch your feathered friend grow with every bite.",
+  "type": "journey",
+  "count": 5,
+  "bg_color": "#F4A6A0",
+  "puzzles": [
+    {
+      "id": "ai_egg",
+      "name": "Egg",
+      "slot": 1
+    },
+    {
+      "id": "ai_hatching",
+      "name": "Hatching",
+      "slot": 2
+    },
+    {
+      "id": "ai_chick",
+      "name": "Chick",
+      "slot": 3
+    },
+    {
+      "id": "ai_young_hen",
+      "name": "Young Hen",
+      "slot": 4
+    },
+    {
+      "id": "ai_hen",
+      "name": "Hen",
+      "slot": 5
+    }
+  ]
+}

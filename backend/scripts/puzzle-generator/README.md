@@ -17,6 +17,18 @@ node scripts/puzzle-generator/export-sql.mjs scripts/puzzle-generator/samples/br
 
 Review `samples/<theme>/preview.png` (picture -> 24x24 -> half filled -> nutrient map) before publishing.
 
+## Theme types
+
+- **collection** (default): a set of different foods, collected in any order (Magic Garden, Breakfast Club).
+- **journey**: ONE character through ordered stages (egg, hatching, chick, young hen, hen). A stage can only be chosen
+  once every earlier stage is collected (enforced in the puzzle picker, `utils/puzzles/journey.js`). The picture prompt
+  carries a shared colour phrase (`palette_hint`) so every stage keeps the same colours, and each stage's completion
+  line teases what comes next.
+
+```bash
+node scripts/puzzle-generator/generate.js "Hatch Day" 5 --type=journey --idea="one chick growing from an egg into a hen"
+```
+
 ## The rules it follows
 
 - **A theme is the unit.** Title, description, size (default 6, like Magic Garden) and the puzzles are decided
@@ -50,7 +62,7 @@ Review `samples/<theme>/preview.png` (picture -> 24x24 -> half filled -> nutrien
    otherwise it falls back to a majority vote per cell (never an average, which makes muddy in-between shades,
    and a dark outline wins at a third of a cell). The palette is built in Lab colour space (k-means, several sizes).
    If the picture has an outline, every cell on the silhouette becomes the outline colour, so the outline is always
-   the outermost layer (a glass wall or plate rim can never sit outside it). Lone speckle cells are removed.
+   the outermost layer (a glass wall or plate rim can never sit outside it). Lone speckle cells are removed, and a dark-magenta fringe where the outline blended with the magenta background is turned back into the outline colour.
    The palette is then cut into three colour families (the cut with the least hue spread inside the groups, the
    shares closest to 50/20/30 and the most even fill), each family becomes a nutrient, and each family's shades are
    pulled onto one hue.

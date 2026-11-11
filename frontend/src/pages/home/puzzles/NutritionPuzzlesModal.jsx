@@ -68,6 +68,7 @@ export default function NutritionPuzzlesModal({ open, onClose, onReopen, onPuzzl
         onBack={handleBack}
         puzzleList={selectedCategory?.puzzles || []}
         categoryTitle={selectedCategory?.title || ''}
+        isJourney={selectedCategory?.type === 'journey'}
         onSelect={handlePuzzleSelect}
       />
     </>

@@ -9,6 +9,9 @@
  */
 export const GRID_SIZE = 24;
 
+// collection: any order. journey: one character through ordered stages, each unlocked by collecting the one before.
+export const THEME_TYPES = ['collection', 'journey'];
+
 const BACKGROUND = { color: '#F3F3EC', nutrient: 0 };
 const HEX_COLOUR = /^#[0-9A-Fa-f]{6}$/;
 
@@ -63,7 +66,7 @@ export function expandGeneratedPuzzle(row) {
 // complete is ignored as a whole (a half theme would break "3/6" style progress).
 export function expandGeneratedTheme(row) {
   if (!row || typeof row.id !== 'string' || typeof row.title !== 'string' || !Array.isArray(row.puzzles)) return null;
-  if (row.type !== 'collection') return null;
+  if (!THEME_TYPES.includes(row.type)) return null;
   if (!Number.isInteger(row.puzzle_count) || row.puzzles.length !== row.puzzle_count) return null;
 
   const expanded = [...row.puzzles]
@@ -81,7 +84,7 @@ export function expandGeneratedTheme(row) {
       title: row.title,
       desc: row.description,
       count: row.puzzle_count,
-      type: 'collection',
+      type: row.type,
       bgColor,
       puzzles: expanded.map((item) => item.puzzle),
       isGenerated: true,

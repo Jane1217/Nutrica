@@ -234,6 +234,43 @@ def enforce_outline(palette, index):
     return index
 
 
+def fix_magenta_fringe(palette, index):
+    """The pictures are drawn on a magenta background, so where a dark outline is anti-aliased against it a few
+    cells come out dark pink. A colour that is magenta-ish and sits (almost) only on the silhouette edge is that
+    fringe, not part of the food: give those cells the outline colour (the darkest one) instead."""
+    if not palette:
+        return index
+    dark = min(range(len(palette)), key=lambda i: luminance(palette[i]))
+    if luminance(palette[dark]) >= 110:
+        return index
+    edge = set()
+    for y in range(GRID):
+        for x in range(GRID):
+            if index[y][x] is None:
+                continue
+            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                nx, ny = x + dx, y + dy
+                if not (0 <= nx < GRID and 0 <= ny < GRID) or index[ny][nx] is None:
+                    edge.add((x, y))
+                    break
+    counts = counts_of(palette, index)
+    for i, rgb in enumerate(palette):
+        if i == dark or not counts[i]:
+            continue
+        L, C, h = lch(rgb_to_lab(rgb))
+        hue = math.degrees(h) % 360
+        on_edge = sum(1 for (x, y) in edge if index[y][x] == i)
+        if C > 25 and 290 <= hue <= 355 and on_edge / counts[i] >= 0.6:
+            for (x, y) in edge:
+                if index[y][x] == i:
+                    index[y][x] = dark
+            for y in range(GRID):
+                for x in range(GRID):
+                    if index[y][x] == i:        # the few interior cells of the same fringe colour
+                        index[y][x] = dark
+    return index
+
+
 def cut_index(src, k):
     """24x24 grid of palette indexes. Every cell takes the colour that covers most of it (no averaging,
     so no muddy in-between shades), except that a dark outline wins when it covers a third of the cell:
@@ -291,6 +328,7 @@ def cut_index(src, k):
                 index[gy][gx] = dark
             else:
                 index[gy][gx] = max(votes, key=votes.get)
+    index = fix_magenta_fringe(palette, index)
     index = enforce_outline(palette, index)
     # drop unused colours and renumber
     used = sorted({i for row in index for i in row if i is not None})

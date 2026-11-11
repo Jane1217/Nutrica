@@ -35,7 +35,7 @@ When to return an error: if there is no clearly readable nutrition label with sp
   "error": true
 }
 
-Name: use the product name if it is visible. If you cannot recognize a specific food name, use the main unit from the label's Serving size (such as 'package', 'bowl', 'cup', etc.) as the name and add a positive adjective before it (such as 'Delicious', 'Tasty', 'Fresh', 'Yummy', 'Nutritious'), e.g. 'Delicious Package' or 'Tasty Bowl'. Do NOT use 'unknown food', 'packaged food', 'food item', or similar generic terms.
+Name: use the product name if it is visible. If you cannot recognize a specific food name, use the main unit from the label's Serving size (such as 'package', 'bowl', 'cup', etc.) as the name and add a positive adjective before it (such as 'Delicious', 'Tasty', 'Fresh', 'Yummy', 'Nutritious'), e.g. 'Delicious Package' or 'Tasty Bowl'. If the serving size is only a weight or volume (such as '100 g', '30 g' or '250 ml') and names no unit, use 'Serving' as the unit (e.g. 'Tasty Serving'); never put the number or the unit of measure in the name. Do NOT use 'unknown food', 'packaged food', 'food item', or similar generic terms.
 
 Emoji: the single most relevant emoji for the food or product (never a digit or a letter).
 

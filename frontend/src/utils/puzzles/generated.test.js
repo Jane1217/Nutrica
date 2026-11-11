@@ -104,3 +104,13 @@ test('a theme is ignored as a whole when it is incomplete, malformed or of an un
 test('an invalid background colour falls back to the default', () => {
   assert.equal(expandGeneratedTheme(themeRow({ bg_color: 'red' })).category.bgColor, '#D8E8E7');
 });
+
+test('a journey theme keeps its type; unknown types are ignored', () => {
+  const theme = (type) => ({
+    id: 'hatch', title: 'Hatch Day', description: 'd', type, puzzle_count: 1, bg_color: '#F9B29A',
+    puzzles: [{ ...row(), slot: 1 }],
+  });
+  assert.equal(expandGeneratedTheme(theme('journey')).category.type, 'journey');
+  assert.equal(expandGeneratedTheme(theme('collection')).category.type, 'collection');
+  assert.equal(expandGeneratedTheme(theme('mystery')), null);
+});
