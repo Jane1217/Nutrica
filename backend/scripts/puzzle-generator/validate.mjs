@@ -9,15 +9,58 @@ import { getPuzzleProgress, getPuzzleNutrientColorsByOrder, getPuzzleProgressMes
 // Product rule (frontend/src/utils/nutrition/nutrition.js): calories are split 50% carbs, 30% fats, 20% protein,
 // and pixels are shared out the same way (nutrient 1 carbs, 2 protein, 3 fats).
 const TARGET = { 1: 0.5, 2: 0.2, 3: 0.3 };
-const SHARE_TOLERANCE = 0.06;
+// Each nutrient is one colour family (a few shades of one hue), so the shares cannot be tuned colour by colour:
+// the hand-drawn puzzles themselves range from 40% to 79% carbs. Generated ones must land within this of the split.
+const SHARE_TOLERANCE = 0.10;
+const MAX_HUE_SPREAD = 40;      // degrees: coloured shades inside one nutrient must be the same hue family
+const MAX_SCATTER = 0.2;       // hand-drawn puzzles score 0.03-0.17 (see fill scatter in pixelate.py)
 // No limit on the number of painted cells: a clear, detailed picture matters most. These only catch
 // pictures that came out tiny or empty.
 const MIN_CELLS = 100;
 const MIN_EXTENT = 18;   // the picture should span at least this many of the 24 rows or columns
 
-const luminance = (hex) => {
-  const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+const rgbOf = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+// hue in degrees, or null for greys and near-black/white colours (no meaningful hue)
+const hueOf = (hex) => {
+  const [r, g, b] = rgbOf(hex).map((v) => v / 255);
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const d = max - min;
+  if (max < 0.25 || d / max < 0.25) return null;
+  let h = max === r ? ((g - b) / d) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  h *= 60;
+  return h < 0 ? h + 360 : h;
+};
+const circularSpread = (hues) => {
+  const sorted = [...hues].sort((a, b) => a - b);
+  let widestGap = sorted[0] + 360 - sorted[sorted.length - 1];
+  for (let i = 1; i < sorted.length; i += 1) widestGap = Math.max(widestGap, sorted[i] - sorted[i - 1]);
+  return 360 - widestGap;
+};
+
+// How far the app's fill is from a clean bottom-to-top fill (same measure as fill_scatter in pixelate.py):
+// the app fills each nutrient on its own, bottom row first, so the picture only fills evenly if each nutrient's
+// cells are spread over the same heights.
+const MIXES = [[.3, .3, .3], [.5, .5, .5], [.7, .7, .7], [.5, .3, .7], [.3, .7, .5], [.7, .5, .3], [.6, .4, .5]];
+const fillScatter = (rows) => {
+  const order = { 1: [], 2: [], 3: [] };
+  for (let y = 23; y >= 0; y -= 1) for (let x = 0; x < 24; x += 1) if (rows[y][x].nutrient) order[rows[y][x].nutrient].push(y);
+  const scores = [];
+  for (const mix of MIXES) {
+    const filled = Array(24).fill(0);
+    const empty = Array(24).fill(0);
+    [1, 2, 3].forEach((n, k) => {
+      const take = Math.round(order[n].length * mix[k]);
+      order[n].forEach((y, j) => { (j < take ? filled : empty)[y] += 1; });
+    });
+    const f = filled.reduce((a, b) => a + b, 0);
+    const e = empty.reduce((a, b) => a + b, 0);
+    if (!f || !e) continue;
+    let inversions = 0;
+    for (let a = 0; a < 24; a += 1) for (let b = a + 1; b < 24; b += 1) inversions += filled[a] * empty[b];
+    scores.push(inversions / (f * e));
+  }
+  return scores.reduce((a, b) => a + b, 0) / scores.length;
 };
 
 const dir = path.resolve(process.cwd(), process.argv[2] || '');
@@ -78,9 +121,15 @@ for (const entry of theme.puzzles) {
     if (nutrientOfColour.has(p.color) && nutrientOfColour.get(p.color) !== p.nutrient) problems.push(`colour ${p.color} is used by two nutrients`);
     nutrientOfColour.set(p.color, p.nutrient);
   });
-  // protein = the darkest colours (outline / shadow), as in the hand-drawn puzzles
-  const darkest = [...nutrientOfColour.keys()].sort((a, b) => luminance(a) - luminance(b))[0];
-  if (nutrientOfColour.get(darkest) !== 2) problems.push('the darkest colour is not protein');
+  // each nutrient is one colour family, like the hand-drawn puzzles (carrot: orange reds / dark brown / greens)
+  for (const n of [1, 2, 3]) {
+    const hues = [...nutrientOfColour].filter(([, v]) => v === n).map(([hex]) => hueOf(hex)).filter((h) => h !== null);
+    if (hues.length > 1 && circularSpread(hues) > MAX_HUE_SPREAD) {
+      problems.push(`nutrient ${n} mixes hues (${Math.round(circularSpread(hues))} degrees apart): not one colour family`);
+    }
+  }
+  const scatter = fillScatter(rows);
+  if (scatter > MAX_SCATTER) problems.push(`fills unevenly (scatter ${scatter.toFixed(2)}, max ${MAX_SCATTER}): nutrients sit at different heights`);
 
   const eps = 1e-9;
   if (getPuzzleProgress(puzzle, { 1: 1, 2: 1, 3: 1 }) < 1 - eps) problems.push('full nutrition does not complete the puzzle');
@@ -89,7 +138,7 @@ for (const entry of theme.puzzles) {
   if (!order || order.length !== nutrientOfColour.size) problems.push('colorOrder does not list every colour exactly once');
   getPuzzleProgressMessage(puzzle, { 1: 0.6, 2: 0.6, 3: 0.6 }, 'Tester');
 
-  console.log(`${problems.length ? 'FAIL' : 'ok  '} ${entry.slot}. ${puzzle.name.padEnd(16)} ${String(painted.length).padStart(3)} cells  carbs/protein/fats ${[1, 2, 3].map((n) => (per[n] / painted.length).toFixed(2)).join('/')}  ${nutrientOfColour.size} colours`);
+  console.log(`${problems.length ? 'FAIL' : 'ok  '} ${entry.slot}. ${puzzle.name.padEnd(16)} ${String(painted.length).padStart(3)} cells  carbs/protein/fats ${[1, 2, 3].map((n) => (per[n] / painted.length).toFixed(2)).join('/')}  ${nutrientOfColour.size} colours  scatter ${scatter.toFixed(2)}`);
   problems.forEach((p) => console.log(`       - ${p}`));
   if (problems.length) failed += 1;
 }

@@ -7,6 +7,9 @@ app needs. A puzzle is a 24x24 grid where every cell has a colour and a nutrient
 ```bash
 # from backend/ (needs OPENAI_API_KEY in backend/.env and python3 with Pillow)
 node scripts/puzzle-generator/generate.js "Breakfast Club" 6          # theme + pictures + copy -> work/breakfast_club/
+node scripts/puzzle-generator/generate.js "Breakfast Club" 6 --redraw --candidates=4   # 4 drawings per puzzle (candidate_N.png)
+python3 scripts/puzzle-generator/pixelate.py breakfast_club --all     # review sheet of every candidate -> work/breakfast_club/candidates_art.png
+cp work/breakfast_club/<puzzle>/candidate_2.png work/breakfast_club/<puzzle>/source.png   # choose the clearest one by eye
 python3 scripts/puzzle-generator/pixelate.py breakfast_club           # -> samples/breakfast_club/ (puzzles, theme.json, preview.png)
 node scripts/puzzle-generator/validate.mjs scripts/puzzle-generator/samples/breakfast_club
 node scripts/puzzle-generator/export-sql.mjs scripts/puzzle-generator/samples/breakfast_club   # SQL that publishes the theme
@@ -21,30 +24,36 @@ Review `samples/<theme>/preview.png` (picture -> 24x24 -> half filled -> nutrien
   serves a theme that has all its puzzles.
 - **Pixel shares follow the product's calorie split** (`frontend/src/utils/nutrition/nutrition.js`): calories are
   split 50% carbs / 30% fats / 20% protein, and painted cells are shared out the same way: **carbs 50%, fats 30%,
-  protein 20%** (+-4 points; colours are discrete so it cannot be exact). Puzzle progress is then the share of the
-  day's calorie goal reached through each nutrient. A user who follows the split fills all three together.
+  protein 20%**, as close as the colour families allow (within 10 points; the hand-drawn puzzles range from 40% to
+  79% carbs). Puzzle progress is then the share of the day's calorie goal reached through each nutrient. A user who
+  follows the split fills all three together.
 - **No limit on the number of cells.** The object is drawn as large as the 24x24 canvas allows, because a clear,
   detailed picture matters most (the validator only catches pictures that came out tiny).
-- **Colour roles**: protein = the darkest colours (outline and shadow), fats = the accent colours, carbs = the body.
-  Every colour belongs to exactly one nutrient.
-- The app fills each nutrient from the bottom up, left to right (`PixelArtGrid.jsx`).
+- **One colour family per nutrient**, like the hand-drawn puzzles (carrot: orange reds / dark brown / greens): each
+  nutrient is a few shades of a single hue, and every colour belongs to exactly one nutrient. The dark outline is
+  one family and takes the body's hue (dark brown on a golden food, dark green on a green one).
+- **Even fill.** The app fills each nutrient on its own, from the bottom up, left to right (`PixelArtGrid.jsx`), so
+  a picture only fills evenly from bottom to top if every nutrient is spread over the same heights. `fill_scatter`
+  measures that (0 = perfect; the hand-drawn puzzles score 0.03-0.17) and the grouping avoids scattered fills.
 
 ## How it works
 
 1. `generate.js` asks a text model for the theme and its puzzle list, then for each puzzle an image on a flat
    **magenta** background (a green-screen colour no food uses, so near-white foods like rice are not mistaken
    for background) and its copy (completion line + 5 progress messages). The picture is requested as
-   *extremely low-resolution* pixel art (about 20 large pixels across, a one-pixel outline around the outside,
-   parts separated by their own pixel), so the model's own pixels are about the size of one puzzle cell.
-   `--redraw` keeps a reviewed theme and only draws the pictures again.
+   a chunky game-icon sprite that fills the canvas, in exactly three colour families (shaded body hue, dark outline,
+   one accent hue) and with no plate, halo or thin details, which is what makes it readable at 24x24.
+   `--redraw --candidates=N` keeps a reviewed theme and draws N pictures per puzzle to choose from.
 2. `pixelate.py` finds the object by flood-filling the background from the border and **detects the picture's own
    pixel blocks** (size and phase, from where its colours change). When the object spans at most 24 blocks every
    cell is exactly one block (sampled in its middle), so nothing is resampled and no boundary gets blended;
    otherwise it falls back to a majority vote per cell (never an average, which makes muddy in-between shades,
    and a dark outline wins at a third of a cell). The palette is built in Lab colour space (k-means, several sizes).
    If the picture has an outline, every cell on the silhouette becomes the outline colour, so the outline is always
-   the outermost layer (a glass wall or plate rim can never sit outside it). Colours are then assigned to
-   nutrients to match the shares (splitting a colour into two shades when finer steps are needed).
+   the outermost layer (a glass wall or plate rim can never sit outside it). Lone speckle cells are removed.
+   The palette is then cut into three colour families (the cut with the least hue spread inside the groups, the
+   shares closest to 50/20/30 and the most even fill), each family becomes a nutrient, and each family's shades are
+   pulled onto one hue.
 3. `validate.mjs` loads every puzzle through the app's own `progress.js` and checks all the rules above.
 4. `export-sql.mjs` prints the INSERTs for `puzzle_themes`, `generated_puzzles` and `collection_puzzles`
    (see `supabase/migrations/*_puzzle_themes.sql` for the tables).
@@ -53,6 +62,6 @@ Review `samples/<theme>/preview.png` (picture -> 24x24 -> half filled -> nutrien
 
 - Only `collection` themes. A recipe theme (ingredients that unlock a final character, like Salmon Nigiri Boy)
   needs a final artwork that is not a 24x24 grid.
-- Quality still needs a human look at the preview: some pictures come out with ragged outlines or scattered
-  accent cells; a production version should score each result and regenerate the bad ones.
+- Picking the clearest of the candidates is still done by eye; a production version needs an automatic quality
+  score (and to regenerate the bad ones).
 - On-demand generation for users would need rate limits and content moderation.

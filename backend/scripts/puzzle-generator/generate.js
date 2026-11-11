@@ -52,13 +52,20 @@ Return ONLY JSON:
   "puzzles": [ { "name": "Short Name (1-2 words, Title Case)", "food": "what to draw, e.g. a ripe banana" } ]
 }`;
 
+// The hand-drawn puzzles (carrot, tomato, salmon ...) share one look: a single chunky object that fills the
+// canvas, a dark outline, and exactly three colour families (one per nutrient): a main body hue shaded in
+// 3-5 steps, the dark outline, and one contrasting accent hue. The picture is asked for in that shape so the
+// pixelation only has to cut it, not repair it.
 const imagePrompt = (food, title) => (
-  `Extremely low-resolution pixel art sprite of ${food}, one item from a themed set called "${title}", as if drawn on a tiny `
-  + '24 by 24 pixel canvas: every visible pixel is a large, clear square (about 3% of the image width) and the object is about '
-  + '20 pixels wide and tall, centered. A single-pixel-thick dark outline runs all the way around the OUTSIDE of the object and '
-  + 'nothing is drawn outside it. Flat FRONT view, side-on, with no perspective: never draw an elliptical rim or the opening of a glass, bowl or cup, and show containers filled to the brim. Separate parts of the object (glass wall and liquid, fruit and bowl, plate and food) are separated '
-  + 'by their own pixel of outline or a clearly different colour. Flat colors, at most 8 colors, no anti-aliasing, no dithering, '
-  + 'no gradient, no shadow, no text. Plain, flat, solid magenta background (#FF00FF) like a green-screen, with no magenta on the object.'
+  `Polished retro game pixel art sprite of ${food}, one item of a themed set called "${title}", in the style of the food icons of a `
+  + 'cosy farming game. Drawn on a tiny 24 by 24 pixel canvas: every visible pixel is a large, clear square (about 3% of the image width) '
+  + 'and the sprite fills almost the whole canvas (21 to 22 pixels tall or wide), centered, with a compact chunky silhouette that is close to square. '
+  + 'Use exactly THREE colour families: (1) one main hue for the body of the food, shaded in 3 to 5 steps from light highlight to dark shade; '
+  + '(2) a single very dark brown outline, one pixel thick, running all the way around the OUTSIDE of the sprite with nothing outside it; '
+  + '(3) one contrasting accent hue with 1 or 2 shades for small details (berries, butter, a leaf, a slice). '
+  + 'Show only the food itself: no plate, tray, table, steam, sparkles, text or shadow, and no white or grey parts. '
+  + 'Flat side-on view for glasses and bowls (never an elliptical rim or opening) and fill containers to the brim. '
+  + 'Flat colours, no anti-aliasing, no dithering, no gradient. Plain, flat, solid magenta background (#FF00FF) like a green-screen, with no magenta on the sprite.'
 );
 
 const copyPrompt = (name, title) => `You write copy for Nutrica, a friendly nutrition-tracking game where each day the user fills a pixel-art "${name}" puzzle (theme: ${title}) by reaching their carbs, protein and fat goals.
