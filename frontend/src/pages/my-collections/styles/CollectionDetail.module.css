@@ -1,5 +1,7 @@
 .detailPage {
-  min-height: 100dvh;
+  /* A fixed layer needs a bottom edge to scroll inside: with only min-height it grew with its content past the
+     screen (landscape, a short phone, the keyboard open) and the card and the Save/Share buttons could not be reached. */
+  height: 100dvh;
   right: 0;
   display: flex;
   flex-direction: column;
